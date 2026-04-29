@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="/favicon.ico" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+
+    <meta
+      name="description"
+      content="CV. KORI BALI is a premier construction and structural engineering firm with international expertise in high-precision pole calculation and infrastructure reliability."
+    />
+
+    <title>CALCULATION SYSTEM</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Preload Local Japanese Font (Critical) -->
+    <link
+      rel="preload"
+      href="/fonts/ipaexm.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+
+    <!-- Preload Local Koribali Logo -->
+    <link rel="preload" as="image" href="/images/koribali-logo.webp" />
+
+    <!-- Preload Local Pole GL -->
+    <link rel="preload" as="image" href="/images/on-gl.svg" />
+    <link rel="preload" as="image" href="/images/upper-gl.svg" />
+    <link rel="preload" as="image" href="/images/under-gl.svg" />
+
+    <!-- Preload Local YS Logo -->
+    <link rel="preload" as="image" href="/images/ys-logo.png" />
+
+    <!-- Preload Local YP Logo -->
+    <link rel="preload" as="image" href="/images/yp-logo.jpg" />
+
+    <style>
+      body {
+        font-family:
+          "Inter",
+          system-ui,
+          -apple-system,
+          sans-serif;
+      }
+
+      @font-face {
+        font-family: "IPAex Mincho";
+        /* Gunakan path absolut dari public folder */
+        src:
+          url("/fonts/ipaexm.woff2") format("woff2"),
+          url("/fonts/ipaexm.ttf") format("truetype");
+        font-display: swap;
+      }
+
+      .jp {
+        font-family: "IPAex Mincho", serif;
+      }
+    </style>
+
+    <!-- Open Graph (share preview) -->
+    <meta
+      property="og:title"
+      content="KORI BALI | Structural Engineering & Construction"
+    />
+    <meta
+      property="og:description"
+      content="International-grade construction firm specializing in precision pole structural analysis, infrastructure reliability, and global engineering compliance."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/favicon.ico" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/app/main.jsx"></script>
+  </body>
+</html>
