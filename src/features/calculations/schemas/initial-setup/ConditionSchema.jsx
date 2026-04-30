@@ -15,5 +15,9 @@ export const ConditionSchema = yup.object({
     .required("Required field")
     .min(0, "Must be positive"),
 
-  poleType: yup.string().required("Required field"),
+  poleType: yup.string().when("$projectType", {
+    is: "lighting-pole",
+    then: (s) => s.required("Required field"),
+    otherwise: (s) => s.notRequired(),
+  }),
 });

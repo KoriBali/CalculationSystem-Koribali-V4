@@ -6,38 +6,63 @@ import {
   applyStandardDefaults,
   getDisabledComponents,
 } from "../logic/initial-setup/conditionLogic";
+import { useProjectStorage } from "../hooks/useProjectStorage";
 
-import useConditionStore from "../store/useConditionStore";
+// ─── CONSTANTS ───────────────────────────────────────────────────────────────
+
+const getDefaultCondition = (projectType) => ({
+  designStandard: "",
+  designWindSpeed: "",
+  designAirDensity: "",
+  poleType: projectType === "lighting-pole" ? "" : "custom",
+  openingEnabled: false,
+  baseplateEnabled: false,
+  foundationEnabled: false,
+});
+
+// ─── HOOK ────────────────────────────────────────────────────────────────────
 
 export function useConditionForm() {
   const { type: projectType } = useParams();
   const navigate = useNavigate();
 
-  const { condition, setCondition } = useConditionStore();
+  // Persisted condition — auto sync ke sessionStorage via useProjectStorage
+  const [condition, setCondition] = useProjectStorage(
+    projectType,
+    "condition",
+    getDefaultCondition(projectType),
+  );
 
+  // Local draft — tidak langsung persist, hanya commit saat proceed
   const [localCondition, setLocalCondition] = useState(condition);
+  const [prevCondition, setPrevCondition] = useState(condition);
   const [errors, setErrors] = useState({});
   const [toast, setToast] = useState(null);
   const [confirmDisable, setConfirmDisable] = useState(null);
-  const [prevCondition, setPrevCondition] = useState(condition);
 
+  // Update local draft + auto-fill defaults + clear related errors
   const handleUpdate = (updates) => {
-    let next = applyStandardDefaults(updates);
+    const next = applyStandardDefaults(updates);
 
-    setLocalCondition((prev) => ({
-      ...prev,
-      ...next,
-    }));
+    setLocalCondition((prev) => ({ ...prev, ...next }));
+
+    // Clear errors for fields that were just updated
+    setErrors((prev) => {
+      const cleared = { ...prev };
+      Object.keys(updates).forEach((key) => delete cleared[key]);
+      return cleared;
+    });
   };
 
+  // Validate then proceed — or show confirm modal if components were disabled
   const handleNext = async () => {
     setErrors({});
 
-    const validation = await validateCondition(localCondition);
+    const validation = await validateCondition(localCondition, projectType);
 
     if (!validation.isValid) {
       setErrors(validation.errors);
-      setToast(validation.message);
+      setToast({ message: validation.message });
       return;
     }
 
@@ -52,8 +77,9 @@ export function useConditionForm() {
     proceed();
   };
 
+  // Commit local draft to sessionStorage then navigate to next step
   const proceed = () => {
-    setCondition(localCondition); // 🔥 global state
+    setCondition(localCondition); // ← useProjectStorage auto-save ke sessionStorage
     navigate(`/calculation/${projectType}/pole`);
   };
 

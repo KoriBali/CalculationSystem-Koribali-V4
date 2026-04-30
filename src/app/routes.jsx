@@ -22,6 +22,7 @@ import FoundationPage from "../features/calculations/pages/steps/FoundationStep"
 
 // Guards
 import TypeGuard from "../features/calculations/guards/TypeGuard";
+import SessionGuard from "../features/calculations/guards/SessionGuard";
 
 export default function AppRoutes() {
   return (
@@ -39,11 +40,13 @@ export default function AppRoutes() {
               <Route index element={<Calculation />} />
 
               <Route path=":type" element={<TypeGuard />}>
-                <Route index element={<CalculationTypeSetup />} />
-                <Route path="pole" element={<PoleStructurePage />} />
-                <Route path="opening" element={<OpeningPage />} />
-                <Route path="baseplate" element={<BaseplatePage />} />
-                <Route path="foundation" element={<FoundationPage />} />
+                <Route element={<SessionGuard />}>
+                  <Route index element={<CalculationTypeSetup />} />
+                  <Route path="pole" element={<PoleStructurePage />} />
+                  <Route path="opening" element={<OpeningPage />} />
+                  <Route path="baseplate" element={<BaseplatePage />} />
+                  <Route path="foundation" element={<FoundationPage />} />
+                </Route>
               </Route>
             </Route>
 

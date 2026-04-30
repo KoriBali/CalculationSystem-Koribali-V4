@@ -1,18 +1,22 @@
 import { validateWithYup } from "../../utils/validation";
 import { ConditionSchema } from "../../schemas/initial-setup/ConditionSchema";
 
-// Validate all foundation inputs
-export async function validateCondition(condition) {
-  // Validate Condition Form
-  const { isValid, errors } = await validateWithYup(ConditionSchema, condition);
+// Validates condition form — passes projectType as yup context
+// so poleType validation only fires for lighting-pole
+export async function validateCondition(condition, projectType) {
+  const { isValid, errors } = await validateWithYup(
+    ConditionSchema,
+    condition,
+    { context: { projectType } }, // ← pass ke yup context
+  );
 
-  // Return
   if (!isValid) {
     return {
       isValid: false,
-      conditionErrors: errors,
+      errors,
       message: "Please correct the errors in Initial Input.",
     };
   }
+
   return { isValid: true };
 }
