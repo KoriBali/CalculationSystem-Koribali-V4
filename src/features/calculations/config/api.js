@@ -5,4 +5,5 @@ export const API_ENDPOINTS = {
   FOUNDATION: "/foundation",
   BASEPLATE: "/baseplate",
   CONDITION: "/condition",
+  POLE: "/pole",
 };

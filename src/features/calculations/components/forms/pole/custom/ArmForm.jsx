@@ -22,7 +22,7 @@ const ErrorStyle = ({ show, text }) =>
 /**
  * MAIN COMPONENT
  */
-export function ArmInput({ arm, onUpdate, armError }) {
+export function ArmForm({ arm, onUpdate, armError }) {
   return (
     <div>
       <div

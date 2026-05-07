@@ -1,0 +1,423 @@
+/* ===== Setting Page ===== */
+/* A4 */
+.page-a4 {
+  font-family: "Times New Roman", serif;
+  width: 210mm;
+  height: 297mm;
+  /* margin dalam halaman */
+  padding: 15mm 15mm 15mm 20mm;
+  box-sizing: border-box;
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  margin: 0 auto 1em;
+  font-size: 9.5pt;
+  position: relative;
+}
+
+.latin {
+  font-family: "Times New Roman", serif;
+}
+
+.page-a4 .katex {
+  font-size: inherit;
+  font-family: "Times New Roman", Times, serif;
+}
+
+/* header di dalam margin atas 15mm */
+.page-header {
+  text-align: right;
+  font-size: 9.5pt;
+}
+
+/* konten utama */
+.page-content {
+  line-height: 1.5;
+}
+
+.measure-block {
+  /* reset total */
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+}
+
+.page-content-border {
+  border: 3px solid rgba(0, 0, 0, 1);
+}
+
+/* ===== Cover margin guide border ===== */
+.page-cover .cover-border {
+  position: absolute;
+  top: 15mm;
+  right: 15mm;
+  bottom: 15mm;
+  left: 20mm;
+
+  margin: 0; /* override margin page-content */
+  border: 3px solid rgba(0, 0, 0, 1);
+  box-sizing: border-box;
+}
+
+/* ===== Cover Page ===== */
+.cover-row-1 {
+  font-size: 12pt;
+  display: inline-block;
+  padding-bottom: 2px; /* jarak kecil sebelum garis */
+  border-bottom: 0.5px solid #000; /* garis halus */
+  white-space: nowrap; /* supaya tidak pecah baris */
+  font-size: 12.5pt;
+  margin-top: 20px;
+  margin-bottom: 40px;
+}
+
+.cover-row-2 {
+  font-size: 16pt;
+  display: inline-block;
+  padding-left: 255px;
+  padding-bottom: 1px; /* jarak kecil sebelum garis */
+  border-bottom: 0.5px solid #000; /* garis halus */
+  white-space: nowrap; /* supaya tidak pecah baris */
+  letter-spacing: 0.1em;
+  margin-bottom: 215px;
+}
+
+.cover-row-2-yp {
+  font-size: 16pt;
+  display: inline-block;
+  padding-left: 255px;
+  padding-bottom: 1px; /* jarak kecil sebelum garis */
+  border-bottom: 0.5px solid #000; /* garis halus */
+  white-space: nowrap; /* supaya tidak pecah baris */
+  letter-spacing: 0.1em;
+  margin-bottom: 205px;
+}
+
+.cover-row-2-sb {
+  font-size: 16pt;
+  display: inline-block;
+  padding-left: 255px;
+  padding-bottom: 1px; /* jarak kecil sebelum garis */
+  border-bottom: 0.5px solid #000; /* garis halus */
+  white-space: nowrap; /* supaya tidak pecah baris */
+  letter-spacing: 0.1em;
+  margin-bottom: 200px;
+}
+
+.cover-title {
+  font-size: 18pt;
+  white-space: nowrap; /* supaya tidak pecah baris */
+  letter-spacing: 0.2em;
+}
+
+.cover-inner-text {
+  font-size: 12pt;
+  white-space: nowrap; /* supaya tidak pecah baris */
+  letter-spacing: 0.05em;
+  color: blue;
+}
+
+.cover-inner-text-line {
+  border-bottom: 0.5px solid #000; /* garis halus */
+}
+
+.cover-double-line {
+  border-top: 4.5px double #000;
+  border-bottom: 4.5px double #000;
+  padding: 0;
+  margin-top: 18px;
+  margin-bottom: 245px;
+  margin-left: 63px;
+  margin-right: 63px;
+}
+
+.cover-double-line-yp {
+  border-top: 4.5px double #000;
+  border-bottom: 4.5px double #000;
+  padding: 0;
+  margin-top: 18px;
+  margin-bottom: 0px;
+  margin-left: 63px;
+  margin-right: 63px;
+}
+
+.cover-double-line-mpl {
+  border-top: 4.5px double #000;
+  border-bottom: 4.5px double #000;
+  padding: 0;
+  margin-top: 18px;
+  margin-bottom: 230px;
+  margin-left: 63px;
+  margin-right: 63px;
+}
+
+.cover-double-line-sb {
+  border-top: 4.5px double #000;
+  border-bottom: 4.5px double #000;
+  padding: 0;
+  margin-top: 18px;
+  margin-bottom: 250px;
+  margin-left: 63px;
+  margin-right: 63px;
+}
+
+.cover-row-3 {
+  font-size: 12pt;
+  color: blue;
+}
+
+/* ===== Page 1 ===== */
+.page1-content {
+  font-size: 9.5pt;
+  line-height: 1.6;
+}
+
+.page1-content-sb {
+  font-size: 9.5pt;
+  line-height: 1.35;
+}
+
+.page1-title {
+  display: flex;
+}
+
+.page1-item {
+  display: flex;
+  justify-content: start;
+  margin-left: 22px;
+  margin-bottom: 20px;
+}
+
+.page1-item-sb {
+  display: flex;
+  justify-content: start;
+  margin-left: 22px;
+  margin-bottom: 15px;
+}
+
+.page1-number {
+  width: 22px;
+}
+
+.page1-text {
+  display: inline-block;
+  white-space: pre-line;
+}
+
+/* ===== Tables ===== */
+/* Styling for table page*/
+.tables-pages {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* Styling for th td table page */
+.tables-pages th,
+.tables-pages td {
+  font-weight: normal;
+  border: 0.75px solid #000;
+}
+
+.tables-pages th {
+  padding: 0 3px;
+}
+
+.tables-pages td {
+  padding: 0 6px;
+}
+
+.tables-pages tfoot td:nth-child(3),
+.tables-pages tfoot td:nth-child(5) {
+  padding: 0 3px;
+}
+
+.tables-pages th {
+  text-align: center;
+}
+
+.tables-pages td {
+  text-align: right;
+}
+
+/* == Styling border table == */
+/* Styling for second head column */
+.tables-pages thead tr:nth-child(1) th {
+  border-bottom: none;
+}
+
+.tables-pages.multiple thead tr:nth-child(1) th:nth-child(10) {
+  border-bottom: 1.5px solid #000;
+}
+
+.tables-pages thead tr:nth-child(2) th {
+  border-top: none;
+}
+
+.tables-pages .col-gap {
+  width: 3px !important;
+  border-right: 1.5px solid #000;
+  border-left: 1.5px solid #000;
+  padding: 0 !important;
+}
+
+.tables-pages thead .col-gap {
+  border-top: 1.5px solid #000;
+  border-bottom: none;
+}
+
+.tables-pages tbody .col-gap {
+  border-top: none;
+  border-bottom: none;
+}
+
+.tables-pages tfoot .col-gap {
+  border-top: none;
+  border-bottom: 1.5px solid #000;
+}
+
+/* Styling for second column tbody border left and right */
+.tables-pages .col-1 {
+  text-align: left;
+  padding: 0 2px;
+  border-left: 1.5px solid #000;
+  border-right: 1.5px solid #000;
+}
+
+/* Styling for table border right */
+.tables-pages {
+  border-right: 1.5px solid #000;
+}
+
+/* Styling for first column number */
+.tables-pages .col-num {
+  border: none;
+  text-align: center;
+}
+
+/* Styling for second column thead and tfoot border */
+.tables-pages thead tr:first-child th:nth-child(2),
+.tables-pages .col-1-tf {
+  border: 1.5px solid #000;
+}
+
+/* Styling for thead and tfoot border top */
+.tables-pages .col-left,
+.tables-pages .col-right {
+  border-top: 1.5px solid #000;
+  border-bottom: 1.5px solid #000;
+}
+
+/* ====== Measurement container (screen only) ====== */
+.measure-container {
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
+  width: 210mm !important;
+  height: 297mm !important;
+  padding: 15mm 15mm 15mm 20mm !important;
+  box-sizing: border-box !important;
+  visibility: hidden;
+  pointer-events: none;
+
+  /* LOCK TYPOGRAPHY: Ini kunci agar tinggi baris tidak berubah */
+  font-size: 9.5pt !important;
+  text-rendering: optimizeLegibility !important;
+  -webkit-font-smoothing: antialiased !important;
+}
+
+.measure-container-sb {
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
+  width: 210mm !important;
+  height: 297mm !important;
+  padding: 15mm 15mm 15mm 20mm !important;
+  box-sizing: border-box !important;
+  visibility: hidden;
+  pointer-events: none;
+
+  /* LOCK TYPOGRAPHY: Ini kunci agar tinggi baris tidak berubah */
+  line-height: 1.35 !important;
+  font-size: 9.5pt !important;
+  text-rendering: optimizeLegibility !important;
+  -webkit-font-smoothing: antialiased !important;
+
+  /* Tambahkan ini untuk memaksa browser menghitung sub-pixel secara presisi */
+  transform: translateZ(0);
+
+  /* Pastikan font family identik, karena fallback font beda tinggi baris */
+  font-family: "Times New Roman", serif !important;
+
+  /* Kunci lebar tabel agar tidak ada border yang meluber */
+  border-collapse: collapse !important;
+}
+
+/* Menghilangkan padding atas pada blok apa pun yang jadi elemen pertama di halaman */
+.page1-content > section:first-child {
+  padding-top: 0 !important;
+}
+
+/* Pastikan tidak ada margin-top yang mengganggu kalkulasi */
+.page1-content > section {
+  margin-top: 0 !important;
+}
+
+/* Menghilangkan padding atas pada blok apa pun yang jadi elemen pertama di halaman */
+.page1-content-sb > section:first-child {
+  padding-top: 0 !important;
+}
+
+/* Pastikan tidak ada margin-top yang mengganggu kalkulasi */
+.page1-content-sb > section {
+  margin-top: 0 !important;
+}
+
+@media screen and (max-width: 500px) {
+  .page-preview {
+    transform: scale(0.446);
+    transform-origin: top;
+    height: calc(297mm * 0.446);
+    margin-bottom: 12px; /* jarak antar halaman */
+  }
+
+  .page-a4 {
+    transform: none;
+    margin: 0;
+  }
+}
+
+/* Print mode */
+@media print {
+  .page-a4 {
+    font-family: "Times New Roman", serif;
+    width: 210mm;
+    height: 297mm;
+    box-sizing: border-box;
+    background: white;
+    border: none; /* hilangkan border saat print */
+    margin: 0 auto;
+    position: relative;
+    font-size: 9.5pt; /* bisa disamakan dengan layar */
+    page-break-inside: avoid;
+  }
+
+  .page-a4:last-child {
+    page-break-after: auto;
+  }
+
+  .cover-row-3,
+  .cover-inner-text {
+    color: black;
+  }
+
+  .measure-container {
+    display: none !important;
+  }
+
+  .measure-container-sb {
+    display: none !important;
+  }
+
+  /* .page-content-border {
+    border: none;
+  } */
+}

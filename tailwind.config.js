@@ -1,7 +1,14 @@
 export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+
   theme: {
-    extend: {},
+    extend: {
+      screens: {
+        hp: { max: "500px" },
+        2040: "2040px",
+      },
+    },
   },
+
   plugins: [],
 };

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useProjectStorage } from "../../hooks/useProjectStorage";
-import * as Utils from "../../utils/pole-analyzer";
-import { validateWithYup } from "../../utils/validateWithYup";
+import * as Utils from "../utils";
 import { CoverSchema } from "../../schemas/CoverSchema";
 
 // Custom hook to manage cover form state, validation, and UI behavior
@@ -29,7 +28,7 @@ export function useCoverForm(projectType) {
 
   // Validate cover form using Yup schema as a single source of truth
   const validateCover = async () => {
-    const result = await validateWithYup(CoverSchema, cover);
+    const result = await Utils.validateWithYup(CoverSchema, cover);
 
     // Update error state based on validation result
     setCoverErrors(result.errors || {});

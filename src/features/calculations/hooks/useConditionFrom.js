@@ -5,6 +5,8 @@ import { validateCondition } from "../logic/initial-setup/conditionValidation";
 import {
   applyStandardDefaults,
   getDisabledComponents,
+  saveCalculationConfig,
+  cleanupDisabledComponents,
 } from "../logic/initial-setup/conditionLogic";
 import { useProjectStorage } from "../hooks/useProjectStorage";
 
@@ -79,7 +81,16 @@ export function useConditionForm() {
 
   // Commit local draft to sessionStorage then navigate to next step
   const proceed = () => {
-    setCondition(localCondition); // ← useProjectStorage auto-save ke sessionStorage
+    // 1. Save config — determines which steps are visible in header nav
+    saveCalculationConfig(projectType, localCondition);
+
+    // 2. Cleanup sessionStorage for disabled components
+    cleanupDisabledComponents(projectType, localCondition);
+
+    // 3. Commit condition to sessionStorage
+    setCondition(localCondition);
+
+    // 4. Navigate to pole step
     navigate(`/calculation/${projectType}/pole`);
   };
 

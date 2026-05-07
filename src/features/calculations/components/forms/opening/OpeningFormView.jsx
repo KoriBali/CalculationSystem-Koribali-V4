@@ -2,7 +2,7 @@ import { Helmet } from "react-helmet";
 import { useParams } from "react-router-dom";
 import { ChevronDown, ChevronUp, Box } from "lucide-react";
 
-import { CalculationHeader } from "../../components/pole-analyzer/PoleAnalyzerHeader";
+import { HeaderCalculationPage } from "../../layout/HeaderCalculationPage";
 import { OpeningType } from "./OpeningType";
 import { BoxTypeForm } from "./BoxTypeForm";
 import { RTypeForm } from "./RTypeForm";

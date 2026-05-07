@@ -1,0 +1,63 @@
+import React, { useRef, useMemo, useState, useLayoutEffect } from "react";
+import { createBlocks } from "./MultipleBlock";
+import { paginateA4LightingPole } from "../../../hooks/useReportPagination";
+import MultipleReportContent from "./MultipleReportContent";
+import "../../../styles/report.css";
+
+export default function MultipleReport({
+  cover,
+  condition,
+  structuralDesign,
+  results,
+  resultsDo,
+  resultsOhw,
+}) {
+  // 1. blocks memo
+  const blocks = useMemo(
+    () => createBlocks(results, resultsDo, structuralDesign),
+    [results, resultsDo, structuralDesign],
+  );
+
+  // 2. ref untuk measurement
+  const measureRef = useRef(null);
+
+  // 3. pages = null dulu (belum render final)
+  const [pages, setPages] = useState(null);
+
+  // 4. HITUNG PAGINATION SEKALI, SEBELUM PAINT
+  useLayoutEffect(() => {
+    if (!measureRef.current) return;
+
+    // Tunggu font siap agar pengukuran offsetHeight akurat
+    document.fonts.ready.then(() => {
+      const paginatedPages = paginateA4LightingPole({
+        blocks,
+        measureRef,
+      });
+      setPages(paginatedPages);
+    });
+  }, [blocks]);
+
+  // 5. FASE 1 — measurement ONLY (user TIDAK LIHAT)
+  if (!pages) {
+    return (
+      <div ref={measureRef} className="measure-container">
+        {blocks.map((b) => (
+          <div key={b.id} data-id={b.id} className="measure-block">
+            {b.node}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  // 6. FASE 2 — FINAL RENDER (HANYA SEKALI)
+  return (
+    <MultipleReportContent
+      cover={cover}
+      condition={condition}
+      results={results}
+      pages={pages}
+    />
+  );
+}
