@@ -1,9 +1,9 @@
-// hooks/useArm.js
 import { useState, useEffect, useRef } from "react";
 import { useProjectStorage } from "./useProjectStorage";
-import * as Utils from "../../utils/pole-analyzer";
+import * as Utils from "../utils/pole-analyzer";
 
-export function useArm(projectType) {
+// Manages arm + arm object state — add, remove, update, copy/paste, tab navigation
+export function useArmForm(projectType) {
   const [arms, setArms] = useProjectStorage(projectType, "arms", []);
   const [armsErrors, setArmsErrors] = useState({});
   const [aoErrors, setAoErrors] = useState({});
@@ -15,13 +15,13 @@ export function useArm(projectType) {
   const [confirmDeleteAo, setConfirmDeleteAo] = useState(null);
   const [confirmReduceAo, setConfirmReduceAo] = useState(null);
 
-  // Persists max Arm ID
+  // Persists max Arm ID to prevent conflicts after reload
   const armIdRef = useRef(1);
   useEffect(() => {
     const saved = sessionStorage.getItem(`${projectType}_arms`);
     if (!saved) return;
     const parsed = JSON.parse(saved);
-    const maxId = Math.max(0, ...parsed.map((s) => Number(s.idArm)));
+    const maxId = Math.max(0, ...parsed.map((a) => Number(a.idArm)));
     armIdRef.current = maxId + 1;
   }, [projectType]);
 
@@ -32,7 +32,7 @@ export function useArm(projectType) {
     if (!saved) return;
     const parsed = JSON.parse(saved);
     const allAoIds = parsed.flatMap(
-      (arm) => arm.armObjects?.map((o) => Number(o.idAo)) || [],
+      (a) => a.armObjects?.map((o) => Number(o.idAo)) || [],
     );
     const maxId = Math.max(0, ...allAoIds);
     aoIdRef.current = maxId + 1;
@@ -56,8 +56,8 @@ export function useArm(projectType) {
   // Updates arm objects for the currently active arm only
   const updateActiveArmObjects = (newObjects) => {
     setArms((prev) =>
-      prev.map((arm) =>
-        arm.idArm === activeTabArm ? { ...arm, armObjects: newObjects } : arm,
+      prev.map((a) =>
+        a.idArm === activeTabArm ? { ...a, armObjects: newObjects } : a,
       ),
     );
   };
@@ -76,7 +76,14 @@ export function useArm(projectType) {
   };
 
   const resetArm = () => Utils.resetCurrentArm(setArms, arms, activeTabArm);
-  const isArmComplete = (arm) => Utils.isArmComplete(arm);
+
+  const goToNextArm = () => {
+    if (!isNextDisabledArm) setActiveTabArm(arms[currentIndex + 1].idArm);
+  };
+
+  const goToPrevArm = () => {
+    if (!isBackDisabledArm) setActiveTabArm(arms[currentIndex - 1].idArm);
+  };
 
   // ── Arm Object handlers ──
 
@@ -105,7 +112,6 @@ export function useArm(projectType) {
 
   const resetAo = (idAo) =>
     Utils.resetCurrentAo(idAo, armObjects, updateActiveArmObjects);
-  const isAoComplete = (ao) => Utils.isAoComplete(ao);
 
   const confirmReduceArmObjects = () => {
     updateActiveArmObjects(armObjects.slice(0, confirmReduceAo.to));
@@ -132,8 +138,6 @@ export function useArm(projectType) {
     confirmDeleteArm,
     confirmDeleteAo,
     confirmReduceAo,
-
-    // Navigation flags
     isNextDisabledArm,
     isBackDisabledArm,
 
@@ -152,7 +156,8 @@ export function useArm(projectType) {
     removeArm,
     updateArm,
     resetArm,
-    isArmComplete,
+    goToNextArm,
+    goToPrevArm,
 
     // Arm Object handlers
     addAoByInput,
@@ -162,7 +167,6 @@ export function useArm(projectType) {
     removeAo,
     updateAo,
     resetAo,
-    isAoComplete,
     confirmReduceArmObjects,
     cancelReduceArmObjects,
   };

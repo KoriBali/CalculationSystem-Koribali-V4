@@ -3,12 +3,11 @@ import { Routes, Route, Navigate } from "react-router-dom";
 
 // Import Shared/Layout
 import Layout from "../shared/components/layout/Layout";
-import ProtectedRoute from "../shared/auth/ProtectedRoute";
-import ScrollToTop from "../shared/components/ScrollToTop"; // Typo 'Scrool' diperbaiki
+import ProtectedRoute from "../routes/ProtectedRoute";
+import ScrollToTop from "../shared/components/ScrollToTop";
 
 // Import Pages (Sesuaikan path folder barumu)
 import Login from "../pages/LoginPage";
-import Entry from "../pages/EntryPage";
 import Calculation from "../features/calculations/pages/Calculation";
 import CalculationTypeSetup from "../features/calculations/pages/CalculationType";
 import Report from "../features/report/pages/ReportPage";
@@ -29,16 +28,17 @@ export default function AppRoutes() {
     <>
       <ScrollToTop />
       <Routes>
-        {/* PUBLIC ROUTES */}
-        <Route path="/entry" element={<Entry />} />
+        {/* PUBLIC */}
         <Route path="/login" element={<Login />} />
 
-        {/* PROTECTED ROUTES */}
+        {/* PROTECTED AREA */}
         <Route element={<ProtectedRoute />}>
           <Route element={<Layout />}>
+            {/* Base Calculation Path */}
             <Route path="calculation">
               <Route index element={<Calculation />} />
 
+              {/* Dynamic Path with Multi-Guards */}
               <Route path=":type" element={<TypeGuard />}>
                 <Route element={<SessionGuard />}>
                   <Route index element={<CalculationTypeSetup />} />
@@ -51,12 +51,12 @@ export default function AppRoutes() {
             </Route>
 
             <Route path="report" element={<Report />} />
-            <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Route>
 
-        {/* ROOT */}
-        <Route path="/" element={<Navigate to="/entry" />} />
+        {/* Global Redirects */}
+        <Route path="/" element={<Navigate to="/calculation" replace />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </>
   );

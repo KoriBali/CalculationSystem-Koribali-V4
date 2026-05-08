@@ -23,10 +23,10 @@ export async function validatePoleType(poleTypeStandard) {
   return { isValid: true };
 }
 
-// ─── STRAIGHT (STEPPED) POLE ─────────────────────────────────────────────────
+// ─── STRAIGHT (STEPPED) POLE ──────────────────────────────────────────────────
 
 // Validates straight (stepped) pole standard fields
-// baseplateEnabled in condition affects which fields are required
+// condition affects which fields are required (e.g. baseplateEnabled)
 export async function validateStraightPole(straightPoleStandard, condition) {
   const { isValid, errors } = await validateWithYup(
     StraightTypeSchema,
@@ -46,9 +46,9 @@ export async function validateStraightPole(straightPoleStandard, condition) {
   return { isValid: true };
 }
 
-// ─── TAPER POLE ──────────────────────────────────────────────────────────────
+// ─── TAPER POLE ───────────────────────────────────────────────────────────────
 
-// Validates taper pole standard fields (poleStandard, groundPosition, height)
+// Validates taper pole standard fields (poleType, groundPosition, height)
 export async function validateTaperPole(taperPoleStandard) {
   const { isValid, errors } = await validateWithYup(
     TaperTypeSchema,

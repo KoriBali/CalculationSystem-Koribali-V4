@@ -27,9 +27,9 @@ export async function validatePoleConfig(poleConfig) {
   return { isValid: true };
 }
 
-// ─── POLES ───────────────────────────────────────────────────────────────────
+// ─── POLES ────────────────────────────────────────────────────────────────────
 
-// Validates a single pole
+// Validates a single pole's form fields
 export async function validatePole(pole) {
   const { isValid, errors } = await validateWithYup(PoleFormSchema, pole);
 
@@ -70,7 +70,8 @@ export async function validatePoleStructural(poles, poleConfig) {
   return { isValid: true };
 }
 
-// ─── DIRECT OBJECTS ──────────────────────────────────────────────────────────
+// ─── DIRECT OBJECTS ───────────────────────────────────────────────────────────
+
 // Validates a single direct object
 export async function validateDirectObject(directObject) {
   const { isValid, errors } = await validateWithYup(
@@ -98,7 +99,8 @@ export async function validateAllDirectObjects(directObjects) {
   return { isValid: true };
 }
 
-// ─── OVERHEAD WIRES ──────────────────────────────────────────────────────────
+// ─── OVERHEAD WIRES ───────────────────────────────────────────────────────────
+
 // Validates a single overhead wire
 export async function validateOverheadWire(overheadWire) {
   const { isValid, errors } = await validateWithYup(
@@ -126,7 +128,8 @@ export async function validateAllOverheadWires(overheadWires) {
   return { isValid: true };
 }
 
-// ─── ARMS ────────────────────────────────────────────────────────────────────
+// ─── ARMS ─────────────────────────────────────────────────────────────────────
+
 // Validates a single arm
 export async function validateArm(arm) {
   const { isValid, errors } = await validateWithYup(ArmSchema, arm);
@@ -151,7 +154,8 @@ export async function validateAllArms(arms) {
   return { isValid: true };
 }
 
-// ─── ARM OBJECTS ─────────────────────────────────────────────────────────────
+// ─── ARM OBJECTS ──────────────────────────────────────────────────────────────
+
 // Validates a single arm object
 export async function validateArmObject(armObject) {
   const { isValid, errors } = await validateWithYup(ArmObjectSchema, armObject);

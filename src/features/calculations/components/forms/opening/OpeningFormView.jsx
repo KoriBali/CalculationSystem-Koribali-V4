@@ -2,80 +2,36 @@ import { Helmet } from "react-helmet";
 import { useParams } from "react-router-dom";
 import { ChevronDown, ChevronUp, Box } from "lucide-react";
 
-import { HeaderCalculationPage } from "../../layout/HeaderCalculationPage";
-import { OpeningType } from "./OpeningType";
-import { BoxTypeForm } from "./BoxTypeForm";
-import { RTypeForm } from "./RTypeForm";
-import { OpeningResultTable } from "../../tables/opening-result/OpeningResultTable";
+import { HeaderCalculationPage } from "../../components/layout/HeaderCalculationPage";
+import { OpeningType } from "../../components/forms/opening/OpeningType";
+import { BoxTypeForm } from "../../components/forms/opening/BoxTypeForm";
+import { RTypeForm } from "../../components/forms/opening/RTypeForm";
+import { OpeningResultTable } from "../../components/tables/opening-result/OpeningResultTable";
+import { ToastModal } from "../../modals/ToastModal";
+import { CoverFormModal } from "../../modals/CoverFormModal";
 
-import * as Modal from "../../components/pole-analyzer/PoleAnalyzerModal";
+import { useOpeningForm } from "../../hooks/useOpeningForm";
+import { useCoverForm } from "../../hooks/useCoverForm";
+import { useReport } from "../../hooks/useReport";
 
-import { useOpeningForm } from "../../../hooks/useOpeningForm";
-import { useCoverForm } from "../../../hooks/useCoverForm";
-import { useReport } from "../../../../report/hooks/useReport";
-
-// Main view component for opening calculation form
+// Main view for the opening calculation step
 export default function OpeningFormView() {
   const { type: projectType } = useParams();
 
-  // ================= OPENING FORM HOOK =================
-  const {
-    // State
-    openingType,
-    boxType,
-    rType,
-    openingTypeErrors,
-    boxTypeErrors,
-    rTypeErrors,
-    isOpeningExpanded,
-    isSelectExpanded,
-    isCalculated,
-    showResultsOp,
-    calculatedOp,
-    buttonLabel,
-    toast,
-    typeLabelMap,
-    loading,
+  // ── Hooks ──
+  const opening = useOpeningForm();
+  const cover = useCoverForm(projectType);
+  const report = useReport(projectType);
 
-    // Actions
-    setIsOpeningExpanded,
-    setIsSelectExpanded,
-    handleOpeningTypeUpdate,
-    handleBoxTypeUpdate,
-    handleRTypeUpdate,
-    handleCalculate,
-    handleFinish,
-    setToast,
-    showToast,
-  } = useOpeningForm();
-
-  // ================= COVER HOOK =================
-  const {
-    cover,
-    coverErrors,
-    showCoverPopup,
-    handleCoverUpdate,
-    handleOpenCoverPopup,
-    handleCloseCoverPopup,
-    isCoverComplete,
-    setCoverErrors,
-  } = useCoverForm(projectType);
-
-  // ================= REPORT HOOK =================
-  const { handleMakeReport } = useReport(projectType);
-
-  // Handle navigation to next step or open cover modal
+  // Opens cover modal if this is the last step, otherwise navigates to next
   const handleNextStep = () => {
-    const result = handleFinish();
-    if (result === "OPEN_COVER") {
-      handleOpenCoverPopup();
-    }
+    const result = opening.finish();
+    if (result === "OPEN_COVER") cover.openCoverPopup();
   };
 
   return (
     <>
       <div className="flex flex-col min-h-screen">
-        {/* Page metadata */}
         <Helmet>
           <title>Calculation Opening - KORI BALI</title>
           <meta
@@ -85,95 +41,81 @@ export default function OpeningFormView() {
         </Helmet>
 
         <div className="min-h-screen bg-gray-50 border border-gray-250">
-          <CalculationHeader />
+          <HeaderCalculationPage />
 
           <div className="mx-2 md:mx-6 2040:mx-[250px] pt-1 pb-8">
-            {/* ================= OPENING TYPE SECTION ================= */}
+            {/* ── Opening Type selector ── */}
             <div
-              className={`bg-gradient-to-r from-[#0d3b66] to-[#3399cc] px-4 py-3 md:py-4 flex items-center justify-between cursor-pointer mt-6 transition-all duration-500 ease-in-out ${
-                isOpeningExpanded
-                  ? "rounded-t-xl md:rounded-t-2xl"
-                  : "rounded-xl md:rounded-2xl"
-              }`}
-              onClick={() => setIsOpeningExpanded(!isOpeningExpanded)}
+              className={`bg-gradient-to-r from-[#0d3b66] to-[#3399cc] px-4 py-3 md:py-4 flex items-center justify-between cursor-pointer mt-6 transition-all duration-500 ease-in-out
+                ${opening.isOpeningExpanded ? "rounded-t-xl md:rounded-t-2xl" : "rounded-xl md:rounded-2xl"}`}
+              onClick={() =>
+                opening.setIsOpeningExpanded(!opening.isOpeningExpanded)
+              }
             >
-              {/* Section title */}
               <div className="bg-white/10 backdrop-blur-sm px-2 md:px-4 py-[8px] md:py-2 rounded-lg border border-white/20">
                 <h2 className="text-white text-xs md:text-sm font-semibold md:font-bold">
                   Opening Part Type
                 </h2>
               </div>
-
-              {/* Toggle icon */}
               <div className="p-2">
-                {isOpeningExpanded ? (
-                  <ChevronUp className="w-4 md:w-5 w-4 md:h-5 text-white" />
+                {opening.isOpeningExpanded ? (
+                  <ChevronUp className="w-4 md:w-5 h-4 md:h-5 text-white" />
                 ) : (
-                  <ChevronDown className="w-4 md:w-5 w-4 md:h-5 text-white" />
+                  <ChevronDown className="w-4 md:w-5 h-4 md:h-5 text-white" />
                 )}
               </div>
             </div>
 
-            {/* Collapsible body */}
+            {/* Opening type collapsible body */}
             <div
-              className={`transition-all duration-500 ease-in-out overflow-hidden ${
-                isOpeningExpanded
-                  ? "max-h-[5000px] rounded-b-xl md:rounded-b-2xl"
-                  : "max-h-0 rounded-b-xl md:rounded-b-2xl"
-              }`}
+              className={`transition-all duration-500 ease-in-out overflow-hidden
+              ${opening.isOpeningExpanded ? "max-h-[5000px] rounded-b-xl md:rounded-b-2xl" : "max-h-0 rounded-b-xl md:rounded-b-2xl"}`}
             >
               <OpeningType
-                openingType={openingType}
-                onUpdate={handleOpeningTypeUpdate}
-                errors={openingTypeErrors}
+                openingType={opening.openingType}
+                onUpdate={opening.updateOpeningType}
+                errors={opening.openingTypeErrors}
               />
             </div>
 
-            {/* ================= OPENING DETAIL SECTION ================= */}
+            {/* ── Opening detail section ── */}
             <div
-              className={`bg-gradient-to-r from-[#0d3b66] to-[#3399cc] p-4 flex items-center justify-between cursor-pointer mt-10 transition-all duration-500 ease-in-out ${
-                isSelectExpanded
-                  ? "rounded-t-xl md:rounded-t-2xl"
-                  : "rounded-xl md:rounded-2xl"
-              }`}
-              onClick={() => setIsSelectExpanded(!isSelectExpanded)}
+              className={`bg-gradient-to-r from-[#0d3b66] to-[#3399cc] p-4 flex items-center justify-between cursor-pointer mt-10 transition-all duration-500 ease-in-out
+                ${opening.isSelectExpanded ? "rounded-t-xl md:rounded-t-2xl" : "rounded-xl md:rounded-2xl"}`}
+              onClick={() =>
+                opening.setIsSelectExpanded(!opening.isSelectExpanded)
+              }
             >
-              {/* Dynamic title based on selected type */}
+              {/* Dynamic title — only shown when a type is selected */}
               <div>
-                {openingType.type && (
+                {opening.openingType.type && (
                   <div className="bg-white/10 backdrop-blur-sm px-2 md:px-4 py-[8px] md:py-2 rounded-lg border border-white/20">
                     <h2 className="text-white text-xs md:text-sm font-semibold md:font-bold">
-                      {typeLabelMap[openingType.type]}
+                      {opening.typeLabelMap[opening.openingType.type]}
                     </h2>
                   </div>
                 )}
               </div>
-
-              {/* Toggle icon */}
               <div className="p-2">
-                {isSelectExpanded ? (
-                  <ChevronUp className="w-4 md:w-5 w-4 md:h-5 text-white" />
+                {opening.isSelectExpanded ? (
+                  <ChevronUp className="w-4 md:w-5 h-4 md:h-5 text-white" />
                 ) : (
-                  <ChevronDown className="w-4 md:w-5 w-4 md:h-5 text-white" />
+                  <ChevronDown className="w-4 md:w-5 h-4 md:h-5 text-white" />
                 )}
               </div>
             </div>
 
-            {/* Collapsible body */}
+            {/* Detail collapsible body */}
             <div
-              className={`transition-all duration-500 ease-in-out overflow-hidden ${
-                isSelectExpanded
-                  ? "max-h-[5000px] rounded-b-xl md:rounded-b-2xl"
-                  : "max-h-0 rounded-b-xl md:rounded-b-2xl"
-              }`}
+              className={`transition-all duration-500 ease-in-out overflow-hidden
+              ${opening.isSelectExpanded ? "max-h-[5000px] rounded-b-xl md:rounded-b-2xl" : "max-h-0 rounded-b-xl md:rounded-b-2xl"}`}
             >
-              {/* Empty state when no type selected */}
-              {!openingType.type && (
+              {/* Empty state — prompt user to select type first */}
+              {!opening.openingType.type && (
                 <div className="bg-white border border-gray-200 rounded-b-2xl p-10 flex flex-col items-center justify-center text-center">
                   <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
                     <Box className="w-6 h-6 text-gray-400" />
                   </div>
-
                   <p className="text-gray-500 text-sm">
                     Please select opening type first
                   </p>
@@ -183,60 +125,67 @@ export default function OpeningFormView() {
                 </div>
               )}
 
-              {/* Render Box Type form */}
-              {openingType.type === "box" && (
+              {/* Box type form */}
+              {opening.openingType.type === "box" && (
                 <BoxTypeForm
-                  boxType={boxType}
-                  onUpdate={handleBoxTypeUpdate}
-                  errors={boxTypeErrors}
-                  onCalculate={handleCalculate}
-                  onNext={handleFinish}
-                  isCalculated={isCalculated}
-                  buttonLabel={buttonLabel}
+                  boxType={opening.boxType}
+                  onUpdate={opening.updateBoxType}
+                  errors={opening.boxTypeErrors}
+                  onCalculate={opening.calculate}
+                  onNext={handleNextStep}
+                  isCalculated={opening.isCalculated}
+                  buttonLabel={opening.buttonLabel}
                 />
               )}
 
-              {/* Render R Type form */}
-              {openingType.type === "r" && (
+              {/* R type form */}
+              {opening.openingType.type === "r" && (
                 <RTypeForm
-                  rType={rType}
-                  onUpdate={handleRTypeUpdate}
-                  errors={rTypeErrors}
-                  onCalculate={handleCalculate}
-                  onNext={handleFinish}
-                  isCalculated={isCalculated}
-                  buttonLabel={buttonLabel}
+                  rType={opening.rType}
+                  onUpdate={opening.updateRType}
+                  errors={opening.rTypeErrors}
+                  onCalculate={opening.calculate}
+                  onNext={handleNextStep}
+                  isCalculated={opening.isCalculated}
+                  buttonLabel={opening.buttonLabel}
                 />
               )}
             </div>
 
-            {/* ================= RESULT TABLE ================= */}
+            {/* ── Result table ── */}
             <div id="results-op">
-              {showResultsOp && (
-                <OpeningResultTable openingType={calculatedOp?.openingType} />
+              {opening.showResultsOp && (
+                <OpeningResultTable
+                  openingType={opening.calculatedOp?.openingType}
+                />
               )}
             </div>
           </div>
         </div>
       </div>
 
-      {/* ================= COVER MODAL ================= */}
-      <Modal.CoverInputModal
-        open={showCoverPopup}
-        onClose={handleCloseCoverPopup}
-        onUpdateCover={handleCoverUpdate}
+      {/* ── Cover modal — shown when this is the last step ── */}
+      <CoverInputModal
+        open={cover.showCoverPopup}
+        onClose={cover.closeCoverPopup}
+        cover={cover.coverData}
+        onUpdateCover={cover.updateCover}
+        coverErrors={cover.coverErrors}
         onMakeReport={() =>
-          handleMakeReport({
-            cover,
-            validateCover,
-            isCalculated,
-            showToast,
+          report.makeReport({
+            cover: cover.coverData,
+            validateCover: cover.validate,
+            isCalculated: opening.isCalculated,
+            showToast: opening.showToast,
           })
         }
       />
 
-      {/* ================= TOAST ================= */}
-      <Modal.ToastModal toast={toast} onClose={() => setToast(null)} />
+      {/* ── Toast notification ── */}
+      <ToastModal
+        toast={opening.toast}
+        onClose={() => opening.setToast(null)}
+      />
     </>
   );
 }

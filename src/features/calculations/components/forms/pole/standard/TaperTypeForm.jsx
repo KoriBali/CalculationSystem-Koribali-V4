@@ -29,16 +29,16 @@ const EMPTY_HEIGHT_OPTIONS = { onGL: [], underGL: [] };
 
 // Empty reset state — used when reset button is clicked
 const EMPTY_POLE_STANDARD = {
-  taperPoleStandard: "",
+  poleType: "",
   groundPosition: "",
   height: "",
 };
 
 // === COMPONENT ===
-export function TaperPoleStandardForm({ taperPoleStandard, onUpdate }) {
+export function poleTypeForm({ taperPoleStandard, onUpdate }) {
   // Get height options based on selected pole standard
   const currentHeightOptions =
-    HEIGHT_OPTIONS_BY_STANDARD[taperPoleStandard.taperPoleStandard] ??
+    HEIGHT_OPTIONS_BY_STANDARD[taperPoleStandard.poleType] ??
     EMPTY_HEIGHT_OPTIONS;
 
   // Diagram image changes based on selected ground position
@@ -46,7 +46,7 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate }) {
     groundPositionImageMap[taperPoleStandard.groundPosition] ?? onGlImg;
 
   // Ground position and height are disabled until pole standard is selected
-  const isGroundDisabled = !taperPoleStandard.taperPoleStandard;
+  const isGroundDisabled = !taperPoleStandard.poleType;
 
   return (
     <div className="bg-white px-6 pb-6 rounded-b-2xl hp:rounded-b-xl">
@@ -56,8 +56,7 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate }) {
         <div className="border border-slate-200 rounded-xl p-6 bg-white shadow-sm">
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {POLE_STANDARD_OPTIONS.map((option) => {
-              const isActive =
-                taperPoleStandard.taperPoleStandard === option.id;
+              const isActive = taperPoleStandard.poleType === option.id;
 
               return (
                 <button
@@ -65,7 +64,7 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate }) {
                   type="button"
                   onClick={() =>
                     onUpdate({
-                      taperPoleStandard: option.id,
+                      poleType: option.id,
                       groundPosition: "", // reset downstream fields
                       height: "",
                     })

@@ -1,9 +1,9 @@
-// hooks/useOverheadWire.js
 import { useState, useEffect, useRef } from "react";
 import { useProjectStorage } from "./useProjectStorage";
-import * as Utils from "../../utils/pole-analyzer";
+import * as Utils from "../utils/pole-analyzer";
 
-export function useOverheadWire(projectType) {
+// Manages overhead wire list state — add, remove, update, copy/paste
+export function useOverheadWireForm(projectType) {
   const [overheadWires, setOverheadWires] = useProjectStorage(
     projectType,
     "overheadWires",
@@ -15,13 +15,13 @@ export function useOverheadWire(projectType) {
   const [confirmReduceOhw, setConfirmReduceOhw] = useState(null);
   const [confirmDeleteOhw, setConfirmDeleteOhw] = useState(null);
 
-  // Persists max OHW ID to prevent ID conflicts after reload
+  // Persists max OHW ID to prevent conflicts after reload
   const ohwIdRef = useRef(1);
   useEffect(() => {
     const saved = sessionStorage.getItem(`${projectType}_overheadWires`);
     if (!saved) return;
     const parsed = JSON.parse(saved);
-    const maxId = Math.max(0, ...parsed.map((s) => Number(s.idOhw)));
+    const maxId = Math.max(0, ...parsed.map((o) => Number(o.idOhw)));
     ohwIdRef.current = maxId + 1;
   }, [projectType]);
 
@@ -41,8 +41,7 @@ export function useOverheadWire(projectType) {
   const addOhw = () => Utils.addOhw(overheadWires, setOverheadWires, ohwIdRef);
 
   // Copies an OHW to clipboard
-  const copyOhw = (overheadWire) =>
-    Utils.copyOhw(overheadWire, setOhwClipboard);
+  const copyOhw = (ohw) => Utils.copyOhw(ohw, setOhwClipboard);
 
   // Pastes clipboard OHW into a specific slot
   const pasteOhw = (idOhw) =>
@@ -74,11 +73,7 @@ export function useOverheadWire(projectType) {
     setConfirmReduceOhw(null);
   };
 
-  // Checks if a single OHW's required fields are all filled
-  const isOhwComplete = (overheadWire) => Utils.isOhwComplete(overheadWire);
-
   return {
-    // State
     overheadWires,
     ohwErrors,
     ohwClipboard,
@@ -86,12 +81,10 @@ export function useOverheadWire(projectType) {
     confirmReduceOhw,
     confirmDeleteOhw,
 
-    // Setters
     setOhwErrors,
     setOhwInputValue,
     setConfirmDeleteOhw,
 
-    // Handlers
     addOhwByInput,
     addOhw,
     copyOhw,
@@ -101,6 +94,5 @@ export function useOverheadWire(projectType) {
     resetOhw,
     confirmReduce,
     cancelReduce,
-    isOhwComplete,
   };
 }

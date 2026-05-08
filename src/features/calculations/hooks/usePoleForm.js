@@ -1,10 +1,6 @@
-// hooks/usePoleSection.js
 import { useState, useEffect, useRef } from "react";
 import { useProjectStorage } from "./useProjectStorage";
-
-import { validatePole } from "../validation/poleValidation";
-
-import * as Utils from "../../utils/pole-analyzer";
+import * as Utils from "../utils/pole-analyzer";
 
 // ─── CONSTANTS ───────────────────────────────────────────────────────────────
 
@@ -12,125 +8,92 @@ const DEFAULT_POLE = {
   id: "1",
   name: "",
   material: "STK400",
-  type: "Straight",
-  lowerDiameter: "",
-  upperDiameter: "",
-  lowerThickness: "",
-  upperThickness: "",
+  poleType: "Straight",
+  diameterLower: "",
+  diameterUpper: "",
+  thicknessLower: "",
+  thicknessUpper: "",
   height: "",
   quantity: "1",
 };
 
 // ─── HOOK ────────────────────────────────────────────────────────────────────
 
-export function usePoleSection(projectType) {
-  const [poles, setPoles] = useProjectStorage(projectType, "poles", [
+// Manages pole sections state — add, remove, update, navigate between tabs
+export function usePoleForm(projectType) {
+  const [poles, setPoles] = useProjectStorage(projectType, "sections", [
     DEFAULT_POLE,
   ]);
-
   const [poleErrors, setPoleErrors] = useState({});
   const [activeTab, setActiveTab] = useState("1");
 
-  // Persist max pole ID to prevent ID conflicts after reload
+  // Persists max pole ID to prevent conflicts after reload
   const poleIdRef = useRef(1);
-
   useEffect(() => {
-    const saved = sessionStorage.getItem(`${projectType}_poles`);
-
+    const saved = sessionStorage.getItem(`${projectType}_sections`);
     if (!saved) return;
-
     const parsed = JSON.parse(saved);
-
-    const maxId = Math.max(0, ...parsed.map((pole) => Number(pole.id)));
-
+    const maxId = Math.max(0, ...parsed.map((p) => Number(p.id)));
     poleIdRef.current = maxId + 1;
   }, [projectType]);
 
-  // Ensure active tab always points to a valid pole
+  // Guards active tab — resets to first pole if active tab becomes invalid
   useEffect(() => {
     if (poles.length === 0) return;
-
-    const isActiveTabValid = poles.some((pole) => pole.id === activeTab);
-
-    if (!isActiveTabValid) {
-      setActiveTab(poles[0].id);
-    }
+    const isValid = poles.some((p) => p.id === activeTab);
+    if (!isValid) setActiveTab(poles[0].id);
   }, [poles, activeTab]);
 
-  // ─── DERIVED STATE ─────────────────────────────────────────────────────────
+  // Derived navigation state
+  const activeIndex = poles.findIndex((p) => p.id === activeTab);
+  const activePole = poles[activeIndex];
+  const isNextDisabled = poles.length === 1 || activeIndex === poles.length - 1;
+  const isBackDisabled = poles.length === 1 || activeIndex === 0;
 
-  const activePole = poles.find((pole) => pole.id === activeTab) ?? poles[0];
-
-  const activeIndex = poles.findIndex((pole) => pole.id === activeTab);
-
-  const isFirstPole = activeIndex === 0;
-  const isLastPole = activeIndex === poles.length - 1;
-  const isOnlyPole = poles.length === 1;
-
-  const isNextDisabled = isOnlyPole || isLastPole;
-  const isBackDisabled = isOnlyPole || isFirstPole;
-
-  // ─── HANDLERS ──────────────────────────────────────────────────────────────
-
-  // Add new pole section (max 6)
+  // Adds a new pole (max 6)
   const addPole = () =>
     Utils.addSection(poles, setPoles, setActiveTab, poleIdRef);
 
-  // Remove pole section by ID
-  const removePole = (poleId) =>
-    Utils.removeSection(poleId, poles, setPoles, activeTab, setActiveTab);
+  // Removes a pole by ID
+  const removePole = (id) =>
+    Utils.removeSection(id, poles, setPoles, activeTab, setActiveTab);
 
-  // Update pole fields and clear related errors
+  // Updates a specific pole's fields and clears related errors
   const updatePole = (id, updates) => {
     Utils.updateSection(id, updates, setPoles, poles);
-
     Utils.clearSectionError(id, updates, setPoleErrors);
   };
 
-  // Reset active pole to default values
+  // Resets the active pole's fields to empty
   const resetActivePole = () => Utils.resetCurrent(setPoles, poles, activeTab);
 
-  // Navigate to next pole tab
-  const goToNext = () => Utils.goToNextSection(poles, activeTab, setActiveTab);
-
-  // Navigate to previous pole tab
-  const goToPrev = () => {
-    if (isBackDisabled) return;
-
-    setActiveTab(poles[activeIndex - 1].id);
+  // Navigates to the next pole tab
+  const goToNext = () => {
+    if (!isNextDisabled) setActiveTab(poles[activeIndex + 1].id);
   };
 
-  // Yup-based validation helper
-  const isPoleFilled = async (pole) => {
-    const result = await validatePole(pole);
-    return result.isValid;
+  // Navigates to the previous pole tab
+  const goToPrev = () => {
+    if (!isBackDisabled) setActiveTab(poles[activeIndex - 1].id);
   };
 
   return {
-    // State
     poles,
     poleErrors,
     activeTab,
     activePole,
-    poleIdRef,
-
-    // Navigation flags
+    activeIndex,
     isNextDisabled,
     isBackDisabled,
 
-    // Setters
-    setActiveTab,
     setPoleErrors,
+    setActiveTab,
 
-    // Handlers
     addPole,
     removePole,
     updatePole,
     resetActivePole,
     goToNext,
     goToPrev,
-
-    // Validation helpers
-    isPoleFilled,
   };
 }

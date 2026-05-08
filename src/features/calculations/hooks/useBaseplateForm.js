@@ -104,7 +104,8 @@ export function useBaseplateForm() {
 
   // Loading and calculation status
   const [loading, setLoading] = useState(false);
-  const [isCalculated, setIsCalculated] = useState(false);
+  // PERBAIKAN: Gunakan !!calculatedBaseplate agar status kalkulasi bertahan setelah reload
+  const [isCalculated, setIsCalculated] = useState(!!calculatedBaseplate);
 
   // Toast notification state
   const [toast, setToast] = useState(null);
@@ -219,7 +220,7 @@ export function useBaseplateForm() {
     isBaseplateExpanded,
     isSelectExpanded,
     isCalculated,
-    showResultBaseplate,
+    showResultsBaseplate, // PERBAIKAN: Sinkronisasi nama (tambah s) agar sesuai dengan state dan view
     calculatedBaseplate,
     buttonLabel,
     toast,

@@ -1,9 +1,9 @@
-// hooks/useDirectObject.js
 import { useState, useEffect, useRef } from "react";
 import { useProjectStorage } from "./useProjectStorage";
-import * as Utils from "../../utils/pole-analyzer";
+import * as Utils from "../utils/pole-analyzer";
 
-export function useDirectObject(projectType) {
+// Manages direct object list state — add, remove, update, copy/paste
+export function useDirectObjectForm(projectType) {
   const [directObjects, setDirectObjects] = useProjectStorage(
     projectType,
     "directObjects",
@@ -15,13 +15,13 @@ export function useDirectObject(projectType) {
   const [confirmReduceDo, setConfirmReduceDo] = useState(null);
   const [confirmDeleteDo, setConfirmDeleteDo] = useState(null);
 
-  // Persists max DO ID to prevent ID conflicts after reload
+  // Persists max DO ID to prevent conflicts after reload
   const doIdRef = useRef(1);
   useEffect(() => {
     const saved = sessionStorage.getItem(`${projectType}_directObjects`);
     if (!saved) return;
     const parsed = JSON.parse(saved);
-    const maxId = Math.max(0, ...parsed.map((s) => Number(s.idDo)));
+    const maxId = Math.max(0, ...parsed.map((d) => Number(d.idDo)));
     doIdRef.current = maxId + 1;
   }, [projectType]);
 
@@ -72,11 +72,7 @@ export function useDirectObject(projectType) {
     setConfirmReduceDo(null);
   };
 
-  // Checks if a single DO's required fields are all filled
-  const isDoComplete = (directObject) => Utils.isDoComplete(directObject);
-
   return {
-    // State
     directObjects,
     doErrors,
     doClipboard,
@@ -84,12 +80,10 @@ export function useDirectObject(projectType) {
     confirmReduceDo,
     confirmDeleteDo,
 
-    // Setters
     setDoErrors,
     setDoInputValue,
     setConfirmDeleteDo,
 
-    // Handlers
     addDoByInput,
     addDo,
     copyDo,
@@ -99,6 +93,5 @@ export function useDirectObject(projectType) {
     resetDo,
     confirmReduce,
     cancelReduce,
-    isDoComplete,
   };
 }

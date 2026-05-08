@@ -91,7 +91,8 @@ export function useFoundationForm() {
 
   // Loading and calculation status
   const [loading, setLoading] = useState(false);
-  const [isCalculated, setIsCalculated] = useState(false);
+  // PERBAIKAN: Gunakan !!calculatedFoundation agar sinkron setelah reload
+  const [isCalculated, setIsCalculated] = useState(!!calculatedFoundation);
 
   // Toast notification state
   const [toast, setToast] = useState(null);
@@ -206,7 +207,7 @@ export function useFoundationForm() {
     isFoundationExpanded,
     isSelectExpanded,
     isCalculated,
-    showResultFoundation,
+    showResultsFoundation, // PERBAIKAN: Sinkronisasi nama (tambah s) agar sesuai view
     calculatedFoundation,
     buttonLabel,
     toast,

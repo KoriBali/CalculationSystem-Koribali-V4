@@ -30,7 +30,7 @@ export default function BaseplateFormView() {
     isBaseplateExpanded,
     isSelectExpanded,
     isCalculated,
-    showResultBaseplate,
+    showResultsBaseplate, // PERBAIKAN: Sinkronkan dengan nama variabel di Hook (dengan 's')
     calculatedBaseplate,
     buttonLabel,
     toast,
@@ -57,8 +57,7 @@ export default function BaseplateFormView() {
     handleCoverUpdate,
     handleOpenCoverPopup,
     handleCloseCoverPopup,
-    isCoverComplete,
-    setCoverErrors,
+    validate: validateCover, // Mapping validate ke validateCover agar sesuai fungsi report
   } = useCoverForm(projectType);
 
   // ================= REPORT HOOK =================
@@ -85,7 +84,8 @@ export default function BaseplateFormView() {
         </Helmet>
 
         <div className="min-h-screen bg-gray-50 border border-gray-250">
-          <CalculationHeader />
+          {/* PERBAIKAN: Menggunakan HeaderCalculationPage sesuai dengan import di atas */}
+          <HeaderCalculationPage />
 
           <div className="mx-2 md:mx-6 2040:mx-[250px] pt-1 pb-8">
             {/* ================= BASEPLATE TYPE SECTION ================= */}
@@ -107,9 +107,9 @@ export default function BaseplateFormView() {
               {/* Toggle icon */}
               <div className="p-2">
                 {isBaseplateExpanded ? (
-                  <ChevronUp className="w-4 md:w-5 w-4 md:h-5 text-white" />
+                  <ChevronUp className="w-4 md:w-5 h-4 md:h-5 text-white" />
                 ) : (
-                  <ChevronDown className="w-4 md:w-5 w-4 md:h-5 text-white" />
+                  <ChevronDown className="w-4 md:w-5 h-4 md:h-5 text-white" />
                 )}
               </div>
             </div>
@@ -152,9 +152,9 @@ export default function BaseplateFormView() {
               {/* Toggle icon */}
               <div className="p-2">
                 {isSelectExpanded ? (
-                  <ChevronUp className="w-4 md:w-5 w-4 md:h-5 text-white" />
+                  <ChevronUp className="w-4 md:w-5 h-4 md:h-5 text-white" />
                 ) : (
-                  <ChevronDown className="w-4 md:w-5 w-4 md:h-5 text-white" />
+                  <ChevronDown className="w-4 md:w-5 h-4 md:h-5 text-white" />
                 )}
               </div>
             </div>
@@ -183,27 +183,27 @@ export default function BaseplateFormView() {
                 </div>
               )}
 
-              {/* Render Square Caisson Type form */}
+              {/* Render 4 Rib Type form */}
               {baseplateType.type === "4rib" && (
                 <FourRibTypeForm
                   fourRibType={fourRibType}
                   onUpdate={handleFourRibTypeUpdate}
                   errors={fourRibTypeErrors}
                   onCalculate={handleCalculate}
-                  onNext={handleFinish}
+                  onNext={handleNextStep} // PERBAIKAN: Gunakan handleNextStep untuk navigasi terpadu
                   isCalculated={isCalculated}
                   buttonLabel={buttonLabel}
                 />
               )}
 
-              {/* Render Round Caisson Type form */}
+              {/* Render 8 Rib Type form */}
               {baseplateType.type === "8rib" && (
                 <EightRibTypeForm
                   eightRibType={eightRibType}
                   onUpdate={handleEightRibTypeUpdate}
                   errors={eightRibTypeErrors}
                   onCalculate={handleCalculate}
-                  onNext={handleFinish}
+                  onNext={handleNextStep} // PERBAIKAN: Gunakan handleNextStep untuk navigasi terpadu
                   isCalculated={isCalculated}
                   buttonLabel={buttonLabel}
                 />
@@ -226,6 +226,8 @@ export default function BaseplateFormView() {
       <Modal.CoverInputModal
         open={showCoverPopup}
         onClose={handleCloseCoverPopup}
+        cover={cover} // Menambahkan data cover
+        coverErrors={coverErrors} // Menambahkan error data
         onUpdateCover={handleCoverUpdate}
         onMakeReport={() =>
           handleMakeReport({

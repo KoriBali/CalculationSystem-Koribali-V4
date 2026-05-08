@@ -1,21 +1,23 @@
 import axios from "axios";
-
-import { API_BASE_URL, API_ENDPOINTS } from "../../config/api";
+import { API_BASE_URL, API_ENDPOINTS } from "../config/api";
 
 // Call API to perform pole calculation
 export const calculatePole = async (payload) => {
   try {
+    // Send POST request to pole endpoint with timeout
     const response = await axios.post(
       `${API_BASE_URL}${API_ENDPOINTS.POLE}`,
       payload,
       { timeout: 10000 },
     );
 
+    // Return response data directly
     return response.data;
   } catch (error) {
+    // Log full error for debugging purposes
     console.error("API ERROR:", error);
 
-    // Server error
+    // Handle server response errors (4xx / 5xx)
     if (error.response) {
       throw {
         message: error.response.data?.message || "Server Error",
@@ -23,16 +25,12 @@ export const calculatePole = async (payload) => {
       };
     }
 
-    // No response
+    // Handle no response received (network issue / timeout)
     if (error.request) {
-      throw {
-        message: "No response from server",
-      };
+      throw { message: "No response from server" };
     }
 
-    // Unexpected error
-    throw {
-      message: error.message,
-    };
+    // Handle unexpected errors
+    throw { message: error.message };
   }
 };

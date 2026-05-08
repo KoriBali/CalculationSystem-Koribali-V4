@@ -7,8 +7,8 @@ import { FoundationType } from "./FoundationType";
 import { RoundCaissonTypeForm } from "./RoundCaissonTypeForm";
 import { SquareCaissonTypeForm } from "./SquareCaissonTypeForm";
 import { FoundationResultTable } from "../../tables/foundation-result/FoundationResultTable";
-
-import * as Modal from "../../components/pole-analyzer/PoleAnalyzerModal";
+import { ToastModal } from "../../modals/ToastModal";
+import { CoverInputModal } from "../../modals/CoverFormModal";
 
 import { useFoundationForm } from "../../../hooks/useFoundationForm";
 import { useCoverForm } from "../../../hooks/useCoverForm";
@@ -30,7 +30,7 @@ export default function FoundationFormView() {
     isFoundationExpanded,
     isSelectExpanded,
     isCalculated,
-    showResultFoundation,
+    showResultsFoundation, // Pastikan menggunakan nama variabel yang sinkron dengan Hook (S di belakang)
     calculatedFoundation,
     buttonLabel,
     toast,
@@ -57,8 +57,7 @@ export default function FoundationFormView() {
     handleCoverUpdate,
     handleOpenCoverPopup,
     handleCloseCoverPopup,
-    isCoverComplete,
-    setCoverErrors,
+    validate: validateCover, // Mapping validate ke validateCover agar sesuai fungsi report
   } = useCoverForm(projectType);
 
   // ================= REPORT HOOK =================
@@ -85,7 +84,8 @@ export default function FoundationFormView() {
         </Helmet>
 
         <div className="min-h-screen bg-gray-50 border border-gray-250">
-          <CalculationHeader />
+          {/* PERBAIKAN: Menggunakan HeaderCalculationPage sesuai import */}
+          <HeaderCalculationPage />
 
           <div className="mx-2 md:mx-6 2040:mx-[250px] pt-1 pb-8">
             {/* ================= FOUNDATION TYPE SECTION ================= */}
@@ -107,9 +107,9 @@ export default function FoundationFormView() {
               {/* Toggle icon */}
               <div className="p-2">
                 {isFoundationExpanded ? (
-                  <ChevronUp className="w-4 md:w-5 w-4 md:h-5 text-white" />
+                  <ChevronUp className="w-4 md:w-5 h-4 md:h-5 text-white" />
                 ) : (
-                  <ChevronDown className="w-4 md:w-5 w-4 md:h-5 text-white" />
+                  <ChevronDown className="w-4 md:w-5 h-4 md:h-5 text-white" />
                 )}
               </div>
             </div>
@@ -152,9 +152,9 @@ export default function FoundationFormView() {
               {/* Toggle icon */}
               <div className="p-2">
                 {isSelectExpanded ? (
-                  <ChevronUp className="w-4 md:w-5 w-4 md:h-5 text-white" />
+                  <ChevronUp className="w-4 md:w-5 h-4 md:h-5 text-white" />
                 ) : (
-                  <ChevronDown className="w-4 md:w-5 w-4 md:h-5 text-white" />
+                  <ChevronDown className="w-4 md:w-5 h-4 md:h-5 text-white" />
                 )}
               </div>
             </div>
@@ -190,7 +190,7 @@ export default function FoundationFormView() {
                   onUpdate={handleSquareCaissonUpdate}
                   errors={squareCaissonErrors}
                   onCalculate={handleCalculate}
-                  onNext={handleFinish}
+                  onNext={handleNextStep} // PERBAIKAN: Gunakan handleNextStep agar sinkron dengan modal
                   isCalculated={isCalculated}
                   buttonLabel={buttonLabel}
                 />
@@ -203,7 +203,7 @@ export default function FoundationFormView() {
                   onUpdate={handleRoundCaissonUpdate}
                   errors={roundCaissonErrors}
                   onCalculate={handleCalculate}
-                  onNext={handleFinish}
+                  onNext={handleNextStep} // PERBAIKAN: Gunakan handleNextStep agar sinkron dengan modal
                   isCalculated={isCalculated}
                   buttonLabel={buttonLabel}
                 />
@@ -223,9 +223,11 @@ export default function FoundationFormView() {
       </div>
 
       {/* ================= COVER MODAL ================= */}
-      <Modal.CoverInputModal
+      <CoverInputModal
         open={showCoverPopup}
         onClose={handleCloseCoverPopup}
+        cover={cover} // Menambahkan data cover ke modal
+        coverErrors={coverErrors} // Menambahkan error data ke modal
         onUpdateCover={handleCoverUpdate}
         onMakeReport={() =>
           handleMakeReport({
@@ -238,7 +240,7 @@ export default function FoundationFormView() {
       />
 
       {/* ================= TOAST ================= */}
-      <Modal.ToastModal toast={toast} onClose={() => setToast(null)} />
+      <ToastModal toast={toast} onClose={() => setToast(null)} />
     </>
   );
 }

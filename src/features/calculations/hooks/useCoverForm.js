@@ -1,55 +1,65 @@
 import { useState } from "react";
-import { useProjectStorage } from "../../hooks/useProjectStorage";
-import * as Utils from "../utils";
-import { CoverSchema } from "../../schemas/CoverSchema";
+import { useProjectStorage } from "./useProjectStorage";
+import { validateWithYup } from "../utils/validation";
+import { CoverSchema } from "../schemas/cover/CoverSchema";
 
-// Custom hook to manage cover form state, validation, and UI behavior
+// ─── CONSTANTS ───────────────────────────────────────────────────────────────
+
+// Default empty cover state
+const DEFAULT_COVER = {
+  managementMark: "",
+  calculationNumber: "",
+  projectName: "",
+  contentr2: "",
+  contentr3: "",
+  date: "",
+};
+
+// ─── HOOK ────────────────────────────────────────────────────────────────────
+
+// Manages cover form state, validation, and popup visibility
 export function useCoverForm(projectType) {
-  // Initialize cover state with default values using project storage
-  const [cover, setCover] = useProjectStorage(projectType, "cover", {
-    managementMark: "",
-    calculationNumber: "",
-    projectName: "",
-    contentr2: "",
-    contentr3: "",
-    date: "",
-  });
+  const [cover, setCover] = useProjectStorage(
+    projectType,
+    "cover",
+    DEFAULT_COVER,
+  );
 
-  // State to store validation errors
   const [coverErrors, setCoverErrors] = useState({});
-
-  // State to control cover popup visibility
   const [showCoverPopup, setShowCoverPopup] = useState(false);
 
-  // Update cover fields and clear related errors for better UX
-  const handleCoverUpdate = (updates) => {
-    Utils.updateCover(cover, updates, setCover);
+  // Updates cover fields — clears related errors as user types
+  const updateCover = (updates) => {
+    setCover((prev) => ({ ...prev, ...updates }));
+    setCoverErrors((prev) => {
+      const cleared = { ...prev };
+      Object.keys(updates).forEach((key) => delete cleared[key]);
+      return cleared;
+    });
   };
 
-  // Validate cover form using Yup schema as a single source of truth
-  const validateCover = async () => {
-    const result = await Utils.validateWithYup(CoverSchema, cover);
-
-    // Update error state based on validation result
+  // Validates cover form against CoverSchema — updates error state
+  const validate = async () => {
+    const result = await validateWithYup(CoverSchema, cover);
     setCoverErrors(result.errors || {});
     return result.isValid;
   };
 
-  // Open cover popup modal
-  const handleOpenCoverPopup = () => setShowCoverPopup(true);
+  // Opens cover popup modal
+  const openCoverPopup = () => setShowCoverPopup(true);
 
-  // Close cover popup modal
-  const handleCloseCoverPopup = () => setShowCoverPopup(false);
+  // Closes cover popup modal
+  const closeCoverPopup = () => setShowCoverPopup(false);
 
-  // Expose state and handlers for component usage
   return {
-    cover,
-    coverErrors,
-    showCoverPopup,
-    handleCoverUpdate,
-    handleOpenCoverPopup,
-    handleCloseCoverPopup,
-    validateCover,
-    setCoverErrors,
+    coverData: cover, // current cover field values
+    coverErrors, // validation errors per field
+    showCoverPopup, // controls modal visibility
+
+    updateCover, // fn — updates fields + clears errors
+    validate, // fn — validates against CoverSchema
+    openCoverPopup, // fn — opens the modal
+    closeCoverPopup, // fn — closes the modal
+    setCoverErrors, // fn — manually set errors if needed
   };
 }

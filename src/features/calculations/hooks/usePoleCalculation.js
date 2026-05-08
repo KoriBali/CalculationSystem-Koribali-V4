@@ -1,23 +1,38 @@
-// hooks/usePoleCalculation.js
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useProjectStorage } from "./useProjectStorage";
-import { getCondition } from "../utils/sessionStorage";
-import { runCalculation, runMakeReport } from "../logic/pole/poleCalculation";
-import * as Utils from "../../utils/pole-analyzer";
-import STANDARD_POLE_DATA from "../../data/specStandardPole.json";
 
+import {
+  validatePoleForm,
+  validatePoleReport,
+} from "../logic/pole/validatePoleForm";
+import { executePoleCalculation } from "../logic/pole/poleCalculation";
+import * as Utils from "../utils/pole-analyzer";
+
+// Orchestrates pole calculation — validates, calls API, maps errors back to UI
 export function usePoleCalculation({
-  poleSection,
-  directObject,
-  ohw,
-  arm,
-  cover,
-  poleStandard,
+  poleForm,
+  directObjectForm,
+  ohwForm,
+  armForm,
+  poleStandardForm,
+  coverForm,
 }) {
-  const navigate = useNavigate();
   const { type: projectType } = useParams();
-  const condition = getCondition(projectType);
+  const navigate = useNavigate();
 
+  // Read condition from sessionStorage
+  const condition = (() => {
+    try {
+      return JSON.parse(
+        sessionStorage.getItem(`${projectType}_condition`) || "{}",
+      );
+    } catch {
+      return {};
+    }
+  })();
+
+  // ── Persisted results ──
   const [results, setResults] = useProjectStorage(projectType, "results", []);
   const [resultsDo, setResultsDo] = useProjectStorage(
     projectType,
@@ -39,246 +54,174 @@ export function usePoleCalculation({
     "showResults",
     false,
   );
-  const [isCalculated, setIsCalculated] = useState(false);
+
+  // ── UI state ──
+  const [isCalculated, setIsCalculated] = useState(!!results?.length);
+  const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState(null);
 
   const showToast = (message, type = "error") => setToast({ message, type });
 
+  // Step navigation — determines button label and next route
   const { buttonLabel, nextStep, isLast } = Utils.getStepNavigation(
     condition,
     "pole",
   );
 
-  // Resolves final data source — static JSON for standard, user input for custom
-  const resolveData = () => {
-    if (condition.method !== "standard") {
-      return {
-        poles: poleSection.poles,
-        directObjects: directObject.directObjects,
-        arms: arm.arms,
-        overheadWires: ohw.overheadWires,
-      };
-    }
-
-    const shape = poleStandard.poleType.poleShape;
-    const empty = { poles: [], directObjects: [], arms: [], overheadWires: [] };
-
-    if (shape === "taper") {
-      const data =
-        STANDARD_POLE_DATA?.taper?.[poleStandard.taperPole.poleType]?.[
-          poleStandard.taperPole.groundPosition
-        ]?.[poleStandard.taperPole.height];
-
-      if (!data) {
-        showToast("Standard taper pole data not found.");
-        return empty;
-      }
-
-      return {
-        poles: data.sections || [],
-        directObjects: data.directObjects || [],
-        arms: data.arms || [],
-        overheadWires: data.overheadWires || [],
-      };
-    }
-
-    if (shape === "straight") {
-      const key = poleStandard.steppedPole.combination;
-      if (!key) {
-        showToast("Please select pole combination.");
-        return empty;
-      }
-
-      const data = STANDARD_POLE_DATA?.straight?.[key];
-      if (!data) {
-        showToast("Standard straight pole data not found.");
-        return empty;
-      }
-
-      const lengths = [
-        Number(poleStandard.steppedPole.upperLength || 0),
-        Number(poleStandard.steppedPole.lowerLength || 0),
-      ];
-      const heights = lengths.map((_, i) =>
-        lengths.slice(i).reduce((s, v) => s + v, 0),
-      );
-
-      const poles = data.sections.map((sec, i) => ({
-        ...sec,
-        thicknessLower:
-          i === 0
-            ? poleStandard.steppedPole.upperThickness
-            : poleStandard.steppedPole.lowerThickness,
-        thicknessUpper:
-          i === 0
-            ? poleStandard.steppedPole.upperThickness
-            : poleStandard.steppedPole.lowerThickness,
-        height: heights[i],
-      }));
-
-      return { poles, directObjects: [], arms: [], overheadWires: [] };
-    }
-
-    return empty;
+  // Resets all error states across all sub-forms
+  const resetAllErrors = () => {
+    poleForm.setPoleErrors({});
+    directObjectForm.setDoErrors({});
+    ohwForm.setOhwErrors({});
+    armForm.setArmsErrors({});
+    armForm.setAoErrors({});
+    poleStandardForm.setStraightPoleErrors({});
   };
 
-  // Runs full validation then triggers calculation engine
+  // Maps validation errors back to each sub-form's error state
+  const mapErrors = (result) => {
+    if (result.structuralDesignErrors)
+      coverForm.setPoleConfigErrors?.(result.structuralDesignErrors);
+    if (result.polesErrors) poleForm.setPoleErrors(result.polesErrors);
+    if (result.doErrors) directObjectForm.setDoErrors(result.doErrors);
+    if (result.ohwErrors) ohwForm.setOhwErrors(result.ohwErrors);
+    if (result.armsErrors) armForm.setArmsErrors(result.armsErrors);
+    if (result.aoErrors) armForm.setAoErrors(result.aoErrors);
+    if (result.straightPoleStandardErrors)
+      poleStandardForm.setStraightPoleErrors(result.straightPoleStandardErrors);
+  };
+
+  // Validates all inputs then calls the pole calculation API
   const calculate = async () => {
-    // Reset all error states before re-validating
-    poleSection.setPoleErrors({});
-    directObject.setDoErrors({});
-    ohw.setOhwErrors({});
-    arm.setArmsErrors({});
-    arm.setAoErrors({});
-    poleStandard.setSteppedPoleErrors({});
+    resetAllErrors();
 
-    const { poles, directObjects, arms, overheadWires } = resolveData();
-
-    if (condition.method === "standard" && !poleStandard.isPoleTypeComplete()) {
-      showToast("Please select the pole type first.");
-      return;
-    }
-
-    if (condition.method === "standard" && poles.length === 0) {
-      showToast("Please complete all required standard selections.");
-      return;
-    }
-
-    const result = await runCalculation({
+    // Run full validation + data resolution
+    const validation = await validatePoleForm({
       condition,
-      poleTypeStandard: poleStandard.poleType,
-      structuralDesign: cover.structuralDesign,
-      poles,
-      directObjects,
-      overheadWires,
-      arms,
-      steppedPole: poleStandard.steppedPole,
-      showToast,
-      setResults,
-      setResultsDo,
-      setResultsOhw,
-      setResultsArm,
-      setShowResults,
+      poleTypeStandard: poleStandardForm.poleTypeStandard,
+      taperPoleStandard: poleStandardForm.taperPoleStandard,
+      straightPoleStandard: poleStandardForm.straightPoleStandard,
+      structuralDesign: coverForm.poleConfig,
+      poles: poleForm.poles,
+      directObjects: directObjectForm.directObjects,
+      overheadWires: ohwForm.overheadWires,
+      arms: armForm.arms,
+      isPoleTypeStandardComplete: poleStandardForm.isPoleTypeComplete,
     });
 
-    if (!result?.isValid) {
-      const { errors } = result;
-      const isCustom = condition.method !== "standard";
-      const isStraight = poleStandard.poleType.poleShape === "straight";
-
-      if (errors.steppedPole && condition.method !== "custom" && isStraight)
-        poleStandard.setSteppedPoleErrors(
-          Utils.getStepPoleStandardErrors(poleStandard.steppedPole, condition),
-        );
-      if (errors.section && isCustom)
-        poleSection.setPoleErrors(Utils.getSectionsErrors(poles));
-      if (errors.directObject && isCustom)
-        directObject.setDoErrors(Utils.getDoErrors(directObjects));
-      if (errors.overheadWire && isCustom)
-        ohw.setOhwErrors(Utils.getOhwErrors(overheadWires));
-      if (errors.arm && isCustom) arm.setArmsErrors(Utils.getArmsErrors(arms));
-      if (errors.armObject && isCustom)
-        arm.setAoErrors(Utils.getAoErrors(arms));
+    if (!validation.isValid) {
+      mapErrors(validation);
+      showToast(validation.message);
       return;
     }
 
-    setIsCalculated(true);
-    document
-      .getElementById("results-section")
-      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    try {
+      setLoading(true);
+
+      // Call calculation API with resolved data
+      const data = await executePoleCalculation({
+        condition,
+        poleTypeStandard: poleStandardForm.poleTypeStandard,
+        poleConfig: coverForm.poleConfig,
+        poles: validation.resolvedPoles,
+        directObjects: validation.resolvedDirectObjects,
+        overheadWires: validation.resolvedOverheadWires,
+        arms: validation.resolvedArms,
+        straightPoleStandard: poleStandardForm.straightPoleStandard,
+        taperPoleStandard: poleStandardForm.taperPoleStandard,
+      });
+
+      // Persist results
+      setResults(data.results || []);
+      setResultsDo(data.resultsDo || []);
+      setResultsOhw(data.resultsOhw || []);
+      setResultsArm(data.resultsArm || []);
+      setShowResults(true);
+      setIsCalculated(true);
+
+      // Scroll to results section
+      document
+        .getElementById("results-section")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    } catch (err) {
+      showToast(err?.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Validates all inputs before generating the final report
+  const makeReport = async () => {
+    resetAllErrors();
+
+    const validation = await validatePoleReport({
+      condition,
+      poleTypeStandard: poleStandardForm.poleTypeStandard,
+      taperPoleStandard: poleStandardForm.taperPoleStandard,
+      straightPoleStandard: poleStandardForm.straightPoleStandard,
+      structuralDesign: coverForm.poleConfig,
+      poles: poleForm.poles,
+      directObjects: directObjectForm.directObjects,
+      overheadWires: ohwForm.overheadWires,
+      arms: armForm.arms,
+      results,
+      isCoverComplete: () => coverForm.validate(),
+      isPoleTypeStandardComplete: poleStandardForm.isPoleTypeComplete,
+    });
+
+    if (!validation.isValid) {
+      mapErrors(validation);
+      showToast(validation.message);
+      return;
+    }
+
+    // Build and persist report payload
+    const reportPayload = {
+      results,
+      resultsDo,
+      resultsOhw,
+      resultsArm,
+      cover: coverForm.coverData,
+      condition,
+      structuralDesign: coverForm.poleConfig,
+    };
+
+    sessionStorage.setItem(
+      `${projectType}_reportSnapshot`,
+      JSON.stringify(reportPayload),
+    );
+
+    navigate("/report", { state: reportPayload });
   };
 
   // Navigates to next step or opens cover modal if this is the last step
   const finish = () => {
     if (!isCalculated) return;
-    if (isLast) {
-      cover.openCoverPopup();
-    } else {
-      navigate(`/calculation/${projectType}/${nextStep}`);
-    }
-  };
-
-  // Validates all fields then generates the report
-  const makeReport = async () => {
-    const { poles, directObjects, arms, overheadWires } = resolveData();
-
-    if (condition.method === "standard" && poles.length === 0) {
-      showToast("Selected standard configuration not found.");
-      return;
-    }
-
-    const result = await runMakeReport({
-      condition,
-      poleTypeStandard: poleStandard.poleType,
-      results,
-      cover: cover.coverData,
-      structuralDesign: cover.structuralDesign,
-      poles,
-      directObjects,
-      overheadWires,
-      arms,
-      steppedPole: poleStandard.steppedPole,
-      validateCover: cover.validateCover,
-      showToast,
-    });
-
-    if (!result?.isValid) {
-      const { errors } = result;
-      const isCustom = condition.method !== "standard";
-      const isStraight = poleStandard.poleType.poleShape === "straight";
-
-      if (errors.cover)
-        cover.setCoverErrors(Utils.getCoverErrors(cover.coverData));
-      if (errors.structuralDesign)
-        cover.setStructuralDesignErrors(
-          Utils.getStructuralDesignErrors(cover.structuralDesign),
-        );
-      if (errors.steppedPole && condition.method !== "custom" && isStraight)
-        poleStandard.setSteppedPoleErrors(
-          Utils.getStepPoleStandardErrors(poleStandard.steppedPole, condition),
-        );
-      if (errors.section && isCustom)
-        poleSection.setPoleErrors(Utils.getSectionsErrors(poles));
-      if (errors.directObject && isCustom)
-        directObject.setDoErrors(Utils.getDoErrors(directObjects));
-      if (errors.overheadWire && isCustom)
-        ohw.setOhwErrors(Utils.getOhwErrors(overheadWires));
-      if (errors.arm && isCustom) arm.setArmsErrors(Utils.getArmsErrors(arms));
-      if (errors.armObject && isCustom)
-        arm.setAoErrors(Utils.getAoErrors(arms));
-      return;
-    }
-
-    sessionStorage.setItem(`${projectType}_hasReport`, "true");
-
-    const payload = {
-      results,
-      resultsDo,
-      resultsOhw,
-      resultsArm,
-      cover: cover.coverData,
-      condition,
-      structuralDesign: cover.structuralDesign,
-    };
-    sessionStorage.setItem(
-      `${projectType}_reportSnapshot`,
-      JSON.stringify(payload),
-    );
-    navigate("/report", { state: payload });
+    if (isLast) return "OPEN_COVER";
+    navigate(`/calculation/${projectType}/${nextStep}`);
   };
 
   return {
+    // Results
     results,
     resultsDo,
     resultsOhw,
     resultsArm,
     showResults,
+
+    // UI state
     isCalculated,
+    loading,
     toast,
-    setToast,
     buttonLabel,
+
+    // Setters
+    setToast,
+
+    // Handlers
     calculate,
-    finish,
     makeReport,
+    finish,
+    showToast,
   };
 }

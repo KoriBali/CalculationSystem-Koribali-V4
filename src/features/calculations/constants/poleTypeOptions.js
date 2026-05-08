@@ -1,6 +1,6 @@
 import { FileText, Settings } from "lucide-react";
 
-// Pole input method options => used in ConditionForm (lighting-pole only)
+// Pole input poleType options => used in ConditionForm (lighting-pole only)
 export const poleTypeOptions = [
   {
     id: "standard",

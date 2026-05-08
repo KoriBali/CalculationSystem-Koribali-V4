@@ -1,19 +1,27 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useProjectStorage } from "../../../hooks/useProjectStorage";
+import { useProjectStorage } from "./useProjectStorage";
 
 import { validateOpening } from "../logic/opening/openingValidation";
 import { executeOpeningCalculation } from "../logic/opening/openingCalculation";
+import * as Utils from "../utils/pole-analyzer";
 
-import * as Utils from "../../../utils/pole-analyzer";
+// ─── CONSTANTS ───────────────────────────────────────────────────────────────
 
-// Main custom hook to manage opening form state and workflow
+// Maps opening type id to its display label
+const TYPE_LABEL_MAP = {
+  box: "Box Type",
+  r: "R Type",
+};
+
+// ─── HOOK ────────────────────────────────────────────────────────────────────
+
 export function useOpeningForm() {
   const { type: projectType } = useParams();
   const navigate = useNavigate();
 
-  // Safely retrieve condition data from session storage
-  const getCondition = () => {
+  // Read condition from sessionStorage — projectType must be available first
+  const condition = (() => {
     try {
       return JSON.parse(
         sessionStorage.getItem(`${projectType}_condition`) || "{}",
@@ -21,22 +29,18 @@ export function useOpeningForm() {
     } catch {
       return {};
     }
-  };
+  })();
 
-  const condition = getCondition();
+  // ── Persisted state ──
 
-  // ================= STATE =================
-
-  // Opening type state (box / r)
+  // Opening type selection (box / r)
   const [openingType, setOpeningType] = useProjectStorage(
     projectType,
     "openingType",
-    {
-      type: "",
-    },
+    { type: "" },
   );
 
-  // Box type input state
+  // Box type dimension inputs
   const [boxType, setBoxType] = useProjectStorage(projectType, "boxType", {
     boxWidth: "",
     opWidth: "",
@@ -45,86 +49,73 @@ export function useOpeningForm() {
     opLength: "",
   });
 
-  // R type input state
+  // R type dimension inputs
   const [rType, setRType] = useProjectStorage(projectType, "rType", {
     opWidth: "",
     opSurfaceHeight: "",
     opLength: "",
   });
 
-  // Calculated result state
+  // Calculated result — persisted so result survives reload
   const [calculatedOp, setCalculatedOp] = useProjectStorage(
     projectType,
     "calculatedOp",
     null,
   );
 
-  // Toggle to show/hide results
+  // Controls result table visibility
   const [showResultsOp, setShowResultsOp] = useProjectStorage(
     projectType,
     "showResultsOp",
     false,
   );
 
-  // Validation error states for each section
+  // ── UI state ──
+
   const [openingTypeErrors, setOpeningTypeErrors] = useState({});
   const [boxTypeErrors, setBoxTypeErrors] = useState({});
   const [rTypeErrors, setRTypeErrors] = useState({});
-
-  // UI expand/collapse states
-  const [isOpeningExpanded, setIsOpeningExpandedType] = useState(true);
+  const [isOpeningExpanded, setIsOpeningExpanded] = useState(true);
   const [isSelectExpanded, setIsSelectExpanded] = useState(true);
-
-  // Loading and calculation status
   const [loading, setLoading] = useState(false);
-  const [isCalculated, setIsCalculated] = useState(false);
-
-  // Toast notification state
+  const [isCalculated, setIsCalculated] = useState(!!calculatedOp);
   const [toast, setToast] = useState(null);
 
-  // Helper to show toast messages
-  const showToast = (message, type = "error") => {
-    setToast({ message, type });
-  };
+  // ── Navigation ──
 
-  // Navigation helper for multi-step flow
+  // Determines button label, next step path, and whether this is the last step
   const { buttonLabel, nextStep, isLast } = Utils.getStepNavigation(
     condition,
     "opening",
   );
 
-  // ================= HANDLERS =================
+  // ── Helpers ──
 
-  // Update opening type
-  const handleOpeningTypeUpdate = (updates) => {
+  const showToast = (message, type = "error") => setToast({ message, type });
+
+  // ── Update handlers ──
+
+  // Updates opening type selection
+  const updateOpeningType = (updates) =>
     Utils.updateOpeningType(openingType, updates, setOpeningType);
-  };
 
-  // Update Box Type inputs and clear related errors
-  const handleBoxTypeUpdate = (updates) => {
+  // Updates box type fields
+  const updateBoxType = (updates) =>
     Utils.updateBoxType(boxType, updates, setBoxType);
-  };
 
-  // Update R Type inputs and clear related errors
-  const handleRTypeUpdate = (updates) => {
-    Utils.updateRType(rType, updates, setRType);
-  };
+  // Updates R type fields
+  const updateRType = (updates) => Utils.updateRType(rType, updates, setRType);
 
-  // Handle calculation flow (validation + API call)
-  const handleCalculate = async () => {
-    // Reset all error states before validation
+  // ── Calculation ──
+
+  // Validates inputs then calls the opening calculation API
+  const calculate = async () => {
     setOpeningTypeErrors({});
     setBoxTypeErrors({});
     setRTypeErrors({});
 
-    // Run validation logic
-    const validation = await validateOpening({
-      openingType,
-      boxType,
-      rType,
-    });
+    const validation = await validateOpening({ openingType, boxType, rType });
 
-    // Handle validation failure
     if (!validation.isValid) {
       setOpeningTypeErrors(validation.typeErrors || {});
       setBoxTypeErrors(validation.boxErrors || {});
@@ -134,80 +125,64 @@ export function useOpeningForm() {
     }
 
     try {
-      // Start loading state
       setLoading(true);
 
-      // Execute API calculation
       const data = await executeOpeningCalculation({
         openingType,
         boxType,
         rType,
       });
 
-      // Save calculated result
-      setCalculatedOp({
-        ...data,
-        openingType,
-      });
-
-      // Update UI state after success
+      // Persist result alongside its opening type for the result table
+      setCalculatedOp({ ...data, openingType });
       setIsCalculated(true);
       setShowResultsOp(true);
     } catch (err) {
-      // Handle API or unexpected errors
       showToast(err?.message || "Something went wrong");
     } finally {
-      // Stop loading state
       setLoading(false);
     }
   };
 
-  // Handle navigation to next step or finish flow
-  const handleFinish = () => {
+  // ── Navigation ──
+
+  // Navigates to next step — returns "OPEN_COVER" signal if this is the last step
+  const finish = () => {
     if (!isCalculated) return;
-
-    if (isLast) {
-      return "OPEN_COVER";
-    }
-
+    if (isLast) return "OPEN_COVER";
     navigate(`/calculation/${projectType}/${nextStep}`);
   };
 
-  // Mapping for UI labels
-  const typeLabelMap = {
-    box: "Box Type",
-    r: "R Type",
-  };
-
-  // ================= RETURN =================
+  // ── Return ──
 
   return {
-    // State
     openingType,
     boxType,
     rType,
+    calculatedOp,
+    showResultsOp,
+
     openingTypeErrors,
     boxTypeErrors,
     rTypeErrors,
     isOpeningExpanded,
     isSelectExpanded,
     isCalculated,
-    showResultsOp,
-    calculatedOp,
-    buttonLabel,
-    toast,
-    typeLabelMap,
     loading,
+    toast,
 
-    // Actions
-    setIsOpeningExpandedType,
-    setIsSelectExpanded,
-    handleOpeningTypeUpdate,
-    handleBoxTypeUpdate,
-    handleRTypeUpdate,
-    handleCalculate,
-    handleFinish,
+    typeLabelMap: TYPE_LABEL_MAP,
+    buttonLabel,
+
     setToast,
+    setIsOpeningExpanded,
+    setIsSelectExpanded,
+
+    updateOpeningType,
+    updateBoxType,
+    updateRType,
+    calculate,
+    finish,
     showToast,
   };
 }

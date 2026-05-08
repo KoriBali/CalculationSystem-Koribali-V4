@@ -1,21 +1,20 @@
-// hooks/usePoleStandard.js
+import { useState } from "react";
 import { useProjectStorage } from "./useProjectStorage";
-import * as Utils from "../../utils/pole-analyzer";
+import * as Utils from "../utils/pole-analyzer";
 
-export function usePoleStandard(projectType) {
-  // Pole type selector (taper / straight)
-  const [poleType, setPoleType] = useProjectStorage(
+// Manages standard pole selection state — pole type, taper, and straight (stepped) pole
+export function usePoleStandardForm(projectType) {
+  // Pole type selector — determines which standard form is shown (taper / straight)
+  const [poleTypeStandard, setPoleTypeStandard] = useProjectStorage(
     projectType,
     "poleTypeStandard",
-    {
-      poleShape: "",
-    },
+    { type: "" },
   );
 
-  // Taper pole fields (poleStandard, groundPosition, height)
-  const [taperPole, setTaperPole] = useProjectStorage(
+  // Taper pole fields — poleType, groundPosition, height
+  const [taperPoleStandard, setTaperPoleStandard] = useProjectStorage(
     projectType,
-    "poleBasic",
+    "taperPoleStandard",
     {
       poleType: "",
       groundPosition: "",
@@ -24,9 +23,9 @@ export function usePoleStandard(projectType) {
   );
 
   // Straight (stepped) pole fields
-  const [steppedPole, setSteppedPole] = useProjectStorage(
+  const [straightPoleStandard, setStraightPoleStandard] = useProjectStorage(
     projectType,
-    "stepPoleStandard",
+    "straightPoleStandard",
     {
       poleType: "steppedPole",
       combinationGroup: "",
@@ -41,47 +40,58 @@ export function usePoleStandard(projectType) {
     },
   );
 
-  const [steppedPoleErrors, setSteppedPoleErrors] = useState({});
+  const [straightPoleErrors, setStraightPoleErrors] = useState({});
 
-  // Updates pole type selection
-  const updatePoleType = (updates) =>
-    Utils.updatePoleTypeStandard(poleType, updates, setPoleType);
+  // Updates pole type selection — resets downstream fields on type change
+  const updatePoleTypeStandard = (updates) =>
+    Utils.updatePoleTypeStandard(
+      poleTypeStandard,
+      updates,
+      setPoleTypeStandard,
+    );
 
   // Updates taper pole fields
-  const updateTaperPole = (updates) =>
-    Utils.updatePoleBasic(taperPole, updates, setTaperPole);
+  const updateTaperPoleStandard = (updates) =>
+    Utils.updatetaperPoleStandard(
+      taperPoleStandard,
+      updates,
+      setTaperPoleStandard,
+    );
 
-  // Updates stepped pole fields — resets heightDepth when switching to onGL
-  const updateSteppedPole = (updates) => {
+  // Updates straight pole fields — resets heightDepth when switching to onGL
+  const updateStraightPoleStandard = (updates) => {
     let next = { ...updates };
 
     if ("groundPosition" in updates) {
       next.heightDepth = updates.groundPosition === "onGL" ? 0 : "";
     }
 
-    Utils.updateStepPoleStandard(steppedPole, next, setSteppedPole);
-    Utils.clearError(next, setSteppedPoleErrors);
+    Utils.updatestraightPoleStandard(
+      straightPoleStandard,
+      next,
+      setStraightPoleStandard,
+    );
+    Utils.clearError(next, setStraightPoleErrors);
   };
 
-  const isPoleTypeComplete = () => Utils.poleTypeStandardComplete(poleType);
-  const isSteppedPoleComplete = () =>
-    Utils.stepPoleStandardComplete(steppedPole, condition);
+  // Checks if pole type has been selected
+  const isPoleTypeComplete = () =>
+    Utils.poleTypeStandardComplete(poleTypeStandard);
 
   return {
     // State
-    poleType,
-    taperPole,
-    steppedPole,
-    steppedPoleErrors,
+    poleTypeStandard,
+    taperPoleStandard,
+    straightPoleStandard,
+    straightPoleErrors,
 
     // Setters
-    setSteppedPoleErrors,
+    setStraightPoleErrors,
 
     // Handlers
-    updatePoleType,
-    updateTaperPole,
-    updateSteppedPole,
+    updatePoleTypeStandard,
+    updateTaperPoleStandard,
+    updateStraightPoleStandard,
     isPoleTypeComplete,
-    isSteppedPoleComplete,
   };
 }
