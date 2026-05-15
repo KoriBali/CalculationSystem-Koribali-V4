@@ -190,7 +190,7 @@ export function OverheadWireForm({
             className={`hover:bg-blue-50 p-6 
             ${hasMultiple && !isLast ? "border-b border-gray-200" : ""} hp:px-4 hp:pb-6 hp:pt-4`}
           >
-            {/* Header section title */}
+            {/* Header pole title */}
             <div
               className="
                 flex items-center justify-between

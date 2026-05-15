@@ -256,12 +256,12 @@ export function PoleForm({
                 Height (Z/H)
               </label>
               <UnitInput
-                value={pole.height}
-                onChange={(e) => onUpdate({ height: e.target.value })}
+                value={pole.zHeight}
+                onChange={(e) => onUpdate({ zHeight: e.target.value })}
                 unit="mm"
-                hasError={errors.height}
+                hasError={errors.zHeight}
               />
-              <ErrorStyle show={errors.height} text={errors.height} />
+              <ErrorStyle show={errors.zHeight} text={errors.zHeight} />
             </div>
 
             {/* Quantity */}

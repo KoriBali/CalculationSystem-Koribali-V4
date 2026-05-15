@@ -20,24 +20,24 @@ export const PoleStructuralSchema = (poleConfig) => {
         const upperDiameter = Number(current.upperDiameter);
         const lowerThickness = Number(current.lowerThickness);
         const upperThickness = Number(current.upperThickness);
-        const heightCurrent = Number(current.height);
+        const heightCurrent = Number(current.zHeight);
 
         // ERROR 1 — Height <= 0
         if (!heightCurrent || heightCurrent <= 0) {
           return this.createError({
             message: `Pole ${poleNumber}: Height must be greater than 0.`,
-            path: `[${i}].height`,
+            path: `[${i}].zHeight`,
           });
         }
 
-        // ERROR 2 — Urutan height
+        // ERROR 2 — Urutan zHeight
         if (i > 0) {
-          const hPrevious = Number(previous.height);
+          const hPrevious = Number(previous.zHeight);
 
           if (heightCurrent > hPrevious) {
             return this.createError({
               message: `Pole ${poleNumber}: Height must not be higher than previous step.`,
-              path: `[${i}].height`,
+              path: `[${i}].zHeight`,
             });
           }
         }
@@ -47,7 +47,7 @@ export const PoleStructuralSchema = (poleConfig) => {
           if (lowestHeight >= heightCurrent) {
             return this.createError({
               message: `Pole ${poleNumber}: Lowest height must be lower than bottom step.`,
-              path: `[${i}].height`,
+              path: `[${i}].zHeight`,
             });
           }
         }

@@ -2,13 +2,13 @@ import { useState } from "react";
 import { Helmet } from "react-helmet";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
-import { CalculationHeader } from "../../components/layout/CalculationHeader";
-import { ConditionForm } from "../../components/forms/initial-setup/ConditionForm";
-import { ConfirmDisableModal } from "../../components/modals/ConfirmDisableModal";
-import { ToastModal } from "../../components/modals/ToastModal";
-import { useConditionForm } from "../../hooks/useConditionForm";
+import { HeaderCalculationPage } from "../../layout/HeaderCalculationPage";
+import { ConditionForm } from "./ConditionForm";
+import { ConfirmDisableModal } from "../../modals/ConfirmDisableModal";
+import { ToastModal } from "../../modals/ToastModal";
+import { useConditionForm } from "../../../hooks/useConditionFrom";
 
-export default function CalcSetup() {
+export default function CalculationSetupForm() {
   // UI-only state — lives in page, not in hook
   const [isExpanded, setIsExpanded] = useState(true);
 
@@ -40,7 +40,7 @@ export default function CalcSetup() {
         </Helmet>
 
         <div className="min-h-screen bg-gray-50 border border-gray-250">
-          <CalculationHeader />
+          <HeaderCalculationPage />
 
           <div className="mx-6 2040:mx-[250px] pt-1 pb-8 hp:mx-2">
             {/* Section header — collapsible toggle */}

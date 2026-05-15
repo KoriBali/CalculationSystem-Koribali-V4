@@ -96,10 +96,10 @@ export function PoleResultTable({ resultPole }) {
                 className="hover:bg-[#3399cc]/10 transition-colors text-xs hp:text-[10px]"
               >
                 <td className="px-4 py-3 border border-gray-300 text-gray-700 text-center hp:px-3 hp:py-2">
-                  {r.pole}
+                  Pole {i + 1}
                 </td>
                 <td className="px-4 py-3 border border-gray-300 text-gray-700 text-center hp:px-3 hp:py-2">
-                  {r.description}
+                  {r.name}
                 </td>
                 <td className="px-4 py-3 border border-gray-300 text-gray-700 text-center hp:px-3 hp:py-2">
                   {r.type}
@@ -125,7 +125,7 @@ export function PoleResultTable({ resultPole }) {
                   {r.length}
                 </td>
                 <td className="px-4 py-3 border border-gray-300 text-gray-700 text-center hp:px-3 hp:py-2">
-                  {r.height}
+                  {r.zHeight}
                 </td>
                 <td className="px-4 py-3 border border-gray-300 text-gray-700 text-center hp:px-3 hp:py-2">
                   {r.centerPoint}

@@ -12,7 +12,7 @@ import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { ConfirmSaveDraftModal } from "../modals/ConfirmSaveDraftModal";
 import { ConfirmResetAllModal } from "../modals/ConfirmResetAllModal";
 import { BaseplateIcon } from "../../../../assets/icons/icon";
-import { clearCalculationSession } from "../../utils/pole-analyzer";
+import { clearCalculationSession } from "../../utils";
 
 // ─── COMPONENT ───────────────────────────────────────────────────────────────
 export function HeaderCalculationPage() {

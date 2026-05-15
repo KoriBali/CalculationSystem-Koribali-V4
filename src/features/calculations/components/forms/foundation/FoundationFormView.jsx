@@ -7,8 +7,9 @@ import { FoundationType } from "./FoundationType";
 import { RoundCaissonTypeForm } from "./RoundCaissonTypeForm";
 import { SquareCaissonTypeForm } from "./SquareCaissonTypeForm";
 import { FoundationResultTable } from "../../tables/foundation-result/FoundationResultTable";
+
+import { CoverFormModal } from "../../modals/CoverFormModal";
 import { ToastModal } from "../../modals/ToastModal";
-import { CoverInputModal } from "../../modals/CoverFormModal";
 
 import { useFoundationForm } from "../../../hooks/useFoundationForm";
 import { useCoverForm } from "../../../hooks/useCoverForm";
@@ -223,7 +224,7 @@ export default function FoundationFormView() {
       </div>
 
       {/* ================= COVER MODAL ================= */}
-      <CoverInputModal
+      <CoverFormModal
         open={showCoverPopup}
         onClose={handleCloseCoverPopup}
         cover={cover} // Menambahkan data cover ke modal

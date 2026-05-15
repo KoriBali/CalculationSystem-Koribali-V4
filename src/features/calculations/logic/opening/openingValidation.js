@@ -1,4 +1,4 @@
-import { validateWithYup } from "../../utils/validation";
+import { validateWithYup } from "../../utils";
 import { OpeningTypeSchema } from "../../schemas/opening/OpeningTypeSchema";
 import { BoxTypeSchema } from "../../schemas/opening/BoxTypeSchema";
 import { RTypeSchema } from "../../schemas/opening/RTypeSchema";

@@ -107,7 +107,7 @@ export function DirectObjectResultTable({ resultsDo }) {
                 className="hover:bg-[#3399cc]/10 transition-colors text-xs hp:text-[10px]"
               >
                 <td className="px-4 py-3 border border-gray-300 text-gray-700 text-center hp:px-3 hp:py-2">
-                  {r.doNum}
+                  DO {i + 1}
                 </td>
 
                 <td className="px-4 py-3 border border-gray-300 text-gray-700 text-center hp:px-3 hp:py-2">

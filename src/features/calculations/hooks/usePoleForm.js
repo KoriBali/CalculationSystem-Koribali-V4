@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useProjectStorage } from "./useProjectStorage";
-import * as Utils from "../utils/pole-analyzer";
+import * as Utils from "../utils";
 
 // ─── CONSTANTS ───────────────────────────────────────────────────────────────
 
@@ -9,28 +9,29 @@ const DEFAULT_POLE = {
   name: "",
   material: "STK400",
   poleType: "Straight",
-  diameterLower: "",
-  diameterUpper: "",
-  thicknessLower: "",
-  thicknessUpper: "",
-  height: "",
+  lowerDiameter: "",
+  upperDiameter: "",
+  lowerThickness: "",
+  upperThickness: "",
+  zHeight: "",
   quantity: "1",
 };
 
 // ─── HOOK ────────────────────────────────────────────────────────────────────
 
-// Manages pole sections state — add, remove, update, navigate between tabs
+// Manages pole poles state — add, remove, update, navigate between tabs
 export function usePoleForm(projectType) {
-  const [poles, setPoles] = useProjectStorage(projectType, "sections", [
+  const [poles, setPoles] = useProjectStorage(projectType, "poles", [
     DEFAULT_POLE,
   ]);
   const [poleErrors, setPoleErrors] = useState({});
   const [activeTab, setActiveTab] = useState("1");
+  const [confirmDelete, setConfirmDelete] = useState(null);
 
   // Persists max pole ID to prevent conflicts after reload
   const poleIdRef = useRef(1);
   useEffect(() => {
-    const saved = sessionStorage.getItem(`${projectType}_sections`);
+    const saved = sessionStorage.getItem(`${projectType}_poles`);
     if (!saved) return;
     const parsed = JSON.parse(saved);
     const maxId = Math.max(0, ...parsed.map((p) => Number(p.id)));
@@ -51,21 +52,20 @@ export function usePoleForm(projectType) {
   const isBackDisabled = poles.length === 1 || activeIndex === 0;
 
   // Adds a new pole (max 6)
-  const addPole = () =>
-    Utils.addSection(poles, setPoles, setActiveTab, poleIdRef);
+  const addPole = () => Utils.addPole(poles, setPoles, setActiveTab, poleIdRef);
 
   // Removes a pole by ID
   const removePole = (id) =>
-    Utils.removeSection(id, poles, setPoles, activeTab, setActiveTab);
+    Utils.removePole(id, poles, setPoles, activeTab, setActiveTab);
 
   // Updates a specific pole's fields and clears related errors
   const updatePole = (id, updates) => {
-    Utils.updateSection(id, updates, setPoles, poles);
-    Utils.clearSectionError(id, updates, setPoleErrors);
+    Utils.updatePole(id, updates, setPoles, poles);
   };
 
   // Resets the active pole's fields to empty
-  const resetActivePole = () => Utils.resetCurrent(setPoles, poles, activeTab);
+  const resetActivePole = () =>
+    Utils.resetCurrentPole(setPoles, poles, activeTab);
 
   // Navigates to the next pole tab
   const goToNext = () => {
@@ -88,6 +88,7 @@ export function usePoleForm(projectType) {
 
     setPoleErrors,
     setActiveTab,
+    confirmDelete,
 
     addPole,
     removePole,

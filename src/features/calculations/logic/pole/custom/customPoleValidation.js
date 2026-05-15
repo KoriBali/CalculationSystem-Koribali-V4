@@ -1,4 +1,4 @@
-import { validateWithYup } from "../../../utils/validation";
+import { validateWithYup } from "../../../utils";
 import { PoleConfigSchema } from "../../../schemas/pole/custom/PoleConfigSchema";
 import { PoleFormSchema } from "../../../schemas/pole/custom/PoleFormSchema";
 import { PoleStructuralSchema } from "../../../schemas/pole/custom/PoleStructuralSchema";

@@ -1,8 +1,5 @@
 import React from "react";
-import {
-  formatJpYp,
-  NameCell,
-} from "../../../utils/report-handlers/textFormatter";
+import { formatDateYP, AutoFitNameCell } from "../../../utils/reportFormatters";
 import "../../../styles/report.css";
 
 export default function AcemastReportContent({
@@ -11,7 +8,7 @@ export default function AcemastReportContent({
   results = [],
   resultsOhw = [],
   resultsDo = [],
-  structuralDesign = {},
+  poleConfig = {},
 }) {
   const hasOhw = resultsOhw?.length > 0;
 
@@ -25,11 +22,11 @@ export default function AcemastReportContent({
             <div className="flex justify-between">
               <p className="cover-row-1 ml-[10px] tracking-[0.1em]">
                 <span className="jp">管理記号:</span>
-                <span> {cover?.managementMark || ""}</span>
+                <span> {cover?.managementCode ?? ""}</span>
               </p>
               <div className="cover-row-1 mr-[10px] flex justify-center items-center">
                 <span className="tracking-[0.1em] jp">計算書番号:</span>
-                <span> {cover?.calculationNumber || ""}</span>
+                <span> {cover?.calculationNumber ?? ""}</span>
               </div>
             </div>
 
@@ -42,21 +39,21 @@ export default function AcemastReportContent({
             {/* Project information block */}
             <div className="cover-double-line-yp">
               <p className="cover-inner-text cover-inner-text-line text-center py-[7px] jp">
-                {cover?.projectName || ""}
+                {cover?.projectName ?? ""}
               </p>
               <p
                 className={`cover-inner-text cover-inner-text-line text-center jp ${
-                  !cover?.contentr2 ? "py-[19px]" : "py-[7px]"
+                  !cover?.coverTopText ? "py-[19px]" : "py-[7px]"
                 }`}
               >
-                {cover?.contentr2 || ""}
+                {cover?.coverTopText ?? ""}
               </p>
               <p
                 className={`cover-inner-text text-center jp py-[7px] ${
-                  !cover?.contentr3 ? "mb-[24px]" : ""
+                  !cover?.coverBottomText ? "mb-[24px]" : ""
                 }`}
               >
-                {cover?.contentr3 || ""}
+                {cover?.coverBottomText ?? ""}
               </p>
             </div>
             <br />
@@ -66,16 +63,16 @@ export default function AcemastReportContent({
                   {condition?.designStandard === "v60" && (
                     <>
                       <span className="jp">設計風速：</span>V ={" "}
-                      {condition?.windSpeed ?? 34} m/s
+                      {condition?.designWindSpeed ?? 34} m/s
                     </>
                   )}
 
                   {condition?.designStandard === "act" && (
                     <>
                       <span className="jp">建築基準法：地方区分（三）</span>
-                      Vo = {condition?.windSpeed ?? 34} m/s ，
+                      Vo = {condition?.designWindSpeed ?? 34} m/s ，
                       <span className="jp">粗度区分</span>
-                      {condition?.roughness ?? "II"}
+                      {/* {condition?.roughness ?? "II"} */}
                     </>
                   )}
                 </div>
@@ -84,7 +81,7 @@ export default function AcemastReportContent({
 
             {/* Date & logo */}
             <div className="cover-row-3 text-center jp">
-              {cover?.date ? formatJpYp(cover.date) : ""}
+              {cover?.date ? formatDateYP(cover.date) : ""}
             </div>
             <br />
             <br />
@@ -103,7 +100,7 @@ export default function AcemastReportContent({
           <div className="page-preview">
             <div className="page-a4">
               <div className="page-header">
-                No. {cover?.calculationNumber || ""} P-1
+                No. {cover?.calculationNumber ?? ""} P-1
               </div>
 
               <div className="leading-[1.55]">
@@ -456,7 +453,7 @@ export default function AcemastReportContent({
           <div className="page-preview">
             <div className="page-a4">
               <div className="page-header">
-                No. {cover?.calculationNumber || ""} P-1
+                No. {cover?.calculationNumber ?? ""} P-1
               </div>
 
               <div className="leading-[1.55]">
@@ -1111,7 +1108,7 @@ export default function AcemastReportContent({
           <div className="page-preview">
             <div className="page-a4">
               <div className="page-header">
-                No. {cover?.calculationNumber || ""} P-2
+                No. {cover?.calculationNumber ?? ""} P-2
               </div>
 
               <div className="flex flex-col ml-[88px] tracking-[0.05em] leading-[1.55]">
@@ -1585,7 +1582,7 @@ export default function AcemastReportContent({
           <div className="page-preview">
             <div className="page-a4">
               <div className="page-header">
-                No. {cover?.calculationNumber || ""} P-2
+                No. {cover?.calculationNumber ?? ""} P-2
               </div>
 
               <div className="leading-[1.55]">
@@ -1703,7 +1700,7 @@ export default function AcemastReportContent({
                           1
                         </td>
                         <td className="border tracking-[0.05em] text-left align-middle px-1 border-black">
-                          <NameCell text="Lighting Rod" />
+                          <AutoFitNameCell text="Lighting Rod" />
                         </td>
                         <td className="border tracking-[0.05em] text-right align-middle px-1 border-black">
                           127.5
@@ -1733,7 +1730,7 @@ export default function AcemastReportContent({
                           2
                         </td>
                         <td className="border tracking-[0.05em] text-left align-middle px-1 border-black">
-                          <NameCell text="3-yagi antenna" />
+                          <AutoFitNameCell text="3-yagi antenna" />
                         </td>
                         <td className="border tracking-[0.05em] text-right align-middle px-1 border-black">
                           107.9
@@ -1763,7 +1760,7 @@ export default function AcemastReportContent({
                           3
                         </td>
                         <td className="border tracking-[0.05em] text-left align-middle px-1 border-black">
-                          <NameCell text="Mounting Bracket" />
+                          <AutoFitNameCell text="Mounting Bracket" />
                         </td>
                         <td className="border tracking-[0.05em] text-right align-middle px-1 border-black">
                           98.1
@@ -1793,7 +1790,7 @@ export default function AcemastReportContent({
                           4
                         </td>
                         <td className="border tracking-[0.05em] text-left align-middle px-1 border-black">
-                          <NameCell text="Box" />
+                          <AutoFitNameCell text="Box" />
                         </td>
                         <td className="border tracking-[0.05em] text-right align-middle px-1 border-black">
                           29.4
@@ -1823,7 +1820,7 @@ export default function AcemastReportContent({
                           5
                         </td>
                         <td className="border tracking-[0.05em] text-left align-middle px-1 border-black">
-                          <NameCell text="Co Linear antenna" />
+                          <AutoFitNameCell text="Co Linear antenna" />
                         </td>
                         <td className="border tracking-[0.05em] text-right align-middle px-1 border-black">
                           29.4
@@ -1853,7 +1850,7 @@ export default function AcemastReportContent({
                           6
                         </td>
                         <td className="border tracking-[0.05em] text-left align-middle px-1 border-black">
-                          <NameCell text="Mounting Bracket" />
+                          <AutoFitNameCell text="Mounting Bracket" />
                         </td>
                         <td className="border tracking-[0.05em] text-right align-middle px-1 border-black">
                           205.9
@@ -1883,7 +1880,7 @@ export default function AcemastReportContent({
                           7
                         </td>
                         <td className="border tracking-[0.05em] text-left align-middle px-1 border-black">
-                          <NameCell text="Box" />
+                          <AutoFitNameCell text="Box" />
                         </td>
                         <td className="border tracking-[0.05em] text-right align-middle px-1 border-black">
                           39.2
@@ -2523,7 +2520,7 @@ export default function AcemastReportContent({
           <div className="page-preview">
             <div className="page-a4">
               <div className="page-header">
-                No. {cover?.calculationNumber || ""} P-3
+                No. {cover?.calculationNumber ?? ""} P-3
               </div>
 
               <div className="leading-[1.55]">
@@ -2925,7 +2922,7 @@ export default function AcemastReportContent({
                           1
                         </td>
                         <td className="border tracking-[0.05em] text-left align-middle px-1 border-black">
-                          <NameCell text="Lighting Rod" />
+                          <AutoFitNameCell text="Lighting Rod" />
                         </td>
                         <td className="border tracking-[0.05em] text-right align-middle px-1 border-black">
                           127.5
@@ -2961,7 +2958,7 @@ export default function AcemastReportContent({
                           2
                         </td>
                         <td className="border tracking-[0.05em] text-left align-middle px-1 border-black">
-                          <NameCell text="3-yagi antenna" />
+                          <AutoFitNameCell text="3-yagi antenna" />
                         </td>
                         <td className="border tracking-[0.05em] text-right align-middle px-1 border-black">
                           107.9
@@ -2997,7 +2994,7 @@ export default function AcemastReportContent({
                           3
                         </td>
                         <td className="border tracking-[0.05em] text-left align-middle px-1 border-black">
-                          <NameCell text="Mounting Bracket" />
+                          <AutoFitNameCell text="Mounting Bracket" />
                         </td>
                         <td className="border tracking-[0.05em] text-right align-middle px-1 border-black">
                           98.1
@@ -3033,7 +3030,7 @@ export default function AcemastReportContent({
                           4
                         </td>
                         <td className="border tracking-[0.05em] text-left align-middle px-1 border-black">
-                          <NameCell text="Box" />
+                          <AutoFitNameCell text="Box" />
                         </td>
                         <td className="border tracking-[0.05em] text-right align-middle px-1 border-black">
                           29.4
@@ -3069,7 +3066,7 @@ export default function AcemastReportContent({
                           5
                         </td>
                         <td className="border tracking-[0.05em] text-left align-middle px-1 border-black">
-                          <NameCell text="Co Linear antenna" />
+                          <AutoFitNameCell text="Co Linear antenna" />
                         </td>
                         <td className="border tracking-[0.05em] text-right align-middle px-1 border-black">
                           29.4
@@ -3105,7 +3102,7 @@ export default function AcemastReportContent({
                           6
                         </td>
                         <td className="border tracking-[0.05em] text-left align-middle px-1 border-black">
-                          <NameCell text="Mounting Bracket" />
+                          <AutoFitNameCell text="Mounting Bracket" />
                         </td>
                         <td className="border tracking-[0.05em] text-right align-middle px-1 border-black">
                           205.9
@@ -3141,7 +3138,7 @@ export default function AcemastReportContent({
                           7
                         </td>
                         <td className="border tracking-[0.05em] text-left align-middle px-1 border-black">
-                          <NameCell text="Box" />
+                          <AutoFitNameCell text="Box" />
                         </td>
                         <td className="border tracking-[0.05em] text-right align-middle px-1 border-black">
                           39.2
@@ -3901,7 +3898,7 @@ export default function AcemastReportContent({
           <div className="page-preview">
             <div className="page-a4">
               <div className="page-header">
-                No. {cover?.calculationNumber || ""} P-
+                No. {cover?.calculationNumber ?? ""} P-
                 {condition?.designStandard === "v60"
                   ? 3
                   : condition?.designStandard === "act"
@@ -4270,7 +4267,7 @@ export default function AcemastReportContent({
       <div className="page-preview">
         <div className="page-a4">
           <div className="page-header">
-            No. {cover?.calculationNumber || ""} P-
+            No. {cover?.calculationNumber ?? ""} P-
             {condition?.designStandard === "v60"
               ? hasOhw
                 ? 4
@@ -4817,7 +4814,7 @@ export default function AcemastReportContent({
       <div className="page-preview">
         <div className="page-a4">
           <div className="page-header">
-            No. {cover?.calculationNumber || ""} P-
+            No. {cover?.calculationNumber ?? ""} P-
             {condition?.designStandard === "v60"
               ? hasOhw
                 ? 5
@@ -5927,7 +5924,7 @@ export default function AcemastReportContent({
       <div className="page-preview">
         <div className="page-a4">
           <div className="page-header">
-            No. {cover?.calculationNumber || ""} P-
+            No. {cover?.calculationNumber ?? ""} P-
             {condition?.designStandard === "v60"
               ? hasOhw
                 ? 6

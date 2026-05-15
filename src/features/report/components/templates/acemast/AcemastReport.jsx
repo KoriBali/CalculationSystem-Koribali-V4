@@ -5,7 +5,7 @@ import "../../../styles/report.css";
 export default function AcemastReport({
   cover,
   condition,
-  structuralDesign,
+  poleConfig,
   results,
   resultsDo,
   resultsOhw,
@@ -19,7 +19,7 @@ export default function AcemastReport({
         results={results}
         resultsOhw={resultsOhw}
         resultsDo={resultsDo}
-        structuralDesign={structuralDesign}
+        poleConfig={poleConfig}
       />
     </>
   );

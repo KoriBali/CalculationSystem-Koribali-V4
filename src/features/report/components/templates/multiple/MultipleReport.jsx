@@ -7,15 +7,15 @@ import "../../../styles/report.css";
 export default function MultipleReport({
   cover,
   condition,
-  structuralDesign,
+  poleConfig,
   results,
   resultsDo,
   resultsOhw,
 }) {
   // 1. blocks memo
   const blocks = useMemo(
-    () => createBlocks(results, resultsDo, structuralDesign),
-    [results, resultsDo, structuralDesign],
+    () => createBlocks(results, resultsDo, poleConfig),
+    [results, resultsDo, poleConfig],
   );
 
   // 2. ref untuk measurement

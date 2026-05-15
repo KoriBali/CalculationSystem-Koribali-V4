@@ -35,7 +35,7 @@ const EMPTY_POLE_STANDARD = {
 };
 
 // === COMPONENT ===
-export function poleTypeForm({ taperPoleStandard, onUpdate }) {
+export function TaperPoleStandardForm({ taperPoleStandard, onUpdate }) {
   // Get height options based on selected pole standard
   const currentHeightOptions =
     HEIGHT_OPTIONS_BY_STANDARD[taperPoleStandard.poleType] ??

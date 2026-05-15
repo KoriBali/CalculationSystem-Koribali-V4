@@ -3,7 +3,7 @@ import * as yup from "yup";
 export const PoleFormSchema = yup.object({
   name: yup.string().required("Required field"),
 
-  height: yup
+  zHeight: yup
     .number()
     .typeError("Must be a number")
     .required("Required field")

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useProjectStorage } from "./useProjectStorage";
-import * as Utils from "../utils/pole-analyzer";
+import * as Utils from "../utils";
 
 // ─── HOOK ────────────────────────────────────────────────────────────────────
 
@@ -27,7 +27,6 @@ export function usePoleConfigForm(projectType) {
     }
 
     Utils.updatePoleConfig(poleConfig, next, setPoleConfig);
-    Utils.clearError(next, setPoleConfigErrors);
   };
 
   return {

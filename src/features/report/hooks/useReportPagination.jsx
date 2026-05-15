@@ -1,9 +1,9 @@
-import { mmToPx } from "../../../utils/report-handlers/unitConventer";
+import { mmToPx } from "../utils/unitConventer";
 
 // ─── SHARED HELPER ───────────────────────────────────────────────────────────
 
 /**
- * Core A4 pagination engine — distributes blocks across pages based on height.
+ * Core A4 pagination engine — distributes blocks across pages based on zHeight.
  * Each project type passes different ptValue and pageHeader to account for
  * their unique layout measurements.
  *
@@ -21,9 +21,9 @@ function paginateA4({ blocks, measureRef, ptValue, pageHeader }) {
   // Build a lookup map for fast block access by id
   const blockMap = new Map(blocks.map((b) => [b.id, b]));
 
-  // Measure the container to get the available page height
+  // Measure the container to get the available page zHeight
   const measureRect = measureRef.current.getBoundingClientRect();
-  const pageHeight = measureRect.height;
+  const pageHeight = measureRect.zHeight;
 
   // Convert mm margins to px
   const paddingBottomPx = mmToPx(15);
@@ -44,7 +44,9 @@ function paginateA4({ blocks, measureRef, ptValue, pageHeader }) {
   );
 
   // Pre-measure all children heights in one pass to avoid layout thrashing
-  const heights = children.map((child) => child.getBoundingClientRect().height);
+  const heights = children.map(
+    (child) => child.getBoundingClientRect().zHeight,
+  );
 
   children.forEach((child, index) => {
     const h = heights[index];

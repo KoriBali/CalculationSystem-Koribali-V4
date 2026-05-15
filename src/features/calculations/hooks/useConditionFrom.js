@@ -8,7 +8,7 @@ import {
   saveCalculationConfig,
   cleanupDisabledComponents,
 } from "../logic/initial-setup/conditionLogic";
-import { useProjectStorage } from "../hooks/useProjectStorage";
+import { useProjectStorage } from "./useProjectStorage";
 
 // ─── CONSTANTS ───────────────────────────────────────────────────────────────
 
@@ -47,13 +47,6 @@ export function useConditionForm() {
     const next = applyStandardDefaults(updates);
 
     setLocalCondition((prev) => ({ ...prev, ...next }));
-
-    // Clear errors for fields that were just updated
-    setErrors((prev) => {
-      const cleared = { ...prev };
-      Object.keys(updates).forEach((key) => delete cleared[key]);
-      return cleared;
-    });
   };
 
   // Validate then proceed — or show confirm modal if components were disabled

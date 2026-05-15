@@ -1,5 +1,4 @@
 import { RotateCcw } from "lucide-react";
-import { getNumericError } from "../../utils/pole-analyzer";
 import {
   STEPPED_POLE_OPTIONS,
   COMBINATION_GROUPS,
@@ -254,9 +253,7 @@ export function StraightPoleStandardForm({
                         </span>
                         <ErrorStyle
                           show={errors.upperLength}
-                          text={getNumericError(
-                            straightPoleStandard.upperLength,
-                          )}
+                          text={errors.upperLength}
                         />
                       </div>
                     </div>
@@ -319,9 +316,7 @@ export function StraightPoleStandardForm({
                         </span>
                         <ErrorStyle
                           show={errors.lowerLength}
-                          text={getNumericError(
-                            straightPoleStandard.lowerLength,
-                          )}
+                          text={errors.lowerLength}
                         />
                       </div>
                     </div>
@@ -365,9 +360,7 @@ export function StraightPoleStandardForm({
                     </div>
                     <ErrorStyle
                       show={errors.embedmentLength}
-                      text={getNumericError(
-                        straightPoleStandard.embedmentLength,
-                      )}
+                      text={errors.embedmentLength}
                     />
                   </div>
                 </div>
@@ -445,9 +438,7 @@ export function StraightPoleStandardForm({
                           </div>
                           <ErrorStyle
                             show={errors.heightDepth}
-                            text={getNumericError(
-                              straightPoleStandard.heightDepth,
-                            )}
+                            text={errors.heightDepth}
                           />
                         </div>
                       </div>

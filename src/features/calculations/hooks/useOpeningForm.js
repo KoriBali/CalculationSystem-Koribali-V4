@@ -4,7 +4,7 @@ import { useProjectStorage } from "./useProjectStorage";
 
 import { validateOpening } from "../logic/opening/openingValidation";
 import { executeOpeningCalculation } from "../logic/opening/openingCalculation";
-import * as Utils from "../utils/pole-analyzer";
+import * as Utils from "../utils";
 
 // ─── CONSTANTS ───────────────────────────────────────────────────────────────
 

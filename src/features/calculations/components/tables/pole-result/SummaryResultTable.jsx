@@ -1,5 +1,5 @@
 import { FileSpreadsheet } from "lucide-react";
-import { getRowsForStepFull } from "../../utils/result-table/stepResultsTable";
+import { getRows } from "../../../utils/formatResultTableRows";
 
 export function SummaryResultTable({ resultPole }) {
   return (

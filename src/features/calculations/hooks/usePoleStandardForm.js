@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useProjectStorage } from "./useProjectStorage";
-import * as Utils from "../utils/pole-analyzer";
+import * as Utils from "../utils";
 
 // Manages standard pole selection state — pole type, taper, and straight (stepped) pole
 export function usePoleStandardForm(projectType) {
@@ -71,12 +71,7 @@ export function usePoleStandardForm(projectType) {
       next,
       setStraightPoleStandard,
     );
-    Utils.clearError(next, setStraightPoleErrors);
   };
-
-  // Checks if pole type has been selected
-  const isPoleTypeComplete = () =>
-    Utils.poleTypeStandardComplete(poleTypeStandard);
 
   return {
     // State
@@ -92,6 +87,5 @@ export function usePoleStandardForm(projectType) {
     updatePoleTypeStandard,
     updateTaperPoleStandard,
     updateStraightPoleStandard,
-    isPoleTypeComplete,
   };
 }

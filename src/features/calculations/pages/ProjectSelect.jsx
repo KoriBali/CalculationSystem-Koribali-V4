@@ -19,7 +19,7 @@ const cardAnimation = (index) => ({
 });
 
 // === COMPONENT ===
-export default function ProjectTypeSelect() {
+export default function ProjectSelectPage() {
   const navigate = useNavigate();
 
   // Validates selected project type, saves to session, then navigates to setup

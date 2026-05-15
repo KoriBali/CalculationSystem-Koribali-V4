@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useProjectStorage } from "./useProjectStorage";
-import * as Utils from "../utils/pole-analyzer";
+import * as Utils from "../utils";
 
 // Manages overhead wire list state — add, remove, update, copy/paste
 export function useOverheadWireForm(projectType) {
@@ -54,7 +54,6 @@ export function useOverheadWireForm(projectType) {
   // Updates a specific OHW's fields and clears related errors
   const updateOhw = (idOhw, updates) => {
     Utils.updateOhw(idOhw, updates, setOverheadWires, overheadWires);
-    Utils.clearOhwError(idOhw, updates, setOhwErrors);
   };
 
   // Resets a specific OHW's fields to empty

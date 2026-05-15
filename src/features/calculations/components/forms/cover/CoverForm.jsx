@@ -35,9 +35,9 @@ const Label = ({ children }) => (
 const EMPTY_COVER = {
   managementCode: "",
   calculationNumber: "",
-  line1: "",
-  line2: "",
-  line3: "",
+  projectName: "",
+  coverTopText: "",
+  coverBottomText: "",
   date: "",
 };
 
@@ -96,11 +96,11 @@ export function CoverForm({ coverData, onUpdate, onMake, errors }) {
             <Label>Line 1</Label>
             <input
               type="text"
-              value={coverData.line1}
-              onChange={(e) => onUpdate({ line1: e.target.value })}
-              className={inputStyle(errors.line1)}
+              value={coverData.projectName}
+              onChange={(e) => onUpdate({ projectName: e.target.value })}
+              className={inputStyle(errors.projectName)}
             />
-            <ErrorStyle show={errors.line1} text={errors.line1} />
+            <ErrorStyle show={errors.projectName} text={errors.projectName} />
           </div>
 
           {/* Line 2 - optional */}
@@ -108,8 +108,8 @@ export function CoverForm({ coverData, onUpdate, onMake, errors }) {
             <Label>Line 2 (Optional)</Label>
             <input
               type="text"
-              value={coverData.line2}
-              onChange={(e) => onUpdate({ line2: e.target.value })}
+              value={coverData.coverTopText}
+              onChange={(e) => onUpdate({ coverTopText: e.target.value })}
               className={optionalInputStyle}
             />
           </div>
@@ -119,8 +119,8 @@ export function CoverForm({ coverData, onUpdate, onMake, errors }) {
             <Label>Line 3 (Optional)</Label>
             <input
               type="text"
-              value={coverData.line3}
-              onChange={(e) => onUpdate({ line3: e.target.value })}
+              value={coverData.coverBottomText}
+              onChange={(e) => onUpdate({ coverBottomText: e.target.value })}
               className={optionalInputStyle}
             />
           </div>

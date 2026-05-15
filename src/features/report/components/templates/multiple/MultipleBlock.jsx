@@ -1,21 +1,12 @@
 import React from "react";
-import { getRowsForStepPlusArm } from "../../../utils/report-handlers/textFormatter";
+import { getRowsForStepPlusArm } from "../../../utils/reportFormatters";
 
-export const createBlocks = (
-  results = [],
-  resultsDo = [],
-  structuralDesign = {},
-) => {
+export const createBlocks = (results = [], resultsDo = [], poleConfig = {}) => {
   const blocks = [];
   let sectionCounter = 0;
 
   results?.forEach((r, index) => {
-    const rows = getRowsForStepPlusArm(
-      index,
-      results,
-      resultsDo,
-      structuralDesign,
-    );
+    const rows = getRowsForStepPlusArm(index, results, resultsDo, poleConfig);
 
     const suffix = index + 1; // biar id unik: c1-1, c1-2, dst
 
@@ -31,10 +22,12 @@ export const createBlocks = (
               柱の検討【直風時A】
             </span>
             <span className="page1-text ml-[18px] jp">φ</span>
-            <span className="page1-text">{r?.diaLower?.toFixed(1) ?? ""}</span>
+            <span className="page1-text">
+              {r?.lowerDiameter?.toFixed(1) ?? ""}
+            </span>
             <span className="page1-text px-[2px] text-[10.5pt]">×</span>
             <span className="page1-text">
-              t{r?.thickLower?.toFixed(1) ?? ""}
+              t{r?.lowerThickness?.toFixed(1) ?? ""}
             </span>
             <span className="page1-text ml-1.5">
               <span className="jp">(</span>
@@ -42,7 +35,7 @@ export const createBlocks = (
               <span className="jp">)</span>
             </span>
             <span className="page1-text ml-1.5">
-              Z = {r?.SecMdl?.toFixed(2) ?? ""} cm<sup>3</sup>
+              Z = {r?.sectionModulus?.toFixed(2) ?? ""} cm<sup>3</sup>
             </span>
           </h2>
 
@@ -137,28 +130,32 @@ export const createBlocks = (
                       {row.type === "do" && (
                         <>
                           <td className="col-1 tracking-[0.05em] jp">
-                            {row.data.nameDo ?? ""}
+                            {row.data.name ?? ""}
                           </td>
                           <td className="col-left">
-                            {row.data.flDo?.toFixed(1) ?? ""}
+                            {row.data.fixLoad?.toFixed(1) ?? ""}
                           </td>
-                          <td className="col-left">{row.data.qtyDo ?? ""}</td>
                           <td className="col-left">
-                            {row.data.flDo?.toFixed(1) ?? ""}
+                            {row.data.quantity ?? ""}
+                          </td>
+                          <td className="col-left">
+                            {row.data.fixLoad?.toFixed(1) ?? ""}
                           </td>
                           <td className="col-gap"></td>
                           <td className="col-right">
-                            {row.data.frontAreaDo?.toFixed(1) ?? ""}
+                            {row.data.frontArea?.toFixed(1) ?? ""}
                           </td>
                           <td className="col-right">
-                            {row.data.cfDo?.toFixed(1) ?? ""}
+                            {row.data.cf?.toFixed(1) ?? ""}
                           </td>
                           <td className="col-right">
-                            {row.data.wlafDo?.toFixed(1) ?? ""}
+                            {row.data.windLoadAreaFront?.toFixed(1) ?? ""}
                           </td>
-                          <td className="col-right">{row.data.qtyDo ?? ""}</td>
                           <td className="col-right">
-                            {row.data.wlafDo?.toFixed(1) ?? ""}
+                            {row.data.quantity ?? ""}
+                          </td>
+                          <td className="col-right">
+                            {row.data.windLoadAreaFront?.toFixed(1) ?? ""}
                           </td>
                         </>
                       )}
@@ -169,30 +166,38 @@ export const createBlocks = (
                             {row.data.name}
                           </td>
                           <td className="col-left">{row.data.weight}</td>
-                          <td className="col-left">{row.data.qty}</td>
+                          <td className="col-left">{row.data.quantity}</td>
                           <td className="col-left">{row.data.weight}</td>
                           <td className="col-gap"></td>
                           <td className="col-right">{row.data.frontArea}</td>
                           <td className="col-right">{row.data.cf}</td>
-                          <td className="col-right">{row.data.wlaf}</td>
-                          <td className="col-right">{row.data.qty}</td>
-                          <td className="col-right">{row.data.wlaf}</td>
+                          <td className="col-right">
+                            {row.data.windLoadAreaFront}
+                          </td>
+                          <td className="col-right">{row.data.quantity}</td>
+                          <td className="col-right">
+                            {row.data.windLoadAreaFront}
+                          </td>
                         </>
                       )}
 
                       {row.type === "pole" && (
                         <>
                           <td className="col-1 tracking-[0.05em] jp">
-                            {row.data.description ?? ""}
+                            {row.data.name ?? ""}
                           </td>
                           <td className="col-left">1102.1</td>
-                          <td className="col-left">{row.data.qty ?? ""}</td>
+                          <td className="col-left">
+                            {row.data.quantity ?? ""}
+                          </td>
                           <td className="col-left">1102.1</td>
                           <td className="col-gap"></td>
                           <td className="col-right">1.050</td>
                           <td className="col-right">0.7</td>
                           <td className="col-right">1627.3</td>
-                          <td className="col-right">{row.data.qty ?? ""}</td>
+                          <td className="col-right">
+                            {row.data.quantity ?? ""}
+                          </td>
                           <td className="col-right">1627.3</td>
                         </>
                       )}
@@ -567,10 +572,12 @@ export const createBlocks = (
               柱の検討【直風時B】
             </span>
             <span className="page1-text ml-[18px] jp">φ</span>
-            <span className="page1-text">{r?.diaLower?.toFixed(1) ?? ""}</span>
+            <span className="page1-text">
+              {r?.lowerDiameter?.toFixed(1) ?? ""}
+            </span>
             <span className="page1-text px-[2px] text-[10.5pt]">×</span>
             <span className="page1-text">
-              t{r?.thickLower?.toFixed(1) ?? ""}
+              t{r?.lowerThickness?.toFixed(1) ?? ""}
             </span>
             <span className="page1-text ml-1.5">
               <span className="jp">(</span>
@@ -578,7 +585,7 @@ export const createBlocks = (
               <span className="jp">)</span>
             </span>
             <span className="page1-text ml-1.5">
-              Z = {r?.SecMdl?.toFixed(2) ?? ""} cm<sup>3</sup>
+              Z = {r?.sectionModulus?.toFixed(2) ?? ""} cm<sup>3</sup>
             </span>
           </h2>
 
@@ -673,28 +680,32 @@ export const createBlocks = (
                       {row.type === "do" && (
                         <>
                           <td className="col-1 tracking-[0.05em] jp">
-                            {row.data.nameDo ?? ""}
+                            {row.data.name ?? ""}
                           </td>
                           <td className="col-left">
-                            {row.data.flDo?.toFixed(1) ?? ""}
+                            {row.data.fixLoad?.toFixed(1) ?? ""}
                           </td>
-                          <td className="col-left">{row.data.qtyDo ?? ""}</td>
                           <td className="col-left">
-                            {row.data.flDo?.toFixed(1) ?? ""}
+                            {row.data.quantity ?? ""}
+                          </td>
+                          <td className="col-left">
+                            {row.data.fixLoad?.toFixed(1) ?? ""}
                           </td>
                           <td className="col-gap"></td>
                           <td className="col-right">
-                            {row.data.frontAreaDo?.toFixed(1) ?? ""}
+                            {row.data.frontArea?.toFixed(1) ?? ""}
                           </td>
                           <td className="col-right">
-                            {row.data.cfDo?.toFixed(1) ?? ""}
+                            {row.data.cf?.toFixed(1) ?? ""}
                           </td>
                           <td className="col-right">
-                            {row.data.wlafDo?.toFixed(1) ?? ""}
+                            {row.data.windLoadAreaFront?.toFixed(1) ?? ""}
                           </td>
-                          <td className="col-right">{row.data.qtyDo ?? ""}</td>
                           <td className="col-right">
-                            {row.data.wlafDo?.toFixed(1) ?? ""}
+                            {row.data.quantity ?? ""}
+                          </td>
+                          <td className="col-right">
+                            {row.data.windLoadAreaFront?.toFixed(1) ?? ""}
                           </td>
                         </>
                       )}
@@ -705,30 +716,38 @@ export const createBlocks = (
                             {row.data.name}
                           </td>
                           <td className="col-left">{row.data.weight}</td>
-                          <td className="col-left">{row.data.qty}</td>
+                          <td className="col-left">{row.data.quantity}</td>
                           <td className="col-left">{row.data.weight}</td>
                           <td className="col-gap"></td>
                           <td className="col-right">{row.data.frontArea}</td>
                           <td className="col-right">{row.data.cf}</td>
-                          <td className="col-right">{row.data.wlaf}</td>
-                          <td className="col-right">{row.data.qty}</td>
-                          <td className="col-right">{row.data.wlaf}</td>
+                          <td className="col-right">
+                            {row.data.windLoadAreaFront}
+                          </td>
+                          <td className="col-right">{row.data.quantity}</td>
+                          <td className="col-right">
+                            {row.data.windLoadAreaFront}
+                          </td>
                         </>
                       )}
 
                       {row.type === "pole" && (
                         <>
                           <td className="col-1 tracking-[0.05em] jp">
-                            {row.data.description ?? ""}
+                            {row.data.name ?? ""}
                           </td>
                           <td className="col-left">1102.1</td>
-                          <td className="col-left">{row.data.qty ?? ""}</td>
+                          <td className="col-left">
+                            {row.data.quantity ?? ""}
+                          </td>
                           <td className="col-left">1102.1</td>
                           <td className="col-gap"></td>
                           <td className="col-right">1.050</td>
                           <td className="col-right">0.7</td>
                           <td className="col-right">1627.3</td>
-                          <td className="col-right">{row.data.qty ?? ""}</td>
+                          <td className="col-right">
+                            {row.data.quantity ?? ""}
+                          </td>
                           <td className="col-right">1627.3</td>
                         </>
                       )}
@@ -1103,10 +1122,12 @@ export const createBlocks = (
               柱の検討【斜風時】
             </span>
             <span className="page1-text ml-[18px] jp">φ</span>
-            <span className="page1-text">{r?.diaLower?.toFixed(1) ?? ""}</span>
+            <span className="page1-text">
+              {r?.lowerDiameter?.toFixed(1) ?? ""}
+            </span>
             <span className="page1-text px-[2px] text-[10.5pt]">×</span>
             <span className="page1-text">
-              t{r?.thickLower?.toFixed(1) ?? ""}
+              t{r?.lowerThickness?.toFixed(1) ?? ""}
             </span>
             <span className="page1-text ml-1.5">
               <span className="jp">(</span>
@@ -1114,7 +1135,7 @@ export const createBlocks = (
               <span className="jp">)</span>
             </span>
             <span className="page1-text ml-1.5">
-              Z = {r?.SecMdl?.toFixed(2) ?? ""} cm<sup>3</sup>
+              Z = {r?.sectionModulus?.toFixed(2) ?? ""} cm<sup>3</sup>
             </span>
           </h2>
 
@@ -1210,28 +1231,32 @@ export const createBlocks = (
                       {row.type === "do" && (
                         <>
                           <td className="col-1 tracking-[0.05em] jp">
-                            {row.data.nameDo ?? ""}
+                            {row.data.name ?? ""}
                           </td>
                           <td className="col-left">
-                            {row.data.flDo?.toFixed(1) ?? ""}
+                            {row.data.fixLoad?.toFixed(1) ?? ""}
                           </td>
-                          <td className="col-left">{row.data.qtyDo ?? ""}</td>
                           <td className="col-left">
-                            {row.data.flDo?.toFixed(1) ?? ""}
+                            {row.data.quantity ?? ""}
+                          </td>
+                          <td className="col-left">
+                            {row.data.fixLoad?.toFixed(1) ?? ""}
                           </td>
                           <td className="col-gap"></td>
                           <td className="col-right">
-                            {row.data.frontAreaDo?.toFixed(1) ?? ""}
+                            {row.data.frontArea?.toFixed(1) ?? ""}
                           </td>
                           <td className="col-right">
-                            {row.data.cfDo?.toFixed(1) ?? ""}
-                          </td>
-                          <td className="col-right">{row.data.qtyDo ?? ""}</td>
-                          <td className="col-right">
-                            {row.data.wlafDo?.toFixed(1) ?? ""}
+                            {row.data.cf?.toFixed(1) ?? ""}
                           </td>
                           <td className="col-right">
-                            {row.data.wlafDo?.toFixed(1) ?? ""}
+                            {row.data.quantity ?? ""}
+                          </td>
+                          <td className="col-right">
+                            {row.data.windLoadAreaFront?.toFixed(1) ?? ""}
+                          </td>
+                          <td className="col-right">
+                            {row.data.windLoadAreaFront?.toFixed(1) ?? ""}
                           </td>
                         </>
                       )}
@@ -1242,29 +1267,37 @@ export const createBlocks = (
                             {row.data.name}
                           </td>
                           <td className="col-left">{row.data.weight}</td>
-                          <td className="col-left">{row.data.qty}</td>
+                          <td className="col-left">{row.data.quantity}</td>
                           <td className="col-left">{row.data.weight}</td>
                           <td className="col-gap"></td>
                           <td className="col-right"></td>
                           <td className="col-right">{row.data.cf}</td>
-                          <td className="col-right">{row.data.qty}</td>
-                          <td className="col-right">{row.data.wlaf}</td>
-                          <td className="col-right">{row.data.wlaf}</td>
+                          <td className="col-right">{row.data.quantity}</td>
+                          <td className="col-right">
+                            {row.data.windLoadAreaFront}
+                          </td>
+                          <td className="col-right">
+                            {row.data.windLoadAreaFront}
+                          </td>
                         </>
                       )}
 
                       {row.type === "pole" && (
                         <>
                           <td className="col-1 tracking-[0.05em] jp">
-                            {row.data.description ?? ""}
+                            {row.data.name ?? ""}
                           </td>
                           <td className="col-left">1102.1</td>
-                          <td className="col-left">{row.data.qty ?? ""}</td>
+                          <td className="col-left">
+                            {row.data.quantity ?? ""}
+                          </td>
                           <td className="col-left">1102.1</td>
                           <td className="col-gap"></td>
                           <td className="col-right">1.050</td>
                           <td className="col-right">0.7</td>
-                          <td className="col-right">{row.data.qty ?? ""}</td>
+                          <td className="col-right">
+                            {row.data.quantity ?? ""}
+                          </td>
                           <td className="col-right">1150.7</td>
                           <td className="col-right">1150.7</td>
                         </>

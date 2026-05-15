@@ -1,4 +1,4 @@
-import { validateWithYup } from "../../utils/validation";
+import { validateWithYup } from "../../utils";
 import { FoundationTypeSchema } from "../../schemas/foundation/FoundationTypeSchema";
 import { SquareCaissonTypeSchema } from "../../schemas/foundation/SquareCaissonTypeSchema";
 import { RoundCaissonTypeSchema } from "../../schemas/foundation/RoundCaissonTypeSchema";

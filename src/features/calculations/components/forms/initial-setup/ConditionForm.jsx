@@ -7,7 +7,6 @@ import {
   Layers,
 } from "lucide-react";
 import { BaseplateIcon } from "../../../../../assets/icons/icon";
-import { getNumericError } from "../../utils/pole-analyzer";
 import { designStandardOptions } from "../../../constants/designStandards";
 import { poleTypeOptions } from "../../../constants/poleTypeOptions";
 
@@ -129,7 +128,7 @@ export function ConditionForm({
                 </div>
                 <ErrorStyle
                   show={errors.designWindSpeed}
-                  text={getNumericError(condition.designWindSpeed)}
+                  text={errors.designWindSpeed}
                 />
               </div>
 
@@ -155,7 +154,7 @@ export function ConditionForm({
                 </div>
                 <ErrorStyle
                   show={errors.designAirDensity}
-                  text={getNumericError(condition.designAirDensity)}
+                  text={errors.designAirDensity}
                 />
               </div>
             </div>

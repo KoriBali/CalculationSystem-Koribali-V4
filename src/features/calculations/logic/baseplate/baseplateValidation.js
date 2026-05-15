@@ -1,4 +1,4 @@
-import { validateWithYup } from "../../utils/validation";
+import { validateWithYup } from "../../utils";
 import { BaseplateTypeSchema } from "../../schemas/baseplate/BaseplateTypeSchema";
 import { FourRibTypeSchema } from "../../schemas/baseplate/FourRibTypeSchema";
 import { EightRibTypeSchema } from "../../schemas/baseplate/EightRibTypeSchema ";

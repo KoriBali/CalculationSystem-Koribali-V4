@@ -1,18 +1,9 @@
 // ====================================================
 // Function for Cover Input
 // ====================================================
-// FUNCTION: Update cover data
-export const updateCover = (cover, updates, setCover) => {
-  setCover({ ...cover, ...updates });
-};
-
 // ====================================================
 // Function for Condition Input
 // ====================================================
-// FUNCTION: Update condition data
-export const updateCondition = (condition, updates, setCondition) => {
-  setCondition({ ...condition, ...updates });
-};
 
 // ====================================================
 // Function for Structural Design Pole Input
@@ -73,7 +64,7 @@ export const addPole = (poles, setPoles, setActiveTab, IdRef) => {
       upperDiameter: "",
       lowerThickness: "",
       upperThickness: "",
-      height: "",
+      zHeight: "",
       quantity: "1",
     },
   ]);
@@ -111,7 +102,7 @@ export const updatePole = (id, updates, setPoles, poles) => {
 };
 
 // FUNCTION: Reset the active pole to default values
-export const resetCurrent = (setPoles, poles, activeTab) => {
+export const resetCurrentPole = (setPoles, poles, activeTab) => {
   setPoles(
     poles.map((s) =>
       s.id === activeTab
@@ -122,7 +113,7 @@ export const resetCurrent = (setPoles, poles, activeTab) => {
             upperDiameter: "",
             lowerThickness: "",
             upperThickness: "",
-            height: "",
+            zHeight: "",
             quantity: "1",
           }
         : s,
@@ -634,7 +625,7 @@ export const resetCurrentAo = (id, armObjects, updateActiveArmObjects) => {
             frontArea: "",
             sideArea: "",
             weight: "",
-            height: "",
+            zHeight: "",
             fixAngle: "",
             nnC: "",
             quantity: "1",
@@ -648,17 +639,17 @@ export const resetCurrentAo = (id, armObjects, updateActiveArmObjects) => {
 // Function for Opening Part Input
 // ====================================================
 // FUNCTION: Update opening part type data
-export const updateOpType = (openingType, updates, setOpeningType) => {
+export const updateOpeningType = (openingType, updates, setOpeningType) => {
   setOpeningType({ ...openingType, ...updates });
 };
 
 // FUNCTION: Update opening part box type data
-export const updateOpBoxType = (boxType, updates, setBoxType) => {
+export const updateBoxType = (boxType, updates, setBoxType) => {
   setBoxType({ ...boxType, ...updates });
 };
 
 // FUNCTION: Update opening part r type data
-export const updateOpRType = (rType, updates, setRType) => {
+export const updateRType = (rType, updates, setRType) => {
   setRType({ ...rType, ...updates });
 };
 
@@ -666,7 +657,11 @@ export const updateOpRType = (rType, updates, setRType) => {
 // Function for Baseplate Input
 // ====================================================
 // FUNCTION: Update baseplate type data
-export const updateBpType = (baseplateType, updates, setBaseplateType) => {
+export const updateBaseplateType = (
+  baseplateType,
+  updates,
+  setBaseplateType,
+) => {
   setBaseplateType({ ...baseplateType, ...updates });
 };
 
@@ -693,7 +688,7 @@ export const updateFoundationType = (
 };
 
 // FUNCTION: Update foundation square caisson type data
-export const updateSqrCaissonType = (
+export const updateSquareCaisson = (
   squareCaisson,
   updates,
   setSquareCaisson,
@@ -702,10 +697,6 @@ export const updateSqrCaissonType = (
 };
 
 // FUNCTION: Update foundation round caisson type data
-export const updateRoundCaissonType = (
-  roundCaisson,
-  updates,
-  setRoundCaisson,
-) => {
+export const updateRoundCaisson = (roundCaisson, updates, setRoundCaisson) => {
   setRoundCaisson({ ...roundCaisson, ...updates });
 };

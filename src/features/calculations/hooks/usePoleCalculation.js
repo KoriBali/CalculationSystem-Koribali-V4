@@ -5,9 +5,9 @@ import { useProjectStorage } from "./useProjectStorage";
 import {
   validatePoleForm,
   validatePoleReport,
-} from "../logic/pole/validatePoleForm";
+} from "../logic/pole/poleValidation";
 import { executePoleCalculation } from "../logic/pole/poleCalculation";
-import * as Utils from "../utils/pole-analyzer";
+import * as Utils from "../utils";
 
 // Orchestrates pole calculation — validates, calls API, maps errors back to UI
 export function usePoleCalculation({
@@ -16,7 +16,8 @@ export function usePoleCalculation({
   ohwForm,
   armForm,
   poleStandardForm,
-  coverForm,
+  poleConfigForm, // structural design (lowestStep, overDesign)
+  coverForm, // cover info only (projectName, date, dll)
 }) {
   const { type: projectType } = useParams();
   const navigate = useNavigate();
@@ -68,8 +69,9 @@ export function usePoleCalculation({
     "pole",
   );
 
-  // Resets all error states across all sub-forms
+  // ── Resets all error states across all sub-forms ──
   const resetAllErrors = () => {
+    poleConfigForm.setPoleConfigErrors({});
     poleForm.setPoleErrors({});
     directObjectForm.setDoErrors({});
     ohwForm.setOhwErrors({});
@@ -78,10 +80,10 @@ export function usePoleCalculation({
     poleStandardForm.setStraightPoleErrors({});
   };
 
-  // Maps validation errors back to each sub-form's error state
+  // ── Maps validation errors back to each sub-form's error state ──
   const mapErrors = (result) => {
-    if (result.structuralDesignErrors)
-      coverForm.setPoleConfigErrors?.(result.structuralDesignErrors);
+    if (result.poleConfigErrors)
+      poleConfigForm.setPoleConfigErrors(result.poleConfigErrors);
     if (result.polesErrors) poleForm.setPoleErrors(result.polesErrors);
     if (result.doErrors) directObjectForm.setDoErrors(result.doErrors);
     if (result.ohwErrors) ohwForm.setOhwErrors(result.ohwErrors);
@@ -91,22 +93,65 @@ export function usePoleCalculation({
       poleStandardForm.setStraightPoleErrors(result.straightPoleStandardErrors);
   };
 
+  // ── Merge helpers ──
+  // Menggabungkan input FE (dari sessionStorage) dengan hasil kalkulasi BE.
+  // Input FE dijadikan base, field dari BE menimpa jika ada key yang sama —
+  // karena BE adalah sumber kebenaran untuk field kalkulasi.
+
+  // Merge poles: tiap pole input + result BE berdasarkan index
+  const mergePoles = (beResults, resolvedPoles) =>
+    (beResults || []).map((result, i) => ({
+      ...(resolvedPoles[i] || {}), // name, material, poleType, diameter, height, dll
+      ...result, // fb, stb, sts, sectionArea, dll dari BE
+    }));
+
+  // Merge direct objects: tiap DO input + result BE berdasarkan index
+  const mergeDirectObjects = (beResults, resolvedDo) =>
+    (beResults || []).map((result, i) => ({
+      ...(resolvedDo[i] || {}), // name, typeOfDo, frontArea, weightDo, dll
+      ...result, // fixLoad, cfDo, windLoadAreaFront, slDo, dll dari BE
+    }));
+
+  // Merge overhead wires: tiap OHW input + result BE berdasarkan index
+  const mergeOverheadWires = (beResults, resolvedOhw) =>
+    (beResults || []).map((result, i) => ({
+      ...(resolvedOhw[i] || {}), // nameOhw, weightOhw, diameterOhw, spanOhw, dll
+      ...result, // flOhwKg, cfOhw, wlOhw, tensionFixOhw, dll dari BE
+    }));
+
+  // Merge arms + arm objects (nested): tiap arm input + result BE berdasarkan index
+  const mergeArms = (beResults, resolvedArms) =>
+    (beResults || []).map((result, i) => {
+      const inputArm = resolvedArms[i] || {};
+
+      // Merge arm objects secara nested
+      const mergedArmObjects = (result.armObjects || []).map((aoResult, j) => ({
+        ...(inputArm.armObjects?.[j] || {}), // nameAo, typeOfAo, frontAreaAo, weightAo, dll
+        ...aoResult, // flAo, cfAo, windLoadAreaFrontAo, mFixAo, dll dari BE
+      }));
+
+      return {
+        ...inputArm, // nameArm, materialArm, diameterArm, lengthArm, dll
+        ...result, // fb, sfb, massaArm, flArm, mFixArm, dll dari BE
+        armObjects: mergedArmObjects, // nested arm objects yang sudah di-merge
+      };
+    });
+
+  // ── Calculate ──
   // Validates all inputs then calls the pole calculation API
   const calculate = async () => {
     resetAllErrors();
 
-    // Run full validation + data resolution
     const validation = await validatePoleForm({
       condition,
       poleTypeStandard: poleStandardForm.poleTypeStandard,
       taperPoleStandard: poleStandardForm.taperPoleStandard,
       straightPoleStandard: poleStandardForm.straightPoleStandard,
-      structuralDesign: coverForm.poleConfig,
+      poleConfig: poleConfigForm.poleConfig,
       poles: poleForm.poles,
       directObjects: directObjectForm.directObjects,
       overheadWires: ohwForm.overheadWires,
       arms: armForm.arms,
-      isPoleTypeStandardComplete: poleStandardForm.isPoleTypeComplete,
     });
 
     if (!validation.isValid) {
@@ -118,11 +163,10 @@ export function usePoleCalculation({
     try {
       setLoading(true);
 
-      // Call calculation API with resolved data
       const data = await executePoleCalculation({
         condition,
         poleTypeStandard: poleStandardForm.poleTypeStandard,
-        poleConfig: coverForm.poleConfig,
+        poleConfig: poleConfigForm.poleConfig,
         poles: validation.resolvedPoles,
         directObjects: validation.resolvedDirectObjects,
         overheadWires: validation.resolvedOverheadWires,
@@ -131,17 +175,20 @@ export function usePoleCalculation({
         taperPoleStandard: poleStandardForm.taperPoleStandard,
       });
 
-      // Persist results
-      setResults(data.results || []);
-      setResultsDo(data.resultsDo || []);
-      setResultsOhw(data.resultsOhw || []);
-      setResultsArm(data.resultsArm || []);
+      // Merge input FE + hasil kalkulasi BE sebelum disimpan ke state
+      setResults(mergePoles(data.results, validation.resolvedPoles));
+      setResultsDo(
+        mergeDirectObjects(data.resultsDo, validation.resolvedDirectObjects),
+      );
+      setResultsOhw(
+        mergeOverheadWires(data.resultsOhw, validation.resolvedOverheadWires),
+      );
+      setResultsArm(mergeArms(data.resultsArm, validation.resolvedArms));
       setShowResults(true);
       setIsCalculated(true);
 
-      // Scroll to results section
       document
-        .getElementById("results-section")
+        .getElementById("results-pole")
         ?.scrollIntoView({ behavior: "smooth", block: "start" });
     } catch (err) {
       showToast(err?.message || "Something went wrong");
@@ -150,6 +197,7 @@ export function usePoleCalculation({
     }
   };
 
+  // ── Make Report ──
   // Validates all inputs before generating the final report
   const makeReport = async () => {
     resetAllErrors();
@@ -159,14 +207,13 @@ export function usePoleCalculation({
       poleTypeStandard: poleStandardForm.poleTypeStandard,
       taperPoleStandard: poleStandardForm.taperPoleStandard,
       straightPoleStandard: poleStandardForm.straightPoleStandard,
-      structuralDesign: coverForm.poleConfig,
+      poleConfig: poleConfigForm.poleConfig,
       poles: poleForm.poles,
       directObjects: directObjectForm.directObjects,
       overheadWires: ohwForm.overheadWires,
       arms: armForm.arms,
       results,
       isCoverComplete: () => coverForm.validate(),
-      isPoleTypeStandardComplete: poleStandardForm.isPoleTypeComplete,
     });
 
     if (!validation.isValid) {
@@ -175,7 +222,7 @@ export function usePoleCalculation({
       return;
     }
 
-    // Build and persist report payload
+    // results sudah merged (input + kalkulasi), langsung dipakai untuk report
     const reportPayload = {
       results,
       resultsDo,
@@ -183,7 +230,7 @@ export function usePoleCalculation({
       resultsArm,
       cover: coverForm.coverData,
       condition,
-      structuralDesign: coverForm.poleConfig,
+      poleConfig: poleConfigForm.poleConfig,
     };
 
     sessionStorage.setItem(
@@ -194,6 +241,7 @@ export function usePoleCalculation({
     navigate("/report", { state: reportPayload });
   };
 
+  // ── Finish ──
   // Navigates to next step or opens cover modal if this is the last step
   const finish = () => {
     if (!isCalculated) return;
@@ -202,23 +250,19 @@ export function usePoleCalculation({
   };
 
   return {
-    // Results
     results,
     resultsDo,
     resultsOhw,
     resultsArm,
     showResults,
 
-    // UI state
     isCalculated,
     loading,
     toast,
     buttonLabel,
 
-    // Setters
     setToast,
 
-    // Handlers
     calculate,
     makeReport,
     finish,

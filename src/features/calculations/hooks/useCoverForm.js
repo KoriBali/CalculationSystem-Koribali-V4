@@ -1,17 +1,17 @@
 import { useState } from "react";
 import { useProjectStorage } from "./useProjectStorage";
-import { validateWithYup } from "../utils/validation";
+import { validateWithYup } from "../utils";
 import { CoverSchema } from "../schemas/cover/CoverSchema";
 
 // ─── CONSTANTS ───────────────────────────────────────────────────────────────
 
 // Default empty cover state
 const DEFAULT_COVER = {
-  managementMark: "",
+  managementCode: "",
   calculationNumber: "",
   projectName: "",
-  contentr2: "",
-  contentr3: "",
+  coverTopText: "",
+  coverBottomText: "",
   date: "",
 };
 
@@ -31,11 +31,6 @@ export function useCoverForm(projectType) {
   // Updates cover fields — clears related errors as user types
   const updateCover = (updates) => {
     setCover((prev) => ({ ...prev, ...updates }));
-    setCoverErrors((prev) => {
-      const cleared = { ...prev };
-      Object.keys(updates).forEach((key) => delete cleared[key]);
-      return cleared;
-    });
   };
 
   // Validates cover form against CoverSchema — updates error state

@@ -1,5 +1,5 @@
 import React from "react";
-import { formatJpYp } from "../../../utils/report-handlers/textFormatter";
+import { formatDateYP } from "../../../utils/reportFormatters";
 import "../../../styles/report.css";
 
 export default function SignboardReportContent({
@@ -18,11 +18,11 @@ export default function SignboardReportContent({
             <div className="flex justify-between">
               <p className="cover-row-1 ml-[10px] tracking-[0.05em]">
                 <span className="jp">管理記号:</span>
-                <span> {cover?.managementMark || ""}</span>
+                <span> {cover?.managementCode ?? ""}</span>
               </p>
               <div className="cover-row-1 mr-[10px] flex justify-center items-center">
                 <span className="tracking-[0.05em] jp">計算書番号:</span>
-                <span> {cover?.calculationNumber || ""}</span>
+                <span> {cover?.calculationNumber ?? ""}</span>
               </div>
             </div>
 
@@ -35,27 +35,27 @@ export default function SignboardReportContent({
             {/* Project information block */}
             <div className="cover-double-line-sb">
               <p className="cover-inner-text cover-inner-text-line text-center py-[7px] jp">
-                {cover?.projectName || ""}
+                {cover?.projectName ?? ""}
               </p>
               <p
                 className={`cover-inner-text cover-inner-text-line text-center jp ${
-                  !cover?.contentr2 ? "py-[19px]" : "py-[7px]"
+                  !cover?.coverTopText ? "py-[19px]" : "py-[7px]"
                 }`}
               >
-                {cover?.contentr2 || ""}
+                {cover?.coverTopText ?? ""}
               </p>
               <p
                 className={`cover-inner-text text-center jp py-[7px] ${
-                  !cover?.contentr3 ? "mb-[24px]" : ""
+                  !cover?.coverBottomText ? "mb-[24px]" : ""
                 }`}
               >
-                {cover?.contentr3 || ""}
+                {cover?.coverBottomText ?? ""}
               </p>
             </div>
 
             {/* Date & logo */}
             <div className="cover-row-3 text-center jp">
-              {cover?.date ? formatJpYp(cover.date) : ""}
+              {cover?.date ? formatDateYP(cover.date) : ""}
             </div>
             <br />
             <br />
@@ -72,7 +72,7 @@ export default function SignboardReportContent({
       <div className="page-preview">
         <div className="page-a4">
           <div className="page-header">
-            No. {cover?.calculationNumber || ""} P-1
+            No. {cover?.calculationNumber ?? ""} P-1
           </div>
 
           <div className="page1-content">
@@ -106,7 +106,7 @@ export default function SignboardReportContent({
                 :
               </span>
               <span className="page1-text">
-                V = {condition?.windSpeed || 0} m/s
+                V = {condition?.designWindSpeed ?? ""} m/s
               </span>
             </div>
 
@@ -140,7 +140,8 @@ export default function SignboardReportContent({
                     空気密度
                   </span>
                   <span>
-                    ρ = 1.23 N・sec<sup>2</sup>/m<sup>4</sup>
+                    ρ = {condition?.designAirDensity ?? ""} N・sec<sup>2</sup>/m
+                    <sup>4</sup>
                   </span>
                 </div>
                 <div className="ml-[19px]">
@@ -334,7 +335,7 @@ export default function SignboardReportContent({
       <div className="page-preview">
         <div className="page-a4">
           <div className="page-header">
-            No. {cover?.calculationNumber || ""} P-2
+            No. {cover?.calculationNumber ?? ""} P-2
           </div>
 
           <div className="page1-content">
@@ -347,16 +348,16 @@ export default function SignboardReportContent({
                 <React.Fragment key={index}>
                   <div className="flex gap-x-[20px]">
                     <div className="jp tracking-[0.05em]">
-                      ・{r?.description ?? ""}
+                      ・{r?.name ?? ""}
                     </div>
                     <div className="flex">
                       <span className="jp">φ</span>
                       <span className="tracking-[0.05em]">
-                        {r?.diaLower?.toFixed(1) ?? ""}
+                        {r?.lowerDiameter?.toFixed(1) ?? ""}
                       </span>
                       <span className="text-[10.5pt] mx-[1.5px]">×</span>
                       <span className="tracking-[0.05em]">
-                        t{r?.thickLower?.toFixed(1) ?? ""}
+                        t{r?.lowerThickness?.toFixed(1) ?? ""}
                       </span>
                     </div>
                     <div className="flex">{r?.material ?? ""}</div>
@@ -376,13 +377,13 @@ export default function SignboardReportContent({
                         </div>
                         <div className="flex flex-col">
                           <div className="tracking-[0.05em]">
-                            {r?.flU?.toFixed(2) ?? ""} kg/m
+                            {r?.fixLoad?.toFixed(2) ?? ""} kg/m
                           </div>
                           <div className="tracking-[0.05em]">
-                            {r?.InasMp?.toFixed(2) ?? ""} cm<sup>4</sup>
+                            {r?.momentInertia?.toFixed(2) ?? ""} cm<sup>4</sup>
                           </div>
                           <div className="tracking-[0.05em]">
-                            {r?.RadGy?.toFixed(2) ?? ""} cm
+                            {r?.radiusGyration?.toFixed(2) ?? ""} cm
                           </div>
                         </div>
                       </div>
@@ -399,10 +400,11 @@ export default function SignboardReportContent({
                         </div>
                         <div className="flex flex-col">
                           <div className="tracking-[0.05em]">
-                            {r?.CrossAp?.toFixed(2) ?? ""} cm<sup>2</sup>
+                            {r?.crossSectionArea?.toFixed(2) ?? ""} cm
+                            <sup>2</sup>
                           </div>
                           <div className="tracking-[0.05em]">
-                            {r?.SecMdl?.toFixed(2) ?? ""} cm<sup>3</sup>
+                            {r?.sectionModulus?.toFixed(2) ?? ""} cm<sup>3</sup>
                           </div>
                         </div>
                       </div>
@@ -527,7 +529,7 @@ export default function SignboardReportContent({
       <div className="page-preview">
         <div className="page-a4">
           <div className="page-header">
-            No. {cover?.calculationNumber || ""} P-3
+            No. {cover?.calculationNumber ?? ""} P-3
           </div>
 
           <div className="page1-content">
@@ -832,7 +834,7 @@ export default function SignboardReportContent({
         <div className="page-preview" key={i}>
           <div className="page-a4">
             <div className="page-header">
-              No. {cover?.calculationNumber || ""} P-{i + 4}
+              No. {cover?.calculationNumber ?? ""} P-{i + 4}
             </div>
             <div className="page1-content-sb">{pageBlocks}</div>
           </div>

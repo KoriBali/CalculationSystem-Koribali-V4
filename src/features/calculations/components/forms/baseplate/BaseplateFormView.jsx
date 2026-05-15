@@ -8,7 +8,8 @@ import { FourRibTypeForm } from "./FourRibTypeForm";
 import { EightRibTypeForm } from "./EightRibTypeForm";
 import { BaseplateResultTable } from "../../tables/baseplate-result/BaseplateResultTable";
 
-import * as Modal from "../../components/pole-analyzer/PoleAnalyzerModal";
+import { CoverFormModal } from "../../modals/CoverFormModal";
+import { ToastModal } from "../../modals/ToastModal";
 
 import { useBaseplateForm } from "../../../hooks/useBaseplateForm";
 import { useCoverForm } from "../../../hooks/useCoverForm";
@@ -223,7 +224,7 @@ export default function BaseplateFormView() {
       </div>
 
       {/* ================= COVER MODAL ================= */}
-      <Modal.CoverInputModal
+      <CoverFormModal
         open={showCoverPopup}
         onClose={handleCloseCoverPopup}
         cover={cover} // Menambahkan data cover
@@ -240,7 +241,7 @@ export default function BaseplateFormView() {
       />
 
       {/* ================= TOAST ================= */}
-      <Modal.ToastModal toast={toast} onClose={() => setToast(null)} />
+      <ToastModal toast={toast} onClose={() => setToast(null)} />
     </>
   );
 }

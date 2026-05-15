@@ -16,30 +16,30 @@ import {
   ClipboardPaste,
 } from "lucide-react";
 
-import { HeaderCalculationPage } from "../components/layout/HeaderCalculationPage";
-import { StructuralDesign } from "../components/forms/pole/StructuralDesignInput";
-import { PoleInput } from "../components/forms/pole/PoleInput";
-import { DirectObjectInput } from "../components/forms/pole/DirectObjectInput";
-import { OverheadWireInput } from "../components/forms/pole/OverheadWireInput";
-import { ArmInput } from "../components/forms/pole/ArmInput";
-import { ArmObjectInput } from "../components/forms/pole/ArmObjectInput";
-import { ResultsTable } from "../components/tables/ResultsTable";
-import { PoleTypeSelector } from "../components/forms/pole/PoleTypeSelector";
-import { PoleStandardForm } from "../components/forms/pole/PoleStandardForm";
-import { SteppedPoleForm } from "../components/forms/pole/SteppedPoleForm";
+import { HeaderCalculationPage } from "../../layout/HeaderCalculationPage";
+import { PoleConfigForm } from "./custom/PoleConfigForm";
+import { PoleForm } from "./custom/PoleForm";
+import { DirectObjectForm } from "./custom/DirectObjectForm";
+import { OverheadWireForm } from "./custom/OverheadWireForm";
+import { ArmForm } from "./custom/ArmForm";
+import { ArmObjectForm } from "./custom/ArmObjectForm";
+import { PoleTypeSelector } from "./standard/PoleType";
+import { TaperPoleStandardForm } from "./standard/TaperTypeForm";
+import { StraightPoleStandardForm } from "./standard/StraightTypeForm";
+import { ResultsTableView } from "../../tables/pole-result/ResultTableView";
 
-import { ToastModal } from "../modals/ToastModal";
-import { CoverInputModal } from "../modals/CoverInputModal";
-import { ConfirmDeleteModal } from "../modals/ConfirmDeleteModal";
-import { ConfirmReduceModal } from "../modals/ConfirmReduceModal";
-
-import { usePoleForm } from "../hooks/usePoleForm";
-import { useDirectObjectForm } from "../hooks/useDirectObjectForm";
-import { useOverheadWireForm } from "../hooks/useOverheadWireForm";
+import { ToastModal } from "../../modals/ToastModal";
+import { CoverFormModal } from "../../modals/CoverFormModal";
+import { ConfirmDeleteModal } from "../../modals/ConfirmDeleteModal";
+import { ConfirmReduceModal } from "../../modals/ConfirmReduceModal";
+import { usePoleForm } from "../../../hooks/usePoleForm";
+import { useDirectObjectForm } from "../../../hooks/useDirectObjectForm";
+import { useOverheadWireForm } from "../../../hooks/useOverheadWireForm";
 import { useArmForm } from "../hooks/useArmForm";
-import { usePoleStandardForm } from "../hooks/usePoleStandardForm";
-import { useCoverForm } from "../hooks/useCoverForm";
-import { usePoleCalculation } from "../hooks/usePoleCalculation";
+import { usePoleStandardForm } from "../../../hooks/usePoleStandardForm";
+import { usePoleConfigForm } from "../../../hooks/usePoleConfigForm";
+import { useCoverForm } from "../../../hooks/useCoverForm";
+import { usePoleCalculation } from "../../../hooks/usePoleCalculation";
 
 // ─── COMPONENT ───────────────────────────────────────────────────────────────
 
@@ -69,7 +69,8 @@ export default function PoleFormView() {
   const ohwForm = useOverheadWireForm(projectType);
   const armForm = useArmForm(projectType);
   const poleStandardForm = usePoleStandardForm(projectType);
-  const coverForm = useCoverForm(projectType);
+  const poleConfigForm = usePoleConfigForm(projectType);
+  const coverForm = useCoverForm(projectType); // cover info only
 
   const calculation = usePoleCalculation({
     poleForm,
@@ -77,6 +78,7 @@ export default function PoleFormView() {
     ohwForm,
     armForm,
     poleStandardForm,
+    poleConfigForm,
     coverForm,
   });
 
@@ -135,13 +137,13 @@ export default function PoleFormView() {
                     onUpdate={poleStandardForm.updatePoleTypeStandard}
                   />
                   {poleStandardForm.poleTypeStandard.type === "taper" && (
-                    <PoleStandardForm
+                    <TaperPoleStandardForm
                       poleStandard={poleStandardForm.taperPoleStandard}
                       onUpdate={poleStandardForm.updateTaperPoleStandard}
                     />
                   )}
                   {poleStandardForm.poleTypeStandard.type === "straight" && (
-                    <SteppedPoleForm
+                    <StraightPoleStandardForm
                       steppedPole={poleStandardForm.straightPoleStandard}
                       onUpdate={poleStandardForm.updateStraightPoleStandard}
                       errors={poleStandardForm.straightPoleErrors}
@@ -154,7 +156,7 @@ export default function PoleFormView() {
             {/* Custom mode */}
             {isCustomMode && (
               <>
-                {/* Structural Design */}
+                {/* Structural Design — [CHANGE 4] bind ke poleConfigForm, bukan coverForm */}
                 <div className="border-b border-gray-200 px-6 pt-6 pb-7 hp:px-4 hp:pt-4">
                   <div className="flex items-center justify-between mb-4 hp:mb-2">
                     <h2 className="text-[#0d3b66] font-medium flex items-center text-sm gap-2 hp:text-xs">
@@ -162,10 +164,10 @@ export default function PoleFormView() {
                       Structural Design
                     </h2>
                   </div>
-                  <StructuralDesign
-                    poleConfig={coverForm.poleConfig}
-                    onUpdate={coverForm.updatePoleConfig}
-                    errors={coverForm.poleConfigErrors}
+                  <PoleConfigForm
+                    poleConfig={poleConfigForm.poleConfig}
+                    onUpdate={poleConfigForm.updatePoleConfig}
+                    errors={poleConfigForm.poleConfigErrors}
                   />
                 </div>
 
@@ -267,7 +269,7 @@ export default function PoleFormView() {
                         )}
                       </div>
 
-                      <PoleInput
+                      <PoleForm
                         pole={poleForm.activePole}
                         onUpdate={(updates) =>
                           poleForm.updatePole(poleForm.activeTab, updates)
@@ -348,7 +350,7 @@ export default function PoleFormView() {
               className={`transition-all duration-500 ease-in-out overflow-hidden
               ${isExpandedDo ? "max-h-[10000px] rounded-b-2xl hp:rounded-b-xl" : "max-h-0 rounded-b-2xl hp:rounded-b-xl"}`}
             >
-              <DirectObjectInput
+              <DirectObjectForm
                 directObjects={doForm.directObjects}
                 doInputValue={doForm.doInputValue}
                 setDoInputValue={doForm.setDoInputValue}
@@ -392,7 +394,7 @@ export default function PoleFormView() {
               className={`transition-all duration-500 ease-in-out overflow-hidden
               ${isExpandedOhw ? "max-h-[10000px] rounded-b-2xl hp:rounded-b-xl" : "max-h-0 rounded-b-2xl hp:rounded-b-xl"}`}
             >
-              <OverheadWireInput
+              <OverheadWireForm
                 overheadWires={ohwForm.overheadWires}
                 ohwInputValue={ohwForm.ohwInputValue}
                 setOhwInputValue={ohwForm.setOhwInputValue}
@@ -569,7 +571,7 @@ export default function PoleFormView() {
                         )}
                       </div>
 
-                      <ArmInput
+                      <ArmForm
                         arm={armForm.activeArm}
                         onUpdate={(updates) =>
                           armForm.updateArm(armForm.activeTabArm, updates)
@@ -579,7 +581,7 @@ export default function PoleFormView() {
                         }
                       />
 
-                      <ArmObjectInput
+                      <ArmObjectForm
                         armObjects={
                           Array.isArray(armForm.activeArm.armObjects)
                             ? armForm.activeArm.armObjects
@@ -663,7 +665,7 @@ export default function PoleFormView() {
         </div>
 
         {/* Results table */}
-        <div id="results-section">
+        <div id="results-pole">
           {calculation.showResults && (
             <ResultsTable
               results={calculation.results}
@@ -676,7 +678,7 @@ export default function PoleFormView() {
       </div>
 
       {/* ── Cover modal ── */}
-      <CoverInputModal
+      <CoverFormModal
         open={coverForm.showCoverPopup}
         onClose={coverForm.closeCoverPopup}
         cover={coverForm.coverData}

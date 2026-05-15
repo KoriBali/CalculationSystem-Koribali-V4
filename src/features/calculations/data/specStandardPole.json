@@ -5,27 +5,27 @@
         "lowestStep": "",
         "overDesign": "1"
       },
-      "sections": [
+      "poles": [
         {
           "name": "上柱",
           "material": "STK400",
           "poleType": "Straight",
-          "diameterLower": "34",
-          "diameterUpper": "34",
-          "thicknessLower": "",
-          "thicknessUpper": "",
-          "height": "",
+          "lowerDiameter": "34",
+          "upperDiameter": "34",
+          "lowerThickness": "",
+          "upperThickness": "",
+          "zHeight": "",
           "quantity": "1"
         },
         {
           "name": "下柱",
           "material": "STK400",
           "poleType": "Straight",
-          "diameterLower": "114.3",
-          "diameterUpper": "114.3",
-          "thicknessLower": "",
-          "thicknessUpper": "",
-          "height": "",
+          "lowerDiameter": "114.3",
+          "upperDiameter": "114.3",
+          "lowerThickness": "",
+          "upperThickness": "",
+          "zHeight": "",
           "quantity": "1"
         }
       ]
@@ -35,27 +35,27 @@
         "lowestStep": "",
         "overDesign": "1"
       },
-      "sections": [
+      "poles": [
         {
           "name": "上柱",
           "material": "STK400",
           "poleType": "Straight",
-          "diameterLower": "42.7",
-          "diameterUpper": "42.7",
-          "thicknessLower": "",
-          "thicknessUpper": "",
-          "height": "",
+          "lowerDiameter": "42.7",
+          "upperDiameter": "42.7",
+          "lowerThickness": "",
+          "upperThickness": "",
+          "zHeight": "",
           "quantity": "1"
         },
         {
           "name": "下柱",
           "material": "STK400",
           "poleType": "Straight",
-          "diameterLower": "114.3",
-          "diameterUpper": "114.3",
-          "thicknessLower": "",
-          "thicknessUpper": "",
-          "height": "",
+          "lowerDiameter": "114.3",
+          "upperDiameter": "114.3",
+          "lowerThickness": "",
+          "upperThickness": "",
+          "zHeight": "",
           "quantity": "1"
         }
       ]
@@ -65,27 +65,27 @@
         "lowestStep": "",
         "overDesign": "1"
       },
-      "sections": [
+      "poles": [
         {
           "name": "上柱",
           "material": "STK400",
           "poleType": "Straight",
-          "diameterLower": "48.6",
-          "diameterUpper": "48.6",
-          "thicknessLower": "",
-          "thicknessUpper": "",
-          "height": "",
+          "lowerDiameter": "48.6",
+          "upperDiameter": "48.6",
+          "lowerThickness": "",
+          "upperThickness": "",
+          "zHeight": "",
           "quantity": "1"
         },
         {
           "name": "下柱",
           "material": "STK400",
           "poleType": "Straight",
-          "diameterLower": "114.3",
-          "diameterUpper": "114.3",
-          "thicknessLower": "",
-          "thicknessUpper": "",
-          "height": "",
+          "lowerDiameter": "114.3",
+          "upperDiameter": "114.3",
+          "lowerThickness": "",
+          "upperThickness": "",
+          "zHeight": "",
           "quantity": "1"
         }
       ]
@@ -95,27 +95,27 @@
         "lowestStep": "",
         "overDesign": "1"
       },
-      "sections": [
+      "poles": [
         {
           "name": "上柱",
           "material": "STK400",
           "poleType": "Straight",
-          "diameterLower": "60.5",
-          "diameterUpper": "60.5",
-          "thicknessLower": "",
-          "thicknessUpper": "",
-          "height": "",
+          "lowerDiameter": "60.5",
+          "upperDiameter": "60.5",
+          "lowerThickness": "",
+          "upperThickness": "",
+          "zHeight": "",
           "quantity": "1"
         },
         {
           "name": "下柱",
           "material": "STK400",
           "poleType": "Straight",
-          "diameterLower": "114.3",
-          "diameterUpper": "114.3",
-          "thicknessLower": "",
-          "thicknessUpper": "",
-          "height": "",
+          "lowerDiameter": "114.3",
+          "upperDiameter": "114.3",
+          "lowerThickness": "",
+          "upperThickness": "",
+          "zHeight": "",
           "quantity": "1"
         }
       ]
@@ -125,27 +125,27 @@
         "lowestStep": "",
         "overDesign": "1"
       },
-      "sections": [
+      "poles": [
         {
           "name": "上柱",
           "material": "STK400",
           "poleType": "Straight",
-          "diameterLower": "76.3",
-          "diameterUpper": "76.3",
-          "thicknessLower": "",
-          "thicknessUpper": "",
-          "height": "",
+          "lowerDiameter": "76.3",
+          "upperDiameter": "76.3",
+          "lowerThickness": "",
+          "upperThickness": "",
+          "zHeight": "",
           "quantity": "1"
         },
         {
           "name": "下柱",
           "material": "STK400",
           "poleType": "Straight",
-          "diameterLower": "114.3",
-          "diameterUpper": "114.3",
-          "thicknessLower": "",
-          "thicknessUpper": "",
-          "height": "",
+          "lowerDiameter": "114.3",
+          "upperDiameter": "114.3",
+          "lowerThickness": "",
+          "upperThickness": "",
+          "zHeight": "",
           "quantity": "1"
         }
       ]
@@ -155,27 +155,27 @@
         "lowestStep": "",
         "overDesign": "1"
       },
-      "sections": [
+      "poles": [
         {
           "name": "上柱",
           "material": "STK400",
           "poleType": "Straight",
-          "diameterLower": "89.1",
-          "diameterUpper": "89.1",
-          "thicknessLower": "",
-          "thicknessUpper": "",
-          "height": "",
+          "lowerDiameter": "89.1",
+          "upperDiameter": "89.1",
+          "lowerThickness": "",
+          "upperThickness": "",
+          "zHeight": "",
           "quantity": "1"
         },
         {
           "name": "下柱",
           "material": "STK400",
           "poleType": "Straight",
-          "diameterLower": "114.3",
-          "diameterUpper": "114.3",
-          "thicknessLower": "",
-          "thicknessUpper": "",
-          "height": "",
+          "lowerDiameter": "114.3",
+          "upperDiameter": "114.3",
+          "lowerThickness": "",
+          "upperThickness": "",
+          "zHeight": "",
           "quantity": "1"
         }
       ]
@@ -185,27 +185,27 @@
         "lowestStep": "",
         "overDesign": "1"
       },
-      "sections": [
+      "poles": [
         {
           "name": "上柱",
           "material": "STK400",
           "poleType": "Straight",
-          "diameterLower": "34",
-          "diameterUpper": "34",
-          "thicknessLower": "",
-          "thicknessUpper": "",
-          "height": "",
+          "lowerDiameter": "34",
+          "upperDiameter": "34",
+          "lowerThickness": "",
+          "upperThickness": "",
+          "zHeight": "",
           "quantity": "1"
         },
         {
           "name": "下柱",
           "material": "STK400",
           "poleType": "Straight",
-          "diameterLower": "139.8",
-          "diameterUpper": "139.8",
-          "thicknessLower": "",
-          "thicknessUpper": "",
-          "height": "",
+          "lowerDiameter": "139.8",
+          "upperDiameter": "139.8",
+          "lowerThickness": "",
+          "upperThickness": "",
+          "zHeight": "",
           "quantity": "1"
         }
       ]
@@ -215,27 +215,27 @@
         "lowestStep": "",
         "overDesign": "1"
       },
-      "sections": [
+      "poles": [
         {
           "name": "上柱",
           "material": "STK400",
           "poleType": "Straight",
-          "diameterLower": "42.7",
-          "diameterUpper": "42.7",
-          "thicknessLower": "",
-          "thicknessUpper": "",
-          "height": "",
+          "lowerDiameter": "42.7",
+          "upperDiameter": "42.7",
+          "lowerThickness": "",
+          "upperThickness": "",
+          "zHeight": "",
           "quantity": "1"
         },
         {
           "name": "下柱",
           "material": "STK400",
           "poleType": "Straight",
-          "diameterLower": "139.8",
-          "diameterUpper": "139.8",
-          "thicknessLower": "",
-          "thicknessUpper": "",
-          "height": "",
+          "lowerDiameter": "139.8",
+          "upperDiameter": "139.8",
+          "lowerThickness": "",
+          "upperThickness": "",
+          "zHeight": "",
           "quantity": "1"
         }
       ]
@@ -245,27 +245,27 @@
         "lowestStep": "",
         "overDesign": "1"
       },
-      "sections": [
+      "poles": [
         {
           "name": "上柱",
           "material": "STK400",
           "poleType": "Straight",
-          "diameterLower": "48.6",
-          "diameterUpper": "48.6",
-          "thicknessLower": "",
-          "thicknessUpper": "",
-          "height": "",
+          "lowerDiameter": "48.6",
+          "upperDiameter": "48.6",
+          "lowerThickness": "",
+          "upperThickness": "",
+          "zHeight": "",
           "quantity": "1"
         },
         {
           "name": "下柱",
           "material": "STK400",
           "poleType": "Straight",
-          "diameterLower": "139.8",
-          "diameterUpper": "139.8",
-          "thicknessLower": "",
-          "thicknessUpper": "",
-          "height": "",
+          "lowerDiameter": "139.8",
+          "upperDiameter": "139.8",
+          "lowerThickness": "",
+          "upperThickness": "",
+          "zHeight": "",
           "quantity": "1"
         }
       ]
@@ -275,27 +275,27 @@
         "lowestStep": "",
         "overDesign": "1"
       },
-      "sections": [
+      "poles": [
         {
           "name": "上柱",
           "material": "STK400",
           "poleType": "Straight",
-          "diameterLower": "60.5",
-          "diameterUpper": "60.5",
-          "thicknessLower": "",
-          "thicknessUpper": "",
-          "height": "",
+          "lowerDiameter": "60.5",
+          "upperDiameter": "60.5",
+          "lowerThickness": "",
+          "upperThickness": "",
+          "zHeight": "",
           "quantity": "1"
         },
         {
           "name": "下柱",
           "material": "STK400",
           "poleType": "Straight",
-          "diameterLower": "139.8",
-          "diameterUpper": "139.8",
-          "thicknessLower": "",
-          "thicknessUpper": "",
-          "height": "",
+          "lowerDiameter": "139.8",
+          "upperDiameter": "139.8",
+          "lowerThickness": "",
+          "upperThickness": "",
+          "zHeight": "",
           "quantity": "1"
         }
       ]
@@ -305,27 +305,27 @@
         "lowestStep": "",
         "overDesign": "1"
       },
-      "sections": [
+      "poles": [
         {
           "name": "上柱",
           "material": "STK400",
           "poleType": "Straight",
-          "diameterLower": "76.3",
-          "diameterUpper": "76.3",
-          "thicknessLower": "",
-          "thicknessUpper": "",
-          "height": "",
+          "lowerDiameter": "76.3",
+          "upperDiameter": "76.3",
+          "lowerThickness": "",
+          "upperThickness": "",
+          "zHeight": "",
           "quantity": "1"
         },
         {
           "name": "下柱",
           "material": "STK400",
           "poleType": "Straight",
-          "diameterLower": "139.8",
-          "diameterUpper": "139.8",
-          "thicknessLower": "",
-          "thicknessUpper": "",
-          "height": "",
+          "lowerDiameter": "139.8",
+          "upperDiameter": "139.8",
+          "lowerThickness": "",
+          "upperThickness": "",
+          "zHeight": "",
           "quantity": "1"
         }
       ]
@@ -335,27 +335,27 @@
         "lowestStep": "",
         "overDesign": "1"
       },
-      "sections": [
+      "poles": [
         {
           "name": "上柱",
           "material": "STK400",
           "poleType": "Straight",
-          "diameterLower": "89.1",
-          "diameterUpper": "89.1",
-          "thicknessLower": "",
-          "thicknessUpper": "",
-          "height": "",
+          "lowerDiameter": "89.1",
+          "upperDiameter": "89.1",
+          "lowerThickness": "",
+          "upperThickness": "",
+          "zHeight": "",
           "quantity": "1"
         },
         {
           "name": "下柱",
           "material": "STK400",
           "poleType": "Straight",
-          "diameterLower": "139.8",
-          "diameterUpper": "139.8",
-          "thicknessLower": "",
-          "thicknessUpper": "",
-          "height": "",
+          "lowerDiameter": "139.8",
+          "upperDiameter": "139.8",
+          "lowerThickness": "",
+          "upperThickness": "",
+          "zHeight": "",
           "quantity": "1"
         }
       ]
@@ -365,27 +365,27 @@
         "lowestStep": "",
         "overDesign": "1"
       },
-      "sections": [
+      "poles": [
         {
           "name": "上柱",
           "material": "STK400",
           "poleType": "Straight",
-          "diameterLower": "101.6",
-          "diameterUpper": "101.6",
-          "thicknessLower": "",
-          "thicknessUpper": "",
-          "height": "",
+          "lowerDiameter": "101.6",
+          "upperDiameter": "101.6",
+          "lowerThickness": "",
+          "upperThickness": "",
+          "zHeight": "",
           "quantity": "1"
         },
         {
           "name": "下柱",
           "material": "STK400",
           "poleType": "Straight",
-          "diameterLower": "139.8",
-          "diameterUpper": "139.8",
-          "thicknessLower": "",
-          "thicknessUpper": "",
-          "height": "",
+          "lowerDiameter": "139.8",
+          "upperDiameter": "139.8",
+          "lowerThickness": "",
+          "upperThickness": "",
+          "zHeight": "",
           "quantity": "1"
         }
       ]
@@ -395,27 +395,27 @@
         "lowestStep": "",
         "overDesign": "1"
       },
-      "sections": [
+      "poles": [
         {
           "name": "上柱",
           "material": "STK400",
           "poleType": "Straight",
-          "diameterLower": "114.3",
-          "diameterUpper": "114.3",
-          "thicknessLower": "",
-          "thicknessUpper": "",
-          "height": "",
+          "lowerDiameter": "114.3",
+          "upperDiameter": "114.3",
+          "lowerThickness": "",
+          "upperThickness": "",
+          "zHeight": "",
           "quantity": "1"
         },
         {
           "name": "下柱",
           "material": "STK400",
           "poleType": "Straight",
-          "diameterLower": "139.8",
-          "diameterUpper": "139.8",
-          "thicknessLower": "",
-          "thicknessUpper": "",
-          "height": "",
+          "lowerDiameter": "139.8",
+          "upperDiameter": "139.8",
+          "lowerThickness": "",
+          "upperThickness": "",
+          "zHeight": "",
           "quantity": "1"
         }
       ]
@@ -425,27 +425,27 @@
         "lowestStep": "",
         "overDesign": "1"
       },
-      "sections": [
+      "poles": [
         {
           "name": "上柱",
           "material": "STK400",
           "poleType": "Straight",
-          "diameterLower": "48.6",
-          "diameterUpper": "48.6",
-          "thicknessLower": "",
-          "thicknessUpper": "",
-          "height": "",
+          "lowerDiameter": "48.6",
+          "upperDiameter": "48.6",
+          "lowerThickness": "",
+          "upperThickness": "",
+          "zHeight": "",
           "quantity": "1"
         },
         {
           "name": "下柱",
           "material": "STK400",
           "poleType": "Straight",
-          "diameterLower": "165.2",
-          "diameterUpper": "165.2",
-          "thicknessLower": "",
-          "thicknessUpper": "",
-          "height": "",
+          "lowerDiameter": "165.2",
+          "upperDiameter": "165.2",
+          "lowerThickness": "",
+          "upperThickness": "",
+          "zHeight": "",
           "quantity": "1"
         }
       ]
@@ -455,27 +455,27 @@
         "lowestStep": "",
         "overDesign": "1"
       },
-      "sections": [
+      "poles": [
         {
           "name": "上柱",
           "material": "STK400",
           "poleType": "Straight",
-          "diameterLower": "60.5",
-          "diameterUpper": "60.5",
-          "thicknessLower": "",
-          "thicknessUpper": "",
-          "height": "",
+          "lowerDiameter": "60.5",
+          "upperDiameter": "60.5",
+          "lowerThickness": "",
+          "upperThickness": "",
+          "zHeight": "",
           "quantity": "1"
         },
         {
           "name": "下柱",
           "material": "STK400",
           "poleType": "Straight",
-          "diameterLower": "165.2",
-          "diameterUpper": "165.2",
-          "thicknessLower": "",
-          "thicknessUpper": "",
-          "height": "",
+          "lowerDiameter": "165.2",
+          "upperDiameter": "165.2",
+          "lowerThickness": "",
+          "upperThickness": "",
+          "zHeight": "",
           "quantity": "1"
         }
       ]
@@ -485,27 +485,27 @@
         "lowestStep": "",
         "overDesign": "1"
       },
-      "sections": [
+      "poles": [
         {
           "name": "上柱",
           "material": "STK400",
           "poleType": "Straight",
-          "diameterLower": "76.3",
-          "diameterUpper": "76.3",
-          "thicknessLower": "",
-          "thicknessUpper": "",
-          "height": "",
+          "lowerDiameter": "76.3",
+          "upperDiameter": "76.3",
+          "lowerThickness": "",
+          "upperThickness": "",
+          "zHeight": "",
           "quantity": "1"
         },
         {
           "name": "下柱",
           "material": "STK400",
           "poleType": "Straight",
-          "diameterLower": "165.2",
-          "diameterUpper": "165.2",
-          "thicknessLower": "",
-          "thicknessUpper": "",
-          "height": "",
+          "lowerDiameter": "165.2",
+          "upperDiameter": "165.2",
+          "lowerThickness": "",
+          "upperThickness": "",
+          "zHeight": "",
           "quantity": "1"
         }
       ]
@@ -515,27 +515,27 @@
         "lowestStep": "",
         "overDesign": "1"
       },
-      "sections": [
+      "poles": [
         {
           "name": "上柱",
           "material": "STK400",
           "poleType": "Straight",
-          "diameterLower": "89.1",
-          "diameterUpper": "89.1",
-          "thicknessLower": "",
-          "thicknessUpper": "",
-          "height": "",
+          "lowerDiameter": "89.1",
+          "upperDiameter": "89.1",
+          "lowerThickness": "",
+          "upperThickness": "",
+          "zHeight": "",
           "quantity": "1"
         },
         {
           "name": "下柱",
           "material": "STK400",
           "poleType": "Straight",
-          "diameterLower": "165.2",
-          "diameterUpper": "165.2",
-          "thicknessLower": "",
-          "thicknessUpper": "",
-          "height": "",
+          "lowerDiameter": "165.2",
+          "upperDiameter": "165.2",
+          "lowerThickness": "",
+          "upperThickness": "",
+          "zHeight": "",
           "quantity": "1"
         }
       ]
@@ -545,27 +545,27 @@
         "lowestStep": "",
         "overDesign": "1"
       },
-      "sections": [
+      "poles": [
         {
           "name": "上柱",
           "material": "STK400",
           "poleType": "Straight",
-          "diameterLower": "101.6",
-          "diameterUpper": "101.6",
-          "thicknessLower": "",
-          "thicknessUpper": "",
-          "height": "",
+          "lowerDiameter": "101.6",
+          "upperDiameter": "101.6",
+          "lowerThickness": "",
+          "upperThickness": "",
+          "zHeight": "",
           "quantity": "1"
         },
         {
           "name": "下柱",
           "material": "STK400",
           "poleType": "Straight",
-          "diameterLower": "165.2",
-          "diameterUpper": "165.2",
-          "thicknessLower": "",
-          "thicknessUpper": "",
-          "height": "",
+          "lowerDiameter": "165.2",
+          "upperDiameter": "165.2",
+          "lowerThickness": "",
+          "upperThickness": "",
+          "zHeight": "",
           "quantity": "1"
         }
       ]
@@ -575,27 +575,27 @@
         "lowestStep": "",
         "overDesign": "1"
       },
-      "sections": [
+      "poles": [
         {
           "name": "上柱",
           "material": "STK400",
           "poleType": "Straight",
-          "diameterLower": "114.3",
-          "diameterUpper": "114.3",
-          "thicknessLower": "",
-          "thicknessUpper": "",
-          "height": "",
+          "lowerDiameter": "114.3",
+          "upperDiameter": "114.3",
+          "lowerThickness": "",
+          "upperThickness": "",
+          "zHeight": "",
           "quantity": "1"
         },
         {
           "name": "下柱",
           "material": "STK400",
           "poleType": "Straight",
-          "diameterLower": "165.2",
-          "diameterUpper": "165.2",
-          "thicknessLower": "",
-          "thicknessUpper": "",
-          "height": "",
+          "lowerDiameter": "165.2",
+          "upperDiameter": "165.2",
+          "lowerThickness": "",
+          "upperThickness": "",
+          "zHeight": "",
           "quantity": "1"
         }
       ]
@@ -605,27 +605,27 @@
         "lowestStep": "",
         "overDesign": "1"
       },
-      "sections": [
+      "poles": [
         {
           "name": "上柱",
           "material": "STK400",
           "poleType": "Straight",
-          "diameterLower": "139.8",
-          "diameterUpper": "139.8",
-          "thicknessLower": "",
-          "thicknessUpper": "",
-          "height": "",
+          "lowerDiameter": "139.8",
+          "upperDiameter": "139.8",
+          "lowerThickness": "",
+          "upperThickness": "",
+          "zHeight": "",
           "quantity": "1"
         },
         {
           "name": "下柱",
           "material": "STK400",
           "poleType": "Straight",
-          "diameterLower": "165.2",
-          "diameterUpper": "165.2",
-          "thicknessLower": "",
-          "thicknessUpper": "",
-          "height": "",
+          "lowerDiameter": "165.2",
+          "upperDiameter": "165.2",
+          "lowerThickness": "",
+          "upperThickness": "",
+          "zHeight": "",
           "quantity": "1"
         }
       ]
@@ -640,30 +640,30 @@
             "lowestStep": "0",
             "overDesign": "1"
           },
-          "sections": [
+          "poles": [
             {
               "name": "支柱−1",
               "material": "STK400",
               "poleType": "Taper",
-              "diameterLower": "165",
-              "diameterUpper": "85",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "8000",
+              "lowerDiameter": "165",
+              "upperDiameter": "85",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "8000",
               "quantity": "1"
             }
           ],
           "directObjects": [
             {
-              "nameDo": "灯具",
-              "typeOfDo": "directional",
-              "frontAreaDo": "0.1",
-              "sideAreaDo": "0.1",
-              "weightDo": "14",
-              "heightDo": "8000",
-              "nncDo": "1",
-              "qtyDo": "1",
-              "fixAngleDo": "0"
+              "name": "灯具",
+              "type": "directional",
+              "frontArea": "0.1",
+              "sideArea": "0.1",
+              "weight": "14",
+              "zHeight": "8000",
+              "nnC": "1",
+              "quantity": "1",
+              "fixAngle": "0"
             }
           ]
         },
@@ -673,30 +673,30 @@
             "lowestStep": "0",
             "overDesign": "1"
           },
-          "sections": [
+          "poles": [
             {
               "name": "支柱−1",
               "material": "STK400",
               "poleType": "Taper",
-              "diameterLower": "175",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "10000",
+              "lowerDiameter": "175",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "10000",
               "quantity": "1"
             }
           ],
           "directObjects": [
             {
-              "nameDo": "灯具",
-              "typeOfDo": "directional",
-              "frontAreaDo": "0.1",
-              "sideAreaDo": "0.1",
-              "weightDo": "14",
-              "heightDo": "10000",
-              "nncDo": "1",
-              "qtyDo": "1",
-              "fixAngleDo": "0"
+              "name": "灯具",
+              "type": "directional",
+              "frontArea": "0.1",
+              "sideArea": "0.1",
+              "weight": "14",
+              "zHeight": "10000",
+              "nnC": "1",
+              "quantity": "1",
+              "fixAngle": "0"
             }
           ]
         },
@@ -706,30 +706,30 @@
             "lowestStep": "0",
             "overDesign": "1"
           },
-          "sections": [
+          "poles": [
             {
               "name": "支柱−1",
               "material": "STK400",
               "poleType": "Taper",
-              "diameterLower": "195",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "12000",
+              "lowerDiameter": "195",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "12000",
               "quantity": "1"
             }
           ],
           "directObjects": [
             {
-              "nameDo": "灯具",
-              "typeOfDo": "directional",
-              "frontAreaDo": "0.1",
-              "sideAreaDo": "0.1",
-              "weightDo": "14",
-              "heightDo": "12000",
-              "nncDo": "1",
-              "qtyDo": "1",
-              "fixAngleDo": "0"
+              "name": "灯具",
+              "type": "directional",
+              "frontArea": "0.1",
+              "sideArea": "0.1",
+              "weight": "14",
+              "zHeight": "12000",
+              "nnC": "1",
+              "quantity": "1",
+              "fixAngle": "0"
             }
           ]
         }
@@ -741,41 +741,41 @@
             "lowestStep": "-300",
             "overDesign": "1"
           },
-          "sections": [
+          "poles": [
             {
               "name": "支柱−1",
               "material": "STK400",
               "poleType": "Taper",
-              "diameterLower": "165",
-              "diameterUpper": "85",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "8300",
+              "lowerDiameter": "165",
+              "upperDiameter": "85",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "8300",
               "quantity": "1"
             },
             {
               "name": "支柱−2",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "165",
-              "diameterUpper": "165",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "300",
+              "lowerDiameter": "165",
+              "upperDiameter": "165",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "300",
               "quantity": "1"
             }
           ],
           "directObjects": [
             {
-              "nameDo": "灯具",
-              "typeOfDo": "directional",
-              "frontAreaDo": "0.1",
-              "sideAreaDo": "0.1",
-              "weightDo": "14",
-              "heightDo": "8000",
-              "nncDo": "1",
-              "qtyDo": "1",
-              "fixAngleDo": "0"
+              "name": "灯具",
+              "type": "directional",
+              "frontArea": "0.1",
+              "sideArea": "0.1",
+              "weight": "14",
+              "zHeight": "8000",
+              "nnC": "1",
+              "quantity": "1",
+              "fixAngle": "0"
             }
           ]
         },
@@ -785,41 +785,41 @@
             "lowestStep": "-300",
             "overDesign": "1"
           },
-          "sections": [
+          "poles": [
             {
               "name": "支柱−1",
               "material": "STK400",
               "poleType": "Taper",
-              "diameterLower": "175",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "10300",
+              "lowerDiameter": "175",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "10300",
               "quantity": "1"
             },
             {
               "name": "支柱−2",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "175",
-              "diameterUpper": "175",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "300",
+              "lowerDiameter": "175",
+              "upperDiameter": "175",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "300",
               "quantity": "1"
             }
           ],
           "directObjects": [
             {
-              "nameDo": "灯具",
-              "typeOfDo": "directional",
-              "frontAreaDo": "0.1",
-              "sideAreaDo": "0.1",
-              "weightDo": "14",
-              "heightDo": "10000",
-              "nncDo": "1",
-              "qtyDo": "1",
-              "fixAngleDo": "0"
+              "name": "灯具",
+              "type": "directional",
+              "frontArea": "0.1",
+              "sideArea": "0.1",
+              "weight": "14",
+              "zHeight": "10000",
+              "nnC": "1",
+              "quantity": "1",
+              "fixAngle": "0"
             }
           ]
         },
@@ -829,41 +829,41 @@
             "lowestStep": "-300",
             "overDesign": "1"
           },
-          "sections": [
+          "poles": [
             {
               "name": "支柱−1",
               "material": "STK400",
               "poleType": "Taper",
-              "diameterLower": "195",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "12300",
+              "lowerDiameter": "195",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "12300",
               "quantity": "1"
             },
             {
               "name": "支柱−2",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "195",
-              "diameterUpper": "195",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "300",
+              "lowerDiameter": "195",
+              "upperDiameter": "195",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "300",
               "quantity": "1"
             }
           ],
           "directObjects": [
             {
-              "nameDo": "灯具",
-              "typeOfDo": "directional",
-              "frontAreaDo": "0.1",
-              "sideAreaDo": "0.1",
-              "weightDo": "14",
-              "heightDo": "12000",
-              "nncDo": "1",
-              "qtyDo": "1",
-              "fixAngleDo": "0"
+              "name": "灯具",
+              "type": "directional",
+              "frontArea": "0.1",
+              "sideArea": "0.1",
+              "weight": "14",
+              "zHeight": "12000",
+              "nnC": "1",
+              "quantity": "1",
+              "fixAngle": "0"
             }
           ]
         }
@@ -877,52 +877,52 @@
             "lowestStep": "0",
             "overDesign": "1"
           },
-          "sections": [
+          "poles": [
             {
               "name": "支柱−1",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "75",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "4500",
+              "lowerDiameter": "75",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "4500",
               "quantity": "1"
             },
             {
               "name": "支柱−2",
               "material": "STK400",
               "poleType": "Taper",
-              "diameterLower": "165",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "3405",
+              "lowerDiameter": "165",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "3405",
               "quantity": "1"
             },
             {
               "name": "支柱−3",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "165",
-              "diameterUpper": "165",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "1500",
+              "lowerDiameter": "165",
+              "upperDiameter": "165",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "1500",
               "quantity": "1"
             }
           ],
           "directObjects": [
             {
-              "nameDo": "灯具",
-              "typeOfDo": "directional",
-              "frontAreaDo": "0.1",
-              "sideAreaDo": "0.1",
-              "weightDo": "14",
-              "heightDo": "4500",
-              "nncDo": "1",
-              "qtyDo": "1",
-              "fixAngleDo": "0"
+              "name": "灯具",
+              "type": "directional",
+              "frontArea": "0.1",
+              "sideArea": "0.1",
+              "weight": "14",
+              "zHeight": "4500",
+              "nnC": "1",
+              "quantity": "1",
+              "fixAngle": "0"
             }
           ]
         },
@@ -932,52 +932,52 @@
             "lowestStep": "0",
             "overDesign": "1"
           },
-          "sections": [
+          "poles": [
             {
               "name": "支柱−1",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "75",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "5000",
+              "lowerDiameter": "75",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "5000",
               "quantity": "1"
             },
             {
               "name": "支柱−2",
               "material": "STK400",
               "poleType": "Taper",
-              "diameterLower": "165",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "3405",
+              "lowerDiameter": "165",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "3405",
               "quantity": "1"
             },
             {
               "name": "支柱−3",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "165",
-              "diameterUpper": "165",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "1500",
+              "lowerDiameter": "165",
+              "upperDiameter": "165",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "1500",
               "quantity": "1"
             }
           ],
           "directObjects": [
             {
-              "nameDo": "灯具",
-              "typeOfDo": "directional",
-              "frontAreaDo": "0.1",
-              "sideAreaDo": "0.1",
-              "weightDo": "14",
-              "heightDo": "5000",
-              "nncDo": "1",
-              "qtyDo": "1",
-              "fixAngleDo": "0"
+              "name": "灯具",
+              "type": "directional",
+              "frontArea": "0.1",
+              "sideArea": "0.1",
+              "weight": "14",
+              "zHeight": "5000",
+              "nnC": "1",
+              "quantity": "1",
+              "fixAngle": "0"
             }
           ]
         },
@@ -987,52 +987,52 @@
             "lowestStep": "0",
             "overDesign": "1"
           },
-          "sections": [
+          "poles": [
             {
               "name": "支柱−1",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "75",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "8000",
+              "lowerDiameter": "75",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "8000",
               "quantity": "1"
             },
             {
               "name": "支柱−2",
               "material": "STK400",
               "poleType": "Taper",
-              "diameterLower": "165",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "6500",
+              "lowerDiameter": "165",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "6500",
               "quantity": "1"
             },
             {
               "name": "支柱−3",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "165",
-              "diameterUpper": "165",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "1500",
+              "lowerDiameter": "165",
+              "upperDiameter": "165",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "1500",
               "quantity": "1"
             }
           ],
           "directObjects": [
             {
-              "nameDo": "灯具",
-              "typeOfDo": "directional",
-              "frontAreaDo": "0.1",
-              "sideAreaDo": "0.1",
-              "weightDo": "14",
-              "heightDo": "8000",
-              "nncDo": "1",
-              "qtyDo": "1",
-              "fixAngleDo": "0"
+              "name": "灯具",
+              "type": "directional",
+              "frontArea": "0.1",
+              "sideArea": "0.1",
+              "weight": "14",
+              "zHeight": "8000",
+              "nnC": "1",
+              "quantity": "1",
+              "fixAngle": "0"
             }
           ]
         },
@@ -1042,52 +1042,52 @@
             "lowestStep": "0",
             "overDesign": "1"
           },
-          "sections": [
+          "poles": [
             {
               "name": "支柱−1",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "75",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "10000",
+              "lowerDiameter": "75",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "10000",
               "quantity": "1"
             },
             {
               "name": "支柱−2",
               "material": "STK400",
               "poleType": "Taper",
-              "diameterLower": "175",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "7500",
+              "lowerDiameter": "175",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "7500",
               "quantity": "1"
             },
             {
               "name": "支柱−3",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "175",
-              "diameterUpper": "175",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "1500",
+              "lowerDiameter": "175",
+              "upperDiameter": "175",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "1500",
               "quantity": "1"
             }
           ],
           "directObjects": [
             {
-              "nameDo": "灯具",
-              "typeOfDo": "directional",
-              "frontAreaDo": "0.1",
-              "sideAreaDo": "0.1",
-              "weightDo": "14",
-              "heightDo": "10000",
-              "nncDo": "1",
-              "qtyDo": "1",
-              "fixAngleDo": "0"
+              "name": "灯具",
+              "type": "directional",
+              "frontArea": "0.1",
+              "sideArea": "0.1",
+              "weight": "14",
+              "zHeight": "10000",
+              "nnC": "1",
+              "quantity": "1",
+              "fixAngle": "0"
             }
           ]
         },
@@ -1097,52 +1097,52 @@
             "lowestStep": "0",
             "overDesign": "1"
           },
-          "sections": [
+          "poles": [
             {
               "name": "支柱−1",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "75",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "12000",
+              "lowerDiameter": "75",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "12000",
               "quantity": "1"
             },
             {
               "name": "支柱−2",
               "material": "STK400",
               "poleType": "Taper",
-              "diameterLower": "195",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "9500",
+              "lowerDiameter": "195",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "9500",
               "quantity": "1"
             },
             {
               "name": "支柱−3",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "195",
-              "diameterUpper": "195",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "1500",
+              "lowerDiameter": "195",
+              "upperDiameter": "195",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "1500",
               "quantity": "1"
             }
           ],
           "directObjects": [
             {
-              "nameDo": "灯具",
-              "typeOfDo": "directional",
-              "frontAreaDo": "0.1",
-              "sideAreaDo": "0.1",
-              "weightDo": "14",
-              "heightDo": "12000",
-              "nncDo": "1",
-              "qtyDo": "1",
-              "fixAngleDo": "0"
+              "name": "灯具",
+              "type": "directional",
+              "frontArea": "0.1",
+              "sideArea": "0.1",
+              "weight": "14",
+              "zHeight": "12000",
+              "nnC": "1",
+              "quantity": "1",
+              "fixAngle": "0"
             }
           ]
         }
@@ -1154,52 +1154,52 @@
             "lowestStep": "-300",
             "overDesign": "1"
           },
-          "sections": [
+          "poles": [
             {
               "name": "支柱−1",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "75",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "4500",
+              "lowerDiameter": "75",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "4500",
               "quantity": "1"
             },
             {
               "name": "支柱−2",
               "material": "STK400",
               "poleType": "Taper",
-              "diameterLower": "165",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "3405",
+              "lowerDiameter": "165",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "3405",
               "quantity": "1"
             },
             {
               "name": "支柱−3",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "165",
-              "diameterUpper": "165",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "1800",
+              "lowerDiameter": "165",
+              "upperDiameter": "165",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "1800",
               "quantity": "1"
             }
           ],
           "directObjects": [
             {
-              "nameDo": "灯具",
-              "typeOfDo": "directional",
-              "frontAreaDo": "0.1",
-              "sideAreaDo": "0.1",
-              "weightDo": "14",
-              "heightDo": "4500",
-              "nncDo": "1",
-              "qtyDo": "1",
-              "fixAngleDo": "0"
+              "name": "灯具",
+              "type": "directional",
+              "frontArea": "0.1",
+              "sideArea": "0.1",
+              "weight": "14",
+              "zHeight": "4500",
+              "nnC": "1",
+              "quantity": "1",
+              "fixAngle": "0"
             }
           ]
         },
@@ -1209,52 +1209,52 @@
             "lowestStep": "-300",
             "overDesign": "1"
           },
-          "sections": [
+          "poles": [
             {
               "name": "支柱−1",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "75",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "5300",
+              "lowerDiameter": "75",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "5300",
               "quantity": "1"
             },
             {
               "name": "支柱−2",
               "material": "STK400",
               "poleType": "Taper",
-              "diameterLower": "165",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "3405",
+              "lowerDiameter": "165",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "3405",
               "quantity": "1"
             },
             {
               "name": "支柱−3",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "165",
-              "diameterUpper": "165",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "1800",
+              "lowerDiameter": "165",
+              "upperDiameter": "165",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "1800",
               "quantity": "1"
             }
           ],
           "directObjects": [
             {
-              "nameDo": "灯具",
-              "typeOfDo": "directional",
-              "frontAreaDo": "0.1",
-              "sideAreaDo": "0.1",
-              "weightDo": "14",
-              "heightDo": "5000",
-              "nncDo": "1",
-              "qtyDo": "1",
-              "fixAngleDo": "0"
+              "name": "灯具",
+              "type": "directional",
+              "frontArea": "0.1",
+              "sideArea": "0.1",
+              "weight": "14",
+              "zHeight": "5000",
+              "nnC": "1",
+              "quantity": "1",
+              "fixAngle": "0"
             }
           ]
         },
@@ -1264,52 +1264,52 @@
             "lowestStep": "-300",
             "overDesign": "1"
           },
-          "sections": [
+          "poles": [
             {
               "name": "支柱−1",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "75",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "8000",
+              "lowerDiameter": "75",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "8000",
               "quantity": "1"
             },
             {
               "name": "支柱−2",
               "material": "STK400",
               "poleType": "Taper",
-              "diameterLower": "165",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "6500",
+              "lowerDiameter": "165",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "6500",
               "quantity": "1"
             },
             {
               "name": "支柱−3",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "165",
-              "diameterUpper": "165",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "1800",
+              "lowerDiameter": "165",
+              "upperDiameter": "165",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "1800",
               "quantity": "1"
             }
           ],
           "directObjects": [
             {
-              "nameDo": "灯具",
-              "typeOfDo": "directional",
-              "frontAreaDo": "0.1",
-              "sideAreaDo": "0.1",
-              "weightDo": "14",
-              "heightDo": "8000",
-              "nncDo": "1",
-              "qtyDo": "1",
-              "fixAngleDo": "0"
+              "name": "灯具",
+              "type": "directional",
+              "frontArea": "0.1",
+              "sideArea": "0.1",
+              "weight": "14",
+              "zHeight": "8000",
+              "nnC": "1",
+              "quantity": "1",
+              "fixAngle": "0"
             }
           ]
         },
@@ -1319,52 +1319,52 @@
             "lowestStep": "-300",
             "overDesign": "1"
           },
-          "sections": [
+          "poles": [
             {
               "name": "支柱−1",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "75",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "10000",
+              "lowerDiameter": "75",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "10000",
               "quantity": "1"
             },
             {
               "name": "支柱−2",
               "material": "STK400",
               "poleType": "Taper",
-              "diameterLower": "175",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "7500",
+              "lowerDiameter": "175",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "7500",
               "quantity": "1"
             },
             {
               "name": "支柱−3",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "175",
-              "diameterUpper": "175",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "1800",
+              "lowerDiameter": "175",
+              "upperDiameter": "175",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "1800",
               "quantity": "1"
             }
           ],
           "directObjects": [
             {
-              "nameDo": "灯具",
-              "typeOfDo": "directional",
-              "frontAreaDo": "0.1",
-              "sideAreaDo": "0.1",
-              "weightDo": "14",
-              "heightDo": "10000",
-              "nncDo": "1",
-              "qtyDo": "1",
-              "fixAngleDo": "0"
+              "name": "灯具",
+              "type": "directional",
+              "frontArea": "0.1",
+              "sideArea": "0.1",
+              "weight": "14",
+              "zHeight": "10000",
+              "nnC": "1",
+              "quantity": "1",
+              "fixAngle": "0"
             }
           ]
         },
@@ -1374,52 +1374,52 @@
             "lowestStep": "-300",
             "overDesign": "1"
           },
-          "sections": [
+          "poles": [
             {
               "name": "支柱−1",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "75",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "12000",
+              "lowerDiameter": "75",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "12000",
               "quantity": "1"
             },
             {
               "name": "支柱−2",
               "material": "STK400",
               "poleType": "Taper",
-              "diameterLower": "195",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "9500",
+              "lowerDiameter": "195",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "9500",
               "quantity": "1"
             },
             {
               "name": "支柱−3",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "195",
-              "diameterUpper": "195",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "1800",
+              "lowerDiameter": "195",
+              "upperDiameter": "195",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "1800",
               "quantity": "1"
             }
           ],
           "directObjects": [
             {
-              "nameDo": "灯具",
-              "typeOfDo": "directional",
-              "frontAreaDo": "0.1",
-              "sideAreaDo": "0.1",
-              "weightDo": "14",
-              "heightDo": "12000",
-              "nncDo": "1",
-              "qtyDo": "1",
-              "fixAngleDo": "0"
+              "name": "灯具",
+              "type": "directional",
+              "frontArea": "0.1",
+              "sideArea": "0.1",
+              "weight": "14",
+              "zHeight": "12000",
+              "nnC": "1",
+              "quantity": "1",
+              "fixAngle": "0"
             }
           ]
         }
@@ -1433,44 +1433,44 @@
             "lowestStep": "0",
             "overDesign": "1"
           },
-          "sections": [
+          "poles": [
             {
               "name": "支柱−1",
               "material": "STK400",
               "poleType": "Taper",
-              "diameterLower": "165",
-              "diameterUpper": "85",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "8100",
+              "lowerDiameter": "165",
+              "upperDiameter": "85",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "8100",
               "quantity": "1"
             }
           ],
           "arms": [
             {
-              "nameArm": "照明アーム1",
-              "materialArm": "STK400",
-              "diameterArm": "60.5",
-              "thicknessArm": "3.8",
-              "lengthArm": "180",
-              "expLengthArm": "180",
-              "heightArm": "8000",
-              "hDistanceArm": "90",
-              "fixAngleArm": "0",
-              "nncArm": "0.7",
-              "qtyArm": "1",
+              "name": "照明アーム1",
+              "material": "STK400",
+              "diameter": "60.5",
+              "thickness": "3.8",
+              "length": "180",
+              "expLength": "180",
+              "zHeight": "8000",
+              "hDistance": "90",
+              "fixAngle": "0",
+              "nnC": "0.7",
+              "quantity": "1",
 
               "armObjects": [
                 {
-                  "nameAo": "灯具",
-                  "typeOfAo": "directional",
-                  "frontAreaAo": "0.1",
-                  "sideAreaAo": "0.1",
-                  "weightAo": "14",
-                  "heightAo": "180",
-                  "fixAngleAo": "0",
-                  "nncAo": "1",
-                  "qtyAo": "1"
+                  "name": "灯具",
+                  "type": "directional",
+                  "frontArea": "0.1",
+                  "sideArea": "0.1",
+                  "weight": "14",
+                  "zHeight": "180",
+                  "fixAngle": "0",
+                  "nnC": "1",
+                  "quantity": "1"
                 }
               ]
             }
@@ -1482,44 +1482,44 @@
             "lowestStep": "0",
             "overDesign": "1"
           },
-          "sections": [
+          "poles": [
             {
               "name": "支柱−1",
               "material": "STK400",
               "poleType": "Taper",
-              "diameterLower": "175",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "10100",
+              "lowerDiameter": "175",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "10100",
               "quantity": "1"
             }
           ],
           "arms": [
             {
-              "nameArm": "照明アーム1",
-              "materialArm": "STK400",
-              "diameterArm": "60.5",
-              "thicknessArm": "3.8",
-              "lengthArm": "180",
-              "expLengthArm": "180",
-              "heightArm": "10000",
-              "hDistanceArm": "90",
-              "fixAngleArm": "0",
-              "nncArm": "0.7",
-              "qtyArm": "1",
+              "name": "照明アーム1",
+              "material": "STK400",
+              "diameter": "60.5",
+              "thickness": "3.8",
+              "length": "180",
+              "expLength": "180",
+              "zHeight": "10000",
+              "hDistance": "90",
+              "fixAngle": "0",
+              "nnC": "0.7",
+              "quantity": "1",
 
               "armObjects": [
                 {
-                  "nameAo": "灯具",
-                  "typeOfAo": "directional",
-                  "frontAreaAo": "0.1",
-                  "sideAreaAo": "0.1",
-                  "weightAo": "14",
-                  "heightAo": "180",
-                  "fixAngleAo": "0",
-                  "nncAo": "1",
-                  "qtyAo": "1"
+                  "name": "灯具",
+                  "type": "directional",
+                  "frontArea": "0.1",
+                  "sideArea": "0.1",
+                  "weight": "14",
+                  "zHeight": "180",
+                  "fixAngle": "0",
+                  "nnC": "1",
+                  "quantity": "1"
                 }
               ]
             }
@@ -1531,44 +1531,44 @@
             "lowestStep": "0",
             "overDesign": "1"
           },
-          "sections": [
+          "poles": [
             {
               "name": "支柱−1",
               "material": "STK400",
               "poleType": "Taper",
-              "diameterLower": "195",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "12100",
+              "lowerDiameter": "195",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "12100",
               "quantity": "1"
             }
           ],
           "arms": [
             {
-              "nameArm": "照明アーム1",
-              "materialArm": "STK400",
-              "diameterArm": "60.5",
-              "thicknessArm": "3.8",
-              "lengthArm": "180",
-              "expLengthArm": "180",
-              "heightArm": "12000",
-              "hDistanceArm": "90",
-              "fixAngleArm": "0",
-              "nncArm": "0.7",
-              "qtyArm": "1",
+              "name": "照明アーム1",
+              "material": "STK400",
+              "diameter": "60.5",
+              "thickness": "3.8",
+              "length": "180",
+              "expLength": "180",
+              "zHeight": "12000",
+              "hDistance": "90",
+              "fixAngle": "0",
+              "nnC": "0.7",
+              "quantity": "1",
 
               "armObjects": [
                 {
-                  "nameAo": "灯具",
-                  "typeOfAo": "directional",
-                  "frontAreaAo": "0.1",
-                  "sideAreaAo": "0.1",
-                  "weightAo": "14",
-                  "heightAo": "180",
-                  "fixAngleAo": "0",
-                  "nncAo": "1",
-                  "qtyAo": "1"
+                  "name": "灯具",
+                  "type": "directional",
+                  "frontArea": "0.1",
+                  "sideArea": "0.1",
+                  "weight": "14",
+                  "zHeight": "180",
+                  "fixAngle": "0",
+                  "nnC": "1",
+                  "quantity": "1"
                 }
               ]
             }
@@ -1582,55 +1582,55 @@
             "lowestStep": "-300",
             "overDesign": "1"
           },
-          "sections": [
+          "poles": [
             {
               "name": "支柱−1",
               "material": "STK400",
               "poleType": "Taper",
-              "diameterLower": "165",
-              "diameterUpper": "85",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "8400",
+              "lowerDiameter": "165",
+              "upperDiameter": "85",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "8400",
               "quantity": "1"
             },
             {
               "name": "支柱−2",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "165",
-              "diameterUpper": "165",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "300",
+              "lowerDiameter": "165",
+              "upperDiameter": "165",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "300",
               "quantity": "1"
             }
           ],
           "arms": [
             {
-              "nameArm": "照明アーム1",
-              "materialArm": "STK400",
-              "diameterArm": "60.5",
-              "thicknessArm": "3.8",
-              "lengthArm": "180",
-              "expLengthArm": "180",
-              "heightArm": "8000",
-              "hDistanceArm": "90",
-              "fixAngleArm": "0",
-              "nncArm": "0.7",
-              "qtyArm": "1",
+              "name": "照明アーム1",
+              "material": "STK400",
+              "diameter": "60.5",
+              "thickness": "3.8",
+              "length": "180",
+              "expLength": "180",
+              "zHeight": "8000",
+              "hDistance": "90",
+              "fixAngle": "0",
+              "nnC": "0.7",
+              "quantity": "1",
 
               "armObjects": [
                 {
-                  "nameAo": "灯具",
-                  "typeOfAo": "directional",
-                  "frontAreaAo": "0.1",
-                  "sideAreaAo": "0.1",
-                  "weightAo": "14",
-                  "heightAo": "180",
-                  "fixAngleAo": "0",
-                  "nncAo": "1",
-                  "qtyAo": "1"
+                  "name": "灯具",
+                  "type": "directional",
+                  "frontArea": "0.1",
+                  "sideArea": "0.1",
+                  "weight": "14",
+                  "zHeight": "180",
+                  "fixAngle": "0",
+                  "nnC": "1",
+                  "quantity": "1"
                 }
               ]
             }
@@ -1642,55 +1642,55 @@
             "lowestStep": "-300",
             "overDesign": "1"
           },
-          "sections": [
+          "poles": [
             {
               "name": "支柱−1",
               "material": "STK400",
               "poleType": "Taper",
-              "diameterLower": "175",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "10400",
+              "lowerDiameter": "175",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "10400",
               "quantity": "1"
             },
             {
               "name": "支柱−2",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "175",
-              "diameterUpper": "175",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "300",
+              "lowerDiameter": "175",
+              "upperDiameter": "175",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "300",
               "quantity": "1"
             }
           ],
           "arms": [
             {
-              "nameArm": "照明アーム1",
-              "materialArm": "STK400",
-              "diameterArm": "60.5",
-              "thicknessArm": "3.8",
-              "lengthArm": "180",
-              "expLengthArm": "180",
-              "heightArm": "10000",
-              "hDistanceArm": "90",
-              "fixAngleArm": "0",
-              "nncArm": "0.7",
-              "qtyArm": "1",
+              "name": "照明アーム1",
+              "material": "STK400",
+              "diameter": "60.5",
+              "thickness": "3.8",
+              "length": "180",
+              "expLength": "180",
+              "zHeight": "10000",
+              "hDistance": "90",
+              "fixAngle": "0",
+              "nnC": "0.7",
+              "quantity": "1",
 
               "armObjects": [
                 {
-                  "nameAo": "灯具",
-                  "typeOfAo": "directional",
-                  "frontAreaAo": "0.1",
-                  "sideAreaAo": "0.1",
-                  "weightAo": "14",
-                  "heightAo": "180",
-                  "fixAngleAo": "0",
-                  "nncAo": "1",
-                  "qtyAo": "1"
+                  "name": "灯具",
+                  "type": "directional",
+                  "frontArea": "0.1",
+                  "sideArea": "0.1",
+                  "weight": "14",
+                  "zHeight": "180",
+                  "fixAngle": "0",
+                  "nnC": "1",
+                  "quantity": "1"
                 }
               ]
             }
@@ -1702,55 +1702,55 @@
             "lowestStep": "-300",
             "overDesign": "1"
           },
-          "sections": [
+          "poles": [
             {
               "name": "支柱−1",
               "material": "STK400",
               "poleType": "Taper",
-              "diameterLower": "195",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "12400",
+              "lowerDiameter": "195",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "12400",
               "quantity": "1"
             },
             {
               "name": "支柱−2",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "195",
-              "diameterUpper": "195",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "300",
+              "lowerDiameter": "195",
+              "upperDiameter": "195",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "300",
               "quantity": "1"
             }
           ],
           "arms": [
             {
-              "nameArm": "照明アーム1",
-              "materialArm": "STK400",
-              "diameterArm": "60.5",
-              "thicknessArm": "3.8",
-              "lengthArm": "180",
-              "expLengthArm": "180",
-              "heightArm": "12000",
-              "hDistanceArm": "90",
-              "fixAngleArm": "0",
-              "nncArm": "0.7",
-              "qtyArm": "1",
+              "name": "照明アーム1",
+              "material": "STK400",
+              "diameter": "60.5",
+              "thickness": "3.8",
+              "length": "180",
+              "expLength": "180",
+              "zHeight": "12000",
+              "hDistance": "90",
+              "fixAngle": "0",
+              "nnC": "0.7",
+              "quantity": "1",
 
               "armObjects": [
                 {
-                  "nameAo": "灯具",
-                  "typeOfAo": "directional",
-                  "frontAreaAo": "0.1",
-                  "sideAreaAo": "0.1",
-                  "weightAo": "14",
-                  "heightAo": "180",
-                  "fixAngleAo": "0",
-                  "nncAo": "1",
-                  "qtyAo": "1"
+                  "name": "灯具",
+                  "type": "directional",
+                  "frontArea": "0.1",
+                  "sideArea": "0.1",
+                  "weight": "14",
+                  "zHeight": "180",
+                  "fixAngle": "0",
+                  "nnC": "1",
+                  "quantity": "1"
                 }
               ]
             }
@@ -1766,66 +1766,66 @@
             "lowestStep": "0",
             "overDesign": "1"
           },
-          "sections": [
+          "poles": [
             {
               "name": "支柱−1",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "75",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "4600",
+              "lowerDiameter": "75",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "4600",
               "quantity": "1"
             },
             {
               "name": "支柱−2",
               "material": "STK400",
               "poleType": "Taper",
-              "diameterLower": "165",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "3505",
+              "lowerDiameter": "165",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "3505",
               "quantity": "1"
             },
             {
               "name": "支柱−3",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "165",
-              "diameterUpper": "165",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "1600",
+              "lowerDiameter": "165",
+              "upperDiameter": "165",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "1600",
               "quantity": "1"
             }
           ],
           "arms": [
             {
-              "nameArm": "照明アーム1",
-              "materialArm": "STK400",
-              "diameterArm": "60.5",
-              "thicknessArm": "3.8",
-              "lengthArm": "180",
-              "expLengthArm": "180",
-              "heightArm": "4500",
-              "hDistanceArm": "90",
-              "fixAngleArm": "0",
-              "nncArm": "0.7",
-              "qtyArm": "1",
+              "name": "照明アーム1",
+              "material": "STK400",
+              "diameter": "60.5",
+              "thickness": "3.8",
+              "length": "180",
+              "expLength": "180",
+              "zHeight": "4500",
+              "hDistance": "90",
+              "fixAngle": "0",
+              "nnC": "0.7",
+              "quantity": "1",
 
               "armObjects": [
                 {
-                  "nameAo": "灯具",
-                  "typeOfAo": "directional",
-                  "frontAreaAo": "0.1",
-                  "sideAreaAo": "0.1",
-                  "weightAo": "14",
-                  "heightAo": "180",
-                  "fixAngleAo": "0",
-                  "nncAo": "1",
-                  "qtyAo": "1"
+                  "name": "灯具",
+                  "type": "directional",
+                  "frontArea": "0.1",
+                  "sideArea": "0.1",
+                  "weight": "14",
+                  "zHeight": "180",
+                  "fixAngle": "0",
+                  "nnC": "1",
+                  "quantity": "1"
                 }
               ]
             }
@@ -1837,66 +1837,66 @@
             "lowestStep": "0",
             "overDesign": "1"
           },
-          "sections": [
+          "poles": [
             {
               "name": "支柱−1",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "75",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "5100",
+              "lowerDiameter": "75",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "5100",
               "quantity": "1"
             },
             {
               "name": "支柱−2",
               "material": "STK400",
               "poleType": "Taper",
-              "diameterLower": "165",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "3505",
+              "lowerDiameter": "165",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "3505",
               "quantity": "1"
             },
             {
               "name": "支柱−3",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "165",
-              "diameterUpper": "165",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "1600",
+              "lowerDiameter": "165",
+              "upperDiameter": "165",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "1600",
               "quantity": "1"
             }
           ],
           "arms": [
             {
-              "nameArm": "照明アーム1",
-              "materialArm": "STK400",
-              "diameterArm": "60.5",
-              "thicknessArm": "3.8",
-              "lengthArm": "180",
-              "expLengthArm": "180",
-              "heightArm": "5000",
-              "hDistanceArm": "90",
-              "fixAngleArm": "0",
-              "nncArm": "0.7",
-              "qtyArm": "1",
+              "name": "照明アーム1",
+              "material": "STK400",
+              "diameter": "60.5",
+              "thickness": "3.8",
+              "length": "180",
+              "expLength": "180",
+              "zHeight": "5000",
+              "hDistance": "90",
+              "fixAngle": "0",
+              "nnC": "0.7",
+              "quantity": "1",
 
               "armObjects": [
                 {
-                  "nameAo": "灯具",
-                  "typeOfAo": "directional",
-                  "frontAreaAo": "0.1",
-                  "sideAreaAo": "0.1",
-                  "weightAo": "14",
-                  "heightAo": "180",
-                  "fixAngleAo": "0",
-                  "nncAo": "1",
-                  "qtyAo": "1"
+                  "name": "灯具",
+                  "type": "directional",
+                  "frontArea": "0.1",
+                  "sideArea": "0.1",
+                  "weight": "14",
+                  "zHeight": "180",
+                  "fixAngle": "0",
+                  "nnC": "1",
+                  "quantity": "1"
                 }
               ]
             }
@@ -1908,66 +1908,66 @@
             "lowestStep": "0",
             "overDesign": "1"
           },
-          "sections": [
+          "poles": [
             {
               "name": "支柱−1",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "75",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "8100",
+              "lowerDiameter": "75",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "8100",
               "quantity": "1"
             },
             {
               "name": "支柱−2",
               "material": "STK400",
               "poleType": "Taper",
-              "diameterLower": "165",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "6600",
+              "lowerDiameter": "165",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "6600",
               "quantity": "1"
             },
             {
               "name": "支柱−3",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "165",
-              "diameterUpper": "165",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "1600",
+              "lowerDiameter": "165",
+              "upperDiameter": "165",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "1600",
               "quantity": "1"
             }
           ],
           "arms": [
             {
-              "nameArm": "照明アーム1",
-              "materialArm": "STK400",
-              "diameterArm": "60.5",
-              "thicknessArm": "3.8",
-              "lengthArm": "180",
-              "expLengthArm": "180",
-              "heightArm": "8000",
-              "hDistanceArm": "90",
-              "fixAngleArm": "0",
-              "nncArm": "0.7",
-              "qtyArm": "1",
+              "name": "照明アーム1",
+              "material": "STK400",
+              "diameter": "60.5",
+              "thickness": "3.8",
+              "length": "180",
+              "expLength": "180",
+              "zHeight": "8000",
+              "hDistance": "90",
+              "fixAngle": "0",
+              "nnC": "0.7",
+              "quantity": "1",
 
               "armObjects": [
                 {
-                  "nameAo": "灯具",
-                  "typeOfAo": "directional",
-                  "frontAreaAo": "0.1",
-                  "sideAreaAo": "0.1",
-                  "weightAo": "14",
-                  "heightAo": "180",
-                  "fixAngleAo": "0",
-                  "nncAo": "1",
-                  "qtyAo": "1"
+                  "name": "灯具",
+                  "type": "directional",
+                  "frontArea": "0.1",
+                  "sideArea": "0.1",
+                  "weight": "14",
+                  "zHeight": "180",
+                  "fixAngle": "0",
+                  "nnC": "1",
+                  "quantity": "1"
                 }
               ]
             }
@@ -1979,66 +1979,66 @@
             "lowestStep": "0",
             "overDesign": "1"
           },
-          "sections": [
+          "poles": [
             {
               "name": "支柱−1",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "75",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "10100",
+              "lowerDiameter": "75",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "10100",
               "quantity": "1"
             },
             {
               "name": "支柱−2",
               "material": "STK400",
               "poleType": "Taper",
-              "diameterLower": "175",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "7600",
+              "lowerDiameter": "175",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "7600",
               "quantity": "1"
             },
             {
               "name": "支柱−3",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "175",
-              "diameterUpper": "175",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "1600",
+              "lowerDiameter": "175",
+              "upperDiameter": "175",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "1600",
               "quantity": "1"
             }
           ],
           "arms": [
             {
-              "nameArm": "照明アーム1",
-              "materialArm": "STK400",
-              "diameterArm": "60.5",
-              "thicknessArm": "3.8",
-              "lengthArm": "180",
-              "expLengthArm": "180",
-              "heightArm": "10000",
-              "hDistanceArm": "90",
-              "fixAngleArm": "0",
-              "nncArm": "0.7",
-              "qtyArm": "1",
+              "name": "照明アーム1",
+              "material": "STK400",
+              "diameter": "60.5",
+              "thickness": "3.8",
+              "length": "180",
+              "expLength": "180",
+              "zHeight": "10000",
+              "hDistance": "90",
+              "fixAngle": "0",
+              "nnC": "0.7",
+              "quantity": "1",
 
               "armObjects": [
                 {
-                  "nameAo": "灯具",
-                  "typeOfAo": "directional",
-                  "frontAreaAo": "0.1",
-                  "sideAreaAo": "0.1",
-                  "weightAo": "14",
-                  "heightAo": "180",
-                  "fixAngleAo": "0",
-                  "nncAo": "1",
-                  "qtyAo": "1"
+                  "name": "灯具",
+                  "type": "directional",
+                  "frontArea": "0.1",
+                  "sideArea": "0.1",
+                  "weight": "14",
+                  "zHeight": "180",
+                  "fixAngle": "0",
+                  "nnC": "1",
+                  "quantity": "1"
                 }
               ]
             }
@@ -2050,66 +2050,66 @@
             "lowestStep": "0",
             "overDesign": "1"
           },
-          "sections": [
+          "poles": [
             {
               "name": "支柱−1",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "75",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "12100",
+              "lowerDiameter": "75",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "12100",
               "quantity": "1"
             },
             {
               "name": "支柱−2",
               "material": "STK400",
               "poleType": "Taper",
-              "diameterLower": "195",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "9600",
+              "lowerDiameter": "195",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "9600",
               "quantity": "1"
             },
             {
               "name": "支柱−3",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "195",
-              "diameterUpper": "195",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "1600",
+              "lowerDiameter": "195",
+              "upperDiameter": "195",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "1600",
               "quantity": "1"
             }
           ],
           "arms": [
             {
-              "nameArm": "照明アーム1",
-              "materialArm": "STK400",
-              "diameterArm": "60.5",
-              "thicknessArm": "3.8",
-              "lengthArm": "180",
-              "expLengthArm": "180",
-              "heightArm": "12000",
-              "hDistanceArm": "90",
-              "fixAngleArm": "0",
-              "nncArm": "0.7",
-              "qtyArm": "1",
+              "name": "照明アーム1",
+              "material": "STK400",
+              "diameter": "60.5",
+              "thickness": "3.8",
+              "length": "180",
+              "expLength": "180",
+              "zHeight": "12000",
+              "hDistance": "90",
+              "fixAngle": "0",
+              "nnC": "0.7",
+              "quantity": "1",
 
               "armObjects": [
                 {
-                  "nameAo": "灯具",
-                  "typeOfAo": "directional",
-                  "frontAreaAo": "0.1",
-                  "sideAreaAo": "0.1",
-                  "weightAo": "14",
-                  "heightAo": "180",
-                  "fixAngleAo": "0",
-                  "nncAo": "1",
-                  "qtyAo": "1"
+                  "name": "灯具",
+                  "type": "directional",
+                  "frontArea": "0.1",
+                  "sideArea": "0.1",
+                  "weight": "14",
+                  "zHeight": "180",
+                  "fixAngle": "0",
+                  "nnC": "1",
+                  "quantity": "1"
                 }
               ]
             }
@@ -2123,66 +2123,66 @@
             "lowestStep": "-300",
             "overDesign": "1"
           },
-          "sections": [
+          "poles": [
             {
               "name": "支柱−1",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "75",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "4600",
+              "lowerDiameter": "75",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "4600",
               "quantity": "1"
             },
             {
               "name": "支柱−2",
               "material": "STK400",
               "poleType": "Taper",
-              "diameterLower": "165",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "3505",
+              "lowerDiameter": "165",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "3505",
               "quantity": "1"
             },
             {
               "name": "支柱−3",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "165",
-              "diameterUpper": "165",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "1900",
+              "lowerDiameter": "165",
+              "upperDiameter": "165",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "1900",
               "quantity": "1"
             }
           ],
           "arms": [
             {
-              "nameArm": "照明アーム1",
-              "materialArm": "STK400",
-              "diameterArm": "60.5",
-              "thicknessArm": "3.8",
-              "lengthArm": "180",
-              "expLengthArm": "180",
-              "heightArm": "4500",
-              "hDistanceArm": "90",
-              "fixAngleArm": "0",
-              "nncArm": "0.7",
-              "qtyArm": "1",
+              "name": "照明アーム1",
+              "material": "STK400",
+              "diameter": "60.5",
+              "thickness": "3.8",
+              "length": "180",
+              "expLength": "180",
+              "zHeight": "4500",
+              "hDistance": "90",
+              "fixAngle": "0",
+              "nnC": "0.7",
+              "quantity": "1",
 
               "armObjects": [
                 {
-                  "nameAo": "灯具",
-                  "typeOfAo": "directional",
-                  "frontAreaAo": "0.1",
-                  "sideAreaAo": "0.1",
-                  "weightAo": "14",
-                  "heightAo": "180",
-                  "fixAngleAo": "0",
-                  "nncAo": "1",
-                  "qtyAo": "1"
+                  "name": "灯具",
+                  "type": "directional",
+                  "frontArea": "0.1",
+                  "sideArea": "0.1",
+                  "weight": "14",
+                  "zHeight": "180",
+                  "fixAngle": "0",
+                  "nnC": "1",
+                  "quantity": "1"
                 }
               ]
             }
@@ -2194,66 +2194,66 @@
             "lowestStep": "-300",
             "overDesign": "1"
           },
-          "sections": [
+          "poles": [
             {
               "name": "支柱−1",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "75",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "5100",
+              "lowerDiameter": "75",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "5100",
               "quantity": "1"
             },
             {
               "name": "支柱−2",
               "material": "STK400",
               "poleType": "Taper",
-              "diameterLower": "165",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "3505",
+              "lowerDiameter": "165",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "3505",
               "quantity": "1"
             },
             {
               "name": "支柱−3",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "165",
-              "diameterUpper": "165",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "1900",
+              "lowerDiameter": "165",
+              "upperDiameter": "165",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "1900",
               "quantity": "1"
             }
           ],
           "arms": [
             {
-              "nameArm": "照明アーム1",
-              "materialArm": "STK400",
-              "diameterArm": "60.5",
-              "thicknessArm": "3.8",
-              "lengthArm": "180",
-              "expLengthArm": "180",
-              "heightArm": "5000",
-              "hDistanceArm": "90",
-              "fixAngleArm": "0",
-              "nncArm": "0.7",
-              "qtyArm": "1",
+              "name": "照明アーム1",
+              "material": "STK400",
+              "diameter": "60.5",
+              "thickness": "3.8",
+              "length": "180",
+              "expLength": "180",
+              "zHeight": "5000",
+              "hDistance": "90",
+              "fixAngle": "0",
+              "nnC": "0.7",
+              "quantity": "1",
 
               "armObjects": [
                 {
-                  "nameAo": "灯具",
-                  "typeOfAo": "directional",
-                  "frontAreaAo": "0.1",
-                  "sideAreaAo": "0.1",
-                  "weightAo": "14",
-                  "heightAo": "180",
-                  "fixAngleAo": "0",
-                  "nncAo": "1",
-                  "qtyAo": "1"
+                  "name": "灯具",
+                  "type": "directional",
+                  "frontArea": "0.1",
+                  "sideArea": "0.1",
+                  "weight": "14",
+                  "zHeight": "180",
+                  "fixAngle": "0",
+                  "nnC": "1",
+                  "quantity": "1"
                 }
               ]
             }
@@ -2265,66 +2265,66 @@
             "lowestStep": "-300",
             "overDesign": "1"
           },
-          "sections": [
+          "poles": [
             {
               "name": "支柱−1",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "75",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "8100",
+              "lowerDiameter": "75",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "8100",
               "quantity": "1"
             },
             {
               "name": "支柱−2",
               "material": "STK400",
               "poleType": "Taper",
-              "diameterLower": "165",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "6600",
+              "lowerDiameter": "165",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "6600",
               "quantity": "1"
             },
             {
               "name": "支柱−3",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "165",
-              "diameterUpper": "165",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "1900",
+              "lowerDiameter": "165",
+              "upperDiameter": "165",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "1900",
               "quantity": "1"
             }
           ],
           "arms": [
             {
-              "nameArm": "照明アーム1",
-              "materialArm": "STK400",
-              "diameterArm": "60.5",
-              "thicknessArm": "3.8",
-              "lengthArm": "180",
-              "expLengthArm": "180",
-              "heightArm": "8000",
-              "hDistanceArm": "90",
-              "fixAngleArm": "0",
-              "nncArm": "0.7",
-              "qtyArm": "1",
+              "name": "照明アーム1",
+              "material": "STK400",
+              "diameter": "60.5",
+              "thickness": "3.8",
+              "length": "180",
+              "expLength": "180",
+              "zHeight": "8000",
+              "hDistance": "90",
+              "fixAngle": "0",
+              "nnC": "0.7",
+              "quantity": "1",
 
               "armObjects": [
                 {
-                  "nameAo": "灯具",
-                  "typeOfAo": "directional",
-                  "frontAreaAo": "0.1",
-                  "sideAreaAo": "0.1",
-                  "weightAo": "14",
-                  "heightAo": "180",
-                  "fixAngleAo": "0",
-                  "nncAo": "1",
-                  "qtyAo": "1"
+                  "name": "灯具",
+                  "type": "directional",
+                  "frontArea": "0.1",
+                  "sideArea": "0.1",
+                  "weight": "14",
+                  "zHeight": "180",
+                  "fixAngle": "0",
+                  "nnC": "1",
+                  "quantity": "1"
                 }
               ]
             }
@@ -2336,66 +2336,66 @@
             "lowestStep": "-300",
             "overDesign": "1"
           },
-          "sections": [
+          "poles": [
             {
               "name": "支柱−1",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "75",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "10100",
+              "lowerDiameter": "75",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "10100",
               "quantity": "1"
             },
             {
               "name": "支柱−2",
               "material": "STK400",
               "poleType": "Taper",
-              "diameterLower": "175",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "7600",
+              "lowerDiameter": "175",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "7600",
               "quantity": "1"
             },
             {
               "name": "支柱−3",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "175",
-              "diameterUpper": "175",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "1900",
+              "lowerDiameter": "175",
+              "upperDiameter": "175",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "1900",
               "quantity": "1"
             }
           ],
           "arms": [
             {
-              "nameArm": "照明アーム1",
-              "materialArm": "STK400",
-              "diameterArm": "60.5",
-              "thicknessArm": "3.8",
-              "lengthArm": "180",
-              "expLengthArm": "180",
-              "heightArm": "10000",
-              "hDistanceArm": "90",
-              "fixAngleArm": "0",
-              "nncArm": "0.7",
-              "qtyArm": "1",
+              "name": "照明アーム1",
+              "material": "STK400",
+              "diameter": "60.5",
+              "thickness": "3.8",
+              "length": "180",
+              "expLength": "180",
+              "zHeight": "10000",
+              "hDistance": "90",
+              "fixAngle": "0",
+              "nnC": "0.7",
+              "quantity": "1",
 
               "armObjects": [
                 {
-                  "nameAo": "灯具",
-                  "typeOfAo": "directional",
-                  "frontAreaAo": "0.1",
-                  "sideAreaAo": "0.1",
-                  "weightAo": "14",
-                  "heightAo": "180",
-                  "fixAngleAo": "0",
-                  "nncAo": "1",
-                  "qtyAo": "1"
+                  "name": "灯具",
+                  "type": "directional",
+                  "frontArea": "0.1",
+                  "sideArea": "0.1",
+                  "weight": "14",
+                  "zHeight": "180",
+                  "fixAngle": "0",
+                  "nnC": "1",
+                  "quantity": "1"
                 }
               ]
             }
@@ -2407,66 +2407,66 @@
             "lowestStep": "-300",
             "overDesign": "1"
           },
-          "sections": [
+          "poles": [
             {
               "name": "支柱−1",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "75",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "12100",
+              "lowerDiameter": "75",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "12100",
               "quantity": "1"
             },
             {
               "name": "支柱−2",
               "material": "STK400",
               "poleType": "Taper",
-              "diameterLower": "195",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "9600",
+              "lowerDiameter": "195",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "9600",
               "quantity": "1"
             },
             {
               "name": "支柱−3",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "195",
-              "diameterUpper": "195",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "1900",
+              "lowerDiameter": "195",
+              "upperDiameter": "195",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "1900",
               "quantity": "1"
             }
           ],
           "arms": [
             {
-              "nameArm": "照明アーム1",
-              "materialArm": "STK400",
-              "diameterArm": "60.5",
-              "thicknessArm": "3.8",
-              "lengthArm": "180",
-              "expLengthArm": "180",
-              "heightArm": "12000",
-              "hDistanceArm": "90",
-              "fixAngleArm": "0",
-              "nncArm": "0.7",
-              "qtyArm": "1",
+              "name": "照明アーム1",
+              "material": "STK400",
+              "diameter": "60.5",
+              "thickness": "3.8",
+              "length": "180",
+              "expLength": "180",
+              "zHeight": "12000",
+              "hDistance": "90",
+              "fixAngle": "0",
+              "nnC": "0.7",
+              "quantity": "1",
 
               "armObjects": [
                 {
-                  "nameAo": "灯具",
-                  "typeOfAo": "directional",
-                  "frontAreaAo": "0.1",
-                  "sideAreaAo": "0.1",
-                  "weightAo": "14",
-                  "heightAo": "180",
-                  "fixAngleAo": "0",
-                  "nncAo": "1",
-                  "qtyAo": "1"
+                  "name": "灯具",
+                  "type": "directional",
+                  "frontArea": "0.1",
+                  "sideArea": "0.1",
+                  "weight": "14",
+                  "zHeight": "180",
+                  "fixAngle": "0",
+                  "nnC": "1",
+                  "quantity": "1"
                 }
               ]
             }
@@ -2482,71 +2482,71 @@
             "lowestStep": "0",
             "overDesign": "1"
           },
-          "sections": [
+          "poles": [
             {
               "name": "支柱−1",
               "material": "STK400",
               "poleType": "Taper",
-              "diameterLower": "165",
-              "diameterUpper": "85",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "8100",
+              "lowerDiameter": "165",
+              "upperDiameter": "85",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "8100",
               "quantity": "1"
             }
           ],
           "arms": [
             {
-              "nameArm": "照明アーム1",
-              "materialArm": "STK400",
-              "diameterArm": "60.5",
-              "thicknessArm": "3.8",
-              "lengthArm": "180",
-              "expLengthArm": "180",
-              "heightArm": "8000",
-              "hDistanceArm": "90",
-              "fixAngleArm": "0",
-              "nncArm": "0.7",
-              "qtyArm": "1",
+              "name": "照明アーム1",
+              "material": "STK400",
+              "diameter": "60.5",
+              "thickness": "3.8",
+              "length": "180",
+              "expLength": "180",
+              "zHeight": "8000",
+              "hDistance": "90",
+              "fixAngle": "0",
+              "nnC": "0.7",
+              "quantity": "1",
 
               "armObjects": [
                 {
-                  "nameAo": "灯具",
-                  "typeOfAo": "directional",
-                  "frontAreaAo": "0.1",
-                  "sideAreaAo": "0.1",
-                  "weightAo": "14",
-                  "heightAo": "180",
-                  "fixAngleAo": "0",
-                  "nncAo": "1",
-                  "qtyAo": "1"
+                  "name": "灯具",
+                  "type": "directional",
+                  "frontArea": "0.1",
+                  "sideArea": "0.1",
+                  "weight": "14",
+                  "zHeight": "180",
+                  "fixAngle": "0",
+                  "nnC": "1",
+                  "quantity": "1"
                 }
               ]
             },
             {
-              "nameArm": "照明アーム2",
-              "materialArm": "STK400",
-              "diameterArm": "60.5",
-              "thicknessArm": "3.8",
-              "lengthArm": "180",
-              "expLengthArm": "180",
-              "heightArm": "8000",
-              "hDistanceArm": "90",
-              "fixAngleArm": "180",
-              "nncArm": "0.7",
-              "qtyArm": "1",
+              "name": "照明アーム2",
+              "material": "STK400",
+              "diameter": "60.5",
+              "thickness": "3.8",
+              "length": "180",
+              "expLength": "180",
+              "zHeight": "8000",
+              "hDistance": "90",
+              "fixAngle": "180",
+              "nnC": "0.7",
+              "quantity": "1",
 
               "armObjects": [
                 {
-                  "nameAo": "灯具",
-                  "typeOfAo": "directional",
-                  "frontAreaAo": "0.1",
-                  "sideAreaAo": "0.1",
-                  "weightAo": "14",
-                  "heightAo": "180",
-                  "fixAngleAo": "180",
-                  "nncAo": "1",
-                  "qtyAo": "1"
+                  "name": "灯具",
+                  "type": "directional",
+                  "frontArea": "0.1",
+                  "sideArea": "0.1",
+                  "weight": "14",
+                  "zHeight": "180",
+                  "fixAngle": "180",
+                  "nnC": "1",
+                  "quantity": "1"
                 }
               ]
             }
@@ -2558,71 +2558,71 @@
             "lowestStep": "0",
             "overDesign": "1"
           },
-          "sections": [
+          "poles": [
             {
               "name": "支柱−1",
               "material": "STK400",
               "poleType": "Taper",
-              "diameterLower": "175",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "10100",
+              "lowerDiameter": "175",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "10100",
               "quantity": "1"
             }
           ],
           "arms": [
             {
-              "nameArm": "照明アーム1",
-              "materialArm": "STK400",
-              "diameterArm": "60.5",
-              "thicknessArm": "3.8",
-              "lengthArm": "180",
-              "expLengthArm": "180",
-              "heightArm": "10000",
-              "hDistanceArm": "90",
-              "fixAngleArm": "0",
-              "nncArm": "0.7",
-              "qtyArm": "1",
+              "name": "照明アーム1",
+              "material": "STK400",
+              "diameter": "60.5",
+              "thickness": "3.8",
+              "length": "180",
+              "expLength": "180",
+              "zHeight": "10000",
+              "hDistance": "90",
+              "fixAngle": "0",
+              "nnC": "0.7",
+              "quantity": "1",
 
               "armObjects": [
                 {
-                  "nameAo": "灯具",
-                  "typeOfAo": "directional",
-                  "frontAreaAo": "0.1",
-                  "sideAreaAo": "0.1",
-                  "weightAo": "14",
-                  "heightAo": "180",
-                  "fixAngleAo": "0",
-                  "nncAo": "1",
-                  "qtyAo": "1"
+                  "name": "灯具",
+                  "type": "directional",
+                  "frontArea": "0.1",
+                  "sideArea": "0.1",
+                  "weight": "14",
+                  "zHeight": "180",
+                  "fixAngle": "0",
+                  "nnC": "1",
+                  "quantity": "1"
                 }
               ]
             },
             {
-              "nameArm": "照明アーム2",
-              "materialArm": "STK400",
-              "diameterArm": "60.5",
-              "thicknessArm": "3.8",
-              "lengthArm": "180",
-              "expLengthArm": "180",
-              "heightArm": "10000",
-              "hDistanceArm": "90",
-              "fixAngleArm": "180",
-              "nncArm": "0.7",
-              "qtyArm": "1",
+              "name": "照明アーム2",
+              "material": "STK400",
+              "diameter": "60.5",
+              "thickness": "3.8",
+              "length": "180",
+              "expLength": "180",
+              "zHeight": "10000",
+              "hDistance": "90",
+              "fixAngle": "180",
+              "nnC": "0.7",
+              "quantity": "1",
 
               "armObjects": [
                 {
-                  "nameAo": "灯具",
-                  "typeOfAo": "directional",
-                  "frontAreaAo": "0.1",
-                  "sideAreaAo": "0.1",
-                  "weightAo": "14",
-                  "heightAo": "180",
-                  "fixAngleAo": "180",
-                  "nncAo": "1",
-                  "qtyAo": "1"
+                  "name": "灯具",
+                  "type": "directional",
+                  "frontArea": "0.1",
+                  "sideArea": "0.1",
+                  "weight": "14",
+                  "zHeight": "180",
+                  "fixAngle": "180",
+                  "nnC": "1",
+                  "quantity": "1"
                 }
               ]
             }
@@ -2634,71 +2634,71 @@
             "lowestStep": "0",
             "overDesign": "1"
           },
-          "sections": [
+          "poles": [
             {
               "name": "支柱−1",
               "material": "STK400",
               "poleType": "Taper",
-              "diameterLower": "195",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "12100",
+              "lowerDiameter": "195",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "12100",
               "quantity": "1"
             }
           ],
           "arms": [
             {
-              "nameArm": "照明アーム1",
-              "materialArm": "STK400",
-              "diameterArm": "60.5",
-              "thicknessArm": "3.8",
-              "lengthArm": "180",
-              "expLengthArm": "180",
-              "heightArm": "12000",
-              "hDistanceArm": "90",
-              "fixAngleArm": "0",
-              "nncArm": "0.7",
-              "qtyArm": "1",
+              "name": "照明アーム1",
+              "material": "STK400",
+              "diameter": "60.5",
+              "thickness": "3.8",
+              "length": "180",
+              "expLength": "180",
+              "zHeight": "12000",
+              "hDistance": "90",
+              "fixAngle": "0",
+              "nnC": "0.7",
+              "quantity": "1",
 
               "armObjects": [
                 {
-                  "nameAo": "灯具",
-                  "typeOfAo": "directional",
-                  "frontAreaAo": "0.1",
-                  "sideAreaAo": "0.1",
-                  "weightAo": "14",
-                  "heightAo": "180",
-                  "fixAngleAo": "0",
-                  "nncAo": "1",
-                  "qtyAo": "1"
+                  "name": "灯具",
+                  "type": "directional",
+                  "frontArea": "0.1",
+                  "sideArea": "0.1",
+                  "weight": "14",
+                  "zHeight": "180",
+                  "fixAngle": "0",
+                  "nnC": "1",
+                  "quantity": "1"
                 }
               ]
             },
             {
-              "nameArm": "照明アーム2",
-              "materialArm": "STK400",
-              "diameterArm": "60.5",
-              "thicknessArm": "3.8",
-              "lengthArm": "180",
-              "expLengthArm": "180",
-              "heightArm": "12000",
-              "hDistanceArm": "90",
-              "fixAngleArm": "180",
-              "nncArm": "0.7",
-              "qtyArm": "1",
+              "name": "照明アーム2",
+              "material": "STK400",
+              "diameter": "60.5",
+              "thickness": "3.8",
+              "length": "180",
+              "expLength": "180",
+              "zHeight": "12000",
+              "hDistance": "90",
+              "fixAngle": "180",
+              "nnC": "0.7",
+              "quantity": "1",
 
               "armObjects": [
                 {
-                  "nameAo": "灯具",
-                  "typeOfAo": "directional",
-                  "frontAreaAo": "0.1",
-                  "sideAreaAo": "0.1",
-                  "weightAo": "14",
-                  "heightAo": "180",
-                  "fixAngleAo": "180",
-                  "nncAo": "1",
-                  "qtyAo": "1"
+                  "name": "灯具",
+                  "type": "directional",
+                  "frontArea": "0.1",
+                  "sideArea": "0.1",
+                  "weight": "14",
+                  "zHeight": "180",
+                  "fixAngle": "180",
+                  "nnC": "1",
+                  "quantity": "1"
                 }
               ]
             }
@@ -2712,82 +2712,82 @@
             "lowestStep": "-300",
             "overDesign": "1"
           },
-          "sections": [
+          "poles": [
             {
               "name": "支柱−1",
               "material": "STK400",
               "poleType": "Taper",
-              "diameterLower": "165",
-              "diameterUpper": "85",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "8400",
+              "lowerDiameter": "165",
+              "upperDiameter": "85",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "8400",
               "quantity": "1"
             },
             {
               "name": "支柱−2",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "165",
-              "diameterUpper": "165",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "300",
+              "lowerDiameter": "165",
+              "upperDiameter": "165",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "300",
               "quantity": "1"
             }
           ],
           "arms": [
             {
-              "nameArm": "照明アーム1",
-              "materialArm": "STK400",
-              "diameterArm": "60.5",
-              "thicknessArm": "3.8",
-              "lengthArm": "180",
-              "expLengthArm": "180",
-              "heightArm": "8000",
-              "hDistanceArm": "90",
-              "fixAngleArm": "0",
-              "nncArm": "0.7",
-              "qtyArm": "1",
+              "name": "照明アーム1",
+              "material": "STK400",
+              "diameter": "60.5",
+              "thickness": "3.8",
+              "length": "180",
+              "expLength": "180",
+              "zHeight": "8000",
+              "hDistance": "90",
+              "fixAngle": "0",
+              "nnC": "0.7",
+              "quantity": "1",
 
               "armObjects": [
                 {
-                  "nameAo": "灯具",
-                  "typeOfAo": "directional",
-                  "frontAreaAo": "0.1",
-                  "sideAreaAo": "0.1",
-                  "weightAo": "14",
-                  "heightAo": "180",
-                  "fixAngleAo": "0",
-                  "nncAo": "1",
-                  "qtyAo": "1"
+                  "name": "灯具",
+                  "type": "directional",
+                  "frontArea": "0.1",
+                  "sideArea": "0.1",
+                  "weight": "14",
+                  "zHeight": "180",
+                  "fixAngle": "0",
+                  "nnC": "1",
+                  "quantity": "1"
                 }
               ]
             },
             {
-              "nameArm": "照明アーム2",
-              "materialArm": "STK400",
-              "diameterArm": "60.5",
-              "thicknessArm": "3.8",
-              "lengthArm": "180",
-              "expLengthArm": "180",
-              "heightArm": "8000",
-              "hDistanceArm": "90",
-              "fixAngleArm": "180",
-              "nncArm": "0.7",
-              "qtyArm": "1",
+              "name": "照明アーム2",
+              "material": "STK400",
+              "diameter": "60.5",
+              "thickness": "3.8",
+              "length": "180",
+              "expLength": "180",
+              "zHeight": "8000",
+              "hDistance": "90",
+              "fixAngle": "180",
+              "nnC": "0.7",
+              "quantity": "1",
 
               "armObjects": [
                 {
-                  "nameAo": "灯具",
-                  "typeOfAo": "directional",
-                  "frontAreaAo": "0.1",
-                  "sideAreaAo": "0.1",
-                  "weightAo": "14",
-                  "heightAo": "180",
-                  "fixAngleAo": "180",
-                  "nncAo": "1",
-                  "qtyAo": "1"
+                  "name": "灯具",
+                  "type": "directional",
+                  "frontArea": "0.1",
+                  "sideArea": "0.1",
+                  "weight": "14",
+                  "zHeight": "180",
+                  "fixAngle": "180",
+                  "nnC": "1",
+                  "quantity": "1"
                 }
               ]
             }
@@ -2799,82 +2799,82 @@
             "lowestStep": "-300",
             "overDesign": "1"
           },
-          "sections": [
+          "poles": [
             {
               "name": "支柱−1",
               "material": "STK400",
               "poleType": "Taper",
-              "diameterLower": "175",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "10400",
+              "lowerDiameter": "175",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "10400",
               "quantity": "1"
             },
             {
               "name": "支柱−2",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "175",
-              "diameterUpper": "175",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "300",
+              "lowerDiameter": "175",
+              "upperDiameter": "175",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "300",
               "quantity": "1"
             }
           ],
           "arms": [
             {
-              "nameArm": "照明アーム1",
-              "materialArm": "STK400",
-              "diameterArm": "60.5",
-              "thicknessArm": "3.8",
-              "lengthArm": "180",
-              "expLengthArm": "180",
-              "heightArm": "10000",
-              "hDistanceArm": "90",
-              "fixAngleArm": "0",
-              "nncArm": "0.7",
-              "qtyArm": "1",
+              "name": "照明アーム1",
+              "material": "STK400",
+              "diameter": "60.5",
+              "thickness": "3.8",
+              "length": "180",
+              "expLength": "180",
+              "zHeight": "10000",
+              "hDistance": "90",
+              "fixAngle": "0",
+              "nnC": "0.7",
+              "quantity": "1",
 
               "armObjects": [
                 {
-                  "nameAo": "灯具",
-                  "typeOfAo": "directional",
-                  "frontAreaAo": "0.1",
-                  "sideAreaAo": "0.1",
-                  "weightAo": "14",
-                  "heightAo": "180",
-                  "fixAngleAo": "0",
-                  "nncAo": "1",
-                  "qtyAo": "1"
+                  "name": "灯具",
+                  "type": "directional",
+                  "frontArea": "0.1",
+                  "sideArea": "0.1",
+                  "weight": "14",
+                  "zHeight": "180",
+                  "fixAngle": "0",
+                  "nnC": "1",
+                  "quantity": "1"
                 }
               ]
             },
             {
-              "nameArm": "照明アーム2",
-              "materialArm": "STK400",
-              "diameterArm": "60.5",
-              "thicknessArm": "3.8",
-              "lengthArm": "180",
-              "expLengthArm": "180",
-              "heightArm": "10000",
-              "hDistanceArm": "90",
-              "fixAngleArm": "180",
-              "nncArm": "0.7",
-              "qtyArm": "1",
+              "name": "照明アーム2",
+              "material": "STK400",
+              "diameter": "60.5",
+              "thickness": "3.8",
+              "length": "180",
+              "expLength": "180",
+              "zHeight": "10000",
+              "hDistance": "90",
+              "fixAngle": "180",
+              "nnC": "0.7",
+              "quantity": "1",
 
               "armObjects": [
                 {
-                  "nameAo": "灯具",
-                  "typeOfAo": "directional",
-                  "frontAreaAo": "0.1",
-                  "sideAreaAo": "0.1",
-                  "weightAo": "14",
-                  "heightAo": "180",
-                  "fixAngleAo": "180",
-                  "nncAo": "1",
-                  "qtyAo": "1"
+                  "name": "灯具",
+                  "type": "directional",
+                  "frontArea": "0.1",
+                  "sideArea": "0.1",
+                  "weight": "14",
+                  "zHeight": "180",
+                  "fixAngle": "180",
+                  "nnC": "1",
+                  "quantity": "1"
                 }
               ]
             }
@@ -2886,82 +2886,82 @@
             "lowestStep": "-300",
             "overDesign": "1"
           },
-          "sections": [
+          "poles": [
             {
               "name": "支柱−1",
               "material": "STK400",
               "poleType": "Taper",
-              "diameterLower": "195",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "12400",
+              "lowerDiameter": "195",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "12400",
               "quantity": "1"
             },
             {
               "name": "支柱−2",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "195",
-              "diameterUpper": "195",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "300",
+              "lowerDiameter": "195",
+              "upperDiameter": "195",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "300",
               "quantity": "1"
             }
           ],
           "arms": [
             {
-              "nameArm": "照明アーム1",
-              "materialArm": "STK400",
-              "diameterArm": "60.5",
-              "thicknessArm": "3.8",
-              "lengthArm": "180",
-              "expLengthArm": "180",
-              "heightArm": "12000",
-              "hDistanceArm": "90",
-              "fixAngleArm": "0",
-              "nncArm": "0.7",
-              "qtyArm": "1",
+              "name": "照明アーム1",
+              "material": "STK400",
+              "diameter": "60.5",
+              "thickness": "3.8",
+              "length": "180",
+              "expLength": "180",
+              "zHeight": "12000",
+              "hDistance": "90",
+              "fixAngle": "0",
+              "nnC": "0.7",
+              "quantity": "1",
 
               "armObjects": [
                 {
-                  "nameAo": "灯具",
-                  "typeOfAo": "directional",
-                  "frontAreaAo": "0.1",
-                  "sideAreaAo": "0.1",
-                  "weightAo": "14",
-                  "heightAo": "180",
-                  "fixAngleAo": "0",
-                  "nncAo": "1",
-                  "qtyAo": "1"
+                  "name": "灯具",
+                  "type": "directional",
+                  "frontArea": "0.1",
+                  "sideArea": "0.1",
+                  "weight": "14",
+                  "zHeight": "180",
+                  "fixAngle": "0",
+                  "nnC": "1",
+                  "quantity": "1"
                 }
               ]
             },
             {
-              "nameArm": "照明アーム2",
-              "materialArm": "STK400",
-              "diameterArm": "60.5",
-              "thicknessArm": "3.8",
-              "lengthArm": "180",
-              "expLengthArm": "180",
-              "heightArm": "12000",
-              "hDistanceArm": "90",
-              "fixAngleArm": "180",
-              "nncArm": "0.7",
-              "qtyArm": "1",
+              "name": "照明アーム2",
+              "material": "STK400",
+              "diameter": "60.5",
+              "thickness": "3.8",
+              "length": "180",
+              "expLength": "180",
+              "zHeight": "12000",
+              "hDistance": "90",
+              "fixAngle": "180",
+              "nnC": "0.7",
+              "quantity": "1",
 
               "armObjects": [
                 {
-                  "nameAo": "灯具",
-                  "typeOfAo": "directional",
-                  "frontAreaAo": "0.1",
-                  "sideAreaAo": "0.1",
-                  "weightAo": "14",
-                  "heightAo": "180",
-                  "fixAngleAo": "180",
-                  "nncAo": "1",
-                  "qtyAo": "1"
+                  "name": "灯具",
+                  "type": "directional",
+                  "frontArea": "0.1",
+                  "sideArea": "0.1",
+                  "weight": "14",
+                  "zHeight": "180",
+                  "fixAngle": "180",
+                  "nnC": "1",
+                  "quantity": "1"
                 }
               ]
             }
@@ -2977,93 +2977,93 @@
             "lowestStep": "0",
             "overDesign": "1"
           },
-          "sections": [
+          "poles": [
             {
               "name": "支柱−1",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "75",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "8100",
+              "lowerDiameter": "75",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "8100",
               "quantity": "1"
             },
             {
               "name": "支柱−2",
               "material": "STK400",
               "poleType": "Taper",
-              "diameterLower": "165",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "6600",
+              "lowerDiameter": "165",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "6600",
               "quantity": "1"
             },
             {
               "name": "支柱−3",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "165",
-              "diameterUpper": "165",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "1600",
+              "lowerDiameter": "165",
+              "upperDiameter": "165",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "1600",
               "quantity": "1"
             }
           ],
           "arms": [
             {
-              "nameArm": "照明アーム1",
-              "materialArm": "STK400",
-              "diameterArm": "60.5",
-              "thicknessArm": "3.8",
-              "lengthArm": "180",
-              "expLengthArm": "180",
-              "heightArm": "8000",
-              "hDistanceArm": "90",
-              "fixAngleArm": "0",
-              "nncArm": "0.7",
-              "qtyArm": "1",
+              "name": "照明アーム1",
+              "material": "STK400",
+              "diameter": "60.5",
+              "thickness": "3.8",
+              "length": "180",
+              "expLength": "180",
+              "zHeight": "8000",
+              "hDistance": "90",
+              "fixAngle": "0",
+              "nnC": "0.7",
+              "quantity": "1",
 
               "armObjects": [
                 {
-                  "nameAo": "灯具",
-                  "typeOfAo": "directional",
-                  "frontAreaAo": "0.1",
-                  "sideAreaAo": "0.1",
-                  "weightAo": "14",
-                  "heightAo": "180",
-                  "fixAngleAo": "0",
-                  "nncAo": "1",
-                  "qtyAo": "1"
+                  "name": "灯具",
+                  "type": "directional",
+                  "frontArea": "0.1",
+                  "sideArea": "0.1",
+                  "weight": "14",
+                  "zHeight": "180",
+                  "fixAngle": "0",
+                  "nnC": "1",
+                  "quantity": "1"
                 }
               ]
             },
             {
-              "nameArm": "照明アーム2",
-              "materialArm": "STK400",
-              "diameterArm": "60.5",
-              "thicknessArm": "3.8",
-              "lengthArm": "180",
-              "expLengthArm": "180",
-              "heightArm": "8000",
-              "hDistanceArm": "90",
-              "fixAngleArm": "180",
-              "nncArm": "0.7",
-              "qtyArm": "1",
+              "name": "照明アーム2",
+              "material": "STK400",
+              "diameter": "60.5",
+              "thickness": "3.8",
+              "length": "180",
+              "expLength": "180",
+              "zHeight": "8000",
+              "hDistance": "90",
+              "fixAngle": "180",
+              "nnC": "0.7",
+              "quantity": "1",
 
               "armObjects": [
                 {
-                  "nameAo": "灯具",
-                  "typeOfAo": "directional",
-                  "frontAreaAo": "0.1",
-                  "sideAreaAo": "0.1",
-                  "weightAo": "14",
-                  "heightAo": "180",
-                  "fixAngleAo": "180",
-                  "nncAo": "1",
-                  "qtyAo": "1"
+                  "name": "灯具",
+                  "type": "directional",
+                  "frontArea": "0.1",
+                  "sideArea": "0.1",
+                  "weight": "14",
+                  "zHeight": "180",
+                  "fixAngle": "180",
+                  "nnC": "1",
+                  "quantity": "1"
                 }
               ]
             }
@@ -3075,93 +3075,93 @@
             "lowestStep": "0",
             "overDesign": "1"
           },
-          "sections": [
+          "poles": [
             {
               "name": "支柱−1",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "75",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "10100",
+              "lowerDiameter": "75",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "10100",
               "quantity": "1"
             },
             {
               "name": "支柱−2",
               "material": "STK400",
               "poleType": "Taper",
-              "diameterLower": "175",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "7600",
+              "lowerDiameter": "175",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "7600",
               "quantity": "1"
             },
             {
               "name": "支柱−3",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "175",
-              "diameterUpper": "175",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "1600",
+              "lowerDiameter": "175",
+              "upperDiameter": "175",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "1600",
               "quantity": "1"
             }
           ],
           "arms": [
             {
-              "nameArm": "照明アーム1",
-              "materialArm": "STK400",
-              "diameterArm": "60.5",
-              "thicknessArm": "3.8",
-              "lengthArm": "180",
-              "expLengthArm": "180",
-              "heightArm": "10000",
-              "hDistanceArm": "90",
-              "fixAngleArm": "0",
-              "nncArm": "0.7",
-              "qtyArm": "1",
+              "name": "照明アーム1",
+              "material": "STK400",
+              "diameter": "60.5",
+              "thickness": "3.8",
+              "length": "180",
+              "expLength": "180",
+              "zHeight": "10000",
+              "hDistance": "90",
+              "fixAngle": "0",
+              "nnC": "0.7",
+              "quantity": "1",
 
               "armObjects": [
                 {
-                  "nameAo": "灯具",
-                  "typeOfAo": "directional",
-                  "frontAreaAo": "0.1",
-                  "sideAreaAo": "0.1",
-                  "weightAo": "14",
-                  "heightAo": "180",
-                  "fixAngleAo": "0",
-                  "nncAo": "1",
-                  "qtyAo": "1"
+                  "name": "灯具",
+                  "type": "directional",
+                  "frontArea": "0.1",
+                  "sideArea": "0.1",
+                  "weight": "14",
+                  "zHeight": "180",
+                  "fixAngle": "0",
+                  "nnC": "1",
+                  "quantity": "1"
                 }
               ]
             },
             {
-              "nameArm": "照明アーム2",
-              "materialArm": "STK400",
-              "diameterArm": "60.5",
-              "thicknessArm": "3.8",
-              "lengthArm": "180",
-              "expLengthArm": "180",
-              "heightArm": "10000",
-              "hDistanceArm": "90",
-              "fixAngleArm": "180",
-              "nncArm": "0.7",
-              "qtyArm": "1",
+              "name": "照明アーム2",
+              "material": "STK400",
+              "diameter": "60.5",
+              "thickness": "3.8",
+              "length": "180",
+              "expLength": "180",
+              "zHeight": "10000",
+              "hDistance": "90",
+              "fixAngle": "180",
+              "nnC": "0.7",
+              "quantity": "1",
 
               "armObjects": [
                 {
-                  "nameAo": "灯具",
-                  "typeOfAo": "directional",
-                  "frontAreaAo": "0.1",
-                  "sideAreaAo": "0.1",
-                  "weightAo": "14",
-                  "heightAo": "180",
-                  "fixAngleAo": "180",
-                  "nncAo": "1",
-                  "qtyAo": "1"
+                  "name": "灯具",
+                  "type": "directional",
+                  "frontArea": "0.1",
+                  "sideArea": "0.1",
+                  "weight": "14",
+                  "zHeight": "180",
+                  "fixAngle": "180",
+                  "nnC": "1",
+                  "quantity": "1"
                 }
               ]
             }
@@ -3173,93 +3173,93 @@
             "lowestStep": "0",
             "overDesign": "1"
           },
-          "sections": [
+          "poles": [
             {
               "name": "支柱−1",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "75",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "12100",
+              "lowerDiameter": "75",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "12100",
               "quantity": "1"
             },
             {
               "name": "支柱−2",
               "material": "STK400",
               "poleType": "Taper",
-              "diameterLower": "195",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "9600",
+              "lowerDiameter": "195",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "9600",
               "quantity": "1"
             },
             {
               "name": "支柱−3",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "195",
-              "diameterUpper": "195",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "1600",
+              "lowerDiameter": "195",
+              "upperDiameter": "195",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "1600",
               "quantity": "1"
             }
           ],
           "arms": [
             {
-              "nameArm": "照明アーム1",
-              "materialArm": "STK400",
-              "diameterArm": "60.5",
-              "thicknessArm": "3.8",
-              "lengthArm": "180",
-              "expLengthArm": "180",
-              "heightArm": "12000",
-              "hDistanceArm": "90",
-              "fixAngleArm": "0",
-              "nncArm": "0.7",
-              "qtyArm": "1",
+              "name": "照明アーム1",
+              "material": "STK400",
+              "diameter": "60.5",
+              "thickness": "3.8",
+              "length": "180",
+              "expLength": "180",
+              "zHeight": "12000",
+              "hDistance": "90",
+              "fixAngle": "0",
+              "nnC": "0.7",
+              "quantity": "1",
 
               "armObjects": [
                 {
-                  "nameAo": "灯具",
-                  "typeOfAo": "directional",
-                  "frontAreaAo": "0.1",
-                  "sideAreaAo": "0.1",
-                  "weightAo": "14",
-                  "heightAo": "180",
-                  "fixAngleAo": "0",
-                  "nncAo": "1",
-                  "qtyAo": "1"
+                  "name": "灯具",
+                  "type": "directional",
+                  "frontArea": "0.1",
+                  "sideArea": "0.1",
+                  "weight": "14",
+                  "zHeight": "180",
+                  "fixAngle": "0",
+                  "nnC": "1",
+                  "quantity": "1"
                 }
               ]
             },
             {
-              "nameArm": "照明アーム2",
-              "materialArm": "STK400",
-              "diameterArm": "60.5",
-              "thicknessArm": "3.8",
-              "lengthArm": "180",
-              "expLengthArm": "180",
-              "heightArm": "12000",
-              "hDistanceArm": "90",
-              "fixAngleArm": "180",
-              "nncArm": "0.7",
-              "qtyArm": "1",
+              "name": "照明アーム2",
+              "material": "STK400",
+              "diameter": "60.5",
+              "thickness": "3.8",
+              "length": "180",
+              "expLength": "180",
+              "zHeight": "12000",
+              "hDistance": "90",
+              "fixAngle": "180",
+              "nnC": "0.7",
+              "quantity": "1",
 
               "armObjects": [
                 {
-                  "nameAo": "灯具",
-                  "typeOfAo": "directional",
-                  "frontAreaAo": "0.1",
-                  "sideAreaAo": "0.1",
-                  "weightAo": "14",
-                  "heightAo": "180",
-                  "fixAngleAo": "180",
-                  "nncAo": "1",
-                  "qtyAo": "1"
+                  "name": "灯具",
+                  "type": "directional",
+                  "frontArea": "0.1",
+                  "sideArea": "0.1",
+                  "weight": "14",
+                  "zHeight": "180",
+                  "fixAngle": "180",
+                  "nnC": "1",
+                  "quantity": "1"
                 }
               ]
             }
@@ -3273,93 +3273,93 @@
             "lowestStep": "-300",
             "overDesign": "1"
           },
-          "sections": [
+          "poles": [
             {
               "name": "支柱−1",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "75",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "8100",
+              "lowerDiameter": "75",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "8100",
               "quantity": "1"
             },
             {
               "name": "支柱−2",
               "material": "STK400",
               "poleType": "Taper",
-              "diameterLower": "165",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "6600",
+              "lowerDiameter": "165",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "6600",
               "quantity": "1"
             },
             {
               "name": "支柱−3",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "165",
-              "diameterUpper": "165",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "1900",
+              "lowerDiameter": "165",
+              "upperDiameter": "165",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "1900",
               "quantity": "1"
             }
           ],
           "arms": [
             {
-              "nameArm": "照明アーム1",
-              "materialArm": "STK400",
-              "diameterArm": "60.5",
-              "thicknessArm": "3.8",
-              "lengthArm": "180",
-              "expLengthArm": "180",
-              "heightArm": "8000",
-              "hDistanceArm": "90",
-              "fixAngleArm": "0",
-              "nncArm": "0.7",
-              "qtyArm": "1",
+              "name": "照明アーム1",
+              "material": "STK400",
+              "diameter": "60.5",
+              "thickness": "3.8",
+              "length": "180",
+              "expLength": "180",
+              "zHeight": "8000",
+              "hDistance": "90",
+              "fixAngle": "0",
+              "nnC": "0.7",
+              "quantity": "1",
 
               "armObjects": [
                 {
-                  "nameAo": "灯具",
-                  "typeOfAo": "directional",
-                  "frontAreaAo": "0.1",
-                  "sideAreaAo": "0.1",
-                  "weightAo": "14",
-                  "heightAo": "180",
-                  "fixAngleAo": "0",
-                  "nncAo": "1",
-                  "qtyAo": "1"
+                  "name": "灯具",
+                  "type": "directional",
+                  "frontArea": "0.1",
+                  "sideArea": "0.1",
+                  "weight": "14",
+                  "zHeight": "180",
+                  "fixAngle": "0",
+                  "nnC": "1",
+                  "quantity": "1"
                 }
               ]
             },
             {
-              "nameArm": "照明アーム2",
-              "materialArm": "STK400",
-              "diameterArm": "60.5",
-              "thicknessArm": "3.8",
-              "lengthArm": "180",
-              "expLengthArm": "180",
-              "heightArm": "8000",
-              "hDistanceArm": "90",
-              "fixAngleArm": "180",
-              "nncArm": "0.7",
-              "qtyArm": "1",
+              "name": "照明アーム2",
+              "material": "STK400",
+              "diameter": "60.5",
+              "thickness": "3.8",
+              "length": "180",
+              "expLength": "180",
+              "zHeight": "8000",
+              "hDistance": "90",
+              "fixAngle": "180",
+              "nnC": "0.7",
+              "quantity": "1",
 
               "armObjects": [
                 {
-                  "nameAo": "灯具",
-                  "typeOfAo": "directional",
-                  "frontAreaAo": "0.1",
-                  "sideAreaAo": "0.1",
-                  "weightAo": "14",
-                  "heightAo": "180",
-                  "fixAngleAo": "180",
-                  "nncAo": "1",
-                  "qtyAo": "1"
+                  "name": "灯具",
+                  "type": "directional",
+                  "frontArea": "0.1",
+                  "sideArea": "0.1",
+                  "weight": "14",
+                  "zHeight": "180",
+                  "fixAngle": "180",
+                  "nnC": "1",
+                  "quantity": "1"
                 }
               ]
             }
@@ -3371,93 +3371,93 @@
             "lowestStep": "-300",
             "overDesign": "1"
           },
-          "sections": [
+          "poles": [
             {
               "name": "支柱−1",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "75",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "10100",
+              "lowerDiameter": "75",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "10100",
               "quantity": "1"
             },
             {
               "name": "支柱−2",
               "material": "STK400",
               "poleType": "Taper",
-              "diameterLower": "175",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "7600",
+              "lowerDiameter": "175",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "7600",
               "quantity": "1"
             },
             {
               "name": "支柱−3",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "175",
-              "diameterUpper": "175",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "1900",
+              "lowerDiameter": "175",
+              "upperDiameter": "175",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "1900",
               "quantity": "1"
             }
           ],
           "arms": [
             {
-              "nameArm": "照明アーム1",
-              "materialArm": "STK400",
-              "diameterArm": "60.5",
-              "thicknessArm": "3.8",
-              "lengthArm": "180",
-              "expLengthArm": "180",
-              "heightArm": "10000",
-              "hDistanceArm": "90",
-              "fixAngleArm": "0",
-              "nncArm": "0.7",
-              "qtyArm": "1",
+              "name": "照明アーム1",
+              "material": "STK400",
+              "diameter": "60.5",
+              "thickness": "3.8",
+              "length": "180",
+              "expLength": "180",
+              "zHeight": "10000",
+              "hDistance": "90",
+              "fixAngle": "0",
+              "nnC": "0.7",
+              "quantity": "1",
 
               "armObjects": [
                 {
-                  "nameAo": "灯具",
-                  "typeOfAo": "directional",
-                  "frontAreaAo": "0.1",
-                  "sideAreaAo": "0.1",
-                  "weightAo": "14",
-                  "heightAo": "180",
-                  "fixAngleAo": "0",
-                  "nncAo": "1",
-                  "qtyAo": "1"
+                  "name": "灯具",
+                  "type": "directional",
+                  "frontArea": "0.1",
+                  "sideArea": "0.1",
+                  "weight": "14",
+                  "zHeight": "180",
+                  "fixAngle": "0",
+                  "nnC": "1",
+                  "quantity": "1"
                 }
               ]
             },
             {
-              "nameArm": "照明アーム2",
-              "materialArm": "STK400",
-              "diameterArm": "60.5",
-              "thicknessArm": "3.8",
-              "lengthArm": "180",
-              "expLengthArm": "180",
-              "heightArm": "10000",
-              "hDistanceArm": "90",
-              "fixAngleArm": "180",
-              "nncArm": "0.7",
-              "qtyArm": "1",
+              "name": "照明アーム2",
+              "material": "STK400",
+              "diameter": "60.5",
+              "thickness": "3.8",
+              "length": "180",
+              "expLength": "180",
+              "zHeight": "10000",
+              "hDistance": "90",
+              "fixAngle": "180",
+              "nnC": "0.7",
+              "quantity": "1",
 
               "armObjects": [
                 {
-                  "nameAo": "灯具",
-                  "typeOfAo": "directional",
-                  "frontAreaAo": "0.1",
-                  "sideAreaAo": "0.1",
-                  "weightAo": "14",
-                  "heightAo": "180",
-                  "fixAngleAo": "180",
-                  "nncAo": "1",
-                  "qtyAo": "1"
+                  "name": "灯具",
+                  "type": "directional",
+                  "frontArea": "0.1",
+                  "sideArea": "0.1",
+                  "weight": "14",
+                  "zHeight": "180",
+                  "fixAngle": "180",
+                  "nnC": "1",
+                  "quantity": "1"
                 }
               ]
             }
@@ -3469,93 +3469,93 @@
             "lowestStep": "-300",
             "overDesign": "1"
           },
-          "sections": [
+          "poles": [
             {
               "name": "支柱−1",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "75",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "12100",
+              "lowerDiameter": "75",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "12100",
               "quantity": "1"
             },
             {
               "name": "支柱−2",
               "material": "STK400",
               "poleType": "Taper",
-              "diameterLower": "195",
-              "diameterUpper": "75",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "9600",
+              "lowerDiameter": "195",
+              "upperDiameter": "75",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "9600",
               "quantity": "1"
             },
             {
               "name": "支柱−3",
               "material": "STK400",
               "poleType": "Straight",
-              "diameterLower": "195",
-              "diameterUpper": "195",
-              "thicknessLower": "4",
-              "thicknessUpper": "4",
-              "height": "1900",
+              "lowerDiameter": "195",
+              "upperDiameter": "195",
+              "lowerThickness": "4",
+              "upperThickness": "4",
+              "zHeight": "1900",
               "quantity": "1"
             }
           ],
           "arms": [
             {
-              "nameArm": "照明アーム1",
-              "materialArm": "STK400",
-              "diameterArm": "60.5",
-              "thicknessArm": "3.8",
-              "lengthArm": "180",
-              "expLengthArm": "180",
-              "heightArm": "12000",
-              "hDistanceArm": "90",
-              "fixAngleArm": "0",
-              "nncArm": "0.7",
-              "qtyArm": "1",
+              "name": "照明アーム1",
+              "material": "STK400",
+              "diameter": "60.5",
+              "thickness": "3.8",
+              "length": "180",
+              "expLength": "180",
+              "zHeight": "12000",
+              "hDistance": "90",
+              "fixAngle": "0",
+              "nnC": "0.7",
+              "quantity": "1",
 
               "armObjects": [
                 {
-                  "nameAo": "灯具",
-                  "typeOfAo": "directional",
-                  "frontAreaAo": "0.1",
-                  "sideAreaAo": "0.1",
-                  "weightAo": "14",
-                  "heightAo": "180",
-                  "fixAngleAo": "0",
-                  "nncAo": "1",
-                  "qtyAo": "1"
+                  "name": "灯具",
+                  "type": "directional",
+                  "frontArea": "0.1",
+                  "sideArea": "0.1",
+                  "weight": "14",
+                  "zHeight": "180",
+                  "fixAngle": "0",
+                  "nnC": "1",
+                  "quantity": "1"
                 }
               ]
             },
             {
-              "nameArm": "照明アーム2",
-              "materialArm": "STK400",
-              "diameterArm": "60.5",
-              "thicknessArm": "3.8",
-              "lengthArm": "180",
-              "expLengthArm": "180",
-              "heightArm": "12000",
-              "hDistanceArm": "90",
-              "fixAngleArm": "180",
-              "nncArm": "0.7",
-              "qtyArm": "1",
+              "name": "照明アーム2",
+              "material": "STK400",
+              "diameter": "60.5",
+              "thickness": "3.8",
+              "length": "180",
+              "expLength": "180",
+              "zHeight": "12000",
+              "hDistance": "90",
+              "fixAngle": "180",
+              "nnC": "0.7",
+              "quantity": "1",
 
               "armObjects": [
                 {
-                  "nameAo": "灯具",
-                  "typeOfAo": "directional",
-                  "frontAreaAo": "0.1",
-                  "sideAreaAo": "0.1",
-                  "weightAo": "14",
-                  "heightAo": "180",
-                  "fixAngleAo": "180",
-                  "nncAo": "1",
-                  "qtyAo": "1"
+                  "name": "灯具",
+                  "type": "directional",
+                  "frontArea": "0.1",
+                  "sideArea": "0.1",
+                  "weight": "14",
+                  "zHeight": "180",
+                  "fixAngle": "180",
+                  "nnC": "1",
+                  "quantity": "1"
                 }
               ]
             }

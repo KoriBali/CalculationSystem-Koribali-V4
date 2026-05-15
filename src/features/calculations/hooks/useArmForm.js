@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useProjectStorage } from "./useProjectStorage";
-import * as Utils from "../utils/pole-analyzer";
+import * as Utils from "../utils";
 
 // Manages arm + arm object state — add, remove, update, copy/paste, tab navigation
 export function useArmForm(projectType) {

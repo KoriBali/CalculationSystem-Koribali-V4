@@ -1,8 +1,8 @@
 import React from "react";
 import {
-  formatJpYp,
+  formatDateYP,
   getDesignStandardTextMultiple,
-} from "../../../utils/report-handlers/textFormatter";
+} from "../../../utils/reportFormatters";
 import "../../../styles/report.css";
 
 export default function MultipleReportContent({
@@ -21,11 +21,11 @@ export default function MultipleReportContent({
             <div className="flex justify-between">
               <p className="cover-row-1 ml-[10px] tracking-[0.05em]">
                 <span className="jp">管理記号:</span>
-                <span> {cover?.managementMark || ""}</span>
+                <span> {cover?.managementCode ?? ""}</span>
               </p>
               <div className="cover-row-1 mr-[10px] flex justify-center items-center">
                 <span className="tracking-[0.05em] jp">計算書番号:</span>
-                <span> {cover?.calculationNumber || ""}</span>
+                <span> {cover?.calculationNumber ?? ""}</span>
               </div>
             </div>
 
@@ -38,27 +38,27 @@ export default function MultipleReportContent({
             {/* Project information block */}
             <div className="cover-double-line-mpl">
               <p className="cover-inner-text cover-inner-text-line text-center py-[7px] jp">
-                {cover?.projectName || ""}
+                {cover?.projectName ?? ""}
               </p>
               <p
                 className={`cover-inner-text cover-inner-text-line text-center jp ${
-                  !cover?.contentr2 ? "py-[19px]" : "py-[7px]"
+                  !cover?.coverTopText ? "py-[19px]" : "py-[7px]"
                 }`}
               >
-                {cover?.contentr2 || ""}
+                {cover?.coverTopText ?? ""}
               </p>
               <p
                 className={`cover-inner-text text-center jp py-[7px] ${
-                  !cover?.contentr3 ? "mb-[24px]" : ""
+                  !cover?.coverBottomText ? "mb-[24px]" : ""
                 }`}
               >
-                {cover?.contentr3 || ""}
+                {cover?.coverBottomText ?? ""}
               </p>
             </div>
 
             {/* Date & logo */}
             <div className="cover-row-3 text-center jp">
-              {cover?.date ? formatJpYp(cover.date) : ""}
+              {cover?.date ? formatDateYP(cover.date) : ""}
             </div>
             <img
               src="/images/ys-logo.png"
@@ -73,7 +73,7 @@ export default function MultipleReportContent({
       <div className="page-preview">
         <div className="page-a4">
           <div className="page-header">
-            No. {cover?.calculationNumber || ""} P-1
+            No. {cover?.calculationNumber ?? ""} P-1
           </div>
 
           <div className="page1-content">
@@ -107,7 +107,7 @@ export default function MultipleReportContent({
                 :
               </span>
               <span className="page1-text">
-                V = {condition?.windSpeed || 0} m/s
+                V = {condition?.designWindSpeed ?? ""} m/s
               </span>
             </div>
 
@@ -141,7 +141,8 @@ export default function MultipleReportContent({
                     空気密度
                   </span>
                   <span>
-                    ρ = 1.23 N・sec<sup>2</sup>/m<sup>4</sup>
+                    ρ = {condition?.designAirDensity ?? ""} N・sec<sup>2</sup>/m
+                    <sup>4</sup>
                   </span>
                 </div>
                 <div className="ml-[19px]">
@@ -232,11 +233,11 @@ export default function MultipleReportContent({
                   <React.Fragment key={index}>
                     <div className="flex">
                       <span className="mr-1 jp tracking-[0.05em]">
-                        {r?.description ?? ""}:
+                        {r?.name ?? ""}:
                       </span>
                       <span className="tracking-[0.05em]">
                         <span className="jp">t</span>
-                        {r?.thickLower?.toFixed(1) ?? ""}
+                        {r?.lowerThickness?.toFixed(1) ?? ""}
                       </span>
                       <span className="ml-1 tracking-[0.05em]">
                         1/100<span className="jp">テーパー柱</span>
@@ -246,12 +247,12 @@ export default function MultipleReportContent({
                       <span className="mr-1 jp tracking-[0.05em]">検討部:</span>
                       <span className="tracking-[0.05em]">
                         <span className="jp">φ</span>
-                        {r?.diaLower?.toFixed(1) ?? ""}
+                        {r?.lowerDiameter?.toFixed(1) ?? ""}
                       </span>
                       <span className="text-[10.5pt] mx-[2px]">×</span>
                       <span className="tracking-[0.05em]">
                         <span className="jp">t</span>
-                        {r?.thickLower?.toFixed(1) ?? ""}
+                        {r?.lowerThickness?.toFixed(1) ?? ""}
                       </span>
                       <span className="ml-1">
                         <span className="jp">(</span>
@@ -274,13 +275,15 @@ export default function MultipleReportContent({
                           </div>
                           <div className="flex flex-col">
                             <div className="tracking-[0.05em]">
-                              {r?.CrossAp?.toFixed(2) ?? ""} cm<sup>2</sup>
+                              {r?.crossSectionArea?.toFixed(2) ?? ""} cm
+                              <sup>2</sup>
                             </div>
                             <div className="tracking-[0.05em]">
-                              {r?.InasMp?.toFixed(2) ?? ""} cm<sup>4</sup>
+                              {r?.momentInertia?.toFixed(2) ?? ""} cm
+                              <sup>4</sup>
                             </div>
                             <div className="tracking-[0.05em]">
-                              {r?.RadGy?.toFixed(2) ?? ""} cm
+                              {r?.radiusGyration?.toFixed(2) ?? ""} cm
                             </div>
                           </div>
                         </div>
@@ -295,7 +298,8 @@ export default function MultipleReportContent({
                           </div>
                           <div className="flex flex-col">
                             <div className="tracking-[0.05em]">
-                              {r?.SecMdl?.toFixed(2) ?? ""} cm<sup>3</sup>
+                              {r?.sectionModulus?.toFixed(2) ?? ""} cm
+                              <sup>3</sup>
                             </div>
                           </div>
                         </div>
@@ -320,7 +324,7 @@ export default function MultipleReportContent({
       <div className="page-preview">
         <div className="page-a4">
           <div className="page-header">
-            No. {cover?.calculationNumber || ""} P-2
+            No. {cover?.calculationNumber ?? ""} P-2
           </div>
 
           <div className="page1-content">
@@ -826,7 +830,7 @@ export default function MultipleReportContent({
         <div className="page-preview" key={i}>
           <div className="page-a4">
             <div className="page-header">
-              No. {cover?.calculationNumber || ""} P-{i + 3}
+              No. {cover?.calculationNumber ?? ""} P-{i + 3}
             </div>
             <div className="page1-content">{pageBlocks}</div>
           </div>

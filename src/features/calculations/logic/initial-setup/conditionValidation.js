@@ -1,4 +1,4 @@
-import { validateWithYup } from "../../utils/validation";
+import { validateWithYup } from "../../utils";
 import { ConditionSchema } from "../../schemas/initial-setup/ConditionSchema";
 
 // Validates condition form — passes projectType as yup context

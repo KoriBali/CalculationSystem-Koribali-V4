@@ -1,6 +1,6 @@
 import { useParams, Outlet } from "react-router-dom";
 import { PROJECT_TYPES } from "../constants/projectTypes";
-import NotFoundPage from "../../pages/404";
+import NotFoundPage from "../../../pages/NotFoundPage";
 
 export default function TypeGuard() {
   const { type } = useParams();

@@ -4,20 +4,20 @@ import { Routes, Route, Navigate } from "react-router-dom";
 // Import Shared/Layout
 import Layout from "../shared/components/layout/Layout";
 import ProtectedRoute from "../routes/ProtectedRoute";
-import ScrollToTop from "../shared/components/ScrollToTop";
+import ScrollToTop from "../shared/components/ScroolTop";
 
 // Import Pages (Sesuaikan path folder barumu)
-import Login from "../pages/LoginPage";
-import Calculation from "../features/calculations/pages/Calculation";
-import CalculationTypeSetup from "../features/calculations/pages/CalculationType";
-import Report from "../features/report/pages/ReportPage";
-import NotFoundPage from "../pages/404";
+import LoginPage from "../pages/LoginPage";
+import ProjectSelectPage from "../features/calculations/pages/ProjectSelect";
+import CalculationSetupPage from "../features/calculations/pages/CalcSetup";
+import ReportPage from "../features/report/pages/ReportPage";
+import NotFoundPage from "../pages/NotFoundPage";
 
 // Detail Input Steps
-import PoleStructurePage from "../features/calculations/pages/steps/PoleStep";
-import OpeningPage from "../features/calculations/pages/steps/OpeningStep";
-import BaseplatePage from "../features/calculations/pages/steps/BaseplateStep";
-import FoundationPage from "../features/calculations/pages/steps/FoundationStep";
+import PoleFormPage from "../features/calculations/pages/steps/PoleStep";
+import OpeningFormPage from "../features/calculations/pages/steps/OpeningStep";
+import BaseplateFormPage from "../features/calculations/pages/steps/BaseplateStep";
+import FoundationFormPage from "../features/calculations/pages/steps/FoundationStep";
 
 // Guards
 import TypeGuard from "../features/calculations/guards/TypeGuard";
@@ -29,28 +29,28 @@ export default function AppRoutes() {
       <ScrollToTop />
       <Routes>
         {/* PUBLIC */}
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={<LoginPage />} />
 
         {/* PROTECTED AREA */}
         <Route element={<ProtectedRoute />}>
           <Route element={<Layout />}>
             {/* Base Calculation Path */}
             <Route path="calculation">
-              <Route index element={<Calculation />} />
+              <Route index element={<ProjectSelectPage />} />
 
               {/* Dynamic Path with Multi-Guards */}
               <Route path=":type" element={<TypeGuard />}>
                 <Route element={<SessionGuard />}>
-                  <Route index element={<CalculationTypeSetup />} />
-                  <Route path="pole" element={<PoleStructurePage />} />
-                  <Route path="opening" element={<OpeningPage />} />
-                  <Route path="baseplate" element={<BaseplatePage />} />
-                  <Route path="foundation" element={<FoundationPage />} />
+                  <Route index element={<CalculationSetupPage />} />
+                  <Route path="pole" element={<PoleFormPage />} />
+                  <Route path="opening" element={<OpeningFormPage />} />
+                  <Route path="baseplate" element={<BaseplateFormPage />} />
+                  <Route path="foundation" element={<FoundationFormPage />} />
                 </Route>
               </Route>
             </Route>
 
-            <Route path="report" element={<Report />} />
+            <Route path="report" element={<ReportPage />} />
           </Route>
         </Route>
 

@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useProjectStorage } from "../../../hooks/useProjectStorage";
+import { useProjectStorage } from "./useProjectStorage";
 
 import { validateFoundation } from "../logic/foundation/foundationValidation";
 import { executeFoundationCalculation } from "../logic/foundation/foundationCalculation";
 
-import * as Utils from "../../../utils/pole-analyzer";
+import * as Utils from "../utils";
 
 // Main custom hook to manage foundation form state and workflow
 export function useFoundationForm() {
