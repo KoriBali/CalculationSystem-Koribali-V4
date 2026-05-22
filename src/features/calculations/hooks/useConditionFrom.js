@@ -45,18 +45,22 @@ export function useConditionForm() {
   // Update local draft + auto-fill defaults + clear related errors
   const handleUpdate = (updates) => {
     const next = applyStandardDefaults(updates);
-
     setLocalCondition((prev) => ({ ...prev, ...next }));
+
+    // ✅ Pakai `next` bukan `updates` — supaya key yang di-autofill juga ter-clear
+    setErrors((prev) => {
+      const cleared = { ...prev };
+      Object.keys(next).forEach((key) => delete cleared[key]);
+      return cleared;
+    });
   };
 
   // Validate then proceed — or show confirm modal if components were disabled
   const handleNext = async () => {
-    setErrors({});
-
     const validation = await validateCondition(localCondition, projectType);
 
     if (!validation.isValid) {
-      setErrors(validation.errors);
+      setErrors(validation.errors); // ✅ Yup langsung set error yang benar
       setToast({ message: validation.message });
       return;
     }
@@ -88,6 +92,7 @@ export function useConditionForm() {
   };
 
   return {
+    projectType,
     localCondition,
     errors,
     toast,

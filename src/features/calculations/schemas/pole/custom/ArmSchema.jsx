@@ -5,7 +5,7 @@ import { ArmObjectSchema } from "./ArmObjectSchema";
 export const ArmSchema = yup.object({
   name: yup.string().required("Required field"),
 
-  material: yup.required("Required field"),
+  material: yup.string().required("Required field"),
 
   diameter: yup
     .number()

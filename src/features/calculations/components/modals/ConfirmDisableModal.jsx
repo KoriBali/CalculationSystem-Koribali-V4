@@ -1,4 +1,4 @@
-import { X } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 
 // Asks the user to confirm before disabling one or more components.
 // `data` is an array of component names to be disabled => if null/empty, modal won't render.

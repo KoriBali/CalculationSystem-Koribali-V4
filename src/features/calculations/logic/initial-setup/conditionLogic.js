@@ -31,6 +31,7 @@ export function getDisabledComponents(prev, next) {
 // Saves calculation config to sessionStorage — used by header nav to determine visible steps
 export function saveCalculationConfig(projectType, condition) {
   const config = {
+    pole: true,
     opening: !!condition.openingEnabled,
     baseplate: !!condition.baseplateEnabled,
     foundation: !!condition.foundationEnabled,

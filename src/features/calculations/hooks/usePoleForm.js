@@ -8,7 +8,7 @@ const DEFAULT_POLE = {
   id: "1",
   name: "",
   material: "STK400",
-  poleType: "Straight",
+  type: "Straight",
   lowerDiameter: "",
   upperDiameter: "",
   lowerThickness: "",
@@ -89,6 +89,7 @@ export function usePoleForm(projectType) {
     setPoleErrors,
     setActiveTab,
     confirmDelete,
+    setConfirmDelete,
 
     addPole,
     removePole,

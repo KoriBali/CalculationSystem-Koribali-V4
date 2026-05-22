@@ -6,7 +6,7 @@ import {
   CheckCircle,
   Layers,
 } from "lucide-react";
-import { BaseplateIcon } from "../../../../../assets/icons/icon";
+import { BaseplateIcon } from "../../../../../assets/icon";
 import { designStandardOptions } from "../../../constants/designStandards";
 import { poleTypeOptions } from "../../../constants/poleTypeOptions";
 
@@ -102,7 +102,7 @@ export function ConditionForm({
                 </select>
                 <ErrorStyle
                   show={errors.designStandard}
-                  text="Required field"
+                  text={errors.designStandard}
                 />
               </div>
 
@@ -140,6 +140,7 @@ export function ConditionForm({
                 <div className="relative">
                   <input
                     type="number"
+                    inputMode="decimal"
                     min={0}
                     value={condition.designAirDensity}
                     onChange={(e) =>
@@ -214,7 +215,7 @@ export function ConditionForm({
             </SectionCard>
             {errors.poleType && (
               <div className="mt-1 text-[11px] text-red-500">
-                *Please select a pole type
+                {errors.poleType}
               </div>
             )}
           </div>
@@ -293,7 +294,7 @@ function ToggleCard({ label, icon, enabled, onToggle }) {
   return (
     <div
       onClick={onToggle}
-      className={`cursor-pointer relative overflow-hidden rounded-lg border-2 p-5 transition-all duration-300 hover:scale-[1.01] active:scale-[0.98]
+      className={`cursor-pointer relative overflow-hidden rounded-lg border-2 p-5 transition-all duration-300
         ${
           enabled
             ? "border-blue-500 bg-white shadow-sm ring-1 ring-blue-50"

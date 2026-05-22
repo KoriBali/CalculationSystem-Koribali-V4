@@ -1,4 +1,4 @@
-import { X } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 // Asks the user to confirm before resetting all inputs and results on the calculation page.
 // Once confirmed, all form data and calculation results will be permanently cleared.
 export const ConfirmResetAllModal = ({

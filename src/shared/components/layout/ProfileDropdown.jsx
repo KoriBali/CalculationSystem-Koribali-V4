@@ -1,10 +1,10 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { User, Settings, LogOut } from "lucide-react";
 
 // Profile button + dropdown menu — handles open/close and outside click
 export function ProfileDropdown({ userData, onLogout }) {
-  const [isOpen, setIsOpen] = useRef(false); // use state instead
+  const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
   // Close dropdown when clicking outside
@@ -30,7 +30,7 @@ export function ProfileDropdown({ userData, onLogout }) {
         </p>
         <div
           className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all border
-          ${ 
+          ${
             isOpen
               ? "bg-[#0d3b66] text-white border-[#0d3b66]"
               : "bg-slate-100 text-[#0d3b66] border-slate-200 group-hover:bg-[#0d3b66] group-hover:text-white"

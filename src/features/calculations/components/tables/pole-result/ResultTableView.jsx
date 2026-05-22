@@ -95,7 +95,7 @@ export function ResultsTableView({
 // Dokumentasi tipe data dan satuan variabel teknik yang diperlukan
 // untuk merender tabel hasil analisis struktur.
 
-ResultsTable.propTypes = {
+ResultsTableView.propTypes = {
   // ── Pole (Step Pole) ──
   results: PropTypes.arrayOf(
     PropTypes.shape({

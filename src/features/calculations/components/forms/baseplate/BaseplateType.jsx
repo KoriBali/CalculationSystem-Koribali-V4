@@ -25,7 +25,7 @@ const ErrorStyle = ({ show, text }) =>
 /**
  * MAIN COMPONENT: BaseplateType
  */
-export function BaseplateType({ BaseplateType, onUpdate, errors }) {
+export function BaseplateType({ baseplateType, onUpdate, errors }) {
   return (
     <div className="bg-white border border-gray-200 px-4 md:px-5 py-6 md:py-5 shadow-sm rounded-b-lg md:rounded-b-2xl">
       {/* HEADER */}
@@ -33,7 +33,7 @@ export function BaseplateType({ BaseplateType, onUpdate, errors }) {
         {/* CARD */}
         <div className="relative">
           <select
-            value={BaseplateType.type}
+            value={baseplateType.type}
             onChange={(e) => onUpdate({ type: e.target.value })}
             className={`${inputStyle(errors.type)} min-h-[42px]`}
           >

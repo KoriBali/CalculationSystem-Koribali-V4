@@ -150,7 +150,7 @@ export const syncDoByInput = (
     for (let i = 0; i < addCount; i++) {
       idRef.current += 1;
       newItems.push({
-        id: idRef.current.toString(),
+        idDo: idRef.current.toString(),
         name: "",
         type: "omni",
         frontArea: "",
@@ -186,7 +186,7 @@ export const addDo = (directObjects, setDirectObjects, idRef) => {
   setDirectObjects([
     ...directObjects,
     {
-      id: newId,
+      idDo: newId,
       name: "",
       type: "omni",
       frontArea: "",
@@ -221,20 +221,20 @@ export const pasteDo = (id, setDirectObjects, doClipboard) => {
 
   setDirectObjects((prev) =>
     prev.map((doItem) =>
-      doItem.id === id ? { ...doItem, ...doClipboard } : doItem,
+      doItem.idDo === id ? { ...doItem, ...doClipboard } : doItem,
     ),
   );
 };
 
 // FUNCTION: Remove a direct object by ID
 export const removeDo = (id, directObjects, setDirectObjects) => {
-  setDirectObjects(directObjects.filter((s) => s.id !== id));
+  setDirectObjects(directObjects.filter((s) => s.idDo !== id));
 };
 
 // FUNCTION: Update a specific object's data
 export const updateDo = (id, updates, setDirectObjects, directObjects) => {
   setDirectObjects(
-    directObjects.map((s) => (s.id === id ? { ...s, ...updates } : s)),
+    directObjects.map((s) => (s.idDo === id ? { ...s, ...updates } : s)),
   );
 };
 
@@ -242,7 +242,7 @@ export const updateDo = (id, updates, setDirectObjects, directObjects) => {
 export const resetCurrentDo = (setDirectObjects, directObjects, id) => {
   setDirectObjects(
     directObjects.map((s) =>
-      s.id === id
+      s.idDo === id
         ? {
             ...s,
             name: "",
@@ -288,7 +288,7 @@ export const syncOhwByInput = (
     for (let i = 0; i < addCount; i++) {
       ohwIdRef.current += 1;
       newItems.push({
-        id: ohwIdRef.current.toString(),
+        idOhw: ohwIdRef.current.toString(),
         name: "",
         weight: "",
         diameter: "",
@@ -324,7 +324,7 @@ export const addOhw = (overheadWires, setOverheadWires, ohwIdRef) => {
   setOverheadWires([
     ...overheadWires,
     {
-      id: newId,
+      idOhw: newId,
       name: "",
       weight: "",
       diameter: "",
@@ -359,20 +359,20 @@ export const pasteOhw = (id, setOverheadWires, ohwClipboard) => {
 
   setOverheadWires((prev) =>
     prev.map((ohwItem) =>
-      ohwItem.id === id ? { ...ohwItem, ...ohwClipboard } : ohwItem,
+      ohwItem.idOhw === id ? { ...ohwItem, ...ohwClipboard } : ohwItem,
     ),
   );
 };
 
 // FUNCTION: Remove a Overhead Wire by ID
 export const removeOhw = (id, overheadWires, setOverheadWires) => {
-  setOverheadWires(overheadWires.filter((s) => s.id !== id));
+  setOverheadWires(overheadWires.filter((s) => s.idOhw !== id));
 };
 
 // FUNCTION: Update a specific overhead wire's data
 export const updateOhw = (id, updates, setOverheadWires, overheadWires) => {
   setOverheadWires(
-    overheadWires.map((s) => (s.id === id ? { ...s, ...updates } : s)),
+    overheadWires.map((s) => (s.idOhw === id ? { ...s, ...updates } : s)),
   );
 };
 
@@ -380,7 +380,7 @@ export const updateOhw = (id, updates, setOverheadWires, overheadWires) => {
 export const resetCurrentOhw = (setOverheadWires, overheadWires, id) => {
   setOverheadWires(
     overheadWires.map((s) =>
-      s.id === id
+      s.idOhw === id
         ? {
             ...s,
             name: "",
@@ -411,7 +411,7 @@ export const addArm = (arms, setArms, setActiveTabArm, armIdRef) => {
   setArms([
     ...arms,
     {
-      id: newId,
+      idArm: newId,
       name: "",
       material: "STK400",
       diameter: "",
@@ -449,29 +449,29 @@ export const copyArm = (arm, setArmClipboard) => {
 };
 
 // FUNCTION: Paste clipboard data into a specific Arm
-export const pasteArm = (id, setArms, armClipboard) => {
+export const pasteArm = (idArm, setArms, armClipboard) => {
   if (!armClipboard) return;
 
   setArms((prev) =>
     prev.map((armItem) =>
-      armItem.id === id ? { ...armItem, ...armClipboard } : armItem,
+      armItem.idArm === idArm ? { ...armItem, ...armClipboard } : armItem,
     ),
   );
 };
 
 // FUNCTION: Remove a arm by ID
-export const removeArm = (id, setArms, activeTabArm, setActiveTabArm) => {
+export const removeArm = (idArm, setArms, activeTabArm, setActiveTabArm) => {
   setArms((prevArms) => {
-    const index = prevArms.findIndex((s) => s.id === id);
+    const index = prevArms.findIndex((s) => s.idArm === idArm);
     if (index === -1) return prevArms;
 
-    const newArms = prevArms.filter((s) => s.id !== id);
+    const newArms = prevArms.filter((s) => s.idArm !== idArm);
 
     // pindah tab kalau yang aktif dihapus
-    if (activeTabArm === id) {
+    if (activeTabArm === idArm) {
       if (newArms.length > 0) {
         const newIndex = index > 0 ? index - 1 : 0;
-        setActiveTabArm(newArms[newIndex].id);
+        setActiveTabArm(newArms[newIndex].idArm);
       } else {
         setActiveTabArm("");
       }
@@ -482,15 +482,15 @@ export const removeArm = (id, setArms, activeTabArm, setActiveTabArm) => {
 };
 
 // FUNCTION: Update a specific arm's data
-export const updateArm = (id, updates, setArms, arms) => {
-  setArms(arms.map((s) => (s.id === id ? { ...s, ...updates } : s)));
+export const updateArm = (idArm, updates, setArms, arms) => {
+  setArms(arms.map((s) => (s.idArm === idArm ? { ...s, ...updates } : s)));
 };
 
 // FUNCTION: Reset the active arm to default values
 export const resetCurrentArm = (setArms, arms, activeTabArm) => {
   setArms(
     arms.map((s) =>
-      s.id === activeTabArm
+      s.idArm === activeTabArm
         ? {
             ...s,
             name: "",
@@ -535,7 +535,7 @@ export const syncAoByInput = (
       aoIdRef.current += 1;
 
       return {
-        id: aoIdRef.current.toString(),
+        idAo: aoIdRef.current.toString(),
         name: "",
         type: "omni",
         frontArea: "",
@@ -564,7 +564,7 @@ export const addAo = (armObjects, updateActiveArmObjects, aoIdRef) => {
   updateActiveArmObjects([
     ...armObjects,
     {
-      id: aoIdRef.current.toString(),
+      idAo: aoIdRef.current.toString(),
       name: "",
       type: "omni",
       frontArea: "",
@@ -594,31 +594,36 @@ export const copyAo = (armObject, setAoClipboard) => {
 };
 
 // FUNCTION: Paste clipboard data into a specific Arm Object
-export const pasteAo = (id, armObjects, updateActiveArmObjects, clipboard) => {
+export const pasteAo = (
+  idAo,
+  armObjects,
+  updateActiveArmObjects,
+  clipboard,
+) => {
   if (!clipboard) return;
 
   updateActiveArmObjects(
-    armObjects.map((o) => (o.id === id ? { ...o, ...clipboard } : o)),
+    armObjects.map((o) => (o.idAo === idAo ? { ...o, ...clipboard } : o)),
   );
 };
 
 // FUNCTION: Remove a Arm object by ID
-export const removeAo = (id, armObjects, updateActiveArmObjects) => {
-  updateActiveArmObjects(armObjects.filter((o) => o.id !== id));
+export const removeAo = (idAo, armObjects, updateActiveArmObjects) => {
+  updateActiveArmObjects(armObjects.filter((o) => o.idAo !== idAo));
 };
 
 // FUNCTION: Update a specific object's data
-export const updateAo = (id, updates, armObjects, updateActiveArmObjects) => {
+export const updateAo = (idAo, updates, armObjects, updateActiveArmObjects) => {
   updateActiveArmObjects(
-    armObjects.map((o) => (o.id === id ? { ...o, ...updates } : o)),
+    armObjects.map((o) => (o.idAo === idAo ? { ...o, ...updates } : o)),
   );
 };
 
 // FUNCTION: Reset the active arm object to default values
-export const resetCurrentAo = (id, armObjects, updateActiveArmObjects) => {
+export const resetCurrentAo = (idAo, armObjects, updateActiveArmObjects) => {
   updateActiveArmObjects(
     armObjects.map((o) =>
-      o.id === id
+      o.idAo === idAo
         ? {
             ...o,
             name: "",

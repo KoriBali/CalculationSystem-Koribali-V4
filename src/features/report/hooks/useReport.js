@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import { useProjectStorage } from "../../calculations/hooks/useProjectStorage";
 
 // ─── HOOK ────────────────────────────────────────────────────────────────────
 
@@ -7,52 +6,20 @@ import { useProjectStorage } from "../../calculations/hooks/useProjectStorage";
 export function useReport(projectType) {
   const navigate = useNavigate();
 
-  // Read condition from sessionStorage
-  const condition = (() => {
+  // ── Read helper ──
+  // Reads and parses a value from sessionStorage by key
+  const read = (key, fallback = null) => {
     try {
-      return JSON.parse(
-        sessionStorage.getItem(`${projectType}_condition`) || "{}",
-      );
+      const raw = sessionStorage.getItem(`${projectType}_${key}`);
+      return raw ? JSON.parse(raw) : fallback;
     } catch {
-      return {};
+      return fallback;
     }
-  })();
+  };
 
-  // Flags from condition — which calculation steps are enabled
+  // Read condition once at hook level — used to determine which steps are enabled
+  const condition = read("condition", {});
   const { openingEnabled, baseplateEnabled, foundationEnabled } = condition;
-
-  // ── Persisted results ──
-  const [results] = useProjectStorage(projectType, "results", []);
-  const [resultsDo] = useProjectStorage(projectType, "resultsDo", []);
-  const [resultsOhw] = useProjectStorage(projectType, "resultsOhw", []);
-  const [resultsArm] = useProjectStorage(projectType, "resultsArm", []);
-  const [poleConfig] = useProjectStorage(projectType, "poleConfig", {});
-
-  // ── Opening inputs + result ──
-  const [openingType] = useProjectStorage(projectType, "openingType", {});
-  const [boxType] = useProjectStorage(projectType, "boxType", {});
-  const [rType] = useProjectStorage(projectType, "rType", {});
-  const [calculatedOp] = useProjectStorage(projectType, "calculatedOp", {});
-
-  // ── Baseplate inputs + result ──
-  const [bpType] = useProjectStorage(projectType, "bpType", {});
-  const [fourRibType] = useProjectStorage(projectType, "fourRibType", {});
-  const [eightRibType] = useProjectStorage(projectType, "eightRibType", {});
-  const [calculatedBaseplate] = useProjectStorage(
-    projectType,
-    "calculatedBaseplate",
-    {},
-  );
-
-  // ── Foundation inputs + result ──
-  const [foundationType] = useProjectStorage(projectType, "foundationType", {});
-  const [squareCaisson] = useProjectStorage(projectType, "squareCaisson", {});
-  const [roundCaisson] = useProjectStorage(projectType, "roundCaisson", {});
-  const [calculatedFoundation] = useProjectStorage(
-    projectType,
-    "calculatedFoundation",
-    {},
-  );
 
   // ── Validation helpers ──
 
@@ -61,7 +28,13 @@ export function useReport(projectType) {
     calculated && Object.keys(calculated).length > 0;
 
   // Validates all required calculation results based on enabled flags
-  const validateCalculationResults = (showToast) => {
+  const validateCalculationResults = (
+    results,
+    calculatedOp,
+    calculatedBaseplate,
+    calculatedFoundation,
+    showToast,
+  ) => {
     // Pole results are always required regardless of flags
     if (!results?.length) {
       showToast(
@@ -101,7 +74,7 @@ export function useReport(projectType) {
   // Input FE dijadikan base, field dari BE menimpa jika ada key yang sama.
 
   // Opening: merge openingType + detail input (boxType atau rType) + result BE
-  const mergeOpening = () => {
+  const mergeOpening = (openingType, boxType, rType, calculatedOp) => {
     const type = openingType?.type;
 
     // Pilih input detail sesuai tipe yang dipilih user
@@ -114,9 +87,14 @@ export function useReport(projectType) {
     };
   };
 
-  // Baseplate: merge bpType + detail input (fourRibType atau eightRibType) + result BE
-  const mergeBaseplate = () => {
-    const ribType = bpType?.ribType;
+  // Baseplate: merge baseplateType + detail input (fourRibType atau eightRibType) + result BE
+  const mergeBaseplate = (
+    baseplateType,
+    fourRibType,
+    eightRibType,
+    calculatedBaseplate,
+  ) => {
+    const ribType = baseplateType?.ribType;
 
     // Pilih input detail sesuai jumlah rib yang dipilih user
     const detailInput =
@@ -127,14 +105,19 @@ export function useReport(projectType) {
           : {};
 
     return {
-      bpType, // tipe baseplate yang dipilih
+      baseplateType, // tipe baseplate yang dipilih
       ...detailInput, // field input detail sesuai rib type
       ...calculatedBaseplate, // hasil kalkulasi dari BE
     };
   };
 
-  // Foundation: merge foundationType + detail input (sqrCaisson atau roundCaisson) + result BE
-  const mergeFoundation = () => {
+  // Foundation: merge foundationType + detail input (squareCaisson atau roundCaisson) + result BE
+  const mergeFoundation = (
+    foundationType,
+    squareCaisson,
+    roundCaisson,
+    calculatedFoundation,
+  ) => {
     const shape = foundationType?.shape;
 
     // Pilih input detail sesuai bentuk pondasi yang dipilih user
@@ -167,8 +150,27 @@ export function useReport(projectType) {
       return;
     }
 
+    // Read all results from sessionStorage at call time — not at hook init
+    // Ini mencegah stale data jika user kalkulasi ulang setelah hook pertama kali diinisialisasi
+    const results = read("results", []);
+    const resultsDo = read("resultsDo", []);
+    const resultsOhw = read("resultsOhw", []);
+    const resultsArm = read("resultsArm", []);
+    const poleConfig = read("poleConfig", {});
+
+    // Read calculated results for optional steps
+    const calculatedOp = read("calculatedOp", {});
+    const calculatedBaseplate = read("calculatedBaseplate", {});
+    const calculatedFoundation = read("calculatedFoundation", {});
+
     // Validate all required results based on condition flags
-    const isResultsValid = validateCalculationResults(showToast);
+    const isResultsValid = validateCalculationResults(
+      results,
+      calculatedOp,
+      calculatedBaseplate,
+      calculatedFoundation,
+      showToast,
+    );
     if (!isResultsValid) return;
 
     // Cover fields must be complete
@@ -179,7 +181,8 @@ export function useReport(projectType) {
     }
 
     // Build report payload
-    // results pole sudah merged di usePoleCalculation, langsung pakai
+    // Results pole sudah merged di usePoleCalculation, langsung pakai
+    // Opening/baseplate/foundation di-merge di sini karena input dan result disimpan terpisah
     const reportPayload = {
       results,
       resultsDo,
@@ -189,9 +192,30 @@ export function useReport(projectType) {
       condition,
       poleConfig,
       // Merge input + result, hanya dimasukkan jika step-nya enabled
-      ...(openingEnabled && { calculatedOp: mergeOpening() }),
-      ...(baseplateEnabled && { calculatedBaseplate: mergeBaseplate() }),
-      ...(foundationEnabled && { calculatedFoundation: mergeFoundation() }),
+      ...(openingEnabled && {
+        calculatedOp: mergeOpening(
+          read("openingType", {}),
+          read("boxType", {}),
+          read("rType", {}),
+          calculatedOp,
+        ),
+      }),
+      ...(baseplateEnabled && {
+        calculatedBaseplate: mergeBaseplate(
+          read("baseplateType", {}),
+          read("fourRibType", {}),
+          read("eightRibType", {}),
+          calculatedBaseplate,
+        ),
+      }),
+      ...(foundationEnabled && {
+        calculatedFoundation: mergeFoundation(
+          read("foundationType", {}),
+          read("squareCaisson", {}),
+          read("roundCaisson", {}),
+          calculatedFoundation,
+        ),
+      }),
     };
 
     // Persist snapshot so report page can access it on reload
@@ -204,7 +228,5 @@ export function useReport(projectType) {
     navigate("/report", { state: reportPayload });
   };
 
-  return {
-    makeReport,
-  };
+  return { makeReport };
 }

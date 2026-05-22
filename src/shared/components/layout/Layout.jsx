@@ -5,6 +5,7 @@ import { MobileSidebar, DesktopSidebar } from "./Sidebar";
 import { Header } from "./Header";
 import { LogoutModal } from "./LogoutModal";
 import { MENU_ITEMS } from "../../constants/layoutConstants";
+import { getUser, clearAuthSession } from "../../../utils/auth";
 
 // ─── HELPERS ────────────────────────────────────────────────────────────────
 
@@ -51,8 +52,11 @@ export default function Layout() {
 
   // Load user session from localStorage on mount
   useEffect(() => {
-    const session = localStorage.getItem("user_session");
-    if (session) setUserData(JSON.parse(session));
+    const user = getUser();
+
+    if (user) {
+      setUserData(user);
+    }
   }, []);
 
   // Close mobile sidebar on route change
@@ -73,11 +77,11 @@ export default function Layout() {
 
   // Clears session data and redirects to login
   const handleLogout = () => {
-    localStorage.removeItem("user_session");
+    clearAuthSession();
     sessionStorage.removeItem("projectType");
+
     navigate("/login");
   };
-
   return (
     <div className="flex min-h-screen bg-[#f8fafc] text-slate-900">
       {/* Logout confirmation modal */}
@@ -119,10 +123,9 @@ export default function Layout() {
         />
 
         {/* Page content */}
+        {/* Page content */}
         <main className="flex-1 p-4 lg:p-8">
-          <div className="mx-6">
-            <Outlet />
-          </div>
+          <Outlet />
         </main>
 
         {/* Footer */}

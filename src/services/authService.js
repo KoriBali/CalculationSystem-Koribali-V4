@@ -30,18 +30,20 @@
 
 import api from "../config/api";
 
+// Login user from json-server
 export const loginUser = async ({ email, password }) => {
   const response = await api.get("/users", {
     params: { email, password },
   });
 
+  // Login failed
   if (response.data.length === 0) {
     throw new Error("Invalid email or password");
   }
 
   const user = response.data[0];
 
-  // Fake JWT Token
+  // Fake token
   const fakeToken = `fake-jwt-token-${btoa(user.email)}`;
 
   return {
@@ -50,7 +52,6 @@ export const loginUser = async ({ email, password }) => {
       id: user.id,
       name: user.name,
       email: user.email,
-      role: user.role,
     },
   };
 };

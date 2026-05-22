@@ -5,12 +5,14 @@ const api = axios.create({
   baseURL: "http://localhost:5000",
 });
 
-// Menambahkan token ke header secara otomatis untuk setiap request
+// Auto attach token to every request
 api.interceptors.request.use((config) => {
   const token = getToken();
+
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
   return config;
 });
 

@@ -52,7 +52,7 @@ export function usePoleStandardForm(projectType) {
 
   // Updates taper pole fields
   const updateTaperPoleStandard = (updates) =>
-    Utils.updatetaperPoleStandard(
+    Utils.updateTaperPoleStandard(
       taperPoleStandard,
       updates,
       setTaperPoleStandard,
@@ -66,7 +66,7 @@ export function usePoleStandardForm(projectType) {
       next.heightDepth = updates.groundPosition === "onGL" ? 0 : "";
     }
 
-    Utils.updatestraightPoleStandard(
+    Utils.updateStraightPoleStandard(
       straightPoleStandard,
       next,
       setStraightPoleStandard,

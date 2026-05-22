@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   motion,
   AnimatePresence,
@@ -23,10 +23,16 @@ import {
 import { useNavigate } from "react-router-dom";
 
 import { loginUser } from "../services/authService";
-import { setAuthSession } from "../utils/auth";
+import { setAuthSession, isAuthenticated } from "../utils/auth";
 
 export default function LoginPage() {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isAuthenticated()) {
+      navigate("/calculation");
+    }
+  }, []);
 
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState("");

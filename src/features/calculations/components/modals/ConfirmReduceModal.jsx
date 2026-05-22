@@ -1,4 +1,4 @@
-import { X } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 
 // Asks the user to confirm before reducing the count of an item.
 // `open` doubles as the visibility flag and carries { from, to } range data.

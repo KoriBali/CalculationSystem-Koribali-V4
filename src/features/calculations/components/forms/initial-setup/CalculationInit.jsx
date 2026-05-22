@@ -13,6 +13,7 @@ export default function CalculationSetupForm() {
   const [isExpanded, setIsExpanded] = useState(true);
 
   const {
+    projectType,
     localCondition,
     errors,
     toast,
@@ -30,7 +31,7 @@ export default function CalculationSetupForm() {
 
   return (
     <>
-      <div className="flex flex-col min-h-screen">
+      <div className="flex flex-col h-full">
         <Helmet>
           <title>Calculation - KORI BALI</title>
           <meta
@@ -39,29 +40,43 @@ export default function CalculationSetupForm() {
           />
         </Helmet>
 
-        <div className="min-h-screen bg-gray-50 border border-gray-250">
+        <div className="flex-1 rounded-t-2xl bg-gray-50 border border-gray-250">
           <HeaderCalculationPage />
 
-          <div className="mx-6 2040:mx-[250px] pt-1 pb-8 hp:mx-2">
+          <div className="mx-6 2040:mx-[250px] pt-0 pb-8 hp:mx-2">
             {/* Section header — collapsible toggle */}
             <div
-              className={`bg-gradient-to-r from-[#0d3b66] to-[#3399cc] p-4 flex items-center justify-between cursor-pointer mt-6 transition-all duration-500 ease-in-out hp:px-4 hp:py-3
+              className={`bg-gradient-to-r from-[#0d3b66] to-[#3399cc] px-4 py-3 md:p-4 flex items-center justify-between cursor-pointer mt-6 transition-all duration-500 ease-in-out
                 ${isExpanded ? "rounded-t-2xl hp:rounded-t-xl" : "rounded-2xl hp:rounded-xl"}`}
               onClick={() => setIsExpanded(!isExpanded)}
             >
               {/* Title */}
-              <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/20 hp:px-2 hp:py-[8px]">
-                <h2 className="text-white text-sm font-bold hp:text-xs hp:font-semibold">
+              <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/20 hp:px-3 hp:py-[8px]">
+                <h2 className="text-white text-xs md:text-sm font-semibold md:font-bold">
                   Initial Input
                 </h2>
               </div>
 
               {/* Expand/collapse icon */}
-              <div className="p-2">
+              <div
+                className="
+                  flex h-8 w-8
+                  sm:h-9 sm:w-9
+                  shrink-0
+                  items-center justify-center
+                  rounded-full
+                  bg-white/15
+                  text-white
+                  border border-white/20
+                  transition
+                  group-hover:bg-white/20
+                  group-active:bg-white/25
+                "
+              >
                 {isExpanded ? (
-                  <ChevronUp className="w-5 h-5 text-white hp:w-4 hp:h-4" />
+                  <ChevronUp className="w-4 h-4 sm:w-5 sm:h-5" />
                 ) : (
-                  <ChevronDown className="w-5 h-5 text-white hp:w-4 hp:h-4" />
+                  <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5" />
                 )}
               </div>
             </div>
@@ -76,6 +91,7 @@ export default function CalculationSetupForm() {
               }`}
             >
               <ConditionForm
+                projectType={projectType}
                 condition={localCondition}
                 onUpdate={handleUpdate}
                 onFinish={handleNext}

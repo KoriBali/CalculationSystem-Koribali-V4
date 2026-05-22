@@ -15,6 +15,7 @@ import {
   AlertCircle,
   Calculator,
 } from "lucide-react";
+import { EmptyReport } from "../../../../assets/icon";
 
 // ─── COMPONENT ───────────────────────────────────────────────────────────────
 
@@ -148,21 +149,21 @@ export function ReportView() {
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 border border-gray-250">
         <div className="min-h-[calc(100vh-80px)] flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 px-4 sm:px-6 lg:px-8">
           <div className="max-w-2xl w-full text-center">
+            {/* Icon */}
             <div className="flex justify-center mb-8">
-              <div className="bg-blue-100 text-blue-800 p-6 rounded-2xl shadow-sm border border-blue-100">
-                <FileText className="w-11 h-11" />
-              </div>
+              <EmptyReport width={160} height={120} />
             </div>
 
-            <h1 className="text-4xl font-bold text-slate-800 mb-4 leading-tight">
-              No Reports
+            {/* Title */}
+            <h1 className="text-2xl font-semibold text-slate-700 mb-3">
+              No report generated yet
             </h1>
-            <h2 className="text-xl text-slate-600 mb-4 font-semibold">
-              No calculation reports available
-            </h2>
-            <p className="text-base text-slate-500 mb-10 lg:mb-12 leading-relaxed max-w-md mx-auto">
-              You haven't generated any reports yet. Start by creating pole
-              sections and running calculations to generate your first report.
+
+            {/* Description */}
+            <p className="text-sm text-slate-400 mb-8 leading-relaxed">
+              Complete a calculation and fill in the cover details
+              <br />
+              to generate your first report.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
@@ -174,10 +175,6 @@ export function ReportView() {
                 Go to Calculation
               </button>
             </div>
-
-            <p className="text-xs text-slate-600">
-              Start your first calculation to generate reports
-            </p>
           </div>
         </div>
       </div>

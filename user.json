@@ -1,0 +1,106 @@
+{
+  "users": [
+    {
+      "id": "ys1",
+      "name": "Bintarjo Agus Priyadi",
+      "email": "agus@gmail.com",
+      "password": "agus123"
+    },
+    {
+      "id": "ys2",
+      "name": "M. Ramdan Purnama",
+      "email": "ramdan@gmail.com",
+      "password": "ramdan123"
+    },
+    {
+      "id": "ys3",
+      "name": "Ajie Jodi Sumarno",
+      "email": "ajie@gmail.com",
+      "password": "ajie123"
+    },
+    {
+      "id": "ys4",
+      "name": "Nawid Ahmad",
+      "email": "nawid@gmail.com",
+      "password": "nawid123"
+    },
+    {
+      "id": "ys5",
+      "name": "Vannto",
+      "email": "vannto@gmail.com",
+      "password": "vannto123"
+    },
+    {
+      "id": "dv1",
+      "name": "Amiril Mukminin",
+      "email": "amir@gmail.com",
+      "password": "amir123"
+    },
+    {
+      "id": "dv2",
+      "name": "Muhammad Rifa Alfadli",
+      "email": "rifa@gmail.com",
+      "password": "rifa123"
+    },
+    {
+      "id": "dv3",
+      "name": "Ni Nyoman Kayika Manuhita",
+      "email": "hita@gmail.com",
+      "password": "hita123"
+    },
+    {
+      "id": "dv4",
+      "name": "Nurul Balqis Apriany",
+      "email": "balqis@gmail.com",
+      "password": "balqis123"
+    },
+    {
+      "id": "dv5",
+      "name": "Azzachra Caesyafitri",
+      "email": "zachra@gmail.com",
+      "password": "zachra123"
+    },
+    {
+      "id": "yp1",
+      "name": "Ricki Harmon",
+      "email": "ricki@gmail.com",
+      "password": "ricki123"
+    },
+    {
+      "id": "yp2",
+      "name": "Pijar Eko Saktiaji",
+      "email": "pijar@gmail.com",
+      "password": "pijar123"
+    },
+    {
+      "id": "yp3",
+      "name": "Muhammad Fitra Romadhon",
+      "email": "fitra@gmail.com",
+      "password": "fitra123"
+    },
+    {
+      "id": "yp4",
+      "name": "Cece Saepurrohman",
+      "email": "cece@gmail.com",
+      "password": "cece123"
+    },
+    {
+      "id": "yp5",
+      "name": "Mediani Utami",
+      "email": "medi@gmail.com",
+      "password": "medi123"
+    },
+    {
+      "id": "yp6",
+      "name": "Raden Nur Afrisya",
+      "email": "raden@gmail.com",
+      "password": "raden123"
+    },
+    {
+      "id": "mr1",
+      "name": "Kotani Shinsuke",
+      "email": "kotani@gmail.com",
+      "password": "kotani123"
+    }
+  ]
+}

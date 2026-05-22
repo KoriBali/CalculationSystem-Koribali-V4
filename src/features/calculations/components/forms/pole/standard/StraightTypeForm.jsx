@@ -9,11 +9,13 @@ import { getThicknessOptions } from "../../../../logic/pole/standard/straightPol
 
 // === IMAGES ===
 const onGlImg = "/images/on-gl.svg";
+const upperGlImg = "/images/upper-gl.svg";
 const underGlImg = "/images/under-gl.svg";
 
 // Maps ground position id to its diagram image
 const groundPositionImageMap = {
   onGL: onGlImg,
+  upperGL: upperGlImg,
   underGL: underGlImg,
 };
 
@@ -113,7 +115,7 @@ export function StraightPoleStandardForm({
       </div>
 
       {/* ── Main form — only shown after pole standard is selected ── */}
-      {straightPoleStandard.poleType === "straightPoleStandard" && (
+      {straightPoleStandard.poleType === "steppedPole" && (
         <div className="grid md:grid-cols-1 gap-6 mb-8">
           {/* ── Pole Data: combination + thickness + length ── */}
           <div>
@@ -368,89 +370,99 @@ export function StraightPoleStandardForm({
 
               {/* Baseplate mode — shown when baseplate is enabled */}
               {condition.baseplateEnabled && (
-                <div className="grid grid-cols-1">
-                  {/* Ground position selector */}
-                  <div>
-                    <h4 className="block text-sm text-gray-700 mb-3">
-                      Select Ground Position
-                    </h4>
-                    <div className="flex gap-3 mb-4">
-                      {GROUND_POSITION_OPTIONS.map((option) => {
-                        const isActive =
-                          straightPoleStandard.groundPosition === option.id;
+                <div className="grid grid-cols-1 gap-4">
+                  <h4 className="block text-sm text-gray-700">
+                    Select Ground Position
+                  </h4>
 
-                        return (
-                          <button
-                            key={option.id}
-                            onClick={() =>
-                              onUpdate({ groundPosition: option.id })
-                            }
-                            className={`w-48 cursor-pointer rounded-lg border px-4 py-2.5 transition-all flex items-center gap-3
-                              ${
-                                isActive
-                                  ? "border-blue-500 bg-blue-50"
-                                  : "border-slate-200 hover:border-slate-300 hover:bg-slate-50"
-                              }`}
+                  <div className="grid grid-cols-3 gap-3">
+                    {GROUND_POSITION_OPTIONS.map((opt) => {
+                      const isActive =
+                        straightPoleStandard.groundPosition === opt.id;
+                      const isOnGL = opt.id === "onGL";
+                      const disabled = isOnGL || !isActive;
+                      const img = groundPositionImageMap[opt.id] ?? onGlImg;
+
+                      return (
+                        <div
+                          key={opt.id}
+                          onClick={() =>
+                            onUpdate({
+                              groundPosition: opt.id,
+                              heightDepth: opt.id === "onGL" ? "0" : "",
+                            })
+                          }
+                          className={`flex flex-col gap-4 rounded-xl border-2 p-4 cursor-pointer transition-all
+                          ${
+                            isActive
+                              ? "border-[#3399cc] bg-[#f0f8ff]"
+                              : "border-gray-100 bg-gray-50 hover:border-gray-200 hover:bg-gray-100"
+                          }`}
+                        >
+                          {/* Label */}
+                          <p
+                            className={`text-xs md:text-sm font-semibold ${isActive ? "text-[#0d3b66]" : "text-gray-400"}`}
                           >
-                            {/* Custom radio indicator */}
-                            <div
-                              className={`w-4 h-4 rounded-full border-2 flex items-center justify-center
-                              ${isActive ? "border-blue-500" : "border-gray-400"}`}
-                            >
-                              {isActive && (
-                                <div className="w-2 h-2 rounded-full bg-blue-500" />
-                              )}
-                            </div>
-                            <span className="text-sm font-medium text-slate-700">
-                              {option.label}
-                            </span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
+                            {opt.label}
+                          </p>
 
-                  {/* Height depth input + ground position diagram */}
-                  <div className="flex justify-center gap-5 items-center bg-gray-50 border rounded-lg p-4 h-72 2040:h-80 overflow-hidden">
-                    {/* Height depth — disabled when onGL (fixed at ground level) */}
-                    {straightPoleStandard.groundPosition && (
-                      <div className="flex flex-col justify-end pb-6 h-full">
-                        <div className="flex flex-col">
-                          <span className="block text-gray-700 text-sm mb-3 hp:text-xs hp:mb-1">
-                            Height Depth
-                          </span>
-                          <div className="relative">
-                            <input
-                              type="number"
-                              value={straightPoleStandard.heightDepth}
-                              placeholder="Input Height"
-                              disabled={isOnGL}
-                              onChange={(e) =>
-                                !isOnGL &&
-                                onUpdate({ heightDepth: e.target.value })
-                              }
-                              onWheel={(e) => e.target.blur()}
-                              className={`${inputStyle(errors.heightDepth)} w-[200px] pr-[40px] ${isOnGL ? "bg-gray-100 text-gray-400" : ""}`}
+                          {/* Diagram */}
+                          <div className="h-44 md:h-52 flex items-center justify-center">
+                            <img
+                              src={img}
+                              alt={opt.label}
+                              className={`h-full object-contain transition-all ${!isActive ? "opacity-40" : ""}`}
                             />
-                            <span className="absolute right-4 text-sm top-1/2 -translate-y-1/2 text-gray-400 hp:text-xs">
-                              mm
-                            </span>
                           </div>
-                          <ErrorStyle
-                            show={errors.heightDepth}
-                            text={errors.heightDepth}
-                          />
-                        </div>
-                      </div>
-                    )}
 
-                    {/* Diagram — updates based on selected ground position */}
-                    <img
-                      key={currentImage}
-                      src={currentImage}
-                      alt="Ground position diagram"
-                      className="h-full object-contain transition-all duration-300"
-                    />
+                          {/* Depth input */}
+                          <div onClick={(e) => e.stopPropagation()}>
+                            <label
+                              className={`block text-xs md:text-sm mb-1 md:mb-2 ${isActive ? "text-gray-700" : "text-gray-300"}`}
+                            >
+                              Depth
+                            </label>
+                            <div className="relative">
+                              <input
+                                type="number"
+                                value={
+                                  isOnGL
+                                    ? "0"
+                                    : isActive
+                                      ? straightPoleStandard.heightDepth
+                                      : ""
+                                }
+                                disabled={disabled}
+                                placeholder={
+                                  isActive && !isOnGL ? "Input depth" : "—"
+                                }
+                                onChange={(e) =>
+                                  !disabled &&
+                                  onUpdate({ heightDepth: e.target.value })
+                                }
+                                onWheel={(e) => e.target.blur()}
+                                className={`w-full px-3 md:px-4 py-2 md:py-2.5 rounded-lg text-xs md:text-sm outline-none transition-all border min-h-[42px] pr-10
+                                ${
+                                  disabled
+                                    ? "bg-gray-100 border-gray-200 text-gray-400"
+                                    : errors.heightDepth
+                                      ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
+                                      : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
+                                }`}
+                              />
+                              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400">
+                                mm
+                              </span>
+                            </div>
+                            {isActive && errors.heightDepth && (
+                              <p className="text-[10px] text-red-500 mt-1">
+                                *{errors.heightDepth}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}

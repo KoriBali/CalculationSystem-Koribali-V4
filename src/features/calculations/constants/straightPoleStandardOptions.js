@@ -32,5 +32,6 @@ export const TPL_MAP = {
 // Ground position options — determines installation depth input visibility
 export const GROUND_POSITION_OPTIONS = [
   { id: "onGL", label: "On GL" },
+  { id: "upperGL", label: "Upper GL" }, 
   { id: "underGL", label: "Under GL" },
 ];

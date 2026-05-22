@@ -5,7 +5,7 @@ export function SummaryResultTable({ resultPole }) {
   return (
     <div className="mx-6 my-6 space-y-16 hp:mx-2 hp:mt-4 hp:mb-8">
       {resultPole.map((_, poleIndex) => {
-        const rows = getRowsForStepFull(poleIndex, resultPole);
+        const rows = getRows(poleIndex, resultPole);
         return (
           <div key={poleIndex}>
             {/* HEADER */}

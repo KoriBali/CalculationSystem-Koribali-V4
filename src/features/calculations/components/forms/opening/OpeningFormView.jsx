@@ -3,16 +3,16 @@ import { useParams } from "react-router-dom";
 import { ChevronDown, ChevronUp, Box } from "lucide-react";
 
 import { HeaderCalculationPage } from "../../layout/HeaderCalculationPage";
-import { OpeningType } from "../../components/forms/opening/OpeningType";
-import { BoxTypeForm } from "../../components/forms/opening/BoxTypeForm";
-import { RTypeForm } from "../../components/forms/opening/RTypeForm";
-import { OpeningResultTable } from "../../components/tables/opening-result/OpeningResultTable";
+import { OpeningType } from "./OpeningType";
+import { BoxTypeForm } from "./BoxTypeForm";
+import { RTypeForm } from "./RTypeForm";
+import { OpeningResultTable } from "../../tables/opening-result/OpeningResultTable";
 import { ToastModal } from "../../modals/ToastModal";
 import { CoverFormModal } from "../../modals/CoverFormModal";
 
-import { useOpeningForm } from "../../hooks/useOpeningForm";
-import { useCoverForm } from "../../hooks/useCoverForm";
-import { useReport } from "../../hooks/useReport";
+import { useOpeningForm } from "../../../hooks/useOpeningForm";
+import { useCoverForm } from "../../../hooks/useCoverForm";
+import { useReport } from "../../../../report/hooks/useReport";
 
 // Main view for the opening calculation step
 export default function OpeningFormView() {
@@ -165,7 +165,7 @@ export default function OpeningFormView() {
       </div>
 
       {/* ── Cover modal — shown when this is the last step ── */}
-      <CoverInputModal
+      <CoverFormModal
         open={cover.showCoverPopup}
         onClose={cover.closeCoverPopup}
         cover={cover.coverData}

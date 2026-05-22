@@ -1,4 +1,4 @@
-import { X } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 
 // Asks the user to confirm before permanently deleting an item.
 // `itemName` is injected into the title and description for context.

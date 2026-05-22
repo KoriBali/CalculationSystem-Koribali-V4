@@ -1,5 +1,5 @@
 import React from "react";
-import { getRowsForStep } from "../../../utils/report-handlers/textFormatter";
+import { getRowsForStep } from "../../../utils/reportFormatters";
 
 export const createBlocks = (results = [], resultsDo = [], poleConfig = {}) => {
   const blocks = [];

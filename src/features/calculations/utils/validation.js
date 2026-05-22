@@ -1,25 +1,13 @@
 // Validates form data against a Yup schema and returns { isValid, errors } formatted for UI handling
-export const validateWithYup = async (schema, data) => {
+export const validateWithYup = async (schema, data, options = {}) => {
   try {
-    // Run Yup validation (collect all errors)
-    await schema.validate(data, { abortEarly: false });
-
-    return {
-      isValid: true,
-      errors: {},
-    };
+    await schema.validate(data, { abortEarly: false, ...options });
+    return { isValid: true, errors: {} };
   } catch (error) {
-    // Transform Yup errors into { field: message }
     const errors = error.inner.reduce((acc, curr) => {
-      if (curr.path) {
-        acc[curr.path] = curr.message;
-      }
+      if (curr.path) acc[curr.path] = curr.message;
       return acc;
     }, {});
-
-    return {
-      isValid: false,
-      errors,
-    };
+    return { isValid: false, errors };
   }
 };
