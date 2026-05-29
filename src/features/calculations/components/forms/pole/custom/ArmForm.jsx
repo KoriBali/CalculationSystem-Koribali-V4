@@ -4,7 +4,7 @@
  */
 // Returns input className based on validation state
 const inputStyle = (hasError) =>
-  `w-full px-3 md:px-4 py-2 md:py-2.5 rounded-md md:rounded-lg text-xs md:text-sm outline-none transition-all border pr-14
+  `w-full px-3 md:px-4 py-2 md:py-2.5 rounded-md sm:rounded-lg text-xs md:text-sm outline-none transition-all border pr-14
   ${
     hasError
       ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"

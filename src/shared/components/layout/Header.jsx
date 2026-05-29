@@ -17,7 +17,7 @@ export function Header({
         {isMobile && (
           <button
             onClick={onOpenMobileSidebar}
-            className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg"
+            className="p-2 bg-slate-100 text-[#0d3b66] hover:bg-slate-200 rounded-lg"
           >
             <Menu size={20} />
           </button>
@@ -38,14 +38,7 @@ export function Header({
         </AnimatePresence>
       </div>
 
-      <div className="flex items-center gap-3">
-        {/* Notification bell => placeholder for future feature */}
-        <button className="p-2 text-slate-400 hover:text-[#0d3b66] transition-all">
-          <Bell size={18} />
-        </button>
-
-        <div className="h-4 w-px bg-slate-200 mx-1" />
-
+      <div className="flex items-center">
         {/* Profile dropdown */}
         <ProfileDropdown userData={userData} onLogout={onLogout} />
       </div>

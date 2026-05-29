@@ -1,24 +1,24 @@
 // Available pole standard options — shown as selectable buttons in PoleStandardForm
 export const POLE_STANDARD_OPTIONS = [
   { id: "IS", label: "Type-I (IS)" },
-  { id: "LS", label: "Type-L (LS)" },
-  { id: "TS", label: "Type-T (TS)" },
   { id: "IA", label: "Type-I (IA)" },
+  { id: "LS", label: "Type-L (LS)" },
   { id: "LA", label: "Type-L (LA)" },
+  { id: "TS", label: "Type-T (TS)" },
   { id: "TA", label: "Type-T (TA)" },
 ];
 
 // Height options for S-series poles (IS, LS, TS, TA)
 const HEIGHT_OPTIONS_S = {
   onGL: [
-    { id: "8", label: "8.0" },
-    { id: "10", label: "10.0" },
-    { id: "12", label: "12.0" },
+    { id: "8", label: "8.0 m" },
+    { id: "10", label: "10.0 m" },
+    { id: "12", label: "12.0 m" },
   ],
   underGL: [
-    { id: "8U", label: "8.3" },
-    { id: "10U", label: "10.3" },
-    { id: "12U", label: "12.3" },
+    { id: "8U", label: "8.3 m" },
+    { id: "10U", label: "10.3 m" },
+    { id: "12U", label: "12.3 m" },
   ],
 };
 

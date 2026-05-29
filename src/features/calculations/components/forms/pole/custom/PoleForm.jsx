@@ -4,7 +4,7 @@
  */
 // Returns input className based on validation state
 const inputStyle = (hasError) =>
-  `w-full px-3 md:px-4 py-2 md:py-2.5 rounded-md md:rounded-lg text-xs md:text-sm outline-none transition-all border pr-14
+  `w-full pl-3 md:pl-4 pr-10 py-2 lg:py-2.5 rounded-lg hp:rounded-md text-xs md:text-sm outline-none transition-all border
   ${
     hasError
       ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
@@ -29,7 +29,7 @@ const SectionTitle = ({ children }) => (
 
 // Reusable section card wrapper
 const SectionCard = ({ children }) => (
-  <div className="bg-white px-4 md:px-5 py-5 rounded-lg md:rounded-xl border border-gray-200">
+  <div className="bg-white px-4 md:px-5 py-5 rounded-lg sm:rounded-xl border border-gray-200">
     {children}
   </div>
 );
@@ -89,7 +89,7 @@ export function PoleForm({
               <select
                 value={pole.material}
                 onChange={(e) => onUpdate({ material: e.target.value })}
-                className={`${inputStyle(errors.material)} min-h-[42px]`}
+                className={`${inputStyle(errors.material)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px]`}
               >
                 <option value="STK400">STK400</option>
                 <option value="STK490">STK490</option>
@@ -108,7 +108,7 @@ export function PoleForm({
               <select
                 value={pole.type}
                 onChange={(e) => onUpdate({ type: e.target.value })}
-                className="w-full min-h-[42px] px-2 md:px-4 py-2 md:py-2.5 border border-gray-300 rounded-md md:rounded-lg text-xs md:text-sm
+                className="w-full min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] px-2 md:px-4 py-2 md:py-2.5 border border-gray-300 rounded-md sm:rounded-lg text-xs md:text-sm
                 focus:ring-2 focus:ring-[#3399cc] focus:border-[#3399cc] outline-none transition-all bg-white"
               >
                 <option value="Straight">Straight</option>

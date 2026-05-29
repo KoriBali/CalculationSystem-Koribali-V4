@@ -9,8 +9,11 @@ import { getThicknessOptions } from "../../../../logic/pole/standard/straightPol
 
 // === IMAGES ===
 const onGlImg = "/images/on-gl.svg";
+const onGldImg = "/images/on-GL(d).svg";
 const upperGlImg = "/images/upper-gl.svg";
+const upperGldImg = "/images/upper-GL(d).svg";
 const underGlImg = "/images/under-gl.svg";
+const underGldImg = "/images/under-GL(d).svg";
 
 // Maps ground position id to its diagram image
 const groundPositionImageMap = {
@@ -19,15 +22,21 @@ const groundPositionImageMap = {
   underGL: underGlImg,
 };
 
+const groundPositionImageMapD = {
+  onGL: onGldImg,
+  upperGL: upperGldImg,
+  underGL: underGldImg,
+};
+
 // === HELPERS ===
 // Returns input className based on validation state
 const inputStyle = (hasError) =>
-  `px-4 py-2.5 rounded-lg outline-none transition-all border text-sm pr-14 min-h-[42px]
+  `px-4 py-2 lg:py-2.5 rounded-lg outline-none transition-all border text-sm pr-14
   ${
     hasError
       ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
       : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
-  } hp:pl-2 hp:py-2 hp:rounded-md hp:text-xs`;
+  } hp:pl-2 hp:rounded-md hp:text-xs`;
 
 // Renders a red error message below an invalid field
 const ErrorStyle = ({ show, text }) =>
@@ -47,8 +56,8 @@ const SectionTitle = ({ children }) => (
 
 // Placeholder shown when a prerequisite field hasn't been selected yet
 const SelectFirst = ({ message }) => (
-  <div className="border border-slate-200 rounded-lg px-5 bg-slate-50 min-h-[42px] flex items-center">
-    <p className="text-sm text-slate-400">{message}</p>
+  <div className="border border-slate-200 rounded-lg hp:rounded-md px-5 py-2 lg:py-2.5 bg-slate-50 flex items-center">
+    <p className="text-sm hp:text-xs text-slate-400">{message}</p>
   </div>
 );
 
@@ -85,11 +94,11 @@ export function StraightPoleStandardForm({
   const isOnGL = straightPoleStandard.groundPosition === "onGL";
 
   return (
-    <div className="bg-white px-6 pb-6 rounded-b-2xl hp:rounded-b-xl">
+    <div className="bg-white px-4 md:px-6 pb-6 rounded-b-2xl hp:rounded-b-xl">
       {/* ── Select Pole Standard ── */}
       <div className="mb-6">
         <SectionTitle>Select Pole Standard</SectionTitle>
-        <div className="border border-slate-200 rounded-xl p-6 bg-white shadow-sm">
+        <div className="border border-slate-200 rounded-xl hp:rounded-lg p-4 sm:p-6 bg-white shadow-sm">
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {STEPPED_POLE_OPTIONS.map((option) => {
               const isActive = straightPoleStandard.poleType === option.id;
@@ -99,7 +108,7 @@ export function StraightPoleStandardForm({
                   key={option.id}
                   type="button"
                   onClick={() => onUpdate({ poleType: option.id })}
-                  className={`rounded-lg border px-4 py-2.5 text-sm font-medium transition-all
+                  className={`rounded-lg hp:rounded-md border px-4 py-2 lg:py-2.5 text-xs md:text-sm font-medium transition-all
                     ${
                       isActive
                         ? "border-blue-500 bg-blue-50 text-blue-600 shadow-sm"
@@ -120,12 +129,12 @@ export function StraightPoleStandardForm({
           {/* ── Pole Data: combination + thickness + length ── */}
           <div>
             <SectionTitle>Pole Data</SectionTitle>
-            <div className="border border-slate-200 rounded-xl p-6 bg-white shadow-sm space-y-6">
+            <div className="border border-slate-200 rounded-xl hp:rounded-lg p-4 md:p-6 bg-white shadow-sm space-y-6">
               {/* Diameter group + combination selector */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Lower pole diameter group — resets combination on change */}
                 <div>
-                  <h4 className="block text-gray-700 text-sm mb-3 hp:text-xs hp:mb-1">
+                  <h4 className="block text-gray-700 text-sm mb-3 hp:text-xs hp:mb-2">
                     Select Lower Pole Diameter
                   </h4>
                   <div className="grid grid-cols-3 gap-3">
@@ -143,7 +152,7 @@ export function StraightPoleStandardForm({
                               combination: "",
                             })
                           }
-                          className={`w-full py-2 rounded-lg min-h-[42px] text-sm border transition
+                          className={`w-full py-2 lg:py-2.5 rounded-lg hp:rounded-md text-sm hp:text-xs border transition
                             ${
                               isActive
                                 ? "bg-blue-50 border-blue-500 text-blue-600"
@@ -159,7 +168,7 @@ export function StraightPoleStandardForm({
 
                 {/* Combination dropdown — resets thickness on change */}
                 <div className="relative">
-                  <h4 className="block text-gray-700 text-sm mb-3 hp:text-xs hp:mb-1">
+                  <h4 className="block text-gray-700 text-sm mb-3 hp:text-xs hp:mb-2">
                     Select Pole Combination
                   </h4>
 
@@ -174,7 +183,7 @@ export function StraightPoleStandardForm({
                             lowerThickness: "",
                           })
                         }
-                        className={`${inputStyle(errors.combination)} w-full min-h-[42px]`}
+                        className={`${inputStyle(errors.combination)} w-full min-h-[34px] sm:min-h-[38px] lg:min-h-[42px]`}
                       >
                         <option value="" disabled>
                           Select Combination
@@ -196,13 +205,13 @@ export function StraightPoleStandardForm({
               </div>
 
               {/* Upper + lower thickness and length */}
-              <div className="bg-white p-5 rounded-xl border border-gray-200 hp:px-4 hp:py-5 hp:rounded-lg">
-                <div className="grid grid-cols-1 gap-6">
+              <div className="bg-white p-5 rounded-xl border border-gray-200 hp:p-4 hp:rounded-lg">
+                <div className="grid grid-cols-1 gap-4 sm:gap-6">
                   {/* Upper pole — thickness + length */}
-                  <div className="grid grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     {/* Upper thickness — depends on combination */}
                     <div>
-                      <h4 className="block text-gray-700 text-sm mb-3 hp:text-xs hp:mb-1">
+                      <h4 className="block text-gray-700 text-sm mb-3 hp:text-xs hp:mb-2">
                         Upper Pole Thickness
                       </h4>
                       {straightPoleStandard.combination ? (
@@ -212,7 +221,7 @@ export function StraightPoleStandardForm({
                             onChange={(e) =>
                               onUpdate({ upperThickness: e.target.value })
                             }
-                            className={`${inputStyle(errors.upperThickness)} min-h-[42px] w-full`}
+                            className={`${inputStyle(errors.upperThickness)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] w-full`}
                           >
                             <option value="" disabled>
                               Select Thickness
@@ -235,7 +244,7 @@ export function StraightPoleStandardForm({
 
                     {/* Upper length — free input */}
                     <div>
-                      <h4 className="block text-gray-700 text-sm mb-3 hp:text-xs hp:mb-1">
+                      <h4 className="block text-gray-700 text-sm mb-3 hp:text-xs hp:mb-2">
                         Upper Pole Length
                       </h4>
                       <div className="relative">
@@ -262,10 +271,10 @@ export function StraightPoleStandardForm({
                   </div>
 
                   {/* Lower pole — thickness + length */}
-                  <div className="grid grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     {/* Lower thickness — depends on combination */}
                     <div>
-                      <h4 className="block text-gray-700 text-sm mb-3 hp:text-xs hp:mb-1">
+                      <h4 className="block text-gray-700 text-sm mb-3 hp:text-xs hp:mb-2">
                         Lower Pole Thickness
                       </h4>
                       {straightPoleStandard.combination ? (
@@ -275,7 +284,7 @@ export function StraightPoleStandardForm({
                             onChange={(e) =>
                               onUpdate({ lowerThickness: e.target.value })
                             }
-                            className={`${inputStyle(errors.lowerThickness)} w-full min-h-[42px]`}
+                            className={`${inputStyle(errors.lowerThickness)} w-full min-h-[34px] sm:min-h-[38px] lg:min-h-[42px]`}
                           >
                             <option value="" disabled>
                               Select Thickness
@@ -298,7 +307,7 @@ export function StraightPoleStandardForm({
 
                     {/* Lower length — free input */}
                     <div>
-                      <h4 className="block text-gray-700 text-sm mb-3 hp:text-xs hp:mb-1">
+                      <h4 className="block text-gray-700 text-sm mb-3 hp:text-xs hp:mb-2">
                         Lower Pole Length
                       </h4>
                       <div className="relative">
@@ -336,12 +345,12 @@ export function StraightPoleStandardForm({
                 : "Embedment Type Pole Installation"}
             </SectionTitle>
 
-            <div className="border border-slate-200 rounded-xl p-6 bg-white shadow-sm">
+            <div className="border border-slate-200 rounded-xl hp:rounded-lg p-4 sm:p-6 bg-white shadow-sm">
               {/* Embedment mode — shown when baseplate is disabled */}
               {!condition.baseplateEnabled && (
                 <div className="grid grid-cols-1">
-                  <div className="relative">
-                    <label className="block text-sm text-gray-700 mb-3">
+                  {/* <div className="relative">
+                    <label className="block text-sm hp:text-xs text-gray-700 mb-4 hp:mb-2">
                       Embedment Length
                     </label>
                     <div className="relative">
@@ -364,35 +373,94 @@ export function StraightPoleStandardForm({
                       show={errors.embedmentLength}
                       text={errors.embedmentLength}
                     />
+                  </div> */}
+                  <div className="flex flex-col gap-2 rounded-xl hp:rounded-lg border-2 p-4 cursor-pointer transition-all border-[#3399cc] bg-[#f0f8ff]">
+                    {/* Label */}
+                    <p className="text-xs md:text-sm font-semibold text-[#0d3b66]">
+                      Embedment
+                    </p>
+
+                    <div className="flex hp:flex-col flex-row items-center justify-center h-52 hp:h-auto">
+                      {/* Image for Mobile */}
+                      <img
+                        src="/images/embedment(l).svg"
+                        alt="embedment"
+                        className="hidden hp:block mb-4 h-40 w-full object-contain"
+                      />
+                      {/* Embedment input */}
+                      <div className="hp:w-full w-auto">
+                        <label className="block text-xs md:text-sm mb-2 text-gray-700">
+                          <span className="hidden hp:inline">
+                            Embedment Length (l)
+                          </span>
+                          <span className="hp:hidden inline">
+                            Embedment Length
+                          </span>
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="number"
+                            placeholder="Input Length"
+                            value={straightPoleStandard.embedmentLength}
+                            onChange={(e) =>
+                              onUpdate({ embedmentLength: e.target.value })
+                            }
+                            onWheel={(e) => e.target.blur()}
+                            className={`w-full pl-3 md:pl-4 pr-10 py-2 lg:py-2.5 rounded-lg hp:rounded-md text-xs md:text-sm outline-none transition-all border
+                                    ${
+                                      errors.embedmentLength
+                                        ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
+                                        : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
+                                    }`}
+                          />
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400">
+                            mm
+                          </span>
+                        </div>
+                        {errors.embedmentLength && (
+                          <p className="text-[10px] text-red-500 mt-1">
+                            *{errors.embedmentLength}
+                          </p>
+                        )}
+                      </div>
+                      {/* Image */}
+                      <img
+                        src="/images/embedment.svg"
+                        alt="embedment"
+                        className="block hp:hidden h-full w-auto object-contain"
+                      />
+                    </div>
                   </div>
                 </div>
               )}
 
               {/* Baseplate mode — shown when baseplate is enabled */}
               {condition.baseplateEnabled && (
-                <div className="grid grid-cols-1 gap-4">
-                  <h4 className="block text-sm text-gray-700">
+                <div className="grid grid-cols-1 gap-4 hp:gap-2">
+                  <h4 className="block text-sm hp:text-xs text-gray-700">
                     Select Ground Position
                   </h4>
 
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
                     {GROUND_POSITION_OPTIONS.map((opt) => {
                       const isActive =
                         straightPoleStandard.groundPosition === opt.id;
                       const isOnGL = opt.id === "onGL";
                       const disabled = isOnGL || !isActive;
                       const img = groundPositionImageMap[opt.id] ?? onGlImg;
+                      const imgD = groundPositionImageMapD[opt.id] ?? onGlImg;
 
                       return (
                         <div
                           key={opt.id}
-                          onClick={() =>
+                          onClick={() => {
+                            if (isActive) return;
                             onUpdate({
                               groundPosition: opt.id,
                               heightDepth: opt.id === "onGL" ? "0" : "",
-                            })
-                          }
-                          className={`flex flex-col gap-4 rounded-xl border-2 p-4 cursor-pointer transition-all
+                            });
+                          }}
+                          className={`flex flex-col gap-4 rounded-xl hp:rounded-lg border-2 p-4 cursor-pointer transition-all
                           ${
                             isActive
                               ? "border-[#3399cc] bg-[#f0f8ff]"
@@ -407,58 +475,74 @@ export function StraightPoleStandardForm({
                           </p>
 
                           {/* Diagram */}
-                          <div className="h-44 md:h-52 flex items-center justify-center">
+                          <div className="flex flex-col 2xl:flex-row 2xl:items-end 2xl:justify-center gap-4 h-auto 2xl:h-52">
+                            {/* Gambar A dibawah ukuran 2xl */}
+                            <img
+                              src={imgD}
+                              alt={opt.label}
+                              className={`2xl:hidden h-40 md:h-48 w-full object-contain transition-all ${!isActive ? "opacity-40" : ""}`}
+                            />
+                            {/* Depth input */}
+                            <div className="mb-2 w-full 2xl:w-auto">
+                              <label
+                                className={`block text-xs md:text-sm mb-2 md:mb-2 ${isActive ? "text-gray-700" : "text-gray-300"}`}
+                              >
+                                <span className="2xl:hidden">Depth (d)</span>
+                                <span className="hidden 2xl:inline">Depth</span>
+                              </label>
+                              <div className="relative">
+                                <input
+                                  type="number"
+                                  value={
+                                    isOnGL
+                                      ? "0"
+                                      : isActive
+                                        ? straightPoleStandard.heightDepth
+                                        : ""
+                                  }
+                                  readOnly={!isActive}
+                                  placeholder={
+                                    isActive && !isOnGL ? "Input depth" : "—"
+                                  }
+                                  onMouseDown={() => {
+                                    if (!isActive) {
+                                      onUpdate({
+                                        groundPosition: opt.id,
+                                        heightDepth:
+                                          opt.id === "onGL" ? "0" : "",
+                                      });
+                                    }
+                                  }}
+                                  onChange={(e) =>
+                                    !disabled &&
+                                    onUpdate({ heightDepth: e.target.value })
+                                  }
+                                  onWheel={(e) => e.target.blur()}
+                                  className={`w-full pl-3 md:pl-4 pr-10 py-2 lg:py-2.5 rounded-lg hp:rounded-md text-xs md:text-sm outline-none transition-all border
+                                    ${
+                                      disabled
+                                        ? "bg-gray-100 border-gray-200 text-gray-400"
+                                        : errors.heightDepth
+                                          ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
+                                          : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
+                                    }`}
+                                />
+                                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400">
+                                  mm
+                                </span>
+                              </div>
+                              {isActive && errors.heightDepth && (
+                                <p className="text-[10px] text-red-500 mt-1">
+                                  *{errors.heightDepth}
+                                </p>
+                              )}
+                            </div>
+                            {/* Gambar B jika ukuran layar 2xl */}
                             <img
                               src={img}
                               alt={opt.label}
-                              className={`h-full object-contain transition-all ${!isActive ? "opacity-40" : ""}`}
+                              className={`hidden 2xl:block 2xl:h-full 2xl:w-auto object-contain transition-all ${!isActive ? "opacity-40" : ""}`}
                             />
-                          </div>
-
-                          {/* Depth input */}
-                          <div onClick={(e) => e.stopPropagation()}>
-                            <label
-                              className={`block text-xs md:text-sm mb-1 md:mb-2 ${isActive ? "text-gray-700" : "text-gray-300"}`}
-                            >
-                              Depth
-                            </label>
-                            <div className="relative">
-                              <input
-                                type="number"
-                                value={
-                                  isOnGL
-                                    ? "0"
-                                    : isActive
-                                      ? straightPoleStandard.heightDepth
-                                      : ""
-                                }
-                                disabled={disabled}
-                                placeholder={
-                                  isActive && !isOnGL ? "Input depth" : "—"
-                                }
-                                onChange={(e) =>
-                                  !disabled &&
-                                  onUpdate({ heightDepth: e.target.value })
-                                }
-                                onWheel={(e) => e.target.blur()}
-                                className={`w-full px-3 md:px-4 py-2 md:py-2.5 rounded-lg text-xs md:text-sm outline-none transition-all border min-h-[42px] pr-10
-                                ${
-                                  disabled
-                                    ? "bg-gray-100 border-gray-200 text-gray-400"
-                                    : errors.heightDepth
-                                      ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
-                                      : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
-                                }`}
-                              />
-                              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400">
-                                mm
-                              </span>
-                            </div>
-                            {isActive && errors.heightDepth && (
-                              <p className="text-[10px] text-red-500 mt-1">
-                                *{errors.heightDepth}
-                              </p>
-                            )}
                           </div>
                         </div>
                       );
@@ -476,7 +560,7 @@ export function StraightPoleStandardForm({
         <button
           type="button"
           onClick={() => onUpdate(EMPTY_STEPPED_POLE)}
-          className="flex items-center text-sm gap-2 px-7 py-2.5 bg-[#eef2f6] text-[#0d3b66] border-2 border-[#d0d7e2] rounded-lg hover:bg-[#e2e8f0] transition-colors font-medium hp:text-xs hp:px-[22px] hp:py-[8px]"
+          className="flex items-center text-sm gap-2 px-7 py-2 lg:py-2.5 bg-[#eef2f6] text-[#0d3b66] border-2 border-[#d0d7e2] rounded-lg hp:rounded-md hover:bg-[#e2e8f0] transition-colors font-medium hp:text-xs hp:px-[22px] hp:py-[8px]"
         >
           <RotateCcw className="w-5 h-5 hp:w-4 hp:h-4" />
           Reset

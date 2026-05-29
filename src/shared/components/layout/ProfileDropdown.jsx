@@ -29,7 +29,7 @@ export function ProfileDropdown({ userData, onLogout }) {
           {userData.name}
         </p>
         <div
-          className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all border
+          className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all border
           ${
             isOpen
               ? "bg-[#0d3b66] text-white border-[#0d3b66]"

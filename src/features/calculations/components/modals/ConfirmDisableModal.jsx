@@ -10,19 +10,19 @@ export const ConfirmDisableModal = ({ data, onClose, onConfirm }) => {
     // Backdrop
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm px-4">
       {/* Modal card */}
-      <div className="w-full max-w-md bg-white border border-gray-200 rounded-2xl shadow-xl p-6">
+      <div className="w-full max-w-xs sm:max-w-md bg-white border border-gray-200 rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-8">
         {/* Warning icon */}
-        <div className="mx-auto mb-4 flex items-center justify-center w-14 h-14 bg-red-100 rounded-full">
-          <AlertCircle className="w-7 h-7 text-red-500" />
+        <div className="mx-auto mb-3 flex items-center justify-center w-10 h-10 sm:w-16 sm:h-16 bg-red-100 rounded-full">
+          <AlertCircle className="w-5 h-5 sm:w-8 sm:h-8 text-red-500" />
         </div>
 
         {/* Title */}
-        <h2 className="text-center font-bold text-base text-gray-900 mb-2">
+        <h2 className="text-center font-bold text-sm sm:text-base text-gray-900 mb-1 sm:mb-2">
           Disable Components?
         </h2>
 
         {/* Description => lists all components that will be disabled */}
-        <p className="text-center text-gray-600 text-sm mb-6">
+        <p className="text-center text-gray-600 text-xs sm:text-sm mb-4 sm:mb-6">
           You are about to disable:
           <div className="flex flex-wrap justify-center gap-2 my-3">
             {data.map((item) => (
@@ -38,11 +38,11 @@ export const ConfirmDisableModal = ({ data, onClose, onConfirm }) => {
         </p>
 
         {/* Actions */}
-        <div className="flex gap-3">
+        <div className="flex gap-2 sm:gap-3">
           {/* Cancel - closes without any changes */}
           <button
             onClick={onClose}
-            className="flex-1 py-3 font-bold text-sm bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition"
+            className="flex-1 py-2 sm:py-3 font-bold text-xs sm:text-sm bg-slate-100 text-slate-600 rounded-md sm:rounded-lg hover:bg-slate-200 transition"
           >
             Cancel
           </button>
@@ -50,7 +50,7 @@ export const ConfirmDisableModal = ({ data, onClose, onConfirm }) => {
           {/* Confirm - proceeds with disabling */}
           <button
             onClick={onConfirm}
-            className="flex-1 py-3 font-bold text-sm bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+            className="flex-1 py-2 sm:py-3 font-bold text-xs sm:text-sm bg-red-500 text-white rounded-md sm:rounded-lg hover:bg-red-600 transition"
           >
             Yes, Disable
           </button>

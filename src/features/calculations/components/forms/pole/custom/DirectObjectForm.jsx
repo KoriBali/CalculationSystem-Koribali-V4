@@ -14,7 +14,7 @@ import {
 
 // Generate dynamic input style based on validation state
 const inputStyle = (hasError) =>
-  `w-full px-3 md:px-4 py-2 md:py-2.5 rounded-md md:rounded-lg outline-none transition-all text-xs md:text-sm border
+  `w-full py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border
   ${
     hasError
       ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
@@ -63,9 +63,8 @@ export function DirectObjectForm({
           {/* HEADER DIRECT OBJECT INPUT */}
           <div className="flex items-center justify-between mb-1">
             <div>
-              <h2 className="text-[#0d3b66] font-medium text-sm flex items-center gap-1 hp:text-xs">
-                {/* Decorative line */}
-                <div className="w-1 h-5 bg-[#3399cc] rounded-full mr-1 hp:h-4"></div>
+              <h3 className="text-[#0d3b66] flex items-center gap-2 text-xs md:text-sm font-medium hp:text-xs hp:gap-1">
+                <div className="w-1 h-5 bg-[#3399cc] rounded-full hp:h-4" />
 
                 {/* Title */}
                 <span className="font-semibold">
@@ -74,7 +73,7 @@ export function DirectObjectForm({
 
                 {/* Subtitle (hidden on small screen) */}
                 <span className="hp:hidden">with detailed specifications</span>
-              </h2>
+              </h3>
             </div>
           </div>
         </div>
@@ -91,24 +90,30 @@ export function DirectObjectForm({
             hp:gap-3
             hp:px-3
             hp:pt-2
+            hp:pb-4
           "
         >
           {/* INPUT + ACTION BUTTON */}
           <div
             className="
               flex items-center gap-3.5
+              hp:flex-row
+              hp:items-center
               hp:gap-2
+              hp:w-full
             "
           >
             {/* Current object count display */}
             <div
               className="
-                flex items-center gap-2 px-5 py-2.5 text-sm rounded-md
+                flex items-center gap-2 px-5 py-2 lg:py-2.5 text-sm rounded-md sm:rounded-lg
                 bg-slate-50 border border-slate-200 text-slate-700 font-medium
+                whitespace-nowrap
                 hp:px-3
                 hp:py-2
                 hp:text-xs
                 hp:justify-center
+                hp:flex-shrink-0
               "
             >
               <span className="text-[#0d3b66] font-semibold">
@@ -128,11 +133,13 @@ export function DirectObjectForm({
               onChange={(e) => setDoCountInput(e.target.value)}
               onWheel={(e) => e.target.blur()}
               className="
-                w-[180px] px-3.5 py-2.5 text-center text-sm rounded-md outline-none
+                w-[180px] px-3.5 py-2 lg:py-2.5 text-center text-sm rounded-md sm:rounded-lg outline-none
                 transition-all border border-slate-300 bg-white
                 focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]
-                hp:w-[120px]
-                hp:px-1
+                hp:flex-1
+                hp:min-w-0
+                hp:w-auto
+                hp:px-2
                 hp:py-2
                 hp:text-xs
               "
@@ -143,11 +150,13 @@ export function DirectObjectForm({
               onClick={onAddDo}
               disabled={isDoInputValue}
               className={`
-                flex items-center gap-2 px-7 py-2.5 text-sm font-medium rounded-md
-                transition-all border
-                hp:px-6
+                flex items-center gap-2 px-7 py-2 lg:py-2.5 text-sm font-medium rounded-md sm:rounded-lg
+                transition-all border whitespace-nowrap
+                hp:px-4
                 hp:py-2
                 hp:text-xs
+                hp:gap-1.5
+                hp:flex-shrink-0
                 ${
                   isDoInputValue
                     ? "bg-gray-50 border-gray-300 text-gray-600 opacity-40 cursor-not-allowed"
@@ -155,11 +164,10 @@ export function DirectObjectForm({
                 }
               `}
             >
-              {/* Status icon (valid / invalid) */}
               {isDoInputValue ? (
-                <Circle className="w-4 h-4 text-gray-400" />
+                <Circle className="w-4 h-4 text-gray-400 hp:w-3.5 hp:h-3.5" />
               ) : (
-                <CheckCircle className="w-4 h-4 text-blue-500" />
+                <CheckCircle className="w-4 h-4 text-blue-500 hp:w-3.5 hp:h-3.5" />
               )}
               OK
             </button>
@@ -198,47 +206,48 @@ export function DirectObjectForm({
                 mb-4 pb-4 border-b border-gray-200
                 hp:flex-col
                 hp:items-start
-                hp:gap-4
+                hp:gap-3
               "
             >
               {/* TITLE + INDEX */}
               <div className="flex items-center gap-3">
                 {/* Index badge */}
                 <div
-                  className="w-9 h-9 rounded-lg
-                  bg-gradient-to-br from-[#0d3b66] to-[#3399cc]
-                  flex items-center justify-center
-                  text-white text-sm font-medium hp:w-8 hp:h-8"
+                  className="
+                    w-9 h-9 lg:w-10 lg:h-10 rounded-md sm:rounded-lg flex-shrink-0
+                    bg-gradient-to-br from-[#0d3b66] to-[#3399cc]
+                    flex items-center justify-center
+                    text-white text-sm font-medium
+                    hp:w-[34px] hp:h-[34px]
+                  "
                 >
                   {index + 1}
                 </div>
 
                 {/* Title */}
-                <div>
-                  <h4 className="text-base text-[#0d3b66] text-sm font-medium leading-snug hp:text-xs">
+                <div className="min-w-0">
+                  <h4 className="text-sm font-medium text-[#0d3b66] leading-snug hp:text-xs truncate">
                     Direct Object
                     {directObject.name && ` : ${directObject.name}`}
                   </h4>
-                  <p className="text-xs text-gray-500 hp:text-[10px]">
+                  <p className="text-xs text-gray-500">
                     {directObject.type} Type
                   </p>
                 </div>
               </div>
 
               {/* ACTION BUTTONS (DESKTOP) */}
-              <div className="flex items-center gap-6 hp:hidden">
+              <div className="flex items-center gap-3 hp:hidden">
                 {/* COPY & PASTE */}
                 <div className="flex items-center gap-2 ml-2">
-                  {/* Copy Object */}
                   <button
                     onClick={() => onCopyDo(directObject)}
                     title="Copy this Direct Object"
-                    className="p-2 rounded-md border bg-blue-50 text-blue-600 hover:bg-blue-100 transition"
+                    className="flex justify-center items-center w-9 h-9 lg:w-10 lg:h-10 rounded-md sm:rounded-lg border bg-blue-50 text-blue-600 hover:bg-blue-100 transition"
                   >
-                    <Copy className="w-4 h-4" />
+                    <Copy className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
                   </button>
 
-                  {/* Paste Object */}
                   <button
                     onClick={() => onPasteDo(directObject.idDo)}
                     disabled={!hasClipboard}
@@ -247,13 +256,13 @@ export function DirectObjectForm({
                         ? "Paste copied Direct Object"
                         : "No copied Direct Object"
                     }
-                    className={`p-2 rounded-md border transition ${
+                    className={`flex justify-center items-center w-9 h-9 lg:w-10 lg:h-10 rounded-md sm:rounded-lg border transition ${
                       hasClipboard
                         ? "bg-green-50 text-green-600 hover:bg-green-100"
                         : "bg-gray-200 text-gray-400 cursor-not-allowed"
                     }`}
                   >
-                    <ClipboardPaste className="w-4 h-4" />
+                    <ClipboardPaste className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
                   </button>
                 </div>
 
@@ -263,9 +272,9 @@ export function DirectObjectForm({
                 {/* RESET BUTTON */}
                 <button
                   onClick={() => resetCurrentDo(directObject.idDo)}
-                  className="flex items-center gap-2 px-5 py-2 h-[40px] bg-[#eef2f6] text-[#0d3b66] border border-[#d0d7e2] rounded-lg hover:bg-[#e2e8f0] transition text-xs font-medium"
+                  className="flex justify-center items-center gap-2 px-4 py-2 md:px-5 lg:py-2.5 rounded-lg text-sm font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm transition-colors"
                 >
-                  <RotateCcw className="w-4 h-4" />
+                  <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
                   Reset
                 </button>
 
@@ -275,81 +284,75 @@ export function DirectObjectForm({
                     e.stopPropagation();
                     setConfirmDeleteDo(directObject.idDo);
                   }}
-                  className="flex items-center gap-2 px-4 py-2 h-[40px] rounded-lg border border-red-200 text-red-600 bg-red-50 hover:bg-red-100 transition text-xs font-medium"
+                  className="flex justify-center items-center gap-2 px-4 py-2 md:px-5 lg:py-2.5 rounded-lg text-sm font-medium bg-red-50 hover:bg-red-100 text-red-600 ring-1 ring-inset ring-red-200 hover:ring-red-300 shadow-sm transition-all"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
                   Delete Object
                 </button>
               </div>
 
-              {/* ACTION BUTTONS (MOBILE) */}
+              {/* ACTION BUTTONS (MOBILE / hp) */}
               <div className="hidden hp:flex items-center justify-between gap-2 w-full">
                 {/* LEFT: COPY & PASTE */}
                 <div className="flex items-center gap-2">
-                  {/* Copy Object */}
                   <button
                     onClick={() => onCopyDo(directObject)}
                     title="Copy"
-                    className="h-8 w-8 rounded-md border bg-blue-50 text-blue-600 hover:bg-blue-100 transition flex items-center justify-center"
+                    className="w-[34px] h-[34px] flex-shrink-0 rounded-md border bg-blue-50 text-blue-600 hover:bg-blue-100 transition flex items-center justify-center"
                   >
-                    <Copy className="w-4 h-4" />
+                    <Copy className="w-3.5 h-3.5" />
                   </button>
 
-                  {/* Paste Object */}
                   <button
                     onClick={() => onPasteDo(directObject.idDo)}
                     disabled={!hasClipboard}
                     title="Paste"
-                    className={`h-8 w-8 rounded-md border transition flex items-center justify-center ${
+                    className={`w-[34px] h-[34px] flex-shrink-0 rounded-md border transition flex items-center justify-center ${
                       hasClipboard
                         ? "bg-green-50 text-green-600 hover:bg-green-100"
                         : "bg-gray-200 text-gray-400 cursor-not-allowed"
                     }`}
                   >
-                    <ClipboardPaste className="w-4 h-4" />
+                    <ClipboardPaste className="w-3.5 h-3.5" />
                   </button>
                 </div>
 
                 {/* RIGHT: RESET & DELETE */}
                 <div className="flex items-center gap-2">
-                  {/* RESET BUTTON */}
                   <button
                     onClick={() => resetCurrentDo(directObject.idDo)}
                     title="Reset"
-                    className="h-8 w-8 rounded-md border bg-[#eef2f6] text-[#0d3b66] hover:bg-[#e2e8f0] transition flex items-center justify-center"
+                    className="w-[34px] h-[34px] flex-shrink-0 rounded-md border bg-[#eef2f6] text-[#0d3b66] hover:bg-[#e2e8f0] transition flex items-center justify-center"
                   >
-                    <RotateCcw className="w-4 h-4" />
+                    <RotateCcw className="w-3.5 h-3.5" />
                   </button>
 
-                  {/* DELETE BUTTON */}
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       setConfirmDeleteDo(directObject.idDo);
                     }}
                     title="Delete"
-                    className="h-8 w-8 rounded-md border border-red-200 text-red-600 bg-red-50 hover:bg-red-100 transition flex items-center justify-center"
+                    className="w-[34px] h-[34px] flex-shrink-0 rounded-md border border-red-200 text-red-600 bg-red-50 hover:bg-red-100 transition flex items-center justify-center"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
             </div>
 
             {/* FORM INPUT WRAPPER */}
+            {/* FORM INPUT WRAPPER */}
             <div>
               <div
                 className="
-                  flex items-start space-x-2
-                  hp:grid
-                  hp:grid-cols-2
-                  hp:gap-3
-                  hp:space-x-0
-                  hp:gap-y-6
+                  grid grid-cols-5 gap-x-3 gap-y-6
+                  xl:flex xl:flex-row xl:flex-nowrap xl:items-start xl:gap-x-3
+                  hp:grid hp:grid-cols-2 hp:gap-3 hp:gap-y-6
                 "
               >
                 {/* Direct Object Name Input */}
-                <div className="relative w-[200px] hp:w-full hp:col-span-2">
+                <div className="relative col-span-2 xl:flex-[2] min-w-0 hp:w-full hp:col-span-2">
                   <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
                     Object Name
                   </label>
@@ -360,13 +363,13 @@ export function DirectObjectForm({
                       onUpdate(directObject.idDo, { name: e.target.value })
                     }
                     placeholder="e.g., 灯具"
-                    className={inputStyle(doError.name)}
+                    className={`${inputStyle(doError.name)} px-3 2xl:px-4`}
                   />
                   <ErrorStyle show={doError.name} text={doError.name} />
                 </div>
 
                 {/* Type of Direct Object Selector */}
-                <div className="relative w-[140px] hp:w-full">
+                <div className="relative xl:w-[130px] xl:flex-none min-w-0 hp:w-full">
                   <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
                     Type of DO
                   </label>
@@ -375,7 +378,7 @@ export function DirectObjectForm({
                     onChange={(e) =>
                       onUpdate(directObject.idDo, { type: e.target.value })
                     }
-                    className={`${inputStyle(doError.type)} min-h-[38px]`}
+                    className={`${inputStyle(doError.type)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] px-3 2xl:px-4`}
                   >
                     <option value="omni">Omni</option>
                     <option value="directional">Directional</option>
@@ -384,7 +387,7 @@ export function DirectObjectForm({
                 </div>
 
                 {/* Front Area Direct Object Input */}
-                <div className="relative w-[140px] hp:w-full">
+                <div className="relative xl:flex-1 min-w-0 hp:w-full">
                   <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
                     Front Area
                   </label>
@@ -399,9 +402,9 @@ export function DirectObjectForm({
                         })
                       }
                       onWheel={(e) => e.target.blur()}
-                      className={`${inputStyle(doError.frontArea)} pr-6 hp:py-[9.5px] hp:pr-6`}
+                      className={`${inputStyle(doError.frontArea)} pl-3 2xl:pl-4 pr-6`}
                     />
-                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-black-400">
+                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
                       m<sup>2</sup>
                     </span>
                   </div>
@@ -413,7 +416,7 @@ export function DirectObjectForm({
 
                 {/* Side Area Direct Object Input */}
                 {directObject.type === "directional" && (
-                  <div className="relative w-[140px] hp:w-full">
+                  <div className="relative xl:flex-1 min-w-0 hp:w-full">
                     <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
                       Side Area
                     </label>
@@ -428,9 +431,9 @@ export function DirectObjectForm({
                           })
                         }
                         onWheel={(e) => e.target.blur()}
-                        className={`${inputStyle(doError.sideArea)} pr-6 hp:pr-6`}
+                        className={`${inputStyle(doError.sideArea)} pl-3 2xl:pl-4 pr-6`}
                       />
-                      <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-black-400">
+                      <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
                         m<sup>2</sup>
                       </span>
                     </div>
@@ -442,7 +445,7 @@ export function DirectObjectForm({
                 )}
 
                 {/* Weight Direct Object Input */}
-                <div className="relative w-[140px] hp:w-full">
+                <div className="relative xl:flex-1 min-w-0 hp:w-full">
                   <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
                     Weight
                   </label>
@@ -452,14 +455,12 @@ export function DirectObjectForm({
                       min={0}
                       value={directObject.weight}
                       onChange={(e) =>
-                        onUpdate(directObject.idDo, {
-                          weight: e.target.value,
-                        })
+                        onUpdate(directObject.idDo, { weight: e.target.value })
                       }
                       onWheel={(e) => e.target.blur()}
-                      className={`${inputStyle(doError.weight)} pr-6 hp:pr-6`}
+                      className={`${inputStyle(doError.weight)} pl-3 2xl:pl-4 pr-5`}
                     />
-                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-black-400">
+                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
                       kg
                     </span>
                   </div>
@@ -467,7 +468,7 @@ export function DirectObjectForm({
                 </div>
 
                 {/* Z (Height) Direct Object Input */}
-                <div className="relative w-[140px] hp:w-full">
+                <div className="relative xl:flex-1 min-w-0 hp:w-full">
                   <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
                     Z (Height)
                   </label>
@@ -477,14 +478,12 @@ export function DirectObjectForm({
                       min={0}
                       value={directObject.zHeight}
                       onChange={(e) =>
-                        onUpdate(directObject.idDo, {
-                          zHeight: e.target.value,
-                        })
+                        onUpdate(directObject.idDo, { zHeight: e.target.value })
                       }
                       onWheel={(e) => e.target.blur()}
-                      className={`${inputStyle(doError.zHeight)} pr-8 hp:pr-8`}
+                      className={`${inputStyle(doError.zHeight)} pl-3 2xl:pl-4 pr-7`}
                     />
-                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-black-400">
+                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
                       mm
                     </span>
                   </div>
@@ -492,7 +491,7 @@ export function DirectObjectForm({
                 </div>
 
                 {/* nnC Direct Object Input */}
-                <div className="relative w-[140px] hp:w-full">
+                <div className="relative xl:flex-[0.8] min-w-0 hp:w-full">
                   <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
                     nnC
                   </label>
@@ -504,13 +503,13 @@ export function DirectObjectForm({
                       onUpdate(directObject.idDo, { nnC: e.target.value })
                     }
                     onWheel={(e) => e.target.blur()}
-                    className={inputStyle(doError.nnC)}
+                    className={`${inputStyle(doError.nnC)} px-3 2xl:px-4`}
                   />
                   <ErrorStyle show={doError.nnC} text={doError.nnC} />
                 </div>
 
                 {/* Quantity Direct Object Input */}
-                <div className="relative w-[100px] hp:w-full">
+                <div className="relative xl:flex-[0.8] min-w-0 hp:w-full">
                   <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
                     Quantity
                   </label>
@@ -525,9 +524,9 @@ export function DirectObjectForm({
                         })
                       }
                       onWheel={(e) => e.target.blur()}
-                      className={`${inputStyle(doError.quantity)} pr-8 hp:pr-8`}
+                      className={`${inputStyle(doError.quantity)} pl-3 2xl:pl-4 pr-7`}
                     />
-                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-black-400">
+                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
                       pcs
                     </span>
                   </div>
@@ -536,7 +535,7 @@ export function DirectObjectForm({
 
                 {/* Fix Angle Direct Object Input */}
                 {directObject.type === "directional" && (
-                  <div className="relative w-[140px] hp:w-full">
+                  <div className="relative xl:flex-1 min-w-0 hp:w-full">
                     <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
                       Fix Angle
                     </label>
@@ -550,9 +549,9 @@ export function DirectObjectForm({
                           })
                         }
                         onWheel={(e) => e.target.blur()}
-                        className={`${inputStyle(doError.fixAngle)} pr-8 hp:pr-8`}
+                        className={`${inputStyle(doError.fixAngle)}  pl-3 2xl:pl-4 pr-7`}
                       />
-                      <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-black-400">
+                      <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
                         deg
                       </span>
                     </div>
@@ -577,7 +576,7 @@ export function DirectObjectForm({
           onClick={handleAddDo}
           disabled={directObjects.length >= 25}
           className={`
-            w-full py-2.5 font-medium text-sm rounded-lg
+            w-full py-2 lg:py-2.5 font-medium text-sm rounded-md sm:rounded-lg
             flex items-center justify-center gap-2
             transition-all duration-200
 
@@ -587,10 +586,10 @@ export function DirectObjectForm({
                 : "border-2 border-dashed border-[#3399cc] text-[#3399cc] bg-transparent hover:bg-[#3399cc] hover:text-white"
             }
 
-            hp:text-xs hp:px-[22px]
+            hp:text-xs
           `}
         >
-          <Plus className="w-5 h-5 hp:w-4 hp:h-4" />
+          <Plus className="w-3.5 sm:w-4 lg:w-4.5 h-3.5 sm:h-4 lg:h-4.5" />
           Add Object
         </button>
       </div>

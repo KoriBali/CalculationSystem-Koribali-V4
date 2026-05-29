@@ -14,7 +14,7 @@ import {
 
 // Generate dynamic input style based on validation state
 const inputStyle = (hasError) =>
-  `w-full px-3 md:px-4 py-2 md:py-2.5 rounded-md md:rounded-lg outline-none transition-all text-xs md:text-sm border
+  `w-full px-3 md:px-4 py-2 md:py-2.5 rounded-md sm:rounded-lg outline-none transition-all text-xs md:text-sm border
   ${
     hasError
       ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
@@ -103,7 +103,7 @@ export function OverheadWireForm({
             {/* Current OHW count display */}
             <div
               className="
-                flex items-center gap-2 px-5 py-2.5 text-sm rounded-md
+                flex items-center gap-2 px-5 py-2.5 text-sm rounded-md sm:rounded-lg
                 bg-slate-50 border border-slate-200 text-slate-700 font-medium
                 hp:px-3
                 hp:py-2
@@ -128,7 +128,7 @@ export function OverheadWireForm({
               onChange={(e) => setWireCountInput(e.target.value)}
               onWheel={(e) => e.target.blur()}
               className="
-                w-[180px] px-2.5 py-2.5 text-center text-sm rounded-md outline-none
+                w-[180px] px-2.5 py-2.5 text-center text-sm rounded-md sm:rounded-lg outline-none
                 transition-all border border-slate-300 bg-white
                 focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]
                 hp:w-[120px]
@@ -143,7 +143,7 @@ export function OverheadWireForm({
               onClick={onAddOhw}
               disabled={isOhwInputValue}
               className={`
-                flex items-center gap-2 px-7 py-2.5 text-sm font-medium rounded-md
+                flex items-center gap-2 px-7 py-2.5 text-sm font-medium rounded-md sm:rounded-lg
                 transition-all border
                 hp:px-6
                 hp:py-2
@@ -204,7 +204,7 @@ export function OverheadWireForm({
               <div className="flex items-center gap-3">
                 {/* Index badge */}
                 <div
-                  className="w-9 h-9 rounded-lg
+                  className="w-9 h-9 rounded-md sm:rounded-lg
                   bg-gradient-to-br from-[#0d3b66] to-[#3399cc]
                   flex items-center justify-center
                   text-white text-sm font-medium hp:w-8 hp:h-8"
@@ -229,7 +229,7 @@ export function OverheadWireForm({
                   <button
                     onClick={() => onCopyOhw(overheadWire)}
                     title="Copy this Overhead Wire"
-                    className="p-2 rounded-md border bg-blue-50 text-blue-600 hover:bg-blue-100 transition"
+                    className="p-2 rounded-md sm:rounded-lg border bg-blue-50 text-blue-600 hover:bg-blue-100 transition"
                   >
                     <Copy className="w-4 h-4" />
                   </button>
@@ -243,7 +243,7 @@ export function OverheadWireForm({
                         ? "Paste copied Overhead wire"
                         : "No copied Overhead wire"
                     }
-                    className={`p-2 rounded-md border transition ${
+                    className={`p-2 rounded-md sm:rounded-lg border transition ${
                       hasClipboard
                         ? "bg-green-50 text-green-600 hover:bg-green-100"
                         : "bg-gray-200 text-gray-400 cursor-not-allowed"
@@ -259,7 +259,7 @@ export function OverheadWireForm({
                 {/* RESET BUTTON */}
                 <button
                   onClick={() => resetCurrentOhw(overheadWire.idOhw)}
-                  className="flex items-center gap-2 px-5 py-2 h-[40px] bg-[#eef2f6] text-[#0d3b66] border border-[#d0d7e2] rounded-lg hover:bg-[#e2e8f0] transition text-xs font-medium"
+                  className="flex items-center gap-2 px-5 py-2 h-[40px] bg-[#eef2f6] text-[#0d3b66] border border-[#d0d7e2] rounded-md sm:rounded-lg hover:bg-[#e2e8f0] transition text-xs font-medium"
                 >
                   <RotateCcw className="w-4 h-4" />
                   Reset
@@ -271,7 +271,7 @@ export function OverheadWireForm({
                     e.stopPropagation();
                     setConfirmDeleteOhw(overheadWire.idOhw);
                   }}
-                  className="flex items-center gap-2 px-4 py-2 h-[40px] rounded-lg border border-red-200 text-red-600 bg-red-50 hover:bg-red-100 transition text-xs font-medium"
+                  className="flex items-center gap-2 px-4 py-2 h-[40px] rounded-md sm:rounded-lg border border-red-200 text-red-600 bg-red-50 hover:bg-red-100 transition text-xs font-medium"
                 >
                   <Trash2 className="w-4 h-4" />
                   Delete OHW
@@ -286,7 +286,7 @@ export function OverheadWireForm({
                   <button
                     onClick={() => onCopyOhw(overheadWire)}
                     title="Copy"
-                    className="h-8 w-8 rounded-md border bg-blue-50 text-blue-600 hover:bg-blue-100 transition flex items-center justify-center"
+                    className="h-8 w-8 rounded-md sm:rounded-lg border bg-blue-50 text-blue-600 hover:bg-blue-100 transition flex items-center justify-center"
                   >
                     <Copy className="w-4 h-4" />
                   </button>
@@ -296,7 +296,7 @@ export function OverheadWireForm({
                     onClick={() => onPasteOhw(overheadWire.idOhw)}
                     disabled={!hasClipboard}
                     title="Paste"
-                    className={`h-8 w-8 rounded-md border transition flex items-center justify-center ${
+                    className={`h-8 w-8 rounded-md sm:rounded-lg border transition flex items-center justify-center ${
                       hasClipboard
                         ? "bg-green-50 text-green-600 hover:bg-green-100"
                         : "bg-gray-200 text-gray-400 cursor-not-allowed"
@@ -312,7 +312,7 @@ export function OverheadWireForm({
                   <button
                     onClick={() => resetCurrentOhw(overheadWire.idOhw)}
                     title="Reset"
-                    className="h-8 w-8 rounded-md border bg-[#eef2f6] text-[#0d3b66] hover:bg-[#e2e8f0] transition flex items-center justify-center"
+                    className="h-8 w-8 rounded-md sm:rounded-lg border bg-[#eef2f6] text-[#0d3b66] hover:bg-[#e2e8f0] transition flex items-center justify-center"
                   >
                     <RotateCcw className="w-4 h-4" />
                   </button>
@@ -324,7 +324,7 @@ export function OverheadWireForm({
                       setConfirmDeleteOhw(overheadWire.idOhw);
                     }}
                     title="Delete"
-                    className="h-8 w-8 rounded-md border border-red-200 text-red-600 bg-red-50 hover:bg-red-100 transition flex items-center justify-center"
+                    className="h-8 w-8 rounded-md sm:rounded-lg border border-red-200 text-red-600 bg-red-50 hover:bg-red-100 transition flex items-center justify-center"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -582,7 +582,7 @@ export function OverheadWireForm({
           onClick={handleAddOhw}
           disabled={overheadWires.length >= 8}
           className={`
-            w-full py-2.5 font-medium text-sm rounded-lg
+            w-full py-2.5 font-medium text-sm rounded-md sm:rounded-lg
             flex items-center justify-center gap-2
             transition-all duration-200
             ${

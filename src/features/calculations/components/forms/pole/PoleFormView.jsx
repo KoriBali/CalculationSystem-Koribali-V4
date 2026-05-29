@@ -94,38 +94,58 @@ export default function PoleFormView() {
     projectType !== "lighting-pole" || condition.poleType === "custom";
 
   return (
-    <div className="min-h-screen">
+    <div className="flex flex-col h-full">
       <Helmet>
         <title>Calculation Pole - KORI BALI</title>
         <meta name="calculation" content="Calculation System CV. KORI BALI" />
       </Helmet>
 
-      <div className="min-h-screen bg-gray-50 border border-gray-250">
+      <div className="flex-1 rounded-t-2xl hp:rounded-xl bg-gray-50 border border-gray-250">
         <HeaderCalculationPage />
+
         <div className="mx-6 2040:mx-[250px] pt-1 pb-8 hp:mx-2">
           {/* ── Pole Specifications ── */}
           <div
-            className={`bg-gradient-to-r from-[#0d3b66] to-[#3399cc] p-4 flex items-center justify-between cursor-pointer mt-6 transition-all duration-500 ease-in-out hp:px-4 hp:py-3
+            className={`bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] px-4 py-3 md:p-4 flex items-center justify-between cursor-pointer mt-6 transition-all duration-500 ease-in-out
             ${isExpandedPole ? "rounded-t-2xl hp:rounded-t-xl" : "rounded-2xl hp:rounded-xl"}`}
             onClick={() => setIsExpandedPole(!isExpandedPole)}
           >
-            <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/20 hp:px-2 hp:py-[8px]">
-              <h2 className="text-white text-sm font-bold hp:text-xs hp:font-semibold">
+            <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg hp:rounded-md border border-white/20 hp:px-3 hp:py-[8px]">
+              <h2 className="text-white text-xs md:text-sm font-semibold md:font-bold">
                 Pole Specifications
               </h2>
             </div>
-            <div className="p-2">
+
+            <div
+              className="
+                  flex h-8 w-8
+                  sm:h-9 sm:w-9
+                  shrink-0
+                  items-center justify-center
+                  rounded-full
+                  bg-white/15
+                  text-white
+                  border border-white/20
+                  transition
+                  group-hover:bg-white/20
+                  group-active:bg-white/25
+                "
+            >
               {isExpandedPole ? (
-                <ChevronUp className="w-5 h-5 text-white hp:w-4 hp:h-4" />
+                <ChevronUp className="w-4 h-4 sm:w-5 sm:h-5" />
               ) : (
-                <ChevronDown className="w-5 h-5 text-white hp:w-4 hp:h-4" />
+                <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5" />
               )}
             </div>
           </div>
 
           <div
             className={`transition-all duration-500 ease-in-out overflow-hidden
-          ${isExpandedPole ? "max-h-[10000px] rounded-b-2xl hp:rounded-b-xl" : "max-h-0 rounded-b-2xl hp:rounded-b-xl"}`}
+          ${
+            isExpandedPole
+              ? "max-h-[10000px] rounded-b-2xl hp:rounded-b-xl"
+              : "max-h-0 rounded-b-2xl hp:rounded-b-xl"
+          }`}
           >
             <div className="bg-white rounded-b-2xl shadow-sm border border-gray-200 hp:rounded-b-xl">
               {/* Standard mode — lighting-pole only */}
@@ -162,10 +182,10 @@ export default function PoleFormView() {
                   {/* Structural Design — [CHANGE 4] bind ke poleConfigForm, bukan coverForm */}
                   <div className="border-b border-gray-200 px-6 pt-6 pb-7 hp:px-4 hp:pt-4">
                     <div className="flex items-center justify-between mb-4 hp:mb-2">
-                      <h2 className="text-[#0d3b66] font-medium flex items-center text-sm gap-2 hp:text-xs">
+                      <h3 className="text-[#0d3b66] mb-2 flex items-center gap-2 text-xs md:text-sm font-medium hp:text-xs hp:gap-1">
                         <div className="w-1 h-5 bg-[#3399cc] rounded-full hp:h-4" />
                         Structural Design
-                      </h2>
+                      </h3>
                     </div>
                     <PoleConfigForm
                       poleConfig={poleConfigForm.poleConfig}
@@ -176,9 +196,9 @@ export default function PoleFormView() {
 
                   {/* Pole tabs */}
                   <div className="px-6 pt-6 hp:p-4">
-                    <div className="flex items-center justify-between mb-4 hp:items-start hp:flex-col hp:gap-6 hp:mb-6">
-                      <h2 className="text-[#0d3b66] text-sm flex items-center gap-1 hp:text-xs">
-                        <div className="w-1 h-5 bg-[#3399cc] rounded-full mr-1 hp:h-4" />
+                    <div className="flex items-center justify-between mb-6 xl:mb-4 hp:items-start hp:flex-col hp:gap-6 hp:mb-6">
+                      <h3 className="text-[#0d3b66] flex items-center gap-2 text-xs md:text-sm font-medium hp:text-xs hp:gap-1">
+                        <div className="w-1 h-5 bg-[#3399cc] rounded-full hp:h-4" />
                         <span className="font-semibold">
                           Configure up to 6 Step Poles
                         </span>
@@ -186,48 +206,47 @@ export default function PoleFormView() {
                           {" "}
                           with detailed specifications
                         </span>
-                      </h2>
+                      </h3>
                       <button
                         onClick={poleForm.addPole}
                         disabled={poleForm.poles.length >= 6}
-                        className={`flex items-center gap-2 text-sm px-7 py-3 rounded-lg font-medium transition-all shadow-md hp:text-xs hp:px-[22px] hp:py-[10px] hp:self-center
+                        className={`flex justify-center items-center gap-2 p-2.5 sm:px-4 sm:py-2 md:px-5 lg:py-2.5 rounded-lg hp:rounded-md font-medium shadow-sm text-sm hp:text-xs hp:px-4 hp:self-center transition-all
                         ${
                           poleForm.poles.length >= 6
-                            ? "bg-gray-300 text-black opacity-40 cursor-not-allowed"
-                            : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:shadow-xl hover:scale-105"
+                            ? "bg-gray-300 text-black opacity-40"
+                            : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:scale-105"
                         }`}
                       >
-                        <Plus className="w-5 h-5 hp:w-4 hp:h-4" />
+                        <Plus className="w-3.5 sm:w-4 lg:w-4.5 h-3.5 sm:h-4 lg:h-4.5" />
                         Add Step
                       </button>
                     </div>
 
-                    <div className="flex items-center gap-3 overflow-x-auto whitespace-nowrap pb-2 hp:gap-2 hp:px-2 scroll-smooth scrollbar-hide">
+                    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 lg:gap-1 xl:gap-2">
                       {poleForm.poles.map((pole, index) => {
                         const isActive = poleForm.activeTab === pole.id;
                         return (
-                          <div key={pole.id} className="flex-shrink-0">
-                            <button
-                              onClick={() => poleForm.setActiveTab(pole.id)}
-                              className={`flex items-center gap-2 px-5 py-2 rounded-lg border-[1.5px] text-sm font-medium transition-all hp:px-4 hp:py-1.5 hp:text-xs
-                                ${
-                                  isActive
-                                    ? "border-blue-500 bg-blue-50 text-blue-700"
-                                    : "border-gray-200 bg-gray-50 text-gray-500 hover:bg-gray-100 hover:border-gray-300"
-                                }`}
-                            >
-                              <span
-                                className={`w-2 h-2 rounded-full flex-shrink-0 transition-colors
-                                  ${isActive ? "bg-blue-500" : "bg-gray-300"}`}
-                              />
-                              <span className="hp:hidden">
-                                Step {index + 1}
-                              </span>
-                              <span className="hidden hp:inline">
-                                {index + 1}
-                              </span>
-                            </button>
-                          </div>
+                          <button
+                            key={pole.id}
+                            onClick={() => poleForm.setActiveTab(pole.id)}
+                            className={`flex items-center gap-2 px-5 xl:px-6 py-2 rounded-lg border-[1.5px] text-sm 
+                              font-medium transition-all
+                              hp:px-3 hp:py-1.5 hp:text-xs hp:rounded-md
+                              ${
+                                isActive
+                                  ? "border-blue-500 bg-blue-50 text-blue-700"
+                                  : "border-gray-200 bg-gray-50 text-gray-500 hover:bg-gray-100 hover:border-gray-300"
+                              }`}
+                          >
+                            <span
+                              className={`w-2 h-2 rounded-full flex-shrink-0 transition-colors
+                                ${isActive ? "bg-blue-500" : "bg-gray-300"}`}
+                            />
+                            <span className="hp:hidden">Step {index + 1}</span>
+                            <span className="hidden hp:inline">
+                              {index + 1}
+                            </span>
+                          </button>
                         );
                       })}
                     </div>
@@ -236,7 +255,7 @@ export default function PoleFormView() {
 
                   {/* Active pole input */}
                   {poleForm.activePole && (
-                    <div className="p-6 hp:px-4 hp:pt-2 hp:pb-4">
+                    <div className="p-6 hp:px-4 hp:pt-0 hp:pb-4">
                       <div className="space-y-6 hp:space-y-4">
                         <div className="flex items-center justify-between mb-6 pb-6 border-b border-gray-200 hp:mb-4 hp:pb-4">
                           <div className="flex items-center gap-3 hp:gap-2">
@@ -252,22 +271,37 @@ export default function PoleFormView() {
                             </div>
                           </div>
 
-                          {poleForm.poles.length > 1 && (
+                          <div className="flex gap-2 sm:gap-3 justify-end itmes-center">
+                            {/* Reset */}
                             <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                poleForm.setConfirmDelete?.(
-                                  poleForm.activePole.id,
-                                );
-                              }}
-                              className="flex items-center gap-2 px-6 py-2.5 rounded-lg border border-red-200 text-red-600 bg-red-50 hover:bg-red-100 hover:border-red-300 transition-all font-medium shadow-sm hp:px-[11px] hp:py-[8px]"
+                              onClick={poleForm.resetActivePole}
+                              className="flex justify-center items-center gap-2 p-2.5 sm:px-4 sm:py-2 md:px-5 lg:py-2.5 rounded-lg hp:rounded-md font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] 
+                              text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm transition-colors"
                             >
-                              <Trash2 className="w-4 h-4" />
-                              <span className="text-xs hp:hidden">
-                                Delete Step
+                              <RotateCcw className="w-3.5 sm:w-4 lg:w-4.5 h-3.5 sm:h-4 lg:h-4.5" />
+                              <span className="hidden sm:block text-sm">
+                                Reset
                               </span>
                             </button>
-                          )}
+
+                            {poleForm.poles.length > 1 && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  poleForm.setConfirmDelete?.(
+                                    poleForm.activePole.id,
+                                  );
+                                }}
+                                className="flex justify-center items-center gap-2 p-2.5 sm:px-4 sm:py-2 md:px-5 lg:py-2.5 rounded-lg hp:rounded-md font-medium bg-red-50 hover:bg-red-100
+                                text-red-600 ring-1 ring-inset ring-red-200 hover:ring-red-300 shadow-sm transition-all"
+                              >
+                                <Trash2 className="w-3.5 sm:w-4 lg:w-4.5 h-3.5 sm:h-4 lg:h-4.5" />
+                                <span className="hidden sm:block text-sm">
+                                  Delete Step
+                                </span>
+                              </button>
+                            )}
+                          </div>
                         </div>
 
                         <PoleForm
@@ -281,42 +315,32 @@ export default function PoleFormView() {
 
                       <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-200 hp:mt-5 hp:pt-4">
                         <button
-                          onClick={poleForm.resetActivePole}
-                          className="flex items-center text-sm gap-2 px-7 py-2.5 bg-[#eef2f6] text-[#0d3b66] border-2 border-[#d0d7e2] rounded-lg hover:bg-[#e2e8f0] transition-colors font-medium hp:text-xs hp:px-[22px] hp:py-[8px]"
-                        >
-                          <RotateCcw className="w-5 h-5 hp:w-4 hp:h-4" />
-                          Reset
-                        </button>
-
-                        <div className="flex items-center gap-3 hp:gap-2">
-                          <button
-                            onClick={poleForm.goToPrev}
-                            disabled={poleForm.isBackDisabled}
-                            className={`flex items-center text-sm gap-2 px-7 py-2.5 rounded-lg font-medium border-2 transition-colors hp:text-xs hp:px-[22px] hp:py-[8px]
+                          onClick={poleForm.goToPrev}
+                          disabled={poleForm.isBackDisabled}
+                          className={`flex justify-center items-center gap-2 text-sm px-3.5 py-2.5 sm:px-4 sm:py-2 md:px-5 lg:py-2.5 rounded-lg hp:rounded-md ring-1 ring-inset font-medium transition-colors
                             ${
                               poleForm.isBackDisabled
-                                ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
-                                : "bg-[#eef2f6] text-[#0d3b66] border-[#d0d7e2] hover:bg-[#e2e8f0]"
+                                ? "bg-gray-100 text-gray-400 ring-gray-200 cursor-not-allowed"
+                                : "bg-[#eef2f6] text-[#0d3b66] ring-[#d0d7e2] hover:bg-[#e2e8f0] hover:ring-[#b8c2d1]"
                             }`}
-                          >
-                            <ChevronLeft className="w-5 h-5 hp:w-4 hp:h-4" />
-                            <span className="hp:hidden">Back</span>
-                          </button>
+                        >
+                          <ChevronLeft className="w-3.5 sm:w-4 lg:w-4.5 h-3.5 sm:h-4 lg:h-4.5" />
+                          <span className="hp:hidden">Back</span>
+                        </button>
 
-                          <button
-                            onClick={poleForm.goToNext}
-                            disabled={poleForm.isNextDisabled}
-                            className={`flex items-center text-sm gap-2 px-7 py-2.5 border-2 rounded-lg font-medium shadow-md transition-all hp:text-xs hp:px-[22px] hp:py-[8px]
+                        <button
+                          onClick={poleForm.goToNext}
+                          disabled={poleForm.isNextDisabled}
+                          className={`flex justify-center items-center gap-2 text-sm px-3.5 py-2.5 sm:px-4 sm:py-2 md:px-5 lg:py-2.5 rounded-lg hp:rounded-md font-medium transition-all
                             ${
                               poleForm.isNextDisabled
-                                ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed shadow-none"
+                                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                                 : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110"
                             }`}
-                          >
-                            Next Step
-                            <ChevronRight className="w-5 h-5 hp:w-4 hp:h-4" />
-                          </button>
-                        </div>
+                        >
+                          <span className="hp:hidden">Next Step</span>
+                          <ChevronRight className="w-3.5 sm:w-4 lg:w-4.5 h-3.5 sm:h-4 lg:h-4.5" />
+                        </button>
                       </div>
                     </div>
                   )}
@@ -329,20 +353,34 @@ export default function PoleFormView() {
           {isCustomMode && (
             <>
               <div
-                className={`bg-gradient-to-r from-[#0d3b66] to-[#3399cc] p-4 flex items-center justify-between cursor-pointer mt-20 transition-all duration-500 ease-in-out hp:px-4 hp:py-3
+                className={`bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] px-4 py-3 md:p-4 flex items-center justify-between cursor-pointer mt-16 md:mt-20 transition-all duration-500 ease-in-out
                 ${isExpandedDo ? "rounded-t-2xl hp:rounded-t-xl" : "rounded-2xl hp:rounded-xl"}`}
                 onClick={() => setIsExpandedDo(!isExpandedDo)}
               >
-                <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/20 hp:px-2 hp:py-[8px]">
-                  <h2 className="text-white text-sm font-bold hp:text-xs hp:font-semibold">
+                <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg hp:rounded-md border border-white/20 hp:px-3 hp:py-[8px]">
+                  <h2 className="text-white text-xs md:text-sm font-semibold md:font-bold">
                     Direct Object
                   </h2>
                 </div>
-                <div className="p-2">
+                <div
+                  className="
+                  flex h-8 w-8
+                  sm:h-9 sm:w-9
+                  shrink-0
+                  items-center justify-center
+                  rounded-full
+                  bg-white/15
+                  text-white
+                  border border-white/20
+                  transition
+                  group-hover:bg-white/20
+                  group-active:bg-white/25
+                "
+                >
                   {isExpandedDo ? (
-                    <ChevronUp className="w-5 h-5 text-white hp:w-4 hp:h-4" />
+                    <ChevronUp className="w-4 h-4 sm:w-5 sm:h-5" />
                   ) : (
-                    <ChevronDown className="w-5 h-5 text-white hp:w-4 hp:h-4" />
+                    <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5" />
                   )}
                 </div>
               </div>
@@ -373,20 +411,34 @@ export default function PoleFormView() {
           {isCustomMode && (
             <>
               <div
-                className={`bg-gradient-to-r from-[#0d3b66] to-[#3399cc] p-4 flex items-center justify-between cursor-pointer mt-20 transition-all duration-500 ease-in-out hp:px-4 hp:py-3
+                className={`bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] px-4 py-3 md:p-4 flex items-center justify-between cursor-pointer mt-16 md:mt-20 transition-all duration-500 ease-in-out
                 ${isExpandedOhw ? "rounded-t-2xl hp:rounded-t-xl" : "rounded-2xl hp:rounded-xl"}`}
                 onClick={() => setIsExpandedOhw(!isExpandedOhw)}
               >
-                <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/20 hp:px-2 hp:py-[8px]">
-                  <h2 className="text-white text-sm font-bold hp:text-xs hp:font-semibold">
+                <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg hp:rounded-md border border-white/20 hp:px-3 hp:py-[8px]">
+                  <h2 className="text-white text-xs md:text-sm font-semibold md:font-bold">
                     Overhead Wire
                   </h2>
                 </div>
-                <div className="p-2">
+                <div
+                  className="
+                  flex h-8 w-8
+                  sm:h-9 sm:w-9
+                  shrink-0
+                  items-center justify-center
+                  rounded-full
+                  bg-white/15
+                  text-white
+                  border border-white/20
+                  transition
+                  group-hover:bg-white/20
+                  group-active:bg-white/25
+                "
+                >
                   {isExpandedOhw ? (
-                    <ChevronUp className="w-5 h-5 text-white hp:w-4 hp:h-4" />
+                    <ChevronUp className="w-4 h-4 sm:w-5 sm:h-5" />
                   ) : (
-                    <ChevronDown className="w-5 h-5 text-white hp:w-4 hp:h-4" />
+                    <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5" />
                   )}
                 </div>
               </div>
@@ -417,20 +469,34 @@ export default function PoleFormView() {
           {projectType !== "acemast" && isCustomMode && (
             <>
               <div
-                className={`bg-gradient-to-r from-[#0d3b66] to-[#3399cc] p-4 flex items-center justify-between cursor-pointer mt-20 transition-all duration-500 ease-in-out hp:px-4 hp:py-3
+                className={`bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] px-4 py-3 md:p-4 flex items-center justify-between cursor-pointer mt-16 md:mt-20 transition-all duration-500 ease-in-out
                 ${isExpandedArm ? "rounded-t-2xl hp:rounded-t-xl" : "rounded-2xl hp:rounded-xl"}`}
                 onClick={() => setIsExpandedArm(!isExpandedArm)}
               >
-                <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/20 hp:px-2 hp:py-[8px]">
-                  <h2 className="text-white text-sm font-bold hp:text-xs hp:font-semibold">
+                <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg hp:rounded-md border border-white/20 hp:px-3 hp:py-[8px]">
+                  <h2 className="text-white text-xs md:text-sm font-semibold md:font-bold">
                     Arm and Object Specifications
                   </h2>
                 </div>
-                <div className="p-2">
+                <div
+                  className="
+                  flex h-8 w-8
+                  sm:h-9 sm:w-9
+                  shrink-0
+                  items-center justify-center
+                  rounded-full
+                  bg-white/15
+                  text-white
+                  border border-white/20
+                  transition
+                  group-hover:bg-white/20
+                  group-active:bg-white/25
+                "
+                >
                   {isExpandedArm ? (
-                    <ChevronUp className="w-5 h-5 text-white hp:w-4 hp:h-4" />
+                    <ChevronUp className="w-4 h-4 sm:w-5 sm:h-5" />
                   ) : (
-                    <ChevronDown className="w-5 h-5 text-white hp:w-4 hp:h-4" />
+                    <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5" />
                   )}
                 </div>
               </div>
@@ -455,7 +521,7 @@ export default function PoleFormView() {
                       <button
                         onClick={armForm.addArm}
                         disabled={armForm.arms.length >= 6}
-                        className={`flex items-center gap-2 text-sm px-7 py-3 rounded-lg font-medium transition-all shadow-md hp:text-xs hp:px-[22px] hp:py-[10px] hp:self-center
+                        className={`flex items-center gap-2 text-sm px-7 py-3 rounded-lg hp:rounded-md font-medium transition-all shadow-md hp:text-xs hp:px-[22px] hp:py-[10px] hp:self-center
                         ${
                           armForm.arms.length >= 6
                             ? "bg-gray-300 text-black opacity-40 cursor-not-allowed"
@@ -475,7 +541,7 @@ export default function PoleFormView() {
                           <div key={arm.idArm} className="flex-shrink-0">
                             <button
                               onClick={() => armForm.setActiveTabArm(arm.idArm)}
-                              className={`flex items-center gap-2 px-5 py-2 rounded-lg border-[1.5px] text-sm font-medium transition-all hp:px-4 hp:py-1.5 hp:text-xs
+                              className={`flex items-center gap-2 px-5 py-2 rounded-lg hp:rounded-md border-[1.5px] text-sm font-medium transition-all hp:px-4 hp:py-1.5 hp:text-xs
                                 ${
                                   isActive
                                     ? "border-blue-500 bg-blue-50 text-blue-700"
@@ -522,7 +588,7 @@ export default function PoleFormView() {
                                     armForm.copyArm(armForm.activeArm)
                                   }
                                   title="Copy this Arm Spec"
-                                  className="p-2 rounded-md border bg-blue-50 text-blue-600 hover:bg-blue-100 transition"
+                                  className="p-2 rounded-lg hp:rounded-md border bg-blue-50 text-blue-600 hover:bg-blue-100 transition"
                                 >
                                   <Copy className="w-4 h-4" />
                                 </button>
@@ -536,7 +602,7 @@ export default function PoleFormView() {
                                       ? "Paste copied Arm Spec"
                                       : "No copied Arm Spec"
                                   }
-                                  className={`p-2 rounded-md border transition ${
+                                  className={`p-2 rounded-lg hp:rounded-md border transition ${
                                     armForm.armClipboard
                                       ? "bg-green-50 text-green-600 hover:bg-green-100"
                                       : "bg-gray-200 text-gray-400 cursor-not-allowed"
@@ -547,7 +613,7 @@ export default function PoleFormView() {
                                 <div className="h-8 w-px mx-4 bg-gray-300 opacity-70" />
                                 <button
                                   onClick={armForm.resetArm}
-                                  className="flex items-center gap-2 px-5 py-2 h-[40px] bg-[#eef2f6] text-[#0d3b66] border border-[#d0d7e2] rounded-lg hover:bg-[#e2e8f0] transition text-xs font-medium"
+                                  className="flex items-center gap-2 px-5 py-2 h-[40px] bg-[#eef2f6] text-[#0d3b66] border border-[#d0d7e2] rounded-lg hp:rounded-md hover:bg-[#e2e8f0] transition text-xs font-medium"
                                 >
                                   <RotateCcw className="w-4 h-4" />
                                   Reset
@@ -560,7 +626,7 @@ export default function PoleFormView() {
                                     armForm.activeArm.idArm,
                                   );
                                 }}
-                                className="flex items-center gap-2 px-4 py-2 h-[40px] rounded-lg border border-red-200 text-red-600 bg-red-50 hover:bg-red-100 transition text-xs font-medium"
+                                className="flex items-center gap-2 px-4 py-2 h-[40px] rounded-lg hp:rounded-md border border-red-200 text-red-600 bg-red-50 hover:bg-red-100 transition text-xs font-medium"
                               >
                                 <Trash2 className="w-4 h-4" />
                                 <span className="text-xs hp:hidden">
@@ -605,7 +671,7 @@ export default function PoleFormView() {
                         <button
                           onClick={armForm.goToPrevArm}
                           disabled={armForm.isBackDisabledArm}
-                          className={`flex items-center text-sm gap-2 px-7 py-2.5 rounded-lg font-medium border-2 transition-colors hp:text-xs hp:px-[22px] hp:py-[8px]
+                          className={`flex items-center text-sm gap-2 px-7 py-2.5 rounded-lg hp:rounded-md font-medium border-2 transition-colors hp:text-xs hp:px-[22px] hp:py-[8px]
                           ${
                             armForm.isBackDisabledArm
                               ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
@@ -619,7 +685,7 @@ export default function PoleFormView() {
                         <button
                           onClick={armForm.goToNextArm}
                           disabled={armForm.isNextDisabledArm}
-                          className={`flex items-center text-sm gap-2 px-7 py-2.5 border-2 rounded-lg font-medium shadow-md transition-all hp:text-xs hp:px-[22px] hp:py-[8px]
+                          className={`flex items-center text-sm gap-2 px-7 py-2.5 border-2 rounded-lg hp:rounded-md font-medium shadow-md transition-all hp:text-xs hp:px-[22px] hp:py-[8px]
                           ${
                             armForm.isNextDisabledArm
                               ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed shadow-none"
@@ -638,12 +704,12 @@ export default function PoleFormView() {
           )}
 
           {/* ── Calculate / Finish footer ── */}
-          <div className="flex items-center justify-between p-5 mt-12 mb-20 bg-gradient-to-b from-white to-slate-50 rounded-2xl border border-gray-200 shadow-sm">
+          <div className="flex items-center justify-between p-5 mt-12 mb-20 bg-gradient-to-b from-white to-slate-50 rounded-2xl hp:rounded-xl border border-gray-200 shadow-sm">
             <div className="w-[120px]" />
 
             <button
               onClick={calculation.calculate}
-              className="flex items-center gap-2 px-7 py-2.5 bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white rounded-lg text-sm hover:brightness-110 transition-all shadow-sm font-medium hp:text-xs hp:px-[22px] hp:py-[10px]"
+              className="flex items-center gap-2 px-7 py-2.5 bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white rounded-lg hp:rounded-md text-sm hover:brightness-110 transition-all shadow-sm font-medium hp:text-xs hp:px-[22px] hp:py-[10px]"
             >
               <Calculator className="w-5 h-5 hp:w-4 hp:h-4" />
               Calculate Results
@@ -652,10 +718,10 @@ export default function PoleFormView() {
             <button
               onClick={handleFinish}
               disabled={!calculation.isCalculated}
-              className={`flex items-center gap-2 px-7 py-2.5 rounded-lg text-sm font-medium transition-all hp:text-xs hp:px-[22px] hp:py-[10px]
+              className={`flex items-center gap-2 px-7 py-2.5 rounded-lg hp:rounded-md text-sm font-medium transition-all hp:text-xs hp:px-[22px] hp:py-[10px]
               ${
                 !calculation.isCalculated
-                  ? "bg-gray-100 text-gray-400 border-2 border-gray-200 cursor-not-allowed shadow-none"
+                  ? "bg-gray-100 text-gray-400 border-0 ring-2 ring-inset ring-gray-200 cursor-not-allowed shadow-none"
                   : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
               }`}
             >

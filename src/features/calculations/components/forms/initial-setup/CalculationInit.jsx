@@ -40,18 +40,18 @@ export default function CalculationSetupForm() {
           />
         </Helmet>
 
-        <div className="flex-1 rounded-t-2xl bg-gray-50 border border-gray-250">
+        <div className="flex-1 rounded-t-2xl hp:rounded-t-xl bg-gray-50 border border-gray-250">
           <HeaderCalculationPage />
 
           <div className="mx-6 2040:mx-[250px] pt-0 pb-8 hp:mx-2">
             {/* Section header — collapsible toggle */}
             <div
-              className={`bg-gradient-to-r from-[#0d3b66] to-[#3399cc] px-4 py-3 md:p-4 flex items-center justify-between cursor-pointer mt-6 transition-all duration-500 ease-in-out
+              className={`bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] px-4 py-3 md:p-4 flex items-center justify-between cursor-pointer mt-6 transition-all duration-500 ease-in-out
                 ${isExpanded ? "rounded-t-2xl hp:rounded-t-xl" : "rounded-2xl hp:rounded-xl"}`}
               onClick={() => setIsExpanded(!isExpanded)}
             >
               {/* Title */}
-              <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/20 hp:px-3 hp:py-[8px]">
+              <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg hp:rounded-md border border-white/20 hp:px-3 hp:py-[8px]">
                 <h2 className="text-white text-xs md:text-sm font-semibold md:font-bold">
                   Initial Input
                 </h2>

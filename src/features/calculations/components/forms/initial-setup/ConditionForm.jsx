@@ -16,7 +16,7 @@ import { poleTypeOptions } from "../../../constants/poleTypeOptions";
  */
 // Returns input className based on validation state
 const inputStyle = (hasError) =>
-  `w-full px-3 md:px-4 py-2 md:py-2.5 rounded-md md:rounded-lg outline-none transition-all text-xs md:text-sm border
+  `w-full px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border
   ${
     hasError
       ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
@@ -41,7 +41,7 @@ const SectionTitle = ({ children }) => (
 
 // Reusable section card wrapper
 const SectionCard = ({ children }) => (
-  <div className="bg-white px-4 md:px-5 py-5 rounded-lg md:rounded-xl border border-gray-200">
+  <div className="bg-white px-4 md:px-5 py-5 rounded-xl hp:rounded-lg border border-gray-200">
     {children}
   </div>
 );
@@ -74,7 +74,7 @@ export function ConditionForm({
   const handleReset = () => onUpdate(EMPTY_CONDITION);
 
   return (
-    <div className="bg-white rounded-b-xl md:rounded-b-2xl shadow-sm border border-gray-200">
+    <div className="bg-white rounded-b-2xl hp:rounded-b-xl shadow-sm border border-gray-200">
       <div className="p-4 md:p-6 shadow-sm space-y-4 md:space-y-6">
         {/* ── Standard and Condition ── */}
         <div>
@@ -89,7 +89,7 @@ export function ConditionForm({
                 <select
                   value={condition.designStandard}
                   onChange={(e) => onUpdate({ designStandard: e.target.value })}
-                  className={`${inputStyle(errors.designStandard)} min-h-[42px]`}
+                  className={`${inputStyle(errors.designStandard)} lg:px-2 xl:px-4 min-h-[34px] sm:min-h-[38px] lg:min-h-[42px]`}
                 >
                   <option value="" disabled>
                     Select Design Standard
@@ -114,6 +114,7 @@ export function ConditionForm({
                 <div className="relative">
                   <input
                     type="number"
+                    inputMode="decimal"
                     min={0}
                     value={condition.designWindSpeed}
                     onChange={(e) =>
@@ -177,33 +178,24 @@ export function ConditionForm({
                       key={option.id}
                       type="button"
                       onClick={() => onUpdate({ poleType: option.id })}
-                      className={`w-full text-left relative rounded-lg border p-4 transition-all duration-200
+                      className={`w-full text-left relative rounded-lg hp:rounded-md border p-4 transition-all duration-200
                         ${
                           isActive
                             ? "border-blue-500 bg-blue-50 text-blue-600 shadow-sm"
                             : "border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50"
                         }`}
                     >
-                      {/* Active indicator */}
-                      <div className="absolute top-4 right-4">
-                        {isActive ? (
-                          <CheckCircle size={21} className="text-blue-600" />
-                        ) : (
-                          <Circle size={21} className="text-slate-400" />
-                        )}
-                      </div>
-
                       <div className="flex items-start gap-4">
                         <div
-                          className={`p-3 rounded-lg transition-colors ${isActive ? "bg-blue-100 text-blue-600" : "bg-slate-100 text-slate-500"}`}
+                          className={`p-2 md:p-2.5 xl:p-3 rounded-lg hp:rounded-md transition-colors ${isActive ? "bg-blue-100 text-blue-600" : "bg-slate-100 text-slate-500"}`}
                         >
-                          <Icon size={18} />
+                          <Icon className="w-4 h-4 lg:w-5 xl:h-5" />
                         </div>
                         <div>
-                          <p className="font-semibold text-[14px] text-slate-800">
+                          <p className="font-semibold text-[12px] md:text-[14px] text-slate-800">
                             {option.title}
                           </p>
-                          <p className="text-[12px] text-slate-500 mt-1">
+                          <p className="text-[11px] md:text-[12px] text-slate-500 mt-1">
                             {option.desc}
                           </p>
                         </div>
@@ -225,7 +217,7 @@ export function ConditionForm({
         <div>
           <SectionTitle>Additional Component</SectionTitle>
           <SectionCard>
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid xl:grid-cols-3 gap-6">
               {/* Opening Part */}
               <ToggleCard
                 label="Opening Part"
@@ -267,19 +259,22 @@ export function ConditionForm({
           {/* Reset => clears all fields */}
           <button
             onClick={handleReset}
-            className="flex items-center gap-2 px-[22px] md:px-7 py-[10px] md:py-2.5 bg-[#eef2f6] text-[#0d3b66] text-xs md:text-sm border-2 border-[#d0d7e2] rounded-lg hover:bg-[#e2e8f0] transition-colors font-medium"
+            className="flex justify-center items-center gap-2 px-5 py-2.5 md:px-6
+            rounded-lg hp:rounded-md font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] text-xs sm:text-sm 
+            ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm transition-colors"
           >
-            <RotateCcw className="w-4 md:w-5 h-4 md:h-5" />
+            <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
             Reset
           </button>
 
           {/* Finish => proceeds to next step */}
           <button
             onClick={onFinish}
-            className="flex items-center gap-2 px-[22px] md:px-7 py-[10px] md:py-2.5 bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white rounded-lg text-xs md:text-sm hover:brightness-110 transition-all shadow-sm font-medium"
+            className="flex justify-center items-center gap-2 px-5 py-2.5 md:px-6 
+            rounded-lg hp:rounded-md font-medium bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white text-xs md:text-sm hover:brightness-110 shadow-sm transition-all"
           >
             Finish
-            <ChevronRight className="w-4 md:w-5 h-4 md:h-5" />
+            <ChevronRight className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
           </button>
         </div>
       </div>
@@ -294,7 +289,7 @@ function ToggleCard({ label, icon, enabled, onToggle }) {
   return (
     <div
       onClick={onToggle}
-      className={`cursor-pointer relative overflow-hidden rounded-lg border-2 p-5 transition-all duration-300
+      className={`cursor-pointer relative overflow-hidden rounded-lg hp:rounded-md border-2 p-3 md:p-5 transition-all duration-300
         ${
           enabled
             ? "border-blue-500 bg-white shadow-sm ring-1 ring-blue-50"
@@ -305,13 +300,13 @@ function ToggleCard({ label, icon, enabled, onToggle }) {
         <div className="flex items-center gap-3">
           {/* Icon */}
           <div
-            className={`p-2 rounded-lg ${enabled ? "bg-blue-100 text-blue-600" : "bg-slate-200 text-slate-500"}`}
+            className={`p-2 rounded-lg hp:rounded-md ${enabled ? "bg-blue-100 text-blue-600" : "bg-slate-200 text-slate-500"}`}
           >
             {icon}
           </div>
           {/* Label */}
           <p
-            className={`text-sm font-medium ${enabled ? "text-slate-900" : "text-slate-500"}`}
+            className={`text-[12px] md:text-sm font-medium ${enabled ? "text-slate-900" : "text-slate-500"}`}
           >
             {label}
           </p>
@@ -323,10 +318,10 @@ function ToggleCard({ label, icon, enabled, onToggle }) {
             e.stopPropagation();
             onToggle();
           }}
-          className={`relative inline-flex h-6 w-11 items-center rounded-full ${enabled ? "bg-blue-500" : "bg-slate-300"}`}
+          className={`relative inline-flex h-5 w-10 md:h-6 md:w-11 items-center rounded-full ${enabled ? "bg-blue-500" : "bg-slate-300"}`}
         >
           <span
-            className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${enabled ? "translate-x-6" : "translate-x-1"}`}
+            className={`inline-block h-2.5 w-2.5 md:h-4 md:w-4 transform rounded-full bg-white transition ${enabled ? "translate-x-6" : "translate-x-1"}`}
           />
         </button>
       </div>
