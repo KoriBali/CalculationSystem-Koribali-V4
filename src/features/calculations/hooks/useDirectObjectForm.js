@@ -53,7 +53,7 @@ export function useDirectObjectForm(projectType) {
   // Updates a specific DO's fields and clears related errors
   const updateDo = (idDo, updates) => {
     Utils.updateDo(idDo, updates, setDirectObjects, directObjects);
-    Utils.clearDoError(idDo, updates, setDoErrors);
+    // Utils.clearDoError(idDo, updates, setDoErrors);
   };
 
   // Resets a specific DO's fields to empty

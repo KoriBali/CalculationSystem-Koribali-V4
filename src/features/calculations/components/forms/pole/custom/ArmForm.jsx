@@ -4,14 +4,14 @@
  */
 // Returns input className based on validation state
 const inputStyle = (hasError) =>
-  `w-full px-3 md:px-4 py-2 md:py-2.5 rounded-md sm:rounded-lg text-xs md:text-sm outline-none transition-all border pr-14
+  `w-full py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border
   ${
     hasError
       ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
       : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
   }`;
 
-// Renders a red error message below an invalid field
+// Display small validation error text under input
 const ErrorStyle = ({ show, text }) =>
   show ? (
     <div className="absolute left-0 -bottom-4 md:-bottom-5 flex items-center gap-1 text-[9px] md:text-[11px] text-red-500">
@@ -27,18 +27,13 @@ export function ArmForm({ arm, onUpdate, armError }) {
     <div>
       <div
         className="
-          grid
-          grid-cols-12
-          gap-2
-          xl:grid-cols-12
-          lg:grid-cols-4
-          md:grid-cols-3
-          sm:grid-cols-2
-          grid-cols-1
+          grid grid-cols-6 gap-x-2 gap-y-6
+          2xl:flex 2xl:flex-row 2xl:flex-nowrap 2xl:items-start 2xl:gap-x-3
+          hp:grid hp:grid-cols-2 hp:gap-3 hp:gap-y-6 pb-2
         "
       >
         {/* Arm Name Input */}
-        <div className="relative col-span-2">
+        <div className="relative col-span-2 2xl:flex-[2] min-w-0 hp:w-full hp:col-span-2">
           <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
             Arm Name
           </label>
@@ -47,13 +42,13 @@ export function ArmForm({ arm, onUpdate, armError }) {
             value={arm.name}
             onChange={(e) => onUpdate({ name: e.target.value })}
             placeholder="e.g., 感知器アーム"
-            className={inputStyle(armError.name)}
+            className={`${inputStyle(armError.name)} px-3 2xl:px-4`}
           />
           <ErrorStyle show={armError.name} text={armError.name} />
         </div>
 
         {/* Material Arm Selector */}
-        <div className="relative w-full">
+        <div className="relative 2xl:w-[120px] 2xl:flex-none min-w-0 hp:w-full">
           <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
             Material
           </label>
@@ -62,9 +57,7 @@ export function ArmForm({ arm, onUpdate, armError }) {
             onChange={(e) => onUpdate({ material: e.target.value })}
             className={`
               ${inputStyle(armError.material)}
-              pr-4
-              h-[42px]
-            `}
+              min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] px-3 2xl:px-4`}
           >
             <option value="STK400">STK400</option>
             <option value="STK490">STK490</option>
@@ -76,7 +69,7 @@ export function ArmForm({ arm, onUpdate, armError }) {
         </div>
 
         {/* Diameter Arm Input */}
-        <div className="relative w-full">
+        <div className="relative 2xl:flex-1 min-w-0 hp:w-full">
           <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
             Diameter
           </label>
@@ -91,9 +84,9 @@ export function ArmForm({ arm, onUpdate, armError }) {
                 })
               }
               onWheel={(e) => e.target.blur()}
-              className={`${inputStyle(armError.diameter)} pr-7 hp:py-[9.5px] hp:pr-6`}
+              className={`${inputStyle(armError.diameter)} pl-3 2xl:pl-4 pr-7`}
             />
-            <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-black-400">
+            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
               mm
             </span>
           </div>
@@ -101,7 +94,7 @@ export function ArmForm({ arm, onUpdate, armError }) {
         </div>
 
         {/* Thickness Arm Input */}
-        <div className="relative w-full">
+        <div className="relative 2xl:flex-1 min-w-0 hp:w-full">
           <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
             Thickness
           </label>
@@ -116,9 +109,9 @@ export function ArmForm({ arm, onUpdate, armError }) {
                 })
               }
               onWheel={(e) => e.target.blur()}
-              className={`${inputStyle(armError.thickness)} pr-7 hp:pr-6`}
+              className={`${inputStyle(armError.thickness)} pl-3 2xl:pl-4 pr-7`}
             />
-            <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-black-400">
+            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
               mm
             </span>
           </div>
@@ -126,7 +119,7 @@ export function ArmForm({ arm, onUpdate, armError }) {
         </div>
 
         {/* Length Arm Input */}
-        <div className="relative w-full">
+        <div className="relative 2xl:flex-1 min-w-0 hp:w-full">
           <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
             Length
           </label>
@@ -141,9 +134,9 @@ export function ArmForm({ arm, onUpdate, armError }) {
                 })
               }
               onWheel={(e) => e.target.blur()}
-              className={`${inputStyle(armError.length)} pr-7 hp:pr-6`}
+              className={`${inputStyle(armError.length)} pl-3 2xl:pl-4 pr-7`}
             />
-            <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-black-400">
+            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
               mm
             </span>
           </div>
@@ -151,7 +144,7 @@ export function ArmForm({ arm, onUpdate, armError }) {
         </div>
 
         {/* Exp.Length Arm Input */}
-        <div className="relative w-full">
+        <div className="relative 2xl:flex-1 min-w-0 hp:w-full">
           <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
             exp.Length
           </label>
@@ -166,9 +159,9 @@ export function ArmForm({ arm, onUpdate, armError }) {
                 })
               }
               onWheel={(e) => e.target.blur()}
-              className={`${inputStyle(armError.expLength)} pr-7 hp:pr-7`}
+              className={`${inputStyle(armError.expLength)} pl-3 2xl:pl-4 pr-7`}
             />
-            <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-black-400">
+            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
               mm
             </span>
           </div>
@@ -176,9 +169,9 @@ export function ArmForm({ arm, onUpdate, armError }) {
         </div>
 
         {/* Height Arm Input */}
-        <div className="relative w-full">
+        <div className="relative 2xl:flex-1 min-w-0 hp:w-full">
           <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-            Z (H)
+            Z (Height)
           </label>
           <div className="relative">
             <input
@@ -191,9 +184,9 @@ export function ArmForm({ arm, onUpdate, armError }) {
                 })
               }
               onWheel={(e) => e.target.blur()}
-              className={`${inputStyle(armError.zHeight)} pr-7 hp:pr-7`}
+              className={`${inputStyle(armError.zHeight)} pl-3 2xl:pl-4 pr-7`}
             />
-            <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-black-400">
+            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
               mm
             </span>
           </div>
@@ -201,7 +194,7 @@ export function ArmForm({ arm, onUpdate, armError }) {
         </div>
 
         {/* H-Distance Arm Input */}
-        <div className="relative w-full">
+        <div className="relative 2xl:flex-1 min-w-0 hp:w-full">
           <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
             H-Distance
           </label>
@@ -216,9 +209,9 @@ export function ArmForm({ arm, onUpdate, armError }) {
                 })
               }
               onWheel={(e) => e.target.blur()}
-              className={`${inputStyle(armError.hDistance)} pr-7 hp:pr-7`}
+              className={`${inputStyle(armError.hDistance)} pl-3 2xl:pl-4 pr-7`}
             />
-            <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-black-400">
+            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
               mm
             </span>
           </div>
@@ -226,7 +219,7 @@ export function ArmForm({ arm, onUpdate, armError }) {
         </div>
 
         {/* Fix Angle Arm Input */}
-        <div className="relative w-full">
+        <div className="relative 2xl:flex-1 min-w-0 hp:w-full">
           <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
             Fix Angle
           </label>
@@ -240,9 +233,9 @@ export function ArmForm({ arm, onUpdate, armError }) {
                 })
               }
               onWheel={(e) => e.target.blur()}
-              className={`${inputStyle(armError.fixAngle)} pr-7 hp:pr-7`}
+              className={`${inputStyle(armError.fixAngle)} pl-3 2xl:pl-4 pr-7`}
             />
-            <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-black-400">
+            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
               deg
             </span>
           </div>
@@ -250,7 +243,7 @@ export function ArmForm({ arm, onUpdate, armError }) {
         </div>
 
         {/* nnC Arm Input */}
-        <div className="relative w-full">
+        <div className="relative 2xl:flex-[0.8] min-w-0 hp:w-full">
           <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
             nnC
           </label>
@@ -264,13 +257,13 @@ export function ArmForm({ arm, onUpdate, armError }) {
               })
             }
             onWheel={(e) => e.target.blur()}
-            className={`${inputStyle(armError.nnC)}`}
+            className={`${inputStyle(armError.nnC)} px-3 2xl:px-4`}
           />
           <ErrorStyle show={armError.nnC} text={armError.nnC} />
         </div>
 
         {/* Quantity Arm Input */}
-        <div className="relative w-full">
+        <div className="relative 2xl:flex-[0.8] min-w-0 hp:w-full">
           <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
             Quantity
           </label>
@@ -285,9 +278,9 @@ export function ArmForm({ arm, onUpdate, armError }) {
                 })
               }
               onWheel={(e) => e.target.blur()}
-              className={`${inputStyle(armError.quantity)} pr-7 hp:pr-7`}
+              className={`${inputStyle(armError.quantity)} pl-3 2xl:pl-4 pr-7`}
             />
-            <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-black-400">
+            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
               pcs
             </span>
           </div>

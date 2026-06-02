@@ -14,7 +14,7 @@ import {
 
 // Generate dynamic input style based on validation state
 const inputStyle = (hasError) =>
-  `w-full px-3 md:px-4 py-2 md:py-2.5 rounded-md sm:rounded-lg outline-none transition-all text-xs md:text-sm border
+  `w-full py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border
   ${
     hasError
       ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
@@ -33,7 +33,7 @@ const ErrorStyle = ({ show, text }) =>
  * MAIN COMPONENT
  */
 export function OverheadWireForm({
-  overheadWires,
+  overheadWires = [],
   wireCountInput,
   setWireCountInput,
   onUpdate,
@@ -63,9 +63,9 @@ export function OverheadWireForm({
           {/* HEADER OVERHEAD WIRE INPUT */}
           <div className="flex items-center justify-between mb-1">
             <div>
-              <h2 className="text-[#0d3b66] font-medium text-sm flex items-center gap-1 hp:text-xs">
+              <h3 className="text-[#0d3b66] flex items-center gap-2 text-xs md:text-sm font-medium hp:text-xs hp:gap-1">
                 {/* Decorative line */}
-                <div className="w-1 h-4 bg-[#3399cc] rounded-full mr-1 hp:h-4"></div>
+                <div className="w-1 h-5 bg-[#3399cc] rounded-full hp:h-4" />
 
                 {/* Title */}
                 <span className="font-semibold">
@@ -74,7 +74,7 @@ export function OverheadWireForm({
 
                 {/* Subtitle (hidden on small screen) */}
                 <span className="hp:hidden">with detailed specifications</span>
-              </h2>
+              </h3>
             </div>
           </div>
         </div>
@@ -91,31 +91,40 @@ export function OverheadWireForm({
             hp:gap-3
             hp:px-3
             hp:pt-2
+            hp:pb-4
           "
         >
           {/* INPUT + ACTION BUTTON */}
           <div
             className="
-              flex items-center gap-3.5
+              flex items-center gap-3
+              hp:flex-row
+              hp:items-center
               hp:gap-2
+              hp:w-full
             "
           >
             {/* Current OHW count display */}
             <div
               className="
-                flex items-center gap-2 px-5 py-2.5 text-sm rounded-md sm:rounded-lg
+                flex items-center gap-2 px-5 py-2 lg:py-2.5 text-sm rounded-md sm:rounded-lg
                 bg-slate-50 border border-slate-200 text-slate-700 font-medium
+                whitespace-nowrap
                 hp:px-3
                 hp:py-2
                 hp:text-xs
                 hp:justify-center
+                hp:flex-shrink-0
               "
             >
               <span className="text-[#0d3b66] font-semibold">
                 {overheadWires.length}
               </span>
               <span className="text-slate-400">/</span>
-              <span className="text-slate-600">8 Overhead Wires</span>
+              <span className="inline sm:hidden text-slate-600">8 OHW</span>
+              <span className="hidden sm:inline text-slate-600">
+                8 Overhead Wires
+              </span>
             </div>
 
             {/* Input for number of OHW to add */}
@@ -128,11 +137,13 @@ export function OverheadWireForm({
               onChange={(e) => setWireCountInput(e.target.value)}
               onWheel={(e) => e.target.blur()}
               className="
-                w-[180px] px-2.5 py-2.5 text-center text-sm rounded-md sm:rounded-lg outline-none
+                w-[180px] px-3.5 py-2 lg:py-2.5 text-center text-sm rounded-md sm:rounded-lg outline-none
                 transition-all border border-slate-300 bg-white
                 focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]
-                hp:w-[120px]
-                hp:px-1
+                hp:flex-1
+                hp:min-w-0
+                hp:w-auto
+                hp:px-2
                 hp:py-2
                 hp:text-xs
               "
@@ -143,11 +154,13 @@ export function OverheadWireForm({
               onClick={onAddOhw}
               disabled={isOhwInputValue}
               className={`
-                flex items-center gap-2 px-7 py-2.5 text-sm font-medium rounded-md sm:rounded-lg
-                transition-all border
-                hp:px-6
+                flex items-center gap-2 px-7 py-2 lg:py-2.5 text-sm font-medium rounded-md sm:rounded-lg
+                transition-all border whitespace-nowrap
+                hp:px-4
                 hp:py-2
                 hp:text-xs
+                hp:gap-1.5
+                hp:flex-shrink-0
                     ${
                       isOhwInputValue
                         ? "bg-gray-50 border-gray-300 text-gray-600 opacity-40 cursor-not-allowed"
@@ -156,9 +169,9 @@ export function OverheadWireForm({
             >
               {/* Status icon (valid / invalid) */}
               {isOhwInputValue ? (
-                <Circle className="w-4 h-4 text-gray-400" />
+                <Circle className="w-4 h-4 text-gray-400 hp:w-3.5 hp:h-3.5" />
               ) : (
-                <CheckCircle className="w-4 h-4 text-blue-500" />
+                <CheckCircle className="w-4 h-4 text-blue-500 hp:w-3.5 hp:h-3.5" />
               )}
               OK
             </button>
@@ -197,24 +210,27 @@ export function OverheadWireForm({
                 mb-4 pb-4 border-b border-gray-200
                 hp:flex-col
                 hp:items-start
-                hp:gap-4
+                hp:gap-3
               "
             >
               {/* TITLE + INDEX */}
               <div className="flex items-center gap-3">
                 {/* Index badge */}
                 <div
-                  className="w-9 h-9 rounded-md sm:rounded-lg
-                  bg-gradient-to-br from-[#0d3b66] to-[#3399cc]
-                  flex items-center justify-center
-                  text-white text-sm font-medium hp:w-8 hp:h-8"
+                  className="
+                    w-9 h-9 lg:w-10 lg:h-10 rounded-md sm:rounded-lg flex-shrink-0
+                    bg-gradient-to-br from-[#0d3b66] to-[#3399cc]
+                    flex items-center justify-center
+                    text-white text-sm font-medium
+                    hp:w-[34px] hp:h-[34px]
+                  "
                 >
                   {index + 1}
                 </div>
 
                 {/* Title */}
-                <div>
-                  <h4 className="text-base text-[#0d3b66] text-sm font-medium leading-snug hp:text-xs">
+                <div className="min-w-0">
+                  <h4 className="text-sm font-medium text-[#0d3b66] leading-snug hp:text-xs truncate">
                     Overhead Wire{" "}
                     {overheadWire.name && `: ${overheadWire.name}`}
                   </h4>
@@ -222,16 +238,16 @@ export function OverheadWireForm({
               </div>
 
               {/* ACTION BUTTONS (DESKTOP) */}
-              <div className="flex items-center gap-6 hp:hidden">
+              <div className="flex items-center gap-3 hp:hidden">
                 {/* COPY & PASTE */}
                 <div className="flex items-center gap-2 ml-2">
                   {/* Copy OHW */}
                   <button
                     onClick={() => onCopyOhw(overheadWire)}
                     title="Copy this Overhead Wire"
-                    className="p-2 rounded-md sm:rounded-lg border bg-blue-50 text-blue-600 hover:bg-blue-100 transition"
+                    className="flex justify-center items-center w-9 h-9 lg:w-10 lg:h-10 rounded-md sm:rounded-lg border bg-blue-50 text-blue-600 hover:bg-blue-100 transition"
                   >
-                    <Copy className="w-4 h-4" />
+                    <Copy className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
                   </button>
 
                   {/* Paste OHW */}
@@ -243,13 +259,13 @@ export function OverheadWireForm({
                         ? "Paste copied Overhead wire"
                         : "No copied Overhead wire"
                     }
-                    className={`p-2 rounded-md sm:rounded-lg border transition ${
+                    className={`flex justify-center items-center w-9 h-9 lg:w-10 lg:h-10 rounded-md sm:rounded-lg border transition ${
                       hasClipboard
                         ? "bg-green-50 text-green-600 hover:bg-green-100"
                         : "bg-gray-200 text-gray-400 cursor-not-allowed"
                     }`}
                   >
-                    <ClipboardPaste className="w-4 h-4" />
+                    <ClipboardPaste className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
                   </button>
                 </div>
 
@@ -259,9 +275,9 @@ export function OverheadWireForm({
                 {/* RESET BUTTON */}
                 <button
                   onClick={() => resetCurrentOhw(overheadWire.idOhw)}
-                  className="flex items-center gap-2 px-5 py-2 h-[40px] bg-[#eef2f6] text-[#0d3b66] border border-[#d0d7e2] rounded-md sm:rounded-lg hover:bg-[#e2e8f0] transition text-xs font-medium"
+                  className="flex justify-center items-center gap-2 px-4 py-2 md:px-5 lg:py-2.5 rounded-lg text-sm font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm transition-colors"
                 >
-                  <RotateCcw className="w-4 h-4" />
+                  <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
                   Reset
                 </button>
 
@@ -271,9 +287,9 @@ export function OverheadWireForm({
                     e.stopPropagation();
                     setConfirmDeleteOhw(overheadWire.idOhw);
                   }}
-                  className="flex items-center gap-2 px-4 py-2 h-[40px] rounded-md sm:rounded-lg border border-red-200 text-red-600 bg-red-50 hover:bg-red-100 transition text-xs font-medium"
+                  className="flex justify-center items-center gap-2 px-4 py-2 md:px-5 lg:py-2.5 rounded-lg text-sm font-medium bg-red-50 hover:bg-red-100 text-red-600 ring-1 ring-inset ring-red-200 hover:ring-red-300 shadow-sm transition-all"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
                   Delete OHW
                 </button>
               </div>
@@ -282,13 +298,12 @@ export function OverheadWireForm({
               <div className="hidden hp:flex items-center justify-between gap-2 w-full">
                 {/* LEFT: COPY & PASTE */}
                 <div className="flex items-center gap-2">
-                  {/* Copy OHW */}
                   <button
                     onClick={() => onCopyOhw(overheadWire)}
                     title="Copy"
-                    className="h-8 w-8 rounded-md sm:rounded-lg border bg-blue-50 text-blue-600 hover:bg-blue-100 transition flex items-center justify-center"
+                    className="w-[34px] h-[34px] flex-shrink-0 rounded-md border bg-blue-50 text-blue-600 hover:bg-blue-100 transition flex items-center justify-center"
                   >
-                    <Copy className="w-4 h-4" />
+                    <Copy className="w-3.5 h-3.5" />
                   </button>
 
                   {/* Paste OHW */}
@@ -296,13 +311,13 @@ export function OverheadWireForm({
                     onClick={() => onPasteOhw(overheadWire.idOhw)}
                     disabled={!hasClipboard}
                     title="Paste"
-                    className={`h-8 w-8 rounded-md sm:rounded-lg border transition flex items-center justify-center ${
+                    className={`w-[34px] h-[34px] flex-shrink-0 rounded-md border transition flex items-center justify-center ${
                       hasClipboard
                         ? "bg-green-50 text-green-600 hover:bg-green-100"
                         : "bg-gray-200 text-gray-400 cursor-not-allowed"
                     }`}
                   >
-                    <ClipboardPaste className="w-4 h-4" />
+                    <ClipboardPaste className="w-3.5 h-3.5" />
                   </button>
                 </div>
 
@@ -312,9 +327,9 @@ export function OverheadWireForm({
                   <button
                     onClick={() => resetCurrentOhw(overheadWire.idOhw)}
                     title="Reset"
-                    className="h-8 w-8 rounded-md sm:rounded-lg border bg-[#eef2f6] text-[#0d3b66] hover:bg-[#e2e8f0] transition flex items-center justify-center"
+                    className="w-[34px] h-[34px] flex-shrink-0 rounded-md border bg-[#eef2f6] text-[#0d3b66] hover:bg-[#e2e8f0] transition flex items-center justify-center"
                   >
-                    <RotateCcw className="w-4 h-4" />
+                    <RotateCcw className="w-3.5 h-3.5" />
                   </button>
 
                   {/* DELETE BUTTON */}
@@ -324,9 +339,9 @@ export function OverheadWireForm({
                       setConfirmDeleteOhw(overheadWire.idOhw);
                     }}
                     title="Delete"
-                    className="h-8 w-8 rounded-md sm:rounded-lg border border-red-200 text-red-600 bg-red-50 hover:bg-red-100 transition flex items-center justify-center"
+                    className="w-[34px] h-[34px] flex-shrink-0 rounded-md border border-red-200 text-red-600 bg-red-50 hover:bg-red-100 transition flex items-center justify-center"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
@@ -336,16 +351,13 @@ export function OverheadWireForm({
             <div>
               <div
                 className="
-                  flex items-start space-x-2
-                  hp:grid
-                  hp:grid-cols-2
-                  hp:gap-3
-                  hp:space-x-0
-                  hp:gap-y-6
+                  grid grid-cols-5 gap-x-3 gap-y-6
+                  xl:flex xl:flex-row xl:flex-nowrap xl:items-start xl:gap-x-2 2xl:gap-x-3
+                  hp:grid hp:grid-cols-2 hp:gap-3 hp:gap-y-6
                 "
               >
                 {/* Overhead Wire Name Input */}
-                <div className="relative w-[200px] hp:w-full hp:col-span-2">
+                <div className="relative col-span-2 xl:flex-[2] min-w-0 hp:w-full hp:col-span-2">
                   <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
                     OHW Name
                   </label>
@@ -356,13 +368,13 @@ export function OverheadWireForm({
                       onUpdate(overheadWire.idOhw, { name: e.target.value })
                     }
                     placeholder="e.g., DV2.6-2C"
-                    className={inputStyle(ohwError.name)}
+                    className={`${inputStyle(ohwError.name)} px-3 2xl:px-4`}
                   />
                   <ErrorStyle show={ohwError.name} text={ohwError.name} />
                 </div>
 
                 {/* Weight Massa Overhead Wire Input */}
-                <div className="relative w-[150px] hp:w-full">
+                <div className="relative xl:flex-1 min-w-0 hp:w-full">
                   <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
                     Weight
                   </label>
@@ -377,9 +389,9 @@ export function OverheadWireForm({
                         })
                       }
                       onWheel={(e) => e.target.blur()}
-                      className={`${inputStyle(ohwError.weight)} pr-10 hp:pr-10`}
+                      className={`${inputStyle(ohwError.weight)} pl-3 2xl:pl-4 pr-10`}
                     />
-                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-black-400">
+                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
                       kg/m
                     </span>
                   </div>
@@ -387,7 +399,7 @@ export function OverheadWireForm({
                 </div>
 
                 {/* Diameter Overhead Wire Input */}
-                <div className="relative w-[140px] hp:w-full">
+                <div className="relative xl:flex-1 min-w-0 hp:w-full">
                   <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
                     Diameter
                   </label>
@@ -402,9 +414,9 @@ export function OverheadWireForm({
                         })
                       }
                       onWheel={(e) => e.target.blur()}
-                      className={`${inputStyle(ohwError.diameter)} pr-8 hp:pr-8`}
+                      className={`${inputStyle(ohwError.diameter)} pl-3 2xl:pl-4 pr-8`}
                     />
-                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-black-400">
+                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
                       mm
                     </span>
                   </div>
@@ -415,7 +427,7 @@ export function OverheadWireForm({
                 </div>
 
                 {/* Fix Height Overhead Wire Input */}
-                <div className="relative w-[150px] hp:w-full">
+                <div className="relative xl:flex-1 min-w-0 hp:w-full">
                   <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
                     Fix Height (Z)
                   </label>
@@ -430,9 +442,9 @@ export function OverheadWireForm({
                         })
                       }
                       onWheel={(e) => e.target.blur()}
-                      className={`${inputStyle(ohwError.zHeight)} pr-8 hp:pr-8`}
+                      className={`${inputStyle(ohwError.zHeight)} pl-3 2xl:pl-4 pr-8`}
                     />
-                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-black-400">
+                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
                       mm
                     </span>
                   </div>
@@ -440,7 +452,7 @@ export function OverheadWireForm({
                 </div>
 
                 {/* Span Overhead Wire Input */}
-                <div className="relative w-[150px] hp:w-full">
+                <div className="relative xl:flex-1 min-w-0 hp:w-full">
                   <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
                     Span
                   </label>
@@ -455,9 +467,9 @@ export function OverheadWireForm({
                         })
                       }
                       onWheel={(e) => e.target.blur()}
-                      className={`${inputStyle(ohwError.span)} pr-8 hp:pr-8`}
+                      className={`${inputStyle(ohwError.span)} pl-3 2xl:pl-4 pr-8`}
                     />
-                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-black-400">
+                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
                       mm
                     </span>
                   </div>
@@ -465,9 +477,12 @@ export function OverheadWireForm({
                 </div>
 
                 {/* Sagging Ratio Overhead Wire Input */}
-                <div className="relative w-[125px] hp:w-full">
+                <div className="relative xl:flex-[0.8] min-w-0 hp:w-full">
                   <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-                    Sagging Ratio
+                    <span className="xl:hidden 2xl:inline">Sagging Ratio</span>
+                    <span className="hidden xl:inline 2xl:hidden">
+                      Sag. Ratio
+                    </span>
                   </label>
                   <div className="relative">
                     <input
@@ -480,9 +495,9 @@ export function OverheadWireForm({
                         })
                       }
                       onWheel={(e) => e.target.blur()}
-                      className={`${inputStyle(ohwError.saggingRatio)} pr-4 hp:pr-4`}
+                      className={`${inputStyle(ohwError.saggingRatio)} pl-3 2xl:pl-4 pr-6`}
                     />
-                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-black-400">
+                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
                       %
                     </span>
                   </div>
@@ -493,7 +508,7 @@ export function OverheadWireForm({
                 </div>
 
                 {/* nnC Overhead Wire Input */}
-                <div className="relative w-[125px] hp:w-full">
+                <div className="relative xl:flex-[0.8] min-w-0 hp:w-full">
                   <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
                     nnC
                   </label>
@@ -507,13 +522,13 @@ export function OverheadWireForm({
                       })
                     }
                     onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(ohwError.nnC)}`}
+                    className={`${inputStyle(ohwError.nnC)} px-3 2xl:px-4`}
                   />
                   <ErrorStyle show={ohwError.nnC} text={ohwError.nnC} />
                 </div>
 
                 {/* Fix Angle Overhead Wire Input */}
-                <div className="relative w-[130px] hp:w-full">
+                <div className="relative xl:flex-1 min-w-0 hp:w-full">
                   <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
                     Fix Angle
                   </label>
@@ -527,9 +542,9 @@ export function OverheadWireForm({
                         })
                       }
                       onWheel={(e) => e.target.blur()}
-                      className={`${inputStyle(ohwError.fixAngle)} pr-8 hp:pr-8`}
+                      className={`${inputStyle(ohwError.fixAngle)} pl-3 2xl:pl-4 pr-8`}
                     />
-                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-black-400">
+                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
                       deg
                     </span>
                   </div>
@@ -540,7 +555,7 @@ export function OverheadWireForm({
                 </div>
 
                 {/* Vertical Angle Overhead Wire Input */}
-                <div className="relative w-[130px] hp:w-full">
+                <div className="relative xl:flex-1 min-w-0 hp:w-full">
                   <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
                     Vertical Angle
                   </label>
@@ -556,9 +571,9 @@ export function OverheadWireForm({
                       onWheel={(e) => e.target.blur()}
                       className={`${inputStyle(
                         ohwError.verticalAngle,
-                      )} pr-8 hp:pr-8`}
+                      )} pl-3 2xl:pl-4 pr-8`}
                     />
-                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-black-400">
+                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
                       deg
                     </span>
                   </div>
@@ -582,7 +597,7 @@ export function OverheadWireForm({
           onClick={handleAddOhw}
           disabled={overheadWires.length >= 8}
           className={`
-            w-full py-2.5 font-medium text-sm rounded-md sm:rounded-lg
+            w-full py-2 lg:py-2.5 font-medium text-sm rounded-md sm:rounded-lg
             flex items-center justify-center gap-2
             transition-all duration-200
             ${
@@ -590,10 +605,11 @@ export function OverheadWireForm({
                 ? "border-2 border-dashed border-gray-300 text-gray-400 cursor-not-allowed opacity-50"
                 : "border-2 border-dashed border-[#3399cc] text-[#3399cc] bg-transparent hover:bg-[#3399cc] hover:text-white"
             }
-            hp:text-xs hp:px-[22px]
+
+            hp:text-xs
           `}
         >
-          <Plus className="w-5 h-5 hp:w-4 hp:h-4" />
+          <Plus className="w-3.5 sm:w-4 lg:w-4.5 h-3.5 sm:h-4 lg:h-4.5" />
           Add OHW
         </button>
       </div>

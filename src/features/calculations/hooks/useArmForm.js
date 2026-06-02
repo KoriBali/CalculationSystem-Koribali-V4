@@ -72,7 +72,7 @@ export function useArmForm(projectType) {
 
   const updateArm = (idArm, updates) => {
     Utils.updateArm(idArm, updates, setArms, arms);
-    Utils.clearArmError(idArm, updates, setArmsErrors);
+    // Utils.clearArmError(idArm, updates, setArmsErrors);
   };
 
   const resetArm = () => Utils.resetCurrentArm(setArms, arms, activeTabArm);
@@ -107,7 +107,7 @@ export function useArmForm(projectType) {
 
   const updateAo = (idAo, updates) => {
     Utils.updateAo(idAo, updates, armObjects, updateActiveArmObjects);
-    Utils.clearAoError(idAo, updates, setAoErrors);
+    // Utils.clearAoError(idAo, updates, setAoErrors);
   };
 
   const resetAo = (idAo) =>

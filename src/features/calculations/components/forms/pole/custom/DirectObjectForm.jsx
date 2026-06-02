@@ -96,7 +96,7 @@ export function DirectObjectForm({
           {/* INPUT + ACTION BUTTON */}
           <div
             className="
-              flex items-center gap-3.5
+              flex items-center gap-3
               hp:flex-row
               hp:items-center
               hp:gap-2
@@ -342,12 +342,11 @@ export function DirectObjectForm({
             </div>
 
             {/* FORM INPUT WRAPPER */}
-            {/* FORM INPUT WRAPPER */}
             <div>
               <div
                 className="
                   grid grid-cols-5 gap-x-3 gap-y-6
-                  xl:flex xl:flex-row xl:flex-nowrap xl:items-start xl:gap-x-3
+                  xl:flex xl:flex-row xl:flex-nowrap xl:items-start xl:gap-x-2 2xl:gap-x-3
                   hp:grid hp:grid-cols-2 hp:gap-3 hp:gap-y-6
                 "
               >

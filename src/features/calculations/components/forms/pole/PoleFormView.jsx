@@ -222,7 +222,7 @@ export default function PoleFormView() {
                       </button>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 lg:gap-1 xl:gap-2">
+                    <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-1 xl:gap-2 overflow-x-auto whitespace-nowrap scroll-smooth scrollbar-hide">
                       {poleForm.poles.map((pole, index) => {
                         const isActive = poleForm.activeTab === pole.id;
                         return (
@@ -507,9 +507,9 @@ export default function PoleFormView() {
               >
                 <div className="bg-white rounded-b-2xl shadow-sm border border-gray-200 hp:rounded-b-xl">
                   <div className="px-6 pt-6 hp:p-4">
-                    <div className="flex items-center justify-between mb-4 hp:items-start hp:flex-col hp:gap-6 hp:mb-6">
-                      <h2 className="text-[#0d3b66] text-sm flex items-center gap-1 hp:text-xs">
-                        <div className="w-1 h-5 bg-[#3399cc] rounded-full mr-1 hp:h-4" />
+                    <div className="flex items-center justify-between mb-6 xl:mb-4 hp:items-start hp:flex-col hp:gap-6 hp:mb-6">
+                      <h3 className="text-[#0d3b66] flex items-center gap-2 text-xs md:text-sm font-medium hp:text-xs hp:gap-1">
+                        <div className="w-1 h-5 bg-[#3399cc] rounded-full hp:h-4" />
                         <span className="font-semibold">
                           Configure up to 6 Arms
                         </span>
@@ -517,47 +517,48 @@ export default function PoleFormView() {
                           {" "}
                           with detailed specifications
                         </span>
-                      </h2>
+                      </h3>
                       <button
                         onClick={armForm.addArm}
                         disabled={armForm.arms.length >= 6}
-                        className={`flex items-center gap-2 text-sm px-7 py-3 rounded-lg hp:rounded-md font-medium transition-all shadow-md hp:text-xs hp:px-[22px] hp:py-[10px] hp:self-center
+                        className={`flex justify-center items-center gap-2 p-2.5 sm:px-4 sm:py-2 md:px-5 lg:py-2.5 rounded-lg hp:rounded-md font-medium shadow-sm text-sm hp:text-xs hp:px-4 hp:self-center transition-all
                         ${
                           armForm.arms.length >= 6
-                            ? "bg-gray-300 text-black opacity-40 cursor-not-allowed"
-                            : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:shadow-xl hover:scale-105"
+                            ? "bg-gray-300 text-black opacity-40"
+                            : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:scale-105"
                         }`}
                       >
-                        <Plus className="w-5 h-5 hp:w-4 hp:h-4" />
+                        <Plus className="w-3.5 sm:w-4 lg:w-4.5 h-3.5 sm:h-4 lg:h-4.5" />
                         Add Arm
                       </button>
                     </div>
 
                     {/* Arm tabs */}
-                    <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap pb-2 hp:gap-2 hp:px-2 scroll-smooth scrollbar-hide">
+                    <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-1 xl:gap-2 overflow-x-auto whitespace-nowrap scroll-smooth scrollbar-hide">
                       {armForm.arms.map((arm, index) => {
                         const isActive = armForm.activeTabArm === arm.idArm;
                         return (
-                          <div key={arm.idArm} className="flex-shrink-0">
-                            <button
-                              onClick={() => armForm.setActiveTabArm(arm.idArm)}
-                              className={`flex items-center gap-2 px-5 py-2 rounded-lg hp:rounded-md border-[1.5px] text-sm font-medium transition-all hp:px-4 hp:py-1.5 hp:text-xs
-                                ${
-                                  isActive
-                                    ? "border-blue-500 bg-blue-50 text-blue-700"
-                                    : "border-gray-200 bg-gray-50 text-gray-500 hover:bg-gray-100 hover:border-gray-300"
-                                }`}
-                            >
-                              <span
-                                className={`w-2 h-2 rounded-full flex-shrink-0 transition-colors
-                                  ${isActive ? "bg-blue-500" : "bg-gray-300"}`}
-                              />
-                              <span className="hp:hidden">Arm {index + 1}</span>
-                              <span className="hidden hp:inline">
-                                {index + 1}
-                              </span>
-                            </button>
-                          </div>
+                          <button
+                            key={arm.idArm}
+                            onClick={() => armForm.setActiveTabArm(arm.idArm)}
+                            className={`flex items-center gap-2 px-5 xl:px-6 py-2 rounded-lg border-[1.5px] text-sm 
+                              font-medium transition-all
+                              hp:px-3 hp:py-1.5 hp:text-xs hp:rounded-md
+                              ${
+                                isActive
+                                  ? "border-blue-500 bg-blue-50 text-blue-700"
+                                  : "border-gray-200 bg-gray-50 text-gray-500 hover:bg-gray-100 hover:border-gray-300"
+                              }`}
+                          >
+                            <span
+                              className={`w-2 h-2 rounded-full flex-shrink-0 transition-colors
+                                ${isActive ? "bg-blue-500" : "bg-gray-300"}`}
+                            />
+                            <span className="hp:hidden">Arm {index + 1}</span>
+                            <span className="hidden hp:inline">
+                              {index + 1}
+                            </span>
+                          </button>
                         );
                       })}
                     </div>
@@ -566,74 +567,139 @@ export default function PoleFormView() {
 
                   {/* Active arm input */}
                   {armForm.activeArm && (
-                    <div className="p-6 hp:px-4 hp:pt-2 hp:pb-4">
+                    <div className="p-6 hp:px-4 hp:pt-0 hp:pb-4">
                       <div className="space-y-6 hp:space-y-4">
-                        <div className="flex items-center justify-between mb-6 pb-6 border-b border-gray-200 hp:mb-4 hp:pb-4">
-                          <div className="flex items-center gap-3 hp:gap-2">
+                        <div className="flex items-center justify-between mb-6 pb-6 border-b border-gray-200 hp:flex-col hp:items-start hp:gap-3 hp:mb-4 hp:pb-4">
+                          <div className="flex items-center gap-2 hp:gap-1">
                             {/* Accent bar */}
-                            <div className="w-1 h-8 rounded-full bg-gradient-to-b from-[#3399cc] to-[#3399cc] flex-shrink-0 hp:h-7" />
+                            <div className="w-1 h-8 rounded-full bg-gradient-to-b from-[#3399cc] to-[#3399cc] flex-shrink-0 hp:hidden" />
 
                             <h4 className="text-[#0d3b66] text-sm font-semibold hp:text-xs">
                               Arm {armForm.currentIndex + 1}
-                              {armForm.activeArm.nameArm &&
-                                ` : ${armForm.activeArm.nameArm}`}
+                              {armForm.activeArm.name &&
+                                ` : ${armForm.activeArm.name}`}
                             </h4>
                           </div>
 
                           {armForm.arms.length > 0 && (
-                            <div className="flex items-center gap-6 hp:hidden">
-                              <div className="flex items-center gap-2 ml-2">
-                                <button
-                                  onClick={() =>
-                                    armForm.copyArm(armForm.activeArm)
-                                  }
-                                  title="Copy this Arm Spec"
-                                  className="p-2 rounded-lg hp:rounded-md border bg-blue-50 text-blue-600 hover:bg-blue-100 transition"
-                                >
-                                  <Copy className="w-4 h-4" />
-                                </button>
-                                <button
-                                  onClick={() =>
-                                    armForm.pasteArm(armForm.activeArm.idArm)
-                                  }
-                                  disabled={!armForm.armClipboard}
-                                  title={
-                                    armForm.armClipboard
-                                      ? "Paste copied Arm Spec"
-                                      : "No copied Arm Spec"
-                                  }
-                                  className={`p-2 rounded-lg hp:rounded-md border transition ${
-                                    armForm.armClipboard
-                                      ? "bg-green-50 text-green-600 hover:bg-green-100"
-                                      : "bg-gray-200 text-gray-400 cursor-not-allowed"
-                                  }`}
-                                >
-                                  <ClipboardPaste className="w-4 h-4" />
-                                </button>
-                                <div className="h-8 w-px mx-4 bg-gray-300 opacity-70" />
+                            <>
+                              {/* ACTION BUTTONS (DESKTOP) */}
+                              <div className="flex items-center gap-3 hp:hidden">
+                                <div className="flex items-center gap-2 ml-2">
+                                  <button
+                                    onClick={() =>
+                                      armForm.copyArm(armForm.activeArm)
+                                    }
+                                    title="Copy this Arm Spec"
+                                    className="flex justify-center items-center w-9 h-9 lg:w-10 lg:h-10 rounded-md sm:rounded-lg border bg-blue-50 text-blue-600 hover:bg-blue-100 transition"
+                                  >
+                                    <Copy className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+                                  </button>
+                                  <button
+                                    onClick={() =>
+                                      armForm.pasteArm(armForm.activeArm.idArm)
+                                    }
+                                    disabled={!armForm.armClipboard}
+                                    title={
+                                      armForm.armClipboard
+                                        ? "Paste copied Arm Spec"
+                                        : "No copied Arm Spec"
+                                    }
+                                    className={`flex justify-center items-center w-9 h-9 lg:w-10 lg:h-10 rounded-md sm:rounded-lg border transition ${
+                                      armForm.armClipboard
+                                        ? "bg-green-50 text-green-600 hover:bg-green-100"
+                                        : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                                    }`}
+                                  >
+                                    <ClipboardPaste className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+                                  </button>
+                                </div>
+
+                                {/* DIVIDER */}
+                                <div className="h-8 w-px bg-gray-300 opacity-70" />
+
+                                {/* RESET BUTTON */}
                                 <button
                                   onClick={armForm.resetArm}
-                                  className="flex items-center gap-2 px-5 py-2 h-[40px] bg-[#eef2f6] text-[#0d3b66] border border-[#d0d7e2] rounded-lg hp:rounded-md hover:bg-[#e2e8f0] transition text-xs font-medium"
+                                  className="flex justify-center items-center gap-2 px-4 py-2 md:px-5 lg:py-2.5 rounded-lg text-sm font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm transition-colors"
                                 >
-                                  <RotateCcw className="w-4 h-4" />
+                                  <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
                                   Reset
                                 </button>
-                              </div>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  armForm.setConfirmDeleteArm(
-                                    armForm.activeArm.idArm,
-                                  );
-                                }}
-                                className="flex items-center gap-2 px-4 py-2 h-[40px] rounded-lg hp:rounded-md border border-red-200 text-red-600 bg-red-50 hover:bg-red-100 transition text-xs font-medium"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                                <span className="text-xs hp:hidden">
+
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    armForm.setConfirmDeleteArm(
+                                      armForm.activeArm.idArm,
+                                    );
+                                  }}
+                                  className="flex justify-center items-center gap-2 px-4 py-2 md:px-5 lg:py-2.5 rounded-lg text-sm font-medium bg-red-50 hover:bg-red-100 text-red-600 ring-1 ring-inset ring-red-200 hover:ring-red-300 shadow-sm transition-all"
+                                >
+                                  <Trash2 className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
                                   Delete Arm
-                                </span>
-                              </button>
-                            </div>
+                                </button>
+                              </div>
+
+                              {/* ACTION BUTTONS (MOBILE / hp) */}
+                              <div className="hidden hp:flex items-center justify-between gap-2 w-full">
+                                {/* LEFT: COPY & PASTE */}
+                                <div className="flex items-center gap-2">
+                                  <button
+                                    onClick={() =>
+                                      armForm.copyArm(armForm.activeArm)
+                                    }
+                                    title="Copy this Arm Spec"
+                                    className="w-[34px] h-[34px] flex-shrink-0 rounded-md border bg-blue-50 text-blue-600 hover:bg-blue-100 transition flex items-center justify-center"
+                                  >
+                                    <Copy className="w-3.5 h-3.5" />
+                                  </button>
+
+                                  <button
+                                    onClick={() =>
+                                      armForm.pasteArm(armForm.activeArm.idArm)
+                                    }
+                                    disabled={!armForm.armClipboard}
+                                    title={
+                                      armForm.armClipboard
+                                        ? "Paste copied Arm Spec"
+                                        : "No copied Arm Spec"
+                                    }
+                                    className={`w-[34px] h-[34px] flex-shrink-0 rounded-md border transition flex items-center justify-center ${
+                                      armForm.armClipboard
+                                        ? "bg-green-50 text-green-600 hover:bg-green-100"
+                                        : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                                    }`}
+                                  >
+                                    <ClipboardPaste className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+
+                                {/* RIGHT: RESET & DELETE */}
+                                <div className="flex items-center gap-2">
+                                  <button
+                                    onClick={armForm.resetArm}
+                                    title="Reset"
+                                    className="w-[34px] h-[34px] flex-shrink-0 rounded-md border bg-[#eef2f6] text-[#0d3b66] hover:bg-[#e2e8f0] transition flex items-center justify-center"
+                                  >
+                                    <RotateCcw className="w-3.5 h-3.5" />
+                                  </button>
+
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      armForm.setConfirmDeleteArm(
+                                        armForm.activeArm.idArm,
+                                      );
+                                    }}
+                                    title="Delete"
+                                    className="w-[34px] h-[34px] flex-shrink-0 rounded-md border border-red-200 text-red-600 bg-red-50 hover:bg-red-100 transition flex items-center justify-center"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+                              </div>
+                            </>
                           )}
                         </div>
 
@@ -671,29 +737,29 @@ export default function PoleFormView() {
                         <button
                           onClick={armForm.goToPrevArm}
                           disabled={armForm.isBackDisabledArm}
-                          className={`flex items-center text-sm gap-2 px-7 py-2.5 rounded-lg hp:rounded-md font-medium border-2 transition-colors hp:text-xs hp:px-[22px] hp:py-[8px]
-                          ${
-                            armForm.isBackDisabledArm
-                              ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
-                              : "bg-[#eef2f6] text-[#0d3b66] border-[#d0d7e2] hover:bg-[#e2e8f0]"
-                          }`}
+                          className={`flex justify-center items-center gap-2 text-sm px-3.5 py-2.5 sm:px-4 sm:py-2 md:px-5 lg:py-2.5 rounded-lg hp:rounded-md ring-1 ring-inset font-medium transition-colors
+                            ${
+                              armForm.isBackDisabledArm
+                                ? "bg-gray-100 text-gray-400 ring-gray-200 cursor-not-allowed"
+                                : "bg-[#eef2f6] text-[#0d3b66] ring-[#d0d7e2] hover:bg-[#e2e8f0] hover:ring-[#b8c2d1]"
+                            }`}
                         >
-                          <ChevronLeft className="w-5 h-5 hp:w-4 hp:h-4" />
+                          <ChevronLeft className="w-3.5 sm:w-4 lg:w-4.5 h-3.5 sm:h-4 lg:h-4.5" />
                           <span className="hp:hidden">Back</span>
                         </button>
 
                         <button
                           onClick={armForm.goToNextArm}
                           disabled={armForm.isNextDisabledArm}
-                          className={`flex items-center text-sm gap-2 px-7 py-2.5 border-2 rounded-lg hp:rounded-md font-medium shadow-md transition-all hp:text-xs hp:px-[22px] hp:py-[8px]
-                          ${
-                            armForm.isNextDisabledArm
-                              ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed shadow-none"
-                              : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110"
-                          }`}
+                          className={`flex justify-center items-center gap-2 text-sm px-3.5 py-2.5 sm:px-4 sm:py-2 md:px-5 lg:py-2.5 rounded-lg hp:rounded-md font-medium transition-all
+                            ${
+                              armForm.isNextDisabledArm
+                                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                                : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110"
+                            }`}
                         >
-                          Next Arm
-                          <ChevronRight className="w-5 h-5 hp:w-4 hp:h-4" />
+                          <span className="hp:hidden">Next Arm</span>
+                          <ChevronRight className="w-3.5 sm:w-4 lg:w-4.5 h-3.5 sm:h-4 lg:h-4.5" />
                         </button>
                       </div>
                     </div>
@@ -705,28 +771,30 @@ export default function PoleFormView() {
 
           {/* ── Calculate / Finish footer ── */}
           <div className="flex items-center justify-between p-5 mt-12 mb-20 bg-gradient-to-b from-white to-slate-50 rounded-2xl hp:rounded-xl border border-gray-200 shadow-sm">
-            <div className="w-[120px]" />
+            <div className="w-[120px] hidden sm:inline" />
 
             <button
               onClick={calculation.calculate}
-              className="flex items-center gap-2 px-7 py-2.5 bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white rounded-lg hp:rounded-md text-sm hover:brightness-110 transition-all shadow-sm font-medium hp:text-xs hp:px-[22px] hp:py-[10px]"
+              className="flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 md:px-6 
+              rounded-lg hp:rounded-md font-medium bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white text-xs md:text-sm hover:brightness-110 shadow-sm transition-all"
             >
-              <Calculator className="w-5 h-5 hp:w-4 hp:h-4" />
-              Calculate Results
+              <Calculator className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+              Calculate Result
             </button>
 
             <button
               onClick={handleFinish}
               disabled={!calculation.isCalculated}
-              className={`flex items-center gap-2 px-7 py-2.5 rounded-lg hp:rounded-md text-sm font-medium transition-all hp:text-xs hp:px-[22px] hp:py-[10px]
+              className={`flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 md:px-6 
+              rounded-lg hp:rounded-md font-medium transition-all text-sm hp:text-xs
               ${
                 !calculation.isCalculated
-                  ? "bg-gray-100 text-gray-400 border-0 ring-2 ring-inset ring-gray-200 cursor-not-allowed shadow-none"
+                  ? "bg-gray-100 text-gray-400 ring-1 ring-inset ring-gray-200 cursor-not-allowed shadow-none"
                   : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
               }`}
             >
               {calculation.buttonLabel}
-              <ChevronRight className="w-5 h-5 hp:w-4 hp:h-4" />
+              <ChevronRight className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
             </button>
           </div>
 

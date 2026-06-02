@@ -121,7 +121,7 @@ export function ConditionForm({
                       onUpdate({ designWindSpeed: e.target.value })
                     }
                     onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(errors.designWindSpeed)} md:pr-12`}
+                    className={`${inputStyle(errors.designWindSpeed)} pr-10 xl:pr-10`}
                   />
                   <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-black-400">
                     m/s
@@ -143,12 +143,13 @@ export function ConditionForm({
                     type="number"
                     inputMode="decimal"
                     min={0}
+                    step="0.01"
                     value={condition.designAirDensity}
                     onChange={(e) =>
                       onUpdate({ designAirDensity: e.target.value })
                     }
                     onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(errors.designAirDensity)} md:pr-24`}
+                    className={`${inputStyle(errors.designAirDensity)} pr-[88px] xl:pr-[88px]`}
                   />
                   <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-black-400">
                     N・sec<sup>2</sup>/m<sup>4</sup>
