@@ -4,7 +4,7 @@
  */
 // Returns input className based on validation state
 const inputStyle = (hasError) =>
-  `w-full pl-3 md:pl-4 pr-10 py-2 lg:py-2.5 rounded-lg hp:rounded-md text-xs md:text-sm outline-none transition-all border
+  `w-full pl-3 md:pl-4 pr-8 py-2 lg:py-2.5 rounded-lg hp:rounded-md text-xs md:text-sm outline-none transition-all border
   ${
     hasError
       ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
@@ -13,7 +13,7 @@ const inputStyle = (hasError) =>
 
 // Renders a red error message below an invalid field
 const ErrorStyle = ({ show, text }) =>
-  show ? (
+  show && typeof text === "string" ? (
     <div className="absolute left-0 -bottom-4 md:-bottom-5 flex items-center gap-1 text-[9px] md:text-[11px] text-red-500">
       <span>*{text}</span>
     </div>
@@ -46,7 +46,7 @@ const UnitInput = ({ value, onChange, unit, hasError, ...props }) => (
       className={inputStyle(hasError)}
       {...props}
     />
-    <span className="absolute right-4 text-xs md:text-sm top-1/2 -translate-y-1/2 text-gray-400">
+    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
       {unit}
     </span>
   </div>
@@ -107,7 +107,19 @@ export function PoleForm({
               </label>
               <select
                 value={pole.type}
-                onChange={(e) => onUpdate({ type: e.target.value })}
+                onChange={(e) => {
+                  const newType = e.target.value;
+                  if (newType === "Straight") {
+                    // Sync upper → lower saat switch ke Straight
+                    onUpdate({
+                      type: newType,
+                      upperDiameter: pole.lowerDiameter,
+                      upperThickness: pole.lowerThickness,
+                    });
+                  } else {
+                    onUpdate({ type: newType });
+                  }
+                }}
                 className="w-full min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] px-2 md:px-4 py-2 md:py-2.5 border border-gray-300 rounded-md sm:rounded-lg text-xs md:text-sm
                 focus:ring-2 focus:ring-[#3399cc] focus:border-[#3399cc] outline-none transition-all bg-white"
               >
@@ -140,11 +152,11 @@ export function PoleForm({
                     })
                   }
                   unit="mm"
-                  hasError={errors.lowerDiameter}
+                  hasError={errors.lowerDiameter || errors.upperDiameter}
                 />
                 <ErrorStyle
-                  show={errors.lowerDiameter}
-                  text={errors.lowerDiameter}
+                  show={errors.lowerDiameter || errors.upperDiameter}
+                  text={errors.lowerDiameter || errors.upperDiameter}
                 />
               </div>
 
@@ -162,11 +174,11 @@ export function PoleForm({
                     })
                   }
                   unit="mm"
-                  hasError={errors.lowerThickness}
+                  hasError={errors.lowerThickness || errors.upperThickness}
                 />
                 <ErrorStyle
-                  show={errors.lowerThickness}
-                  text={errors.lowerThickness}
+                  show={errors.lowerThickness || errors.upperThickness}
+                  text={errors.lowerThickness || errors.upperThickness}
                 />
               </div>
             </div>

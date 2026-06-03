@@ -408,7 +408,7 @@ export function ArmObjectForm({
                       onWheel={(e) => e.target.blur()}
                       className={`${inputStyle(aoError.frontArea)} pl-3 2xl:pl-4 pr-6`}
                     />
-                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
+                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                       m<sup>2</sup>
                     </span>
                   </div>
@@ -437,7 +437,7 @@ export function ArmObjectForm({
                         onWheel={(e) => e.target.blur()}
                         className={`${inputStyle(aoError.sideArea)} pl-3 2xl:pl-4 pr-6`}
                       />
-                      <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
+                      <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                         m<sup>2</sup>
                       </span>
                     </div>
@@ -466,7 +466,7 @@ export function ArmObjectForm({
                       onWheel={(e) => e.target.blur()}
                       className={`${inputStyle(aoError.weight)} pl-3 2xl:pl-4 pr-6`}
                     />
-                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
+                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                       kg
                     </span>
                   </div>
@@ -491,7 +491,7 @@ export function ArmObjectForm({
                       onWheel={(e) => e.target.blur()}
                       className={`${inputStyle(aoError.hDistance)} pl-3 2xl:pl-4 pr-8`}
                     />
-                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
+                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                       mm
                     </span>
                   </div>
@@ -519,7 +519,7 @@ export function ArmObjectForm({
                         onWheel={(e) => e.target.blur()}
                         className={`${inputStyle(aoError.fixAngle)} pl-3 2xl:pl-4 pr-8`}
                       />
-                      <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
+                      <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                         deg
                       </span>
                     </div>
@@ -564,7 +564,7 @@ export function ArmObjectForm({
                       onWheel={(e) => e.target.blur()}
                       className={`${inputStyle(aoError.quantity)} pl-3 2xl:pl-4 pr-6`}
                     />
-                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
+                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                       pcs
                     </span>
                   </div>

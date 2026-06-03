@@ -776,7 +776,7 @@ export default function PoleFormView() {
             <button
               onClick={calculation.calculate}
               className="flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 md:px-6 
-              rounded-lg hp:rounded-md font-medium bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white text-xs md:text-sm hover:brightness-110 shadow-sm transition-all"
+              rounded-lg hp:rounded-md font-medium bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white text-sm hp:text-xs hover:brightness-110 shadow-sm transition-all"
             >
               <Calculator className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
               Calculate Result

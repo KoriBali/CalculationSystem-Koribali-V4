@@ -44,8 +44,22 @@ export function useOverheadWireForm(projectType) {
   const copyOhw = (ohw) => Utils.copyOhw(ohw, setOhwClipboard);
 
   // Pastes clipboard OHW into a specific slot
-  const pasteOhw = (idOhw) =>
+  const pasteOhw = (idOhw) => {
     Utils.pasteOhw(idOhw, setOverheadWires, ohwClipboard);
+
+    if (!ohwClipboard) return;
+
+    setOhwErrors((prev) => {
+      if (!prev[idOhw]) return prev;
+      const updatedOhwErrors = { ...prev[idOhw] };
+      Object.keys(ohwClipboard).forEach((key) => {
+        const val = ohwClipboard[key];
+        const isEmpty = val === "" || val === null || val === undefined;
+        if (!isEmpty) delete updatedOhwErrors[key];
+      });
+      return { ...prev, [idOhw]: updatedOhwErrors };
+    });
+  };
 
   // Removes an OHW by ID
   const removeOhw = (idOhw) =>
@@ -54,6 +68,13 @@ export function useOverheadWireForm(projectType) {
   // Updates a specific OHW's fields and clears related errors
   const updateOhw = (idOhw, updates) => {
     Utils.updateOhw(idOhw, updates, setOverheadWires, overheadWires);
+
+    setOhwErrors((prev) => {
+      if (!prev[idOhw]) return prev;
+      const updatedOhwErrors = { ...prev[idOhw] };
+      Object.keys(updates).forEach((key) => delete updatedOhwErrors[key]);
+      return { ...prev, [idOhw]: updatedOhwErrors };
+    });
   };
 
   // Resets a specific OHW's fields to empty

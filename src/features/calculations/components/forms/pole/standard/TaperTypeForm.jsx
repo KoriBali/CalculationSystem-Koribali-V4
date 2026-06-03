@@ -253,9 +253,10 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate }) {
         <button
           type="button"
           onClick={() => onUpdate(EMPTY_POLE_STANDARD)}
-          className="flex items-center text-xs md:text-sm gap-2 px-7 py-2 lg:py-2.5 min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] bg-[#eef2f6] text-[#0d3b66] border-2 border-[#d0d7e2] rounded-lg hp:rounded-md hover:bg-[#e2e8f0] transition-colors font-medium hp:text-xs hp:px-[22px] hp:py-[8px]"
+          className="flex justify-center items-center text-sm gap-2 px-5 py-2.5 sm:py-2.5 lg:py-2.5 md:px-6 bg-[#eef2f6] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] rounded-lg hp:rounded-md 
+          hover:bg-[#e2e8f0] transition-colors font-medium hp:text-xs"
         >
-          <RotateCcw className="w-5 h-5 hp:w-4 hp:h-4" />
+          <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
           Reset
         </button>
       </div>

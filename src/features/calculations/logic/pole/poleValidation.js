@@ -9,7 +9,6 @@ import { ArmObjectSchema } from "../../schemas/pole/custom/ArmObjectSchema";
 import { PoleTypeSchema } from "../../schemas/pole/standard/PoleTypeSchema";
 import { StraightTypeSchema } from "../../schemas/pole/standard/StraightTypeSchema";
 
-// JSON data source for standard pole specifications
 import STANDARD_POLE_DATA from "../../data/specStandardPole.json";
 
 // ─── HELPERS ──────────────────────────────────────────────────────────────────
@@ -170,91 +169,178 @@ export async function validatePoleForm({
     };
   }
 
-  // ── 5. Validate each pole (custom only) ──
+  // ── 5. Validate poles (custom only) ──
   if (isCustom) {
-    for (const pole of resolved.poles || []) {
-      // Basic Form Validation
-      const formResult = await validateWithYup(PoleFormSchema, pole);
-      if (!formResult.isValid) {
+    // ── 5a. PoleFormSchema — validasi semua poles, kumpulkan semua error ──
+    const allFormErrors = {};
+    let hasFormError = false;
+
+    await Promise.all(
+      (resolved.poles || []).map(async (pole, index) => {
+        const { isValid, errors } = await validateWithYup(PoleFormSchema, pole);
+        if (!isValid) {
+          hasFormError = true;
+          // key berdasarkan id pole, value adalah errors per field
+          allFormErrors[pole.id] = errors;
+        }
+      }),
+    );
+
+    if (hasFormError) {
+      return {
+        isValid: false,
+        polesErrors: allFormErrors,
+        message: "Please correct the errors in Pole Specification fields.",
+      };
+    }
+
+    // ── 5b. PoleStructuralSchema — validasi array poles sekaligus ──
+    const structuralSchema = PoleStructuralSchema(poleConfig);
+    const { isValid: isStructuralValid, errors: structuralErrors } =
+      await validateWithYup(structuralSchema, resolved.poles);
+
+    if (!isStructuralValid) {
+      const groupedErrors = {};
+
+      Object.entries(structuralErrors).forEach(([path, message]) => {
+        const match = path.match(/^\[?(\d+)\]?\.(.+)$/);
+        if (match) {
+          const index = Number(match[1]);
+          const field = match[2];
+          const pole = resolved.poles[index];
+          if (pole) {
+            if (!groupedErrors[pole.id]) groupedErrors[pole.id] = {};
+            // true = field merah, tapi tidak tampilkan teks error di bawah field
+            // pesan error sudah ditampilkan via toast
+            groupedErrors[pole.id][field] = true;
+          }
+        }
+      });
+
+      if (Object.keys(groupedErrors).length === 0) {
+        const firstMessage = Object.values(structuralErrors)[0];
+        console.warn(
+          "[PoleStructural] Unmatched error path:",
+          structuralErrors,
+        );
         return {
           isValid: false,
-          polesErrors: { [pole.id]: formResult.errors },
-          message: "Please correct the errors in Pole Specification fields.",
+          polesErrors: {},
+          message:
+            firstMessage ||
+            "Please correct the errors in Pole Specification fields.",
         };
       }
 
-      // Structural Validation
-      const structuralResult = await validateWithYup(
-        PoleStructuralSchema,
-        pole,
-      );
-      if (!structuralResult.isValid) {
-        return {
-          isValid: false,
-          polesErrors: { [pole.id]: structuralResult.errors },
-          message: "Please correct the errors in Pole Specification fields.",
-        };
-      }
+      return {
+        isValid: false,
+        polesErrors: groupedErrors,
+        // Ambil pesan pertama dari structuralErrors untuk toast
+        message: Object.values(structuralErrors)[0],
+      };
     }
   }
 
   // ── 6. Validate Direct Objects (custom only) ──
   if (isCustom) {
-    for (const directObject of resolved.directObjects || []) {
-      const { isValid, errors } = await validateWithYup(
-        DirectObjectSchema,
-        directObject,
-      );
-      if (!isValid) {
-        return {
-          isValid: false,
-          doErrors: { [directObject.idDo]: errors },
-          message: "Please correct the errors in Direct Object fields.",
-        };
-      }
+    const allDoErrors = {};
+    let hasDoError = false;
+
+    await Promise.all(
+      (resolved.directObjects || []).map(async (directObject) => {
+        const { isValid, errors } = await validateWithYup(
+          DirectObjectSchema,
+          directObject,
+        );
+        if (!isValid) {
+          hasDoError = true;
+          allDoErrors[directObject.idDo] = errors;
+        }
+      }),
+    );
+
+    if (hasDoError) {
+      return {
+        isValid: false,
+        doErrors: allDoErrors,
+        message: "Please correct the errors in Direct Object fields.",
+      };
     }
   }
 
   // ── 7. Validate Overhead Wires (custom only) ──
   if (isCustom) {
-    for (const ohw of resolved.overheadWires || []) {
-      const { isValid, errors } = await validateWithYup(
-        OverheadWireSchema,
-        ohw,
-      );
-      if (!isValid) {
-        return {
-          isValid: false,
-          ohwErrors: { [ohw.idOhw]: errors },
-          message: "Please correct the errors in Overhead Wire fields.",
-        };
-      }
+    const allOhwErrors = {};
+    let hasOhwError = false;
+
+    await Promise.all(
+      (resolved.overheadWires || []).map(async (ohw) => {
+        const { isValid, errors } = await validateWithYup(
+          OverheadWireSchema,
+          ohw,
+        );
+        if (!isValid) {
+          hasOhwError = true;
+          allOhwErrors[ohw.idOhw] = errors;
+        }
+      }),
+    );
+
+    if (hasOhwError) {
+      return {
+        isValid: false,
+        ohwErrors: allOhwErrors,
+        message: "Please correct the errors in Overhead Wire fields.",
+      };
     }
   }
 
-  // ── 8. Validate Arms (custom only) ──
+  // ── 8. Validate Arms + Arm Objects (custom only) ──
   if (isCustom) {
-    for (const arm of resolved.arms || []) {
-      const armResult = await validateWithYup(ArmSchema, arm);
-      if (!armResult.isValid) {
-        return {
-          isValid: false,
-          armsErrors: { [arm.idArm]: armResult.errors },
-          message: "Please correct the errors in Arm Specification fields.",
-        };
-      }
+    const allArmsErrors = {};
+    const allAoErrors = {};
+    let hasArmError = false;
 
-      // ── 9. Validate Arm Objects ──
-      for (const ao of arm.armObjects || []) {
-        const aoResult = await validateWithYup(ArmObjectSchema, ao);
-        if (!aoResult.isValid) {
-          return {
-            isValid: false,
-            aoErrors: { [ao.idAo]: aoResult.errors },
-            message: "Please correct the errors in Arm Object fields.",
-          };
+    await Promise.all(
+      (resolved.arms || []).map(async (arm) => {
+        // Validasi arm
+        const { isValid, errors } = await validateWithYup(ArmSchema, arm);
+        if (!isValid) {
+          hasArmError = true;
+          allArmsErrors[arm.idArm] = errors;
         }
-      }
+
+        // Validasi semua arm objects dalam arm ini
+        await Promise.all(
+          (arm.armObjects || []).map(async (ao) => {
+            const { isValid: aoValid, errors: aoErrors } =
+              await validateWithYup(ArmObjectSchema, ao);
+            if (!aoValid) {
+              hasArmError = true;
+              allAoErrors[ao.idAo] = aoErrors;
+            }
+          }),
+        );
+      }),
+    );
+
+    if (hasArmError) {
+      const hasArmFieldError = Object.keys(allArmsErrors).length > 0;
+      const hasAoFieldError = Object.keys(allAoErrors).length > 0;
+
+      const message =
+        hasArmFieldError && hasAoFieldError
+          ? "Please correct the errors in Arm and Arm Object fields."
+          : hasArmFieldError
+            ? "Please correct the errors in Arm Specification fields."
+            : "Please correct the errors in Arm Object fields.";
+
+      return {
+        isValid: false,
+        armsErrors: allArmsErrors,
+        aoErrors: allAoErrors,
+        message,
+      };
     }
   }
 
@@ -278,8 +364,6 @@ export async function validatePoleReport(params) {
     };
   }
 
-  // Note: For coverErrors, you should ideally use a Yup schema for Cover as well
-  // to fully remove dependency on Utils.
   if (!isCoverComplete()) {
     return {
       isValid: false,

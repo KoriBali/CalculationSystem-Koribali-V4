@@ -31,7 +31,7 @@ const groundPositionImageMapD = {
 // === HELPERS ===
 // Returns input className based on validation state
 const inputStyle = (hasError) =>
-  `px-4 py-2 lg:py-2.5 rounded-lg outline-none transition-all border text-sm pr-14
+  `px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg outline-none transition-all border text-sm pr-9
   ${
     hasError
       ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
@@ -135,7 +135,7 @@ export function StraightPoleStandardForm({
                 {/* Lower pole diameter group — resets combination on change */}
                 <div>
                   <h4 className="block text-gray-700 text-sm mb-3 hp:text-xs hp:mb-2">
-                    Select Lower Pole Diameter
+                    Select Lower Pole Diameter (mm)
                   </h4>
                   <div className="grid grid-cols-3 gap-3">
                     {COMBINATION_GROUPS.map((group) => {
@@ -259,7 +259,7 @@ export function StraightPoleStandardForm({
                           onWheel={(e) => e.target.blur()}
                           className={`${inputStyle(errors.upperLength)} w-full`}
                         />
-                        <span className="absolute right-4 text-sm top-1/2 -translate-y-1/2 text-gray-400 hp:text-xs">
+                        <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                           mm
                         </span>
                         <ErrorStyle
@@ -322,7 +322,7 @@ export function StraightPoleStandardForm({
                           onWheel={(e) => e.target.blur()}
                           className={`${inputStyle(errors.lowerLength)} w-full`}
                         />
-                        <span className="absolute right-4 text-sm top-1/2 -translate-y-1/2 text-gray-400 hp:text-xs">
+                        <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                           mm
                         </span>
                         <ErrorStyle
@@ -406,14 +406,14 @@ export function StraightPoleStandardForm({
                               onUpdate({ embedmentLength: e.target.value })
                             }
                             onWheel={(e) => e.target.blur()}
-                            className={`w-full pl-3 md:pl-4 pr-10 py-2 lg:py-2.5 rounded-lg hp:rounded-md text-xs md:text-sm outline-none transition-all border
+                            className={`w-full pl-3 md:pl-4 pr-9 py-2 lg:py-2.5 rounded-lg hp:rounded-md text-xs md:text-sm outline-none transition-all border
                                     ${
                                       errors.embedmentLength
                                         ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
                                         : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
                                     }`}
                           />
-                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400">
+                          <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                             mm
                           </span>
                         </div>
@@ -518,7 +518,7 @@ export function StraightPoleStandardForm({
                                     onUpdate({ heightDepth: e.target.value })
                                   }
                                   onWheel={(e) => e.target.blur()}
-                                  className={`w-full pl-3 md:pl-4 pr-10 py-2 lg:py-2.5 rounded-lg hp:rounded-md text-xs md:text-sm outline-none transition-all border
+                                  className={`w-full pl-3 md:pl-4 pr-9 py-2 lg:py-2.5 rounded-lg hp:rounded-md text-xs md:text-sm outline-none transition-all border
                                     ${
                                       disabled
                                         ? "bg-gray-100 border-gray-200 text-gray-400"
@@ -527,7 +527,7 @@ export function StraightPoleStandardForm({
                                           : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
                                     }`}
                                 />
-                                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400">
+                                <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                                   mm
                                 </span>
                               </div>
@@ -560,9 +560,10 @@ export function StraightPoleStandardForm({
         <button
           type="button"
           onClick={() => onUpdate(EMPTY_STEPPED_POLE)}
-          className="flex items-center text-sm gap-2 px-7 py-2 lg:py-2.5 bg-[#eef2f6] text-[#0d3b66] border-2 border-[#d0d7e2] rounded-lg hp:rounded-md hover:bg-[#e2e8f0] transition-colors font-medium hp:text-xs hp:px-[22px] hp:py-[8px]"
+          className="flex justify-center items-center text-sm gap-2 px-5 py-2.5 sm:py-2.5 lg:py-2.5 md:px-6 bg-[#eef2f6] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] rounded-lg hp:rounded-md 
+          hover:bg-[#e2e8f0] transition-colors font-medium hp:text-xs"
         >
-          <RotateCcw className="w-5 h-5 hp:w-4 hp:h-4" />
+          <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
           Reset
         </button>
       </div>

@@ -44,7 +44,23 @@ export function useDirectObjectForm(projectType) {
   const copyDo = (directObject) => Utils.copyDo(directObject, setDoClipboard);
 
   // Pastes clipboard DO into a specific slot
-  const pasteDo = (idDo) => Utils.pasteDo(idDo, setDirectObjects, doClipboard);
+  const pasteDo = (idDo) => {
+    Utils.pasteDo(idDo, setDirectObjects, doClipboard);
+
+    // Hanya clear error kalau nilai yang di-paste tidak kosong
+    if (!doClipboard) return;
+
+    setDoErrors((prev) => {
+      if (!prev[idDo]) return prev;
+      const updatedDoErrors = { ...prev[idDo] };
+      Object.keys(doClipboard).forEach((key) => {
+        const val = doClipboard[key];
+        const isEmpty = val === "" || val === null || val === undefined;
+        if (!isEmpty) delete updatedDoErrors[key];
+      });
+      return { ...prev, [idDo]: updatedDoErrors };
+    });
+  };
 
   // Removes a DO by ID
   const removeDo = (idDo) =>
@@ -53,9 +69,15 @@ export function useDirectObjectForm(projectType) {
   // Updates a specific DO's fields and clears related errors
   const updateDo = (idDo, updates) => {
     Utils.updateDo(idDo, updates, setDirectObjects, directObjects);
-    // Utils.clearDoError(idDo, updates, setDoErrors);
-  };
 
+    // Clear error untuk field yang baru diubah, berdasarkan DO id
+    setDoErrors((prev) => {
+      if (!prev[idDo]) return prev;
+      const updatedDoErrors = { ...prev[idDo] };
+      Object.keys(updates).forEach((key) => delete updatedDoErrors[key]);
+      return { ...prev, [idDo]: updatedDoErrors };
+    });
+  };
   // Resets a specific DO's fields to empty
   const resetDo = (idDo) =>
     Utils.resetCurrentDo(setDirectObjects, directObjects, idDo);

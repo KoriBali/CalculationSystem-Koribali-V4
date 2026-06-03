@@ -177,7 +177,7 @@ export function DirectObjectForm({
 
       {/* EMPTY STATE */}
       {directObjects.length === 0 && (
-        <div className="text-center text-gray-400 text-sm py-6 hp:text-xs hp:py-4">
+        <div className="text-center text-gray-500 text-sm py-6 hp:text-xs hp:py-4">
           No Direct Object added yet
         </div>
       )}
@@ -403,7 +403,7 @@ export function DirectObjectForm({
                       onWheel={(e) => e.target.blur()}
                       className={`${inputStyle(doError.frontArea)} pl-3 2xl:pl-4 pr-6`}
                     />
-                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
+                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                       m<sup>2</sup>
                     </span>
                   </div>
@@ -432,7 +432,7 @@ export function DirectObjectForm({
                         onWheel={(e) => e.target.blur()}
                         className={`${inputStyle(doError.sideArea)} pl-3 2xl:pl-4 pr-6`}
                       />
-                      <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
+                      <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                         m<sup>2</sup>
                       </span>
                     </div>
@@ -459,7 +459,7 @@ export function DirectObjectForm({
                       onWheel={(e) => e.target.blur()}
                       className={`${inputStyle(doError.weight)} pl-3 2xl:pl-4 pr-5`}
                     />
-                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
+                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                       kg
                     </span>
                   </div>
@@ -482,7 +482,7 @@ export function DirectObjectForm({
                       onWheel={(e) => e.target.blur()}
                       className={`${inputStyle(doError.zHeight)} pl-3 2xl:pl-4 pr-7`}
                     />
-                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
+                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                       mm
                     </span>
                   </div>
@@ -525,7 +525,7 @@ export function DirectObjectForm({
                       onWheel={(e) => e.target.blur()}
                       className={`${inputStyle(doError.quantity)} pl-3 2xl:pl-4 pr-7`}
                     />
-                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
+                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                       pcs
                     </span>
                   </div>
@@ -550,7 +550,7 @@ export function DirectObjectForm({
                         onWheel={(e) => e.target.blur()}
                         className={`${inputStyle(doError.fixAngle)}  pl-3 2xl:pl-4 pr-7`}
                       />
-                      <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
+                      <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                         deg
                       </span>
                     </div>

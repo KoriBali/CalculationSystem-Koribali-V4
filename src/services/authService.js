@@ -28,30 +28,52 @@
 // };
 // services/authService.js
 
+// import api from "../config/api";
+
+// // Login user from json-server
+// export const loginUser = async ({ email, password }) => {
+//   const response = await api.get("/users", {
+//     params: { email, password },
+//   });
+
+//   // Login failed
+//   if (response.data.length === 0) {
+//     throw new Error("Invalid email or password");
+//   }
+
+//   const user = response.data[0];
+
+//   // Fake token
+//   const fakeToken = `fake-jwt-token-${btoa(user.email)}`;
+
+//   return {
+//     token: fakeToken,
+//     user: {
+//       id: user.id,
+//       name: user.name,
+//       email: user.email,
+//     },
+//   };
+// };
+
 import api from "../config/api";
 
-// Login user from json-server
 export const loginUser = async ({ email, password }) => {
-  const response = await api.get("/users", {
-    params: { email, password },
-  });
-
-  // Login failed
-  if (response.data.length === 0) {
-    throw new Error("Invalid email or password");
-  }
-
-  const user = response.data[0];
-
-  // Fake token
-  const fakeToken = `fake-jwt-token-${btoa(user.email)}`;
-
+  // Temporary bypass — langsung generate token tanpa database
+  const fakeToken = `fake-jwt-token-${btoa(email)}`;
   return {
     token: fakeToken,
     user: {
-      id: user.id,
-      name: user.name,
-      email: user.email,
+      id: 1,
+      name: "Guest",
+      email,
     },
   };
+
+  // ── Uncomment ini setelah database tersedia ──
+  // const response = await api.get("/users", { params: { email, password } });
+  // if (response.data.length === 0) throw new Error("Invalid email or password");
+  // const user = response.data[0];
+  // const fakeToken = `fake-jwt-token-${btoa(user.email)}`;
+  // return { token: fakeToken, user: { id: user.id, name: user.name, email: user.email } };
 };

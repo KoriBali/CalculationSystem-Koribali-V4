@@ -61,6 +61,14 @@ export function usePoleForm(projectType) {
   // Updates a specific pole's fields and clears related errors
   const updatePole = (id, updates) => {
     Utils.updatePole(id, updates, setPoles, poles);
+
+    // Clear error untuk field yang baru diubah, berdasarkan pole id
+    setPoleErrors((prev) => {
+      if (!prev[id]) return prev;
+      const updatedPoleErrors = { ...prev[id] };
+      Object.keys(updates).forEach((key) => delete updatedPoleErrors[key]);
+      return { ...prev, [id]: updatedPoleErrors };
+    });
   };
 
   // Resets the active pole's fields to empty

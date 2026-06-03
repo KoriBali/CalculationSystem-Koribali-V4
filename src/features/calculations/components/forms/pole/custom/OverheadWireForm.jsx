@@ -391,7 +391,7 @@ export function OverheadWireForm({
                       onWheel={(e) => e.target.blur()}
                       className={`${inputStyle(ohwError.weight)} pl-3 2xl:pl-4 pr-10`}
                     />
-                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
+                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                       kg/m
                     </span>
                   </div>
@@ -416,7 +416,7 @@ export function OverheadWireForm({
                       onWheel={(e) => e.target.blur()}
                       className={`${inputStyle(ohwError.diameter)} pl-3 2xl:pl-4 pr-8`}
                     />
-                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
+                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                       mm
                     </span>
                   </div>
@@ -444,7 +444,7 @@ export function OverheadWireForm({
                       onWheel={(e) => e.target.blur()}
                       className={`${inputStyle(ohwError.zHeight)} pl-3 2xl:pl-4 pr-8`}
                     />
-                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
+                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                       mm
                     </span>
                   </div>
@@ -469,7 +469,7 @@ export function OverheadWireForm({
                       onWheel={(e) => e.target.blur()}
                       className={`${inputStyle(ohwError.span)} pl-3 2xl:pl-4 pr-8`}
                     />
-                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
+                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                       mm
                     </span>
                   </div>
@@ -497,7 +497,7 @@ export function OverheadWireForm({
                       onWheel={(e) => e.target.blur()}
                       className={`${inputStyle(ohwError.saggingRatio)} pl-3 2xl:pl-4 pr-6`}
                     />
-                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
+                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                       %
                     </span>
                   </div>
@@ -544,7 +544,7 @@ export function OverheadWireForm({
                       onWheel={(e) => e.target.blur()}
                       className={`${inputStyle(ohwError.fixAngle)} pl-3 2xl:pl-4 pr-8`}
                     />
-                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
+                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                       deg
                     </span>
                   </div>
@@ -573,7 +573,7 @@ export function OverheadWireForm({
                         ohwError.verticalAngle,
                       )} pl-3 2xl:pl-4 pr-8`}
                     />
-                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
+                    <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                       deg
                     </span>
                   </div>

@@ -86,7 +86,7 @@ export function ArmForm({ arm, onUpdate, armError }) {
               onWheel={(e) => e.target.blur()}
               className={`${inputStyle(armError.diameter)} pl-3 2xl:pl-4 pr-7`}
             />
-            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
+            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
               mm
             </span>
           </div>
@@ -111,7 +111,7 @@ export function ArmForm({ arm, onUpdate, armError }) {
               onWheel={(e) => e.target.blur()}
               className={`${inputStyle(armError.thickness)} pl-3 2xl:pl-4 pr-7`}
             />
-            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
+            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
               mm
             </span>
           </div>
@@ -136,7 +136,7 @@ export function ArmForm({ arm, onUpdate, armError }) {
               onWheel={(e) => e.target.blur()}
               className={`${inputStyle(armError.length)} pl-3 2xl:pl-4 pr-7`}
             />
-            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
+            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
               mm
             </span>
           </div>
@@ -161,7 +161,7 @@ export function ArmForm({ arm, onUpdate, armError }) {
               onWheel={(e) => e.target.blur()}
               className={`${inputStyle(armError.expLength)} pl-3 2xl:pl-4 pr-7`}
             />
-            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
+            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
               mm
             </span>
           </div>
@@ -186,7 +186,7 @@ export function ArmForm({ arm, onUpdate, armError }) {
               onWheel={(e) => e.target.blur()}
               className={`${inputStyle(armError.zHeight)} pl-3 2xl:pl-4 pr-7`}
             />
-            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
+            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
               mm
             </span>
           </div>
@@ -211,7 +211,7 @@ export function ArmForm({ arm, onUpdate, armError }) {
               onWheel={(e) => e.target.blur()}
               className={`${inputStyle(armError.hDistance)} pl-3 2xl:pl-4 pr-7`}
             />
-            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
+            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
               mm
             </span>
           </div>
@@ -235,7 +235,7 @@ export function ArmForm({ arm, onUpdate, armError }) {
               onWheel={(e) => e.target.blur()}
               className={`${inputStyle(armError.fixAngle)} pl-3 2xl:pl-4 pr-7`}
             />
-            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
+            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
               deg
             </span>
           </div>
@@ -280,7 +280,7 @@ export function ArmForm({ arm, onUpdate, armError }) {
               onWheel={(e) => e.target.blur()}
               className={`${inputStyle(armError.quantity)} pl-3 2xl:pl-4 pr-7`}
             />
-            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400 pointer-events-none">
+            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
               pcs
             </span>
           </div>

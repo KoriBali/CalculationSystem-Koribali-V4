@@ -2,9 +2,6 @@ import { useState } from "react";
 import { useProjectStorage } from "./useProjectStorage";
 import * as Utils from "../utils";
 
-// ─── HOOK ────────────────────────────────────────────────────────────────────
-
-// Manages structural design (pole config) state — lowestHeight, groundPosition, overdesignFactor
 export function usePoleConfigForm(projectType) {
   const [poleConfig, setPoleConfig] = useProjectStorage(
     projectType,
@@ -18,7 +15,6 @@ export function usePoleConfigForm(projectType) {
 
   const [poleConfigErrors, setPoleConfigErrors] = useState({});
 
-  // Updates pole config fields — resets lowestHeight when switching back to onGL
   const updatePoleConfig = (updates) => {
     let next = { ...updates };
 
@@ -27,14 +23,19 @@ export function usePoleConfigForm(projectType) {
     }
 
     Utils.updatePoleConfig(poleConfig, next, setPoleConfig);
+
+    // ✅ Clear error untuk field yang baru diubah
+    setPoleConfigErrors((prev) => {
+      const cleared = { ...prev };
+      Object.keys(next).forEach((key) => delete cleared[key]);
+      return cleared;
+    });
   };
 
   return {
     poleConfig,
     poleConfigErrors,
-
     setPoleConfigErrors,
-
     updatePoleConfig,
   };
 }

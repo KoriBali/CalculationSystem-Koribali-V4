@@ -12,7 +12,7 @@ const GROUND_OPTIONS = [
 ];
 
 const inputStyle = (hasError, disabled) =>
-  `w-full pl-3 md:pl-4 pr-10 py-2 lg:py-2.5 rounded-lg hp:rounded-md text-xs md:text-sm outline-none transition-all border
+  `w-full pl-3 md:pl-4 pr-9 py-2 lg:py-2.5 rounded-lg hp:rounded-md text-xs md:text-sm outline-none transition-all border
   ${
     disabled
       ? "bg-gray-100 border-gray-200 text-gray-400"
@@ -108,12 +108,12 @@ export function PoleConfigForm({ poleConfig, onUpdate, errors }) {
                           onWheel={(e) => e.target.blur()}
                           className={`${inputStyle(errors.lowestHeight, disabled)}`}
                         />
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400">
+                        <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                           mm
                         </span>
                       </div>
                       {isActive && errors.lowestHeight && (
-                        <p className="text-[10px] text-red-500 mt-1">
+                        <p className="text-[10px] text-red-500 mt-0.5">
                           *{errors.lowestHeight}
                         </p>
                       )}
@@ -145,7 +145,7 @@ export function PoleConfigForm({ poleConfig, onUpdate, errors }) {
             className={inputStyle(errors.overdesignFactor, false)}
           />
           {errors.overdesignFactor && (
-            <p className="absolute text-[10px] text-red-500 mt-1">
+            <p className="absolute text-[10px] text-red-500 mt-0.5">
               *{errors.overdesignFactor}
             </p>
           )}

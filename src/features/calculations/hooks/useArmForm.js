@@ -66,13 +66,36 @@ export function useArmForm(projectType) {
 
   const addArm = () => Utils.addArm(arms, setArms, setActiveTabArm, armIdRef);
   const copyArm = (arm) => Utils.copyArm(arm, setArmClipboard);
-  const pasteArm = (idArm) => Utils.pasteArm(idArm, setArms, armClipboard);
+
+  const pasteArm = (idArm) => {
+    Utils.pasteArm(idArm, setArms, armClipboard);
+
+    if (!armClipboard) return;
+
+    setArmsErrors((prev) => {
+      if (!prev[idArm]) return prev;
+      const updatedArmErrors = { ...prev[idArm] };
+      Object.keys(armClipboard).forEach((key) => {
+        const val = armClipboard[key];
+        const isEmpty = val === "" || val === null || val === undefined;
+        if (!isEmpty) delete updatedArmErrors[key];
+      });
+      return { ...prev, [idArm]: updatedArmErrors };
+    });
+  };
+
   const removeArm = (idArm) =>
     Utils.removeArm(idArm, setArms, activeTabArm, setActiveTabArm);
 
   const updateArm = (idArm, updates) => {
     Utils.updateArm(idArm, updates, setArms, arms);
-    // Utils.clearArmError(idArm, updates, setArmsErrors);
+
+    setArmsErrors((prev) => {
+      if (!prev[idArm]) return prev;
+      const updatedArmErrors = { ...prev[idArm] };
+      Object.keys(updates).forEach((key) => delete updatedArmErrors[key]);
+      return { ...prev, [idArm]: updatedArmErrors };
+    });
   };
 
   const resetArm = () => Utils.resetCurrentArm(setArms, arms, activeTabArm);
@@ -100,14 +123,36 @@ export function useArmForm(projectType) {
 
   const addAo = () => Utils.addAo(armObjects, updateActiveArmObjects, aoIdRef);
   const copyAo = (ao) => Utils.copyAo(ao, setAoClipboard);
-  const pasteAo = (idAo) =>
+
+  const pasteAo = (idAo) => {
     Utils.pasteAo(idAo, armObjects, updateActiveArmObjects, aoClipboard);
+
+    if (!aoClipboard) return;
+
+    setAoErrors((prev) => {
+      if (!prev[idAo]) return prev;
+      const updatedAoErrors = { ...prev[idAo] };
+      Object.keys(aoClipboard).forEach((key) => {
+        const val = aoClipboard[key];
+        const isEmpty = val === "" || val === null || val === undefined;
+        if (!isEmpty) delete updatedAoErrors[key];
+      });
+      return { ...prev, [idAo]: updatedAoErrors };
+    });
+  };
+
   const removeAo = (idAo) =>
     Utils.removeAo(idAo, armObjects, updateActiveArmObjects);
 
   const updateAo = (idAo, updates) => {
     Utils.updateAo(idAo, updates, armObjects, updateActiveArmObjects);
-    // Utils.clearAoError(idAo, updates, setAoErrors);
+
+    setAoErrors((prev) => {
+      if (!prev[idAo]) return prev;
+      const updatedAoErrors = { ...prev[idAo] };
+      Object.keys(updates).forEach((key) => delete updatedAoErrors[key]);
+      return { ...prev, [idAo]: updatedAoErrors };
+    });
   };
 
   const resetAo = (idAo) =>

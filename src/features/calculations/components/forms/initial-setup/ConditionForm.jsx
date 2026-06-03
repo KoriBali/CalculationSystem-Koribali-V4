@@ -123,7 +123,7 @@ export function ConditionForm({
                     onWheel={(e) => e.target.blur()}
                     className={`${inputStyle(errors.designWindSpeed)} pr-10 xl:pr-10`}
                   />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-black-400">
+                  <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     m/s
                   </span>
                 </div>
@@ -151,7 +151,7 @@ export function ConditionForm({
                     onWheel={(e) => e.target.blur()}
                     className={`${inputStyle(errors.designAirDensity)} pr-[88px] xl:pr-[88px]`}
                   />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-black-400">
+                  <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     N・sec<sup>2</sup>/m<sup>4</sup>
                   </span>
                 </div>

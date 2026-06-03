@@ -4,10 +4,20 @@ export const validateWithYup = async (schema, data, options = {}) => {
     await schema.validate(data, { abortEarly: false, ...options });
     return { isValid: true, errors: {} };
   } catch (error) {
-    const errors = error.inner.reduce((acc, curr) => {
-      if (curr.path) acc[curr.path] = curr.message;
-      return acc;
-    }, {});
+    // error.inner berisi errors dari field biasa (abortEarly: false)
+    // tapi error dari .test() custom dengan createError() masuk ke error.path langsung
+    const errors = {};
+
+    if (error.inner && error.inner.length > 0) {
+      // Kasus normal: multiple field errors
+      error.inner.forEach((curr) => {
+        if (curr.path) errors[curr.path] = curr.message;
+      });
+    } else if (error.path !== undefined) {
+      // Kasus .test() custom: single error dengan path langsung
+      errors[error.path] = error.message;
+    }
+
     return { isValid: false, errors };
   }
 };

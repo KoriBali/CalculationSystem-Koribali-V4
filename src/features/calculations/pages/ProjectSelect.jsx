@@ -38,7 +38,7 @@ export default function ProjectSelectPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/50 p-12">
+    <div className="min-h-screen bg-slate-50/50 px-2 py-6 xl:p-12">
       {/* ── Page header ── */}
       <motion.div
         {...HEADER_ANIMATION}
@@ -54,7 +54,7 @@ export default function ProjectSelectPage() {
       </motion.div>
 
       {/* ── Project type cards ── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mx-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mx-0 sm:mx-6 xl:mx-12">
         {PROJECT_TYPES.map((project, index) => (
           <motion.div key={project.id} {...cardAnimation(index)}>
             <button
@@ -67,7 +67,7 @@ export default function ProjectSelectPage() {
               <div className="relative flex items-start gap-5">
                 {/* Project type title */}
                 <div className="flex-grow">
-                  <h3 className="text-base font-medium text-slate-900 mb-1 group-hover:text-blue-700 transition-colors">
+                  <h3 className="text-sm sm:text-base font-medium text-slate-900 mb-1 group-hover:text-blue-700 transition-colors">
                     {project.title}
                   </h3>
                 </div>
