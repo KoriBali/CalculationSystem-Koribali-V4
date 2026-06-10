@@ -31,7 +31,7 @@ export default function OpeningFormView() {
 
   return (
     <>
-      <div className="flex flex-col min-h-screen">
+      <div className="flex flex-col h-full">
         <Helmet>
           <title>Calculation Opening - KORI BALI</title>
           <meta
@@ -40,28 +40,42 @@ export default function OpeningFormView() {
           />
         </Helmet>
 
-        <div className="min-h-screen bg-gray-50 border border-gray-250">
+        <div className="flex-1 rounded-t-2xl hp:rounded-t-xl bg-gray-50 border border-gray-250">
           <HeaderCalculationPage />
 
-          <div className="mx-2 md:mx-6 2040:mx-[250px] pt-1 pb-8">
+          <div className="mx-6 2040:mx-[250px] pt-0 pb-8 hp:mx-2">
             {/* ── Opening Type selector ── */}
             <div
-              className={`bg-gradient-to-r from-[#0d3b66] to-[#3399cc] px-4 py-3 md:py-4 flex items-center justify-between cursor-pointer mt-6 transition-all duration-500 ease-in-out
-                ${opening.isOpeningExpanded ? "rounded-t-xl md:rounded-t-2xl" : "rounded-xl md:rounded-2xl"}`}
+              className={`bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] px-4 py-3 md:p-4 flex items-center justify-between cursor-pointer mt-6 transition-all duration-500 ease-in-out
+              ${opening.isOpeningExpanded ? "rounded-t-xl md:rounded-t-2xl" : "rounded-xl md:rounded-2xl"}`}
               onClick={() =>
                 opening.setIsOpeningExpanded(!opening.isOpeningExpanded)
               }
             >
-              <div className="bg-white/10 backdrop-blur-sm px-2 md:px-4 py-[8px] md:py-2 rounded-lg border border-white/20">
+              <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg hp:rounded-md border border-white/20 hp:px-3 hp:py-[8px]">
                 <h2 className="text-white text-xs md:text-sm font-semibold md:font-bold">
                   Opening Part Type
                 </h2>
               </div>
-              <div className="p-2">
+              <div
+                className="
+                  flex h-8 w-8
+                  sm:h-9 sm:w-9
+                  shrink-0
+                  items-center justify-center
+                  rounded-full
+                  bg-white/15
+                  text-white
+                  border border-white/20
+                  transition
+                  group-hover:bg-white/20
+                  group-active:bg-white/25
+                "
+              >
                 {opening.isOpeningExpanded ? (
-                  <ChevronUp className="w-4 md:w-5 h-4 md:h-5 text-white" />
+                  <ChevronUp className="w-4 h-4 sm:w-5 sm:h-5" />
                 ) : (
-                  <ChevronDown className="w-4 md:w-5 h-4 md:h-5 text-white" />
+                  <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5" />
                 )}
               </div>
             </div>
@@ -69,7 +83,7 @@ export default function OpeningFormView() {
             {/* Opening type collapsible body */}
             <div
               className={`transition-all duration-500 ease-in-out overflow-hidden
-              ${opening.isOpeningExpanded ? "max-h-[5000px] rounded-b-xl md:rounded-b-2xl" : "max-h-0 rounded-b-xl md:rounded-b-2xl"}`}
+              ${opening.isOpeningExpanded ? "max-h-[10000px] rounded-b-2xl hp:rounded-b-xl" : "max-h-0 rounded-b-2xl hp:rounded-b-xl"}`}
             >
               <OpeningType
                 openingType={opening.openingType}
@@ -80,8 +94,8 @@ export default function OpeningFormView() {
 
             {/* ── Opening detail section ── */}
             <div
-              className={`bg-gradient-to-r from-[#0d3b66] to-[#3399cc] p-4 flex items-center justify-between cursor-pointer mt-10 transition-all duration-500 ease-in-out
-                ${opening.isSelectExpanded ? "rounded-t-xl md:rounded-t-2xl" : "rounded-xl md:rounded-2xl"}`}
+              className={`bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] px-4 py-3 md:p-4 flex items-center justify-between cursor-pointer mt-10 transition-all duration-500 ease-in-out
+              ${opening.isSelectExpanded ? "rounded-t-2xl hp:rounded-t-xl" : "rounded-2xl hp:rounded-xl"}`}
               onClick={() =>
                 opening.setIsSelectExpanded(!opening.isSelectExpanded)
               }
@@ -89,18 +103,32 @@ export default function OpeningFormView() {
               {/* Dynamic title — only shown when a type is selected */}
               <div>
                 {opening.openingType.type && (
-                  <div className="bg-white/10 backdrop-blur-sm px-2 md:px-4 py-[8px] md:py-2 rounded-lg border border-white/20">
+                  <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg hp:rounded-md border border-white/20 hp:px-3 hp:py-[8px]">
                     <h2 className="text-white text-xs md:text-sm font-semibold md:font-bold">
                       {opening.typeLabelMap[opening.openingType.type]}
                     </h2>
                   </div>
                 )}
               </div>
-              <div className="p-2">
+              <div
+                className="
+                  flex h-8 w-8
+                  sm:h-9 sm:w-9
+                  shrink-0
+                  items-center justify-center
+                  rounded-full
+                  bg-white/15
+                  text-white
+                  border border-white/20
+                  transition
+                  group-hover:bg-white/20
+                  group-active:bg-white/25
+                "
+              >
                 {opening.isSelectExpanded ? (
-                  <ChevronUp className="w-4 md:w-5 h-4 md:h-5 text-white" />
+                  <ChevronUp className="w-4 h-4 sm:w-5 sm:h-5" />
                 ) : (
-                  <ChevronDown className="w-4 md:w-5 h-4 md:h-5 text-white" />
+                  <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5" />
                 )}
               </div>
             </div>
@@ -108,7 +136,7 @@ export default function OpeningFormView() {
             {/* Detail collapsible body */}
             <div
               className={`transition-all duration-500 ease-in-out overflow-hidden
-              ${opening.isSelectExpanded ? "max-h-[5000px] rounded-b-xl md:rounded-b-2xl" : "max-h-0 rounded-b-xl md:rounded-b-2xl"}`}
+              ${opening.isSelectExpanded ? "max-h-[10000px] rounded-b-2xl hp:rounded-b-xl" : "max-h-0 rounded-b-2xl hp:rounded-b-xl"}`}
             >
               {/* Empty state — prompt user to select type first */}
               {!opening.openingType.type && (
