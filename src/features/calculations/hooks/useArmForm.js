@@ -98,7 +98,15 @@ export function useArmForm(projectType) {
     });
   };
 
-  const resetArm = () => Utils.resetCurrentArm(setArms, arms, activeTabArm);
+  const resetArm = () => {
+    Utils.resetCurrentArm(setArms, arms, activeTabArm);
+
+    setArmsErrors((prev) => {
+      const clearedErrors = { ...prev };
+      delete clearedErrors[activeTabArm];
+      return clearedErrors;
+    });
+  };
 
   const goToNextArm = () => {
     if (!isNextDisabledArm) setActiveTabArm(arms[currentIndex + 1].idArm);
@@ -155,8 +163,15 @@ export function useArmForm(projectType) {
     });
   };
 
-  const resetAo = (idAo) =>
+  const resetAo = (idAo) => {
     Utils.resetCurrentAo(idAo, armObjects, updateActiveArmObjects);
+
+    setAoErrors((prev) => {
+      const clearedErrors = { ...prev };
+      delete clearedErrors[idAo];
+      return clearedErrors;
+    });
+  };
 
   const confirmReduceArmObjects = () => {
     updateActiveArmObjects(armObjects.slice(0, confirmReduceAo.to));

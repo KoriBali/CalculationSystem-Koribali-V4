@@ -78,9 +78,16 @@ export function useDirectObjectForm(projectType) {
       return { ...prev, [idDo]: updatedDoErrors };
     });
   };
-  // Resets a specific DO's fields to empty
-  const resetDo = (idDo) =>
+  // Resets a specific DO's fields to empty and clears its errors
+  const resetDo = (idDo) => {
     Utils.resetCurrentDo(setDirectObjects, directObjects, idDo);
+
+    setDoErrors((prev) => {
+      const clearedErrors = { ...prev };
+      delete clearedErrors[idDo];
+      return clearedErrors;
+    });
+  };
 
   // Confirms reduce — slices DO list to target count
   const confirmReduce = () => {

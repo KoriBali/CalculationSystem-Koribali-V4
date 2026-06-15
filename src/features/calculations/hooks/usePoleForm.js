@@ -72,8 +72,17 @@ export function usePoleForm(projectType) {
   };
 
   // Resets the active pole's fields to empty
-  const resetActivePole = () =>
+  const resetActivePole = () => {
+    // 1. Reset nilai inputannya
     Utils.resetCurrentPole(setPoles, poles, activeTab);
+
+    // 2. Hapus semua error khusus untuk pole yang sedang aktif ini
+    setPoleErrors((prev) => {
+      const clearedErrors = { ...prev };
+      delete clearedErrors[activeTab]; // Langsung hapus error berdasarkan ID tab-nya
+      return clearedErrors;
+    });
+  };
 
   // Navigates to the next pole tab
   const goToNext = () => {

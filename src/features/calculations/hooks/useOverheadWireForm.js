@@ -77,9 +77,16 @@ export function useOverheadWireForm(projectType) {
     });
   };
 
-  // Resets a specific OHW's fields to empty
-  const resetOhw = (idOhw) =>
+  // Resets a specific OHW's fields to empty and clears its errors
+  const resetOhw = (idOhw) => {
     Utils.resetCurrentOhw(setOverheadWires, overheadWires, idOhw);
+
+    setOhwErrors((prev) => {
+      const clearedErrors = { ...prev };
+      delete clearedErrors[idOhw];
+      return clearedErrors;
+    });
+  };
 
   // Confirms reduce — slices OHW list to target count
   const confirmReduce = () => {

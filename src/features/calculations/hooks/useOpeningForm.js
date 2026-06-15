@@ -96,15 +96,40 @@ export function useOpeningForm() {
   // ── Update handlers ──
 
   // Updates opening type selection
-  const updateOpeningType = (updates) =>
+  const updateOpeningType = (updates) => {
     Utils.updateOpeningType(openingType, updates, setOpeningType);
 
+    // Hapus error spesifik saat field diupdate
+    setOpeningTypeErrors((prev) => {
+      const cleared = { ...prev };
+      Object.keys(updates).forEach((key) => delete cleared[key]);
+      return cleared;
+    });
+  };
+
   // Updates box type fields
-  const updateBoxType = (updates) =>
+  const updateBoxType = (updates) => {
     Utils.updateBoxType(boxType, updates, setBoxType);
 
+    // Hapus error spesifik saat field diupdate
+    setBoxTypeErrors((prev) => {
+      const cleared = { ...prev };
+      Object.keys(updates).forEach((key) => delete cleared[key]);
+      return cleared;
+    });
+  };
+
   // Updates R type fields
-  const updateRType = (updates) => Utils.updateRType(rType, updates, setRType);
+  const updateRType = (updates) => {
+    Utils.updateRType(rType, updates, setRType);
+
+    // Hapus error spesifik saat field diupdate
+    setRTypeErrors((prev) => {
+      const cleared = { ...prev };
+      Object.keys(updates).forEach((key) => delete cleared[key]);
+      return cleared;
+    });
+  };
 
   // ── Calculation ──
 
