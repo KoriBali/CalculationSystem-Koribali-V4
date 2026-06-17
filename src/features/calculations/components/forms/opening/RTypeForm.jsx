@@ -46,7 +46,7 @@ export function RTypeForm({
           {/* ================= TOP SECTION ================= */}
           <div className="flex justify-end relative">
             <img
-              src="/images/RType-TopView (6).svg"
+              src="/images/RType-TopView (8).svg"
               alt="Top View"
               className="w-[320px] sm:w-full sm:h-[260px]"
             />
