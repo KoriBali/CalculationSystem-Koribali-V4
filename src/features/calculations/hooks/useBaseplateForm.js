@@ -126,16 +126,34 @@ export function useBaseplateForm() {
   // Update baseplate type
   const handleBaseplateTypeUpdate = (updates) => {
     Utils.updateBaseplateType(baseplateType, updates, setBaseplateType);
+
+    setBaseplateTypeErrors((prev) => {
+      const cleared = { ...prev };
+      Object.keys(updates).forEach((key) => delete cleared[key]);
+      return cleared;
+    });
   };
 
   // Update 4 Rib Type inputs and clear related errors
   const handleFourRibTypeUpdate = (updates) => {
     Utils.updateFourRibType(fourRibType, updates, setFourRibType);
+
+    setFourRibTypeErrors((prev) => {
+      const cleared = { ...prev };
+      Object.keys(updates).forEach((key) => delete cleared[key]);
+      return cleared;
+    });
   };
 
   // Update 8 Rib Type inputs and clear related errors
   const handleEightRibTypeUpdate = (updates) => {
     Utils.updateEightRibType(eightRibType, updates, setEightRibType);
+
+    setEightRibTypeErrors((prev) => {
+      const cleared = { ...prev };
+      Object.keys(updates).forEach((key) => delete cleared[key]);
+      return cleared;
+    });
   };
 
   // Handle calculation flow (validation + API call)

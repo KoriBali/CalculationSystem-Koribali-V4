@@ -1,81 +1,24 @@
 import * as yup from "yup";
 
+const numberField = yup
+  .number()
+  .transform((_, val) => (val === "" ? undefined : Number(val)))
+  .typeError("Must be a number")
+  .required("Required field")
+  .min(0, "Must be positive");
+
 export const FourRibTypeSchema = yup.object({
-  bpWidthEW: yup
-    .number()
-    .typeError("Must be a number")
-    .required("Required field")
-    .min(0, "Must be positive"),
-
-  bpWidthNS: yup
-    .number()
-    .typeError("Must be a number")
-    .required("Required field")
-    .min(0, "Must be positive"),
-
-  anchorPitchEW: yup
-    .number()
-    .typeError("Must be a number")
-    .required("Required field")
-    .min(0, "Must be positive"),
-
-  anchorPitchNS: yup
-    .number()
-    .typeError("Must be a number")
-    .required("Required field")
-    .min(0, "Must be positive"),
-
-  anchorDia: yup
-    .number()
-    .typeError("Must be a number")
-    .required("Required field")
-    .min(0, "Must be positive"),
-
-  anchorCount: yup
-    .number()
-    .typeError("Must be a number")
-    .required("Required field")
-    .min(0, "Must be positive"),
-
-  anchorCountTension: yup
-    .number()
-    .typeError("Must be a number")
-    .required("Required field")
-    .min(0, "Must be positive"),
-
-  bpThickness: yup
-    .number()
-    .typeError("Must be a number")
-    .required("Required field")
-    .min(0, "Must be positive"),
-
-  ribHeight: yup
-    .number()
-    .typeError("Must be a number")
-    .required("Required field")
-    .min(0, "Must be positive"),
-
-  ribScallop: yup
-    .number()
-    .typeError("Must be a number")
-    .required("Required field")
-    .min(0, "Must be positive"),
-
-  weldLeg: yup
-    .number()
-    .typeError("Must be a number")
-    .required("Required field")
-    .min(0, "Must be positive"),
-
-  ribLength: yup
-    .number()
-    .typeError("Must be a number")
-    .required("Required field")
-    .min(0, "Must be positive"),
-
-  ribThickness: yup
-    .number()
-    .typeError("Must be a number")
-    .required("Required field")
-    .min(0, "Must be positive"),
+  bpWidthEW: numberField,
+  bpWidthNS: numberField,
+  anchorPitchEW: numberField,
+  anchorPitchNS: numberField,
+  anchorDia: numberField,
+  anchorCount: numberField,
+  anchorCountTension: numberField,
+  bpThickness: numberField,
+  ribHeight: numberField,
+  ribScallop: numberField,
+  weldLeg: numberField,
+  ribLength: numberField,
+  ribThickness: numberField,
 });

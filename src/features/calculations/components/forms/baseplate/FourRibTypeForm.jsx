@@ -85,17 +85,17 @@ export function FourRibTypeForm({
   return (
     <div className="bg-white rounded-b-xl md:rounded-b-2xl shadow-sm border border-gray-200">
       <div className="p-4 md:p-6">
-        <div className="flex justify-center items-center xl:pr-[160px]">
+        <div className="flex justify-center items-center pt-3 xl:pt-0 xl:pr-[160px]">
           {/* ================= TOP VIEW : SVG + POSITIONED INPUTS ================= */}
           <div className="relative">
             <img
               src="/images/4Rib-TopView (14).svg"
               alt="4 rib baseplate top view"
-              className="h-[450px] 2xl:h-[450px] object-contain"
+              className="h-[380px] xl:h-[450px] 2xl:h-[450px] object-contain"
             />
 
             {/* Baseplate Width (EW) — top center */}
-            <div className="absolute top-2 left-[59.87%] -translate-x-1/2">
+            <div className="absolute top-0 xl:top-2 left-[61.3%] xl:left-[59.87%] -translate-x-1/2">
               <label className="block text-xs md:text-sm text-gray-700 mb-1">
                 Baseplate Width (EW)
               </label>
@@ -106,7 +106,7 @@ export function FourRibTypeForm({
                   value={fourRibType.bpWidthEW}
                   onChange={handleChange("bpWidthEW")}
                   onWheel={(e) => e.target.blur()}
-                  className={`${inputStyle(errors.bpWidthEW)} pr-9 xl:pr-9 w-[100px] sm:w-[140px]`}
+                  className={`${inputStyle(errors.bpWidthEW)} pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
                 />
                 <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                   mm
@@ -116,7 +116,7 @@ export function FourRibTypeForm({
             </div>
 
             {/* Anchor Pitch (EW) — below Baseplate Width (EW) */}
-            <div className="absolute top-[25%] left-[59.87%] -translate-x-1/2">
+            <div className="absolute top-[23%] xl:top-[25%] left-[59.87%] -translate-x-1/2">
               <label className="block text-xs md:text-sm text-gray-700 mb-1">
                 Anchor Pitch (EW)
               </label>
@@ -127,7 +127,7 @@ export function FourRibTypeForm({
                   value={fourRibType.anchorPitchEW}
                   onChange={handleChange("anchorPitchEW")}
                   onWheel={(e) => e.target.blur()}
-                  className={`${inputStyle(errors.anchorPitchEW)} pr-9 xl:pr-9 w-[100px] sm:w-[140px]`}
+                  className={`${inputStyle(errors.anchorPitchEW)} pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
                 />
                 <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                   mm
@@ -140,7 +140,7 @@ export function FourRibTypeForm({
             </div>
 
             {/* Baseplate Width (NS) — middle left edge */}
-            <div className="absolute top-[71%] -translate-y-1/2 -left-12">
+            <div className="absolute top-[71%] -translate-y-1/2 -left-10 xl:-left-12">
               <label className="block text-xs md:text-sm text-gray-700 mb-1">
                 Baseplate Width (NS)
               </label>
@@ -151,7 +151,7 @@ export function FourRibTypeForm({
                   value={fourRibType.bpWidthNS}
                   onChange={handleChange("bpWidthNS")}
                   onWheel={(e) => e.target.blur()}
-                  className={`${inputStyle(errors.bpWidthNS)} pr-9 xl:pr-9 w-[100px] sm:w-[140px]`}
+                  className={`${inputStyle(errors.bpWidthNS)} pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
                 />
                 <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                   mm
@@ -161,7 +161,7 @@ export function FourRibTypeForm({
             </div>
 
             {/* Anchor Pitch (NS) — to the right of Baseplate Width (NS) */}
-            <div className="absolute top-[71%] -translate-y-1/2 left-[29%] -translate-x-1/2">
+            <div className="absolute top-[71%] -translate-y-1/2 left-[30%] xl:left-[29%] -translate-x-1/2">
               <label className="block text-xs md:text-sm text-gray-700 mb-1">
                 Anchor Pitch (NS)
               </label>
@@ -172,7 +172,7 @@ export function FourRibTypeForm({
                   value={fourRibType.anchorPitchNS}
                   onChange={handleChange("anchorPitchNS")}
                   onWheel={(e) => e.target.blur()}
-                  className={`${inputStyle(errors.anchorPitchNS)} pr-9 xl:pr-9 w-[100px] sm:w-[140px]`}
+                  className={`${inputStyle(errors.anchorPitchNS)} pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
                 />
                 <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                   mm
@@ -185,7 +185,7 @@ export function FourRibTypeForm({
             </div>
 
             {/* Anchor Bolt Diameter + Number of Anchor Bolts side by side */}
-            <div className="absolute top-[48%] 2xl:top-[51%] -translate-y-1/2 -right-[122px] 2xl:-right-[342px] -translate-x-1/2 flex flex-col 2xl:flex-row gap-2">
+            <div className="absolute top-[34.4%] xl:top-[43%] 2xl:top-[43%] -translate-y-1/2 -right-[122px] xl:-right-[342px] -translate-x-1/2 flex flex-col xl:flex-row gap-2">
               <div className="relative">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1">
                   Anchor Bolt Diameter
@@ -197,7 +197,7 @@ export function FourRibTypeForm({
                     value={fourRibType.anchorDia}
                     onChange={handleChange("anchorDia")}
                     onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(errors.anchorDia)} pr-9 xl:pr-9 w-[100px] sm:w-[140px]`}
+                    className={`${inputStyle(errors.anchorDia)} pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
                   />
                   <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
@@ -206,7 +206,7 @@ export function FourRibTypeForm({
                 <ErrorStyle show={errors.anchorDia} text={errors.anchorDia} />
               </div>
 
-              <div className="relative pb-8 2xl:pb-20">
+              <div className="relative">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1">
                   Number of Anchor Bolts
                 </label>
@@ -217,7 +217,7 @@ export function FourRibTypeForm({
                     value={fourRibType.anchorCount}
                     onChange={handleChange("anchorCount")}
                     onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(errors.anchorCount)} pr-9 xl:pr-9 w-[100px] sm:w-[140px]`}
+                    className={`${inputStyle(errors.anchorCount)} pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
                   />
                   <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     pcs
@@ -231,8 +231,8 @@ export function FourRibTypeForm({
             </div>
 
             {/* Number of Anchor Bolts on Tension Side — left aligned */}
-            <div className="absolute top-[75%] 2xl:top-[74%] -translate-y-1/2 -right-[148px] 2xl:-right-[272px] -translate-x-1/2">
-              <label className="w-[170px] 2xl:w-full block text-xs md:text-sm text-gray-700 mb-1">
+            <div className="absolute top-[73%] xl:top-[75%] 2xl:top-[74%] -translate-y-1/2 -right-[148px] xl:-right-[272px] -translate-x-1/2">
+              <label className="w-[170px] xl:w-full block text-xs md:text-sm text-gray-700 mb-1">
                 Number of Anchor Bolts on Tension Side
               </label>
               <div className="relative w-fit">
@@ -242,7 +242,7 @@ export function FourRibTypeForm({
                   value={fourRibType.anchorCountTension}
                   onChange={handleChange("anchorCountTension")}
                   onWheel={(e) => e.target.blur()}
-                  className={`${inputStyle(errors.anchorCountTension)} pr-9 xl:pr-9 w-[100px] sm:w-[140px]`}
+                  className={`${inputStyle(errors.anchorCountTension)} pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
                 />
                 <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                   pcs
@@ -257,18 +257,18 @@ export function FourRibTypeForm({
         </div>
 
         {/* Main content grid: Inputs on the left, Diagrams on the right */}
-        <div className="flex justify-center items-center flex-col xl:flex-row xl:gap-32 xl:pr-[100px]">
+        <div className="flex justify-center items-center flex-col 2xl:flex-row 2xl:gap-32 2xl:pr-[100px]">
           {/* ================= SIDE VIEW : SVG/IMAGE + POSITIONED INPUTS ================= */}
           <div className="flex justify-center items-center pt-12">
             <div className="relative">
               <img
                 src="/images/4Rib-SideView (3).svg"
                 alt="4 rib baseplate side view"
-                className="h-[250px] 2xl:h-[250px] object-contain"
+                className="h-[210px] xl:h-[250px] 2xl:h-[250px] object-contain"
               />
 
               {/* Baseplate Thickness */}
-              <div className="absolute bottom-[4%] -left-[76px]">
+              <div className="absolute -bottom-1 xl:bottom-[4%] -left-[66px] xl:-left-[76px]">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1">
                   Baseplate Thickness
                 </label>
@@ -279,7 +279,7 @@ export function FourRibTypeForm({
                     value={fourRibType.bpThickness}
                     onChange={handleChange("bpThickness")}
                     onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(errors.bpThickness)} pr-9 xl:pr-9 w-[100px] sm:w-[140px]`}
+                    className={`${inputStyle(errors.bpThickness)} pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
                   />
                   <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
@@ -292,7 +292,7 @@ export function FourRibTypeForm({
               </div>
 
               {/* Rib Plate Height */}
-              <div className="absolute top-[40%] left-12 2xl:left-12">
+              <div className="absolute top-[39%] xl:top-[40%] left-12 2xl:left-12">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1">
                   Rib Plate Height
                 </label>
@@ -303,7 +303,7 @@ export function FourRibTypeForm({
                     value={fourRibType.ribHeight}
                     onChange={handleChange("ribHeight")}
                     onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(errors.ribHeight)} pr-9 xl:pr-9 w-[100px] sm:w-[140px]`}
+                    className={`${inputStyle(errors.ribHeight)} pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
                   />
                   <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
@@ -313,7 +313,7 @@ export function FourRibTypeForm({
               </div>
 
               {/* Weld Leg Length */}
-              <div className="absolute -top-1 -right-[65px] 2xl:-right-[65px]">
+              <div className="absolute -top-3 xl:-top-1 -right-[52px] xl:-right-[65px] 2xl:-right-[65px]">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1">
                   Weld Leg Length
                 </label>
@@ -324,7 +324,7 @@ export function FourRibTypeForm({
                     value={fourRibType.weldLeg}
                     onChange={handleChange("weldLeg")}
                     onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(errors.weldLeg)} pr-9 xl:pr-9 w-[100px] sm:w-[140px]`}
+                    className={`${inputStyle(errors.weldLeg)} pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
                   />
                   <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
@@ -334,7 +334,7 @@ export function FourRibTypeForm({
               </div>
 
               {/* Rib Plate Scallop */}
-              <div className="absolute top-[34%] -right-[65px] 2xl:-right-[65px]">
+              <div className="absolute top-[30%] xl:top-[34%] -right-[52px] xl:-right-[65px] 2xl:-right-[65px]">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1">
                   Rib Plate Scallop
                 </label>
@@ -345,7 +345,7 @@ export function FourRibTypeForm({
                     value={fourRibType.ribScallop}
                     onChange={handleChange("ribScallop")}
                     onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(errors.ribScallop)} pr-9 xl:pr-9 w-[100px] sm:w-[140px]`}
+                    className={`${inputStyle(errors.ribScallop)} pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
                   />
                   <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
@@ -366,7 +366,7 @@ export function FourRibTypeForm({
                     value={fourRibType.ribLength}
                     onChange={handleChange("ribLength")}
                     onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(errors.ribLength)} pr-9 xl:pr-9 w-[100px] sm:w-[140px]`}
+                    className={`${inputStyle(errors.ribLength)} pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
                   />
                   <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
@@ -387,7 +387,7 @@ export function FourRibTypeForm({
                     value={fourRibType.ribThickness}
                     onChange={handleChange("ribThickness")}
                     onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(errors.ribThickness)} pr-9 xl:pr-9 w-[100px] sm:w-[140px]`}
+                    className={`${inputStyle(errors.ribThickness)} pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
                   />
                   <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
@@ -422,7 +422,7 @@ export function FourRibTypeForm({
                     value={fourRibType.ribLength}
                     onChange={handleChange("ribLength")}
                     onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(errors.ribLength)} pr-9 xl:pr-9 w-[100px] sm:w-[140px]`}
+                    className={`${inputStyle(errors.ribLength)} pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
                   />
                   <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
@@ -433,7 +433,7 @@ export function FourRibTypeForm({
 
               {/* Rib Plate Thickness (Class 'hidden' dihapus) */}
               {/* Catatan: -right-42 bukan ukuran bawaan Tailwind, pertimbangkan ganti ke -right-40 atau -right-[168px] */}
-              <div className="absolute top-[16%] -right-[215px] -translate-x-1/2">
+              <div className="absolute top-[14%] xl:top-[16%] -right-[180px] xl:-right-[215px] -translate-x-1/2">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1">
                   Rib Plate Thickness
                 </label>
@@ -444,7 +444,7 @@ export function FourRibTypeForm({
                     value={fourRibType.ribThickness}
                     onChange={handleChange("ribThickness")}
                     onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(errors.ribThickness)} pr-9 xl:pr-9 w-[100px] sm:w-[140px]`}
+                    className={`${inputStyle(errors.ribThickness)} pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
                   />
                   <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
@@ -464,38 +464,36 @@ export function FourRibTypeForm({
           {/* Reset button to clear all inputs */}
           <button
             onClick={handleReset}
-            className="flex items-center gap-2 px-[22px] md:px-7 py-[10px] md:py-2.5 bg-[#eef2f6] text-[#0d3b66] text-xs md:text-sm
-            border-2 border-[#d0d7e2] rounded-lg hover:bg-[#e2e8f0] transition-colors font-medium"
+            className="flex justify-center items-center gap-2 px-5 py-2.5 md:px-6
+              rounded-lg hp:rounded-md font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] text-xs sm:text-sm
+              ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm transition-colors"
           >
-            <RotateCcw className="w-4 md:w-5 h-4 md:h-5" />
+            <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
             Reset
           </button>
 
-          <div className="flex items-center gap-3">
-            {/* Button to trigger calculations */}
-            <button
-              onClick={onCalculate}
-              className="flex items-center gap-2 px-7 py-2.5
-              border border-[#cbd5e1] text-[#0d3b66]
-              rounded-lg text-sm hover:bg-[#f1f5f9] transition-all font-medium"
-            >
-              <Calculator className="w-4 md:w-5 h-4 md:h-5" />
-              Calculate
-            </button>
+          {/* Button to trigger calculations */}
+          <button
+            onClick={onCalculate}
+            className="flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 md:px-6
+              rounded-lg hp:rounded-md font-medium bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white text-sm hp:text-xs hover:brightness-110 shadow-sm transition-all"
+          >
+            <Calculator className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+            Calculate Result
+          </button>
 
+          <div className="flex items-center gap-3">
             {/* Proceed to next step or report generation */}
             <button
               onClick={onNext}
               disabled={!isCalculated}
-              className={`
-                flex items-center gap-2 px-7 py-2.5 rounded-lg text-sm font-medium
-                transition-all
+              className={`flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 md:px-6
+                rounded-lg hp:rounded-md font-medium transition-all text-sm hp:text-xs
                 ${
                   !isCalculated
-                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    ? "bg-gray-100 text-gray-400 ring-1 ring-inset ring-gray-200 cursor-not-allowed shadow-none"
                     : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
-                }
-              `}
+                }`}
             >
               {buttonLabel}
               <ChevronRight className="w-4 md:w-5 h-4 md:h-5" />
