@@ -84,7 +84,7 @@ export function EightRibTypeForm({
   return (
     <div className="bg-white rounded-b-xl md:rounded-b-2xl shadow-sm border border-gray-200">
       <div className="p-4 md:p-6">
-        <div className="flex justify-center items-center pt-3 xl:pt-0 xl:pr-[160px]">
+        <div className="flex justify-center items-center pt-3 xl:pt-0 pr-[6px] xl:pr-[130px] 2xl:pr-[382px]">
           {/* ================= TOP VIEW : IMAGE + POSITIONED INPUTS ================= */}
           <div className="relative">
             <img
@@ -277,9 +277,9 @@ export function EightRibTypeForm({
         </div>
 
         {/* Main content grid: Side views */}
-        <div className="flex justify-center items-center flex-col 2xl:flex-row 2xl:gap-32 2xl:pr-[100px]">
+        <div className="flex justify-center items-center flex-col 2xl:flex-row 2xl:gap-[134px] pl-[40px] xl:pl-0 xl:pr-[75px] 2xl:pr-[75px]">
           {/* ================= SIDE VIEW : IMAGE + POSITIONED INPUTS ================= */}
-          <div className="flex justify-center items-center pt-12">
+          <div className="flex justify-center items-center pt-16">
             <div className="relative">
               <img
                 src="/images/8Rib-SideView.svg"
@@ -377,16 +377,16 @@ export function EightRibTypeForm({
           </div>
 
           {/* ================= SECOND SIDE VIEW (For Rib Plate Length & Thickness) ================= */}
-          <div className="flex justify-center items-center pt-24">
+          <div className="flex justify-center items-center pt-24 2xl:pt-[38px] pl-[260px] xl:pl-[301px] 2xl:pl-0">
             <div className="relative">
               <img
                 src="/images/4Rib-SideView (6).svg"
                 alt="8 rib baseplate side view details"
-                className="h-[250px] 2xl:h-[250px] object-contain"
+                className="h-[220px] xl:h-[237px] object-contain"
               />
 
               {/* Rib Plate Length */}
-              <div className="absolute -top-[50px] -right-[50px] -translate-x-1/2">
+              <div className="absolute -top-[50px] -right-[46px] -translate-x-1/2">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1">
                   Rib Plate Length
                 </label>
@@ -407,7 +407,7 @@ export function EightRibTypeForm({
               </div>
 
               {/* Rib Plate Thickness */}
-              <div className="absolute top-[14%] xl:top-[16%] -right-[180px] xl:-right-[215px] -translate-x-1/2">
+              <div className="absolute top-[23%] xl:top-[16%] -right-[155px] xl:-right-[215px] -translate-x-1/2">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1">
                   Rib Plate Thickness
                 </label>

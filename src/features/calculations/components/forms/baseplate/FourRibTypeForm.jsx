@@ -85,7 +85,7 @@ export function FourRibTypeForm({
   return (
     <div className="bg-white rounded-b-xl md:rounded-b-2xl shadow-sm border border-gray-200">
       <div className="p-4 md:p-6">
-        <div className="flex justify-center items-center pt-3 xl:pt-0 xl:pr-[160px]">
+        <div className="flex justify-center items-center pt-3 xl:pt-0 xl:pr-[130px] 2xl:pr-[382px]">
           {/* ================= TOP VIEW : SVG + POSITIONED INPUTS ================= */}
           <div className="relative">
             <img
@@ -257,7 +257,7 @@ export function FourRibTypeForm({
         </div>
 
         {/* Main content grid: Inputs on the left, Diagrams on the right */}
-        <div className="flex justify-center items-center flex-col 2xl:flex-row 2xl:gap-32 2xl:pr-[100px]">
+        <div className="flex justify-center items-center flex-col 2xl:flex-row 2xl:gap-36 pl-[32px] xl:pl-0 xl:pr-[92px] 2xl:pr-[75px]">
           {/* ================= SIDE VIEW : SVG/IMAGE + POSITIONED INPUTS ================= */}
           <div className="flex justify-center items-center pt-12">
             <div className="relative">
@@ -402,16 +402,16 @@ export function FourRibTypeForm({
           </div>
 
           {/* ================= SECOND SIDE VIEW (For Rib Plate Length & Thickness) ================= */}
-          <div className="flex justify-center items-center pt-24">
+          <div className="flex justify-center items-center pt-24 pl-[290px] xl:pl-[345px] 2xl:pl-0 2xl:pt-2">
             <div className="relative">
               <img
                 src="/images/4Rib-SideView (6).svg"
                 alt="4 rib baseplate side view details"
-                className="h-[250px] 2xl:h-[250px] object-contain"
+                className="h-[220px] xl:h-[250px] object-contain"
               />
 
               {/* Rib Plate Length (Class 'hidden' dihapus) */}
-              <div className="absolute -top-[50px] -right-[50px] -translate-x-1/2">
+              <div className="absolute -top-[50px] -right-[46px] -translate-x-1/2">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1">
                   Rib Plate Length
                 </label>
@@ -433,7 +433,7 @@ export function FourRibTypeForm({
 
               {/* Rib Plate Thickness (Class 'hidden' dihapus) */}
               {/* Catatan: -right-42 bukan ukuran bawaan Tailwind, pertimbangkan ganti ke -right-40 atau -right-[168px] */}
-              <div className="absolute top-[14%] xl:top-[16%] -right-[180px] xl:-right-[215px] -translate-x-1/2">
+              <div className="absolute top-[23%] xl:top-[16%] -right-[155px] xl:-right-[215px] -translate-x-1/2">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1">
                   Rib Plate Thickness
                 </label>
