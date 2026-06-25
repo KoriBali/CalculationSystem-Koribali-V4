@@ -74,7 +74,7 @@ export default function FoundationFormView() {
 
   return (
     <>
-      <div className="flex flex-col min-h-screen">
+      <div className="flex flex-col h-full">
         {/* Page metadata */}
         <Helmet>
           <title>Calculation Foundation - KORI BALI</title>
@@ -84,14 +84,14 @@ export default function FoundationFormView() {
           />
         </Helmet>
 
-        <div className="min-h-screen bg-gray-50 border border-gray-250">
+        <div className="flex-1 rounded-t-2xl hp:rounded-t-xl bg-gray-50 border border-gray-250">
           {/* PERBAIKAN: Menggunakan HeaderCalculationPage sesuai import */}
           <HeaderCalculationPage />
 
-          <div className="mx-2 md:mx-6 2040:mx-[250px] pt-1 pb-8">
+          <div className="mx-6 2040:mx-[250px] pt-0 pb-8 hp:mx-2">
             {/* ================= FOUNDATION TYPE SECTION ================= */}
             <div
-              className={`bg-gradient-to-r from-[#0d3b66] to-[#3399cc] px-4 py-3 md:py-4 flex items-center justify-between cursor-pointer mt-6 transition-all duration-500 ease-in-out ${
+              className={`bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] px-4 py-3 md:p-4 flex items-center justify-between cursor-pointer mt-6 transition-all duration-500 ease-in-out ${
                 isFoundationExpanded
                   ? "rounded-t-xl md:rounded-t-2xl"
                   : "rounded-xl md:rounded-2xl"
@@ -99,18 +99,32 @@ export default function FoundationFormView() {
               onClick={() => setIsFoundationExpanded(!isFoundationExpanded)}
             >
               {/* Section title */}
-              <div className="bg-white/10 backdrop-blur-sm px-2 md:px-4 py-[8px] md:py-2 rounded-lg border border-white/20">
+              <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg hp:rounded-md border border-white/20 hp:px-3 hp:py-[8px]">
                 <h2 className="text-white text-xs md:text-sm font-semibold md:font-bold">
                   Foundation Type
                 </h2>
               </div>
 
               {/* Toggle icon */}
-              <div className="p-2">
+              <div
+                className="
+                  flex h-8 w-8
+                  sm:h-9 sm:w-9
+                  shrink-0
+                  items-center justify-center
+                  rounded-full
+                  bg-white/15
+                  text-white
+                  border border-white/20
+                  transition
+                  group-hover:bg-white/20
+                  group-active:bg-white/25
+                "
+              >
                 {isFoundationExpanded ? (
-                  <ChevronUp className="w-4 md:w-5 h-4 md:h-5 text-white" />
+                  <ChevronUp className="w-4 h-4 sm:w-5 sm:h-5" />
                 ) : (
-                  <ChevronDown className="w-4 md:w-5 h-4 md:h-5 text-white" />
+                  <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5" />
                 )}
               </div>
             </div>
@@ -119,8 +133,8 @@ export default function FoundationFormView() {
             <div
               className={`transition-all duration-500 ease-in-out overflow-hidden ${
                 isFoundationExpanded
-                  ? "max-h-[5000px] rounded-b-xl md:rounded-b-2xl"
-                  : "max-h-0 rounded-b-xl md:rounded-b-2xl"
+                  ? "max-h-[10000px] rounded-b-2xl hp:rounded-b-xl"
+                  : "max-h-0 rounded-b-2xl hp:rounded-b-xl"
               }`}
             >
               <FoundationType
@@ -132,17 +146,17 @@ export default function FoundationFormView() {
 
             {/* ================= FOUNDATION DETAIL SECTION ================= */}
             <div
-              className={`bg-gradient-to-r from-[#0d3b66] to-[#3399cc] p-4 flex items-center justify-between cursor-pointer mt-10 transition-all duration-500 ease-in-out ${
+              className={`bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] px-4 py-3 md:p-4 flex items-center justify-between cursor-pointer mt-10 transition-all duration-500 ease-in-out ${
                 isSelectExpanded
-                  ? "rounded-t-xl md:rounded-t-2xl"
-                  : "rounded-xl md:rounded-2xl"
+                  ? "rounded-t-2xl hp:rounded-t-xl"
+                  : "rounded-2xl hp:rounded-xl"
               }`}
               onClick={() => setIsSelectExpanded(!isSelectExpanded)}
             >
               {/* Dynamic title based on selected type */}
               <div>
                 {foundationType.type && (
-                  <div className="bg-white/10 backdrop-blur-sm px-2 md:px-4 py-[8px] md:py-2 rounded-lg border border-white/20">
+                  <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg hp:rounded-md border border-white/20 hp:px-3 hp:py-[8px]">
                     <h2 className="text-white text-xs md:text-sm font-semibold md:font-bold">
                       {typeLabelMap[foundationType.type]}
                     </h2>
@@ -151,11 +165,25 @@ export default function FoundationFormView() {
               </div>
 
               {/* Toggle icon */}
-              <div className="p-2">
+              <div
+                className="
+                  flex h-8 w-8
+                  sm:h-9 sm:w-9
+                  shrink-0
+                  items-center justify-center
+                  rounded-full
+                  bg-white/15
+                  text-white
+                  border border-white/20
+                  transition
+                  group-hover:bg-white/20
+                  group-active:bg-white/25
+                "
+              >
                 {isSelectExpanded ? (
-                  <ChevronUp className="w-4 md:w-5 h-4 md:h-5 text-white" />
+                  <ChevronUp className="w-4 h-4 sm:w-5 sm:h-5" />
                 ) : (
-                  <ChevronDown className="w-4 md:w-5 h-4 md:h-5 text-white" />
+                  <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5" />
                 )}
               </div>
             </div>
@@ -164,8 +192,8 @@ export default function FoundationFormView() {
             <div
               className={`transition-all duration-500 ease-in-out overflow-hidden ${
                 isSelectExpanded
-                  ? "max-h-[5000px] rounded-b-xl md:rounded-b-2xl"
-                  : "max-h-0 rounded-b-xl md:rounded-b-2xl"
+                  ? "max-h-[10000px] rounded-b-2xl hp:rounded-b-xl"
+                  : "max-h-0 rounded-b-2xl hp:rounded-b-xl"
               }`}
             >
               {/* Empty state when no type selected */}

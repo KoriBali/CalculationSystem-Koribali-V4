@@ -84,19 +84,19 @@ export function EightRibTypeForm({
   return (
     <div className="bg-white rounded-b-xl md:rounded-b-2xl shadow-sm border border-gray-200">
       <div className="p-4 md:p-6">
-        <div className="flex justify-center items-center pt-3 xl:pt-0 pr-[6px] xl:pr-[130px] 2xl:pr-[382px]">
+        <div className="flex justify-center items-center pt-3 xl:pt-0 pl-[83px] xl:pl-0 xl:pr-[1px] 2xl:pr-[252px]">
           {/* ================= TOP VIEW : IMAGE + POSITIONED INPUTS ================= */}
           <div className="relative">
             <img
-              src="/images/8Rib-TopView.svg"
+              src="/images/8Rib-TopView (4).svg"
               alt="8 rib baseplate top view"
               className="h-[380px] xl:h-[450px] 2xl:h-[450px] object-contain"
             />
 
             {/* Baseplate Width (EW) — top center */}
-            <div className="absolute top-0 xl:top-2 left-[61.3%] xl:left-[59.87%] -translate-x-1/2">
+            <div className="absolute top-0 xl:top-2 left-[50%] xl:left-[49.99%] -translate-x-1/2">
               <label className="block text-xs md:text-sm text-gray-700 mb-1">
-                Baseplate Width (EW)
+                Baseplate Width
               </label>
               <div className="relative w-fit">
                 <input
@@ -115,9 +115,9 @@ export function EightRibTypeForm({
             </div>
 
             {/* Anchor Pitch (EW) — below Baseplate Width (EW) */}
-            <div className="absolute top-[23%] xl:top-[25%] left-[59.87%] -translate-x-1/2">
+            <div className="absolute top-[23%] xl:top-[24%] left-[49.99%] -translate-x-1/2">
               <label className="block text-xs md:text-sm text-gray-700 mb-1">
-                Anchor Pitch (EW)
+                Anchor Pitch
               </label>
               <div className="relative w-fit">
                 <input
@@ -139,7 +139,7 @@ export function EightRibTypeForm({
             </div>
 
             {/* Baseplate Width (NS) — middle left edge */}
-            <div className="absolute top-[71%] -translate-y-1/2 -left-10 xl:-left-12">
+            <div className="hidden absolute top-[71%] -translate-y-1/2 -left-10 xl:-left-12">
               <label className="block text-xs md:text-sm text-gray-700 mb-1">
                 Baseplate Width (NS)
               </label>
@@ -160,7 +160,7 @@ export function EightRibTypeForm({
             </div>
 
             {/* Anchor Pitch (NS) — to the right of Baseplate Width (NS) */}
-            <div className="absolute top-[71%] -translate-y-1/2 left-[30%] xl:left-[29%] -translate-x-1/2">
+            <div className="hidden absolute top-[71%] -translate-y-1/2 left-[30%] xl:left-[29%] -translate-x-1/2">
               <label className="block text-xs md:text-sm text-gray-700 mb-1">
                 Anchor Pitch (NS)
               </label>
@@ -184,7 +184,7 @@ export function EightRibTypeForm({
             </div>
 
             {/* Anchor Bolt Diameter + Number of Anchor Bolts side by side */}
-            <div className="absolute top-[31%] xl:top-[43%] 2xl:top-[43%] -translate-y-1/2 -right-[122px] xl:-right-[341px] -translate-x-1/2 flex flex-col xl:flex-row gap-2">
+            <div className="absolute top-[59%] xl:top-[73%] 2xl:top-[73%] -translate-y-1/2 left-[40px] xl:-left-[46px] 2xl:-left-[46px] -translate-x-1/2 flex flex-col xl:flex-row gap-3 xl:gap-2">
               <div className="relative">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1">
                   Anchor Bolt Diameter
@@ -230,7 +230,7 @@ export function EightRibTypeForm({
             </div>
 
             {/* Rib Angle (θ) — bottom right */}
-            <div className="absolute top-[64%] xl:top-[65%] 2xl:top-[65%] -translate-y-1/2 -right-[80px] xl:-right-[98px] -translate-x-1/2">
+            <div className="absolute top-[64%] xl:top-[65%] 2xl:top-[65%] -translate-y-1/2 -right-[98px] xl:-right-[112px] -translate-x-1/2">
               <label className="block text-xs md:text-sm text-gray-700 mb-1">
                 Rib Angle (θ)
               </label>
@@ -251,7 +251,7 @@ export function EightRibTypeForm({
             </div>
 
             {/* Number of Anchor Bolts on Tension Side — right aligned */}
-            <div className="absolute top-[87%] xl:top-[89%] 2xl:top-[89%] -translate-y-1/2 -right-[152px] xl:-right-[270px] -translate-x-1/2">
+            <div className="absolute top-[87%] xl:top-[89%] 2xl:top-[89%] -translate-y-1/2 -right-[152px] xl:-right-[280px] -translate-x-1/2">
               <label className="w-[170px] xl:w-full block text-xs md:text-sm text-gray-700 mb-1">
                 Number of Anchor Bolts on Tension Side
               </label>
@@ -277,7 +277,7 @@ export function EightRibTypeForm({
         </div>
 
         {/* Main content grid: Side views */}
-        <div className="flex justify-center items-center flex-col 2xl:flex-row 2xl:gap-[134px] pl-[40px] xl:pl-0 xl:pr-[75px] 2xl:pr-[75px]">
+        <div className="flex justify-center items-center flex-col 2xl:flex-row 2xl:gap-[134px] pl-[19px] xl:pl-0 xl:pr-[75px] 2xl:pr-[75px]">
           {/* ================= SIDE VIEW : IMAGE + POSITIONED INPUTS ================= */}
           <div className="flex justify-center items-center pt-16">
             <div className="relative">

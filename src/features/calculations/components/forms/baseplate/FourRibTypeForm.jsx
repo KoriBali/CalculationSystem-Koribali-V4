@@ -85,17 +85,17 @@ export function FourRibTypeForm({
   return (
     <div className="bg-white rounded-b-xl md:rounded-b-2xl shadow-sm border border-gray-200">
       <div className="p-4 md:p-6">
-        <div className="flex justify-center items-center pt-3 xl:pt-0 xl:pr-[130px] 2xl:pr-[382px]">
+        <div className="flex justify-center items-center pt-3 pl-[93px] xl:pl-0 xl:pt-0 xl:pr-0 2xl:pr-[245px]">
           {/* ================= TOP VIEW : SVG + POSITIONED INPUTS ================= */}
           <div className="relative">
             <img
-              src="/images/4Rib-TopView (14).svg"
+              src="/images/4Rib-TopView (21).svg"
               alt="4 rib baseplate top view"
               className="h-[380px] xl:h-[450px] 2xl:h-[450px] object-contain"
             />
 
             {/* Baseplate Width (EW) — top center */}
-            <div className="absolute top-0 xl:top-2 left-[61.3%] xl:left-[59.87%] -translate-x-1/2">
+            <div className="absolute top-0 xl:top-2 left-[51.3%] xl:left-[49.6%] -translate-x-1/2">
               <label className="block text-xs md:text-sm text-gray-700 mb-1">
                 Baseplate Width (EW)
               </label>
@@ -116,7 +116,7 @@ export function FourRibTypeForm({
             </div>
 
             {/* Anchor Pitch (EW) — below Baseplate Width (EW) */}
-            <div className="absolute top-[23%] xl:top-[25%] left-[59.87%] -translate-x-1/2">
+            <div className="absolute top-[23%] xl:top-[24%] left-[49.6%] -translate-x-1/2">
               <label className="block text-xs md:text-sm text-gray-700 mb-1">
                 Anchor Pitch (EW)
               </label>
@@ -140,7 +140,7 @@ export function FourRibTypeForm({
             </div>
 
             {/* Baseplate Width (NS) — middle left edge */}
-            <div className="absolute top-[71%] -translate-y-1/2 -left-10 xl:-left-12">
+            <div className="hidden absolute top-[71%] -translate-y-1/2 -left-10 xl:-left-12">
               <label className="block text-xs md:text-sm text-gray-700 mb-1">
                 Baseplate Width (NS)
               </label>
@@ -161,7 +161,7 @@ export function FourRibTypeForm({
             </div>
 
             {/* Anchor Pitch (NS) — to the right of Baseplate Width (NS) */}
-            <div className="absolute top-[71%] -translate-y-1/2 left-[30%] xl:left-[29%] -translate-x-1/2">
+            <div className="hidden absolute top-[71%] -translate-y-1/2 left-[30%] xl:left-[29%] -translate-x-1/2">
               <label className="block text-xs md:text-sm text-gray-700 mb-1">
                 Anchor Pitch (NS)
               </label>
@@ -185,7 +185,7 @@ export function FourRibTypeForm({
             </div>
 
             {/* Anchor Bolt Diameter + Number of Anchor Bolts side by side */}
-            <div className="absolute top-[34.4%] xl:top-[43%] 2xl:top-[43%] -translate-y-1/2 -right-[122px] xl:-right-[342px] -translate-x-1/2 flex flex-col xl:flex-row gap-2">
+            <div className="absolute top-[59%] xl:top-[73%] 2xl:top-[73%] -translate-y-1/2 left-[35px] xl:-left-[50px] -translate-x-1/2 flex flex-col xl:flex-row gap-3 xl:gap-2">
               <div className="relative">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1">
                   Anchor Bolt Diameter
@@ -231,7 +231,7 @@ export function FourRibTypeForm({
             </div>
 
             {/* Number of Anchor Bolts on Tension Side — left aligned */}
-            <div className="absolute top-[73%] xl:top-[75%] 2xl:top-[74%] -translate-y-1/2 -right-[148px] xl:-right-[272px] -translate-x-1/2">
+            <div className="absolute top-[72%] xl:top-[72%] 2xl:top-[72%] -translate-y-1/2 -right-[148px] xl:-right-[300px] -translate-x-1/2">
               <label className="w-[170px] xl:w-full block text-xs md:text-sm text-gray-700 mb-1">
                 Number of Anchor Bolts on Tension Side
               </label>
@@ -257,7 +257,7 @@ export function FourRibTypeForm({
         </div>
 
         {/* Main content grid: Inputs on the left, Diagrams on the right */}
-        <div className="flex justify-center items-center flex-col 2xl:flex-row 2xl:gap-36 pl-[32px] xl:pl-0 xl:pr-[92px] 2xl:pr-[75px]">
+        <div className="flex justify-center items-center flex-col 2xl:flex-row 2xl:gap-36 pl-[12px] xl:pl-0 xl:pr-[96px] 2xl:pr-[75px]">
           {/* ================= SIDE VIEW : SVG/IMAGE + POSITIONED INPUTS ================= */}
           <div className="flex justify-center items-center pt-12">
             <div className="relative">
@@ -411,7 +411,7 @@ export function FourRibTypeForm({
               />
 
               {/* Rib Plate Length (Class 'hidden' dihapus) */}
-              <div className="absolute -top-[50px] -right-[46px] -translate-x-1/2">
+              <div className="absolute -top-[50px] -right-[46px] xl:-right-[52px] -translate-x-1/2">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1">
                   Rib Plate Length
                 </label>

@@ -2,19 +2,16 @@ import { RotateCcw, ChevronRight, Calculator } from "lucide-react";
 
 /**
  * HELPER COMPONENTS & FUNCTIONS
- * Defined outside to prevent re-creation on every component re-render
  */
-
-// Dynamic styling for input fields based on validation state
 const inputStyle = (hasError) =>
-  `w-full px-3 md:px-4 py-2 md:py-2.5 rounded-md md:rounded-lg outline-none transition-all text-xs md:text-sm border
+  `w-full px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border
   ${
     hasError
       ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
       : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
   }`;
 
-// Small component to display validation error messages
+// Renders a red error message below an invalid field
 const ErrorStyle = ({ show, text }) =>
   show ? (
     <div className="absolute left-0 -bottom-4 md:-bottom-5 flex items-center gap-1 text-[9px] md:text-[11px] text-red-500">
@@ -47,31 +44,38 @@ export function SquareCaissonTypeForm({
     });
   };
 
+  const handleChange = (field) => (e) => {
+    onUpdate({ [field]: e.target.value });
+  };
+
   return (
     <div className="bg-white rounded-b-xl md:rounded-b-2xl shadow-sm border border-gray-200">
-      <div className="p-4 md:p-6 shadow-sm space-y-4 md:space-y-6">
-        {/* Main content grid: Inputs on the left, Diagrams on the right */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-6">
-          {/* ================= LEFT SECTION: DATA INPUT ================= */}
-          <div className="px-4 md:px-5 py-5 rounded-lg md:rounded-xl border border-gray-200">
-            <div className="grid grid-cols-2 gap-6">
-              {/* Foundation Width Input */}
-              <div className="relative">
-                <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-3">
-                  Foundation Width
+      <div className="flex justify-center pb-6 pt-6 xl:pt-12">
+        <div className="flex flex-col gap-12 xl:gap-6 xl:flex-row xl:items-center 2xl:gap-20">
+          {/* ================= TOP SECTION: TOP VIEW SVG + POSITIONED INPUTS ================= */}
+          <div className="flex justify-center items-center pr-[93px] xl:pr-0 pt-12 xl:pt-0">
+            <div className="relative">
+              <img
+                src="/images/SquareCaisson-TopView (10).svg"
+                alt="Square Caisson Top View"
+                className="h-[300px] xl:h-[310px] 2xl:h-[350px] object-contain"
+              />
+
+              {/* Foundation Width X — top center */}
+              <div className="absolute -top-5 xl:-top-4 left-[255px] xl:left-[258px] 2xl:left-[288.6px] -translate-x-1/2">
+                <label className="block text-xs md:text-sm text-gray-700 mb-1">
+                  Foundation Width (X)
                 </label>
-                <div className="relative">
+                <div className="relative w-fit">
                   <input
                     type="number"
                     min={0}
                     value={squareCaisson.foundationWidthX}
-                    onChange={(e) =>
-                      onUpdate({ foundationWidthX: e.target.value })
-                    }
+                    onChange={handleChange("foundationWidthX")}
                     onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(errors.foundationWidthX)} pr-12`}
+                    className={`${inputStyle(errors.foundationWidthX)} pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
                   />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400">
+                  <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
                   </span>
                 </div>
@@ -81,23 +85,21 @@ export function SquareCaissonTypeForm({
                 />
               </div>
 
-              {/* Foundation Width Input */}
-              <div className="relative">
-                <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-3">
-                  Foundation Width
+              {/* Foundation Width Y — middle left */}
+              <div className="absolute top-[64.4%] 2xl:top-[64.5%] -translate-y-1/2 -left-[48px] xl:-left-[53px]">
+                <label className="block text-xs md:text-sm text-gray-700 mb-1">
+                  Foundation Width (Y)
                 </label>
-                <div className="relative">
+                <div className="relative w-fit">
                   <input
                     type="number"
                     min={0}
                     value={squareCaisson.foundationWidthY}
-                    onChange={(e) =>
-                      onUpdate({ foundationWidthY: e.target.value })
-                    }
+                    onChange={handleChange("foundationWidthY")}
                     onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(errors.foundationWidthY)} pr-12`}
+                    className={`${inputStyle(errors.foundationWidthY)} pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
                   />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400">
+                  <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
                   </span>
                 </div>
@@ -106,24 +108,33 @@ export function SquareCaissonTypeForm({
                   text={errors.foundationWidthY}
                 />
               </div>
+            </div>
+          </div>
 
-              {/* Embedment Depth Input */}
-              <div className="relative">
-                <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-3">
+          {/* ================= BOTTOM SECTION: SIDE VIEW SVG + POSITIONED INPUT ================= */}
+          <div className="flex justify-center pl-[93px] xl:pl-0 items-center">
+            <div className="relative">
+              <img
+                src="/images/SquareCaisson-SideView (2).svg"
+                alt="Square Caisson Side View"
+                className="h-[300px] xl:h-[310px] 2xl:h-[350px] object-contain"
+              />
+
+              {/* Embedment Depth — right side */}
+              <div className="absolute top-[64%] 2xl:top-[64.1%] -translate-y-1/2 -right-[52px] xl:-right-[65px]">
+                <label className="block text-xs md:text-sm text-gray-700 mb-1">
                   Embedment Depth
                 </label>
-                <div className="relative">
+                <div className="relative w-fit">
                   <input
                     type="number"
                     min={0}
                     value={squareCaisson.embedmentDepth}
-                    onChange={(e) =>
-                      onUpdate({ embedmentDepth: e.target.value })
-                    }
+                    onChange={handleChange("embedmentDepth")}
                     onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(errors.embedmentDepth)} pr-12`}
+                    className={`${inputStyle(errors.embedmentDepth)} pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
                   />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400">
+                  <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
                   </span>
                 </div>
@@ -132,154 +143,134 @@ export function SquareCaissonTypeForm({
                   text={errors.embedmentDepth}
                 />
               </div>
-
-              {/* N Value Input */}
-              <div className="relative">
-                <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-3">
-                  N Value
-                </label>
-                <div className="relative">
-                  <input
-                    type="number"
-                    min={0}
-                    value={squareCaisson.nValue}
-                    onChange={(e) => onUpdate({ nValue: e.target.value })}
-                    onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(errors.nValue)}`}
-                  />
-                </div>
-                <ErrorStyle show={errors.nValue} text={errors.nValue} />
-              </div>
-
-              {/* γ Input */}
-              <div className="relative">
-                <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-3">
-                  γ
-                </label>
-                <div className="relative">
-                  <input
-                    type="number"
-                    min={0}
-                    value={squareCaisson.yValue}
-                    onChange={(e) => onUpdate({ yValue: e.target.value })}
-                    onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(errors.yValue)} pr-16`}
-                  />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400">
-                    kN/m<sup>3</sup>
-                  </span>
-                </div>
-                <ErrorStyle show={errors.yValue} text={errors.yValue} />
-              </div>
-
-              {/* γc Input */}
-              <div className="relative">
-                <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-3">
-                  γc
-                </label>
-                <div className="relative">
-                  <input
-                    type="number"
-                    min={0}
-                    value={squareCaisson.ycValue}
-                    onChange={(e) => onUpdate({ ycValue: e.target.value })}
-                    onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(errors.ycValue)} pr-16`}
-                  />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400">
-                    kN/m<sup>3</sup>
-                  </span>
-                </div>
-                <ErrorStyle show={errors.ycValue} text={errors.ycValue} />
-              </div>
-
-              {/* α Input */}
-              <div className="col-span-2  relative">
-                <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-3">
-                  α
-                </label>
-                <div className="relative">
-                  <input
-                    type="number"
-                    min={0}
-                    value={squareCaisson.alphaValue}
-                    onChange={(e) => onUpdate({ alphaValue: e.target.value })}
-                    onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(errors.alphaValue)} `}
-                  />
-                </div>
-                <ErrorStyle show={errors.alphaValue} text={errors.alphaValue} />
-              </div>
-            </div>
-          </div>
-
-          {/* ================= RIGHT SECTION: TECHNICAL DIAGRAMS ================= */}
-          <div className="flex flex-col justify-center gap-6">
-            {/* Diagram: Top View */}
-            <div className="bg-gray-50 border border-gray-200 rounded-2xl p-8 flex items-center justify-center min-h-[241.98px] hover:shadow-sm transition">
-              <img
-                src="/images/caisson-square-topview.png"
-                alt="Top View"
-                className="max-h-44 object-contain"
-              />
-            </div>
-
-            {/* Diagram: Side View */}
-            <div className="bg-gray-50 border border-gray-200 rounded-2xl p-8 flex items-center justify-center min-h-[241.98px] hover:shadow-sm transition">
-              <img
-                src="/images/caisson-square-sideview.png"
-                alt="Side View"
-                className="max-h-44 object-contain"
-              />
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Divider line */}
-        <div className="mt-6 border-t border-gray-200"></div>
+      {/* ================= HIDDEN FIELDS (kept for future use) ================= */}
+      <div className="hidden">
+        {/* N Value */}
+        <div className="relative">
+          <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-3">
+            N Value
+          </label>
+          <div className="relative">
+            <input
+              type="number"
+              min={0}
+              value={squareCaisson.nValue}
+              onChange={handleChange("nValue")}
+              onWheel={(e) => e.target.blur()}
+              className={inputStyle(errors.nValue)}
+            />
+          </div>
+          <ErrorStyle show={errors.nValue} text={errors.nValue} />
+        </div>
 
-        {/* ================= FOOTER SECTION: ACTIONS ================= */}
-        <div className="flex justify-between items-center pt-4 md:pt-6">
-          {/* Reset button to clear all inputs */}
+        {/* γ */}
+        <div className="relative">
+          <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-3">
+            γ
+          </label>
+          <div className="relative">
+            <input
+              type="number"
+              min={0}
+              value={squareCaisson.yValue}
+              onChange={handleChange("yValue")}
+              onWheel={(e) => e.target.blur()}
+              className={`${inputStyle(errors.yValue)} pr-16`}
+            />
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400">
+              kN/m<sup>3</sup>
+            </span>
+          </div>
+          <ErrorStyle show={errors.yValue} text={errors.yValue} />
+        </div>
+
+        {/* γc */}
+        <div className="relative">
+          <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-3">
+            γc
+          </label>
+          <div className="relative">
+            <input
+              type="number"
+              min={0}
+              value={squareCaisson.ycValue}
+              onChange={handleChange("ycValue")}
+              onWheel={(e) => e.target.blur()}
+              className={`${inputStyle(errors.ycValue)} pr-16`}
+            />
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400">
+              kN/m<sup>3</sup>
+            </span>
+          </div>
+          <ErrorStyle show={errors.ycValue} text={errors.ycValue} />
+        </div>
+
+        {/* α */}
+        <div className="relative">
+          <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-3">
+            α
+          </label>
+          <div className="relative">
+            <input
+              type="number"
+              min={0}
+              value={squareCaisson.alphaValue}
+              onChange={handleChange("alphaValue")}
+              onWheel={(e) => e.target.blur()}
+              className={inputStyle(errors.alphaValue)}
+            />
+          </div>
+          <ErrorStyle show={errors.alphaValue} text={errors.alphaValue} />
+        </div>
+      </div>
+
+      {/* Divider line */}
+      <div className="border-t mx-4 md:mx-6 border-gray-200"></div>
+
+      {/* ================= FOOTER SECTION: ACTIONS ================= */}
+      <div className="flex justify-between items-center pt-6 px-4 md:px-6 pb-6 xl:pb-6">
+        {/* Reset button */}
+        <button
+          onClick={handleReset}
+          className="flex justify-center items-center gap-2 px-5 py-2.5 md:px-6
+              rounded-lg hp:rounded-md font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] text-xs sm:text-sm
+              ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm transition-colors"
+        >
+          <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+          Reset
+        </button>
+
+        {/* Calculate button */}
+        <button
+          onClick={onCalculate}
+          className="flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 md:px-6
+              rounded-lg hp:rounded-md font-medium bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white text-sm hp:text-xs hover:brightness-110 shadow-sm transition-all"
+        >
+          <Calculator className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+          Calculate Result
+        </button>
+
+        <div className="flex items-center gap-3">
+          {/* Next step button */}
           <button
-            onClick={handleReset}
-            className="flex items-center gap-2 px-[22px] md:px-7 py-[10px] md:py-2.5 bg-[#eef2f6] text-[#0d3b66] text-xs md:text-sm
-            border-2 border-[#d0d7e2] rounded-lg hover:bg-[#e2e8f0] transition-colors font-medium"
-          >
-            <RotateCcw className="w-4 md:w-5 h-4 md:h-5" />
-            Reset
-          </button>
-
-          <div className="flex items-center gap-3">
-            {/* Button to trigger calculations */}
-            <button
-              onClick={onCalculate}
-              className="flex items-center gap-2 px-7 py-2.5
-              border border-[#cbd5e1] text-[#0d3b66]
-              rounded-lg text-sm hover:bg-[#f1f5f9] transition-all font-medium"
-            >
-              <Calculator className="w-4 md:w-5 h-4 md:h-5" />
-              Calculate
-            </button>
-
-            {/* Proceed to next step or report generation */}
-            <button
-              onClick={onNext}
-              disabled={!isCalculated}
-              className={`
-                flex items-center gap-2 px-7 py-2.5 rounded-lg text-sm font-medium
-                transition-all
+            onClick={onNext}
+            disabled={!isCalculated}
+            className={`flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 md:px-6
+                rounded-lg hp:rounded-md font-medium transition-all text-sm hp:text-xs
                 ${
                   !isCalculated
-                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    ? "bg-gray-100 text-gray-400 ring-1 ring-inset ring-gray-200 cursor-not-allowed shadow-none"
                     : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
-                }
-              `}
-            >
-              {buttonLabel}
-              <ChevronRight className="w-4 md:w-5 h-4 md:h-5" />
-            </button>
-          </div>
+                }`}
+          >
+            {buttonLabel}
+            <ChevronRight className="w-4 md:w-5 h-4 md:h-5" />
+          </button>
         </div>
       </div>
     </div>
