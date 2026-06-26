@@ -5,12 +5,11 @@ import React from "react";
  * Defined outside to prevent re-creation on every component re-render
  */
 
-// Dynamic styling for input fields based on validation state
 const inputStyle = (hasError) =>
-  `w-full pl-2 md:pl-4 pr-10 md:pr-4 py-2 md:py-2.5 rounded-md md:rounded-lg outline-none transition-all border text-xs md:text-sm
+  `w-full px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border
   ${
     hasError
-      ? "border border-red-500 bg-[#fff5f5] ring-1 ring-red-200 focus:border-red-500 focus:ring-1 focus:ring-red-200"
+      ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
       : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
   }`;
 
@@ -35,7 +34,7 @@ export function BaseplateType({ baseplateType, onUpdate, errors }) {
           <select
             value={baseplateType.type}
             onChange={(e) => onUpdate({ type: e.target.value })}
-            className={`${inputStyle(errors.type)} min-h-[42px]`}
+            className={`${inputStyle(errors.type)} lg:px-2 xl:px-4 min-h-[34px] sm:min-h-[38px] lg:min-h-[42px]`}
           >
             <option value="" disabled>
               Select Baseplate Type

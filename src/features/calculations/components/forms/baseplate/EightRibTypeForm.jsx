@@ -434,43 +434,45 @@ export function EightRibTypeForm({
         </div>
 
         {/* ================= FOOTER SECTION: ACTIONS ================= */}
-        <div className="flex justify-between items-center mt-6 pt-4 md:pt-6 border-t border-gray-200">
+        <div className="flex justify-between items-center mt-6 pt-4 md:pt-6 border-t border-gray-200 hp:gap-2">
           {/* Reset button to clear all inputs */}
           <button
             onClick={handleReset}
-            className="flex justify-center items-center gap-2 px-5 py-2.5 md:px-6
-              rounded-lg hp:rounded-md font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] text-xs sm:text-sm
+            title="Reset"
+            className="flex justify-center items-center gap-2 px-5 py-2.5 hp:px-3 hp:py-2 md:px-6
+              rounded-lg hp:rounded-md font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] text-xs sm:text-sm 
               ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm transition-colors"
           >
             <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-            Reset
+            <span className="hp:hidden">Reset</span>
           </button>
 
           {/* Button to trigger calculations */}
           <button
             onClick={onCalculate}
-            className="flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 md:px-6
-              rounded-lg hp:rounded-md font-medium bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white text-sm hp:text-xs hover:brightness-110 shadow-sm transition-all"
+            className="flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-4 hp:py-2 md:px-6 
+                rounded-lg hp:rounded-md font-medium bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white text-sm hover:brightness-110 shadow-sm transition-all"
           >
             <Calculator className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-            Calculate Result
+            <span className="hp:text-[11px] whitespace-nowrap">Calculate Result</span>
           </button>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 hp:gap-0">
             {/* Proceed to next step or report generation */}
             <button
               onClick={onNext}
               disabled={!isCalculated}
-              className={`flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 md:px-6
-                rounded-lg hp:rounded-md font-medium transition-all text-sm hp:text-xs
+              title={buttonLabel}
+              className={`flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-3 hp:py-2 md:px-6 
+                rounded-lg hp:rounded-md font-medium transition-all text-sm
                 ${
                   !isCalculated
                     ? "bg-gray-100 text-gray-400 ring-1 ring-inset ring-gray-200 cursor-not-allowed shadow-none"
                     : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
                 }`}
             >
-              {buttonLabel}
-              <ChevronRight className="w-4 md:w-5 h-4 md:h-5" />
+              <span className="hp:hidden">{buttonLabel}</span>
+              <ChevronRight className="w-4 md:w-5 h-4 md:h-5 hp:w-4 hp:h-4" />
             </button>
           </div>
         </div>

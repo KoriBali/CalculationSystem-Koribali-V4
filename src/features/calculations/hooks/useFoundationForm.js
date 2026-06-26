@@ -113,16 +113,34 @@ export function useFoundationForm() {
   // Update foundation type
   const handleFoundationTypeUpdate = (updates) => {
     Utils.updateFoundationType(foundationType, updates, setFoundationType);
+
+    setFoundationTypeErrors((prev) => {
+      const cleared = { ...prev };
+      Object.keys(updates).forEach((key) => delete cleared[key]);
+      return cleared;
+    });
   };
 
   // Update Square Caisson Type inputs and clear related errors
   const handleSquareCaissonUpdate = (updates) => {
     Utils.updateSquareCaisson(squareCaisson, updates, setSquareCaisson);
+
+    setSquareCaissonErrors((prev) => {
+      const cleared = { ...prev };
+      Object.keys(updates).forEach((key) => delete cleared[key]);
+      return cleared;
+    });
   };
 
   // Update Round Caisson Type inputs and clear related errors
   const handleRoundCaissonUpdate = (updates) => {
     Utils.updateRoundCaisson(roundCaisson, updates, setRoundCaisson);
+
+    setRoundCaissonErrors((prev) => {
+      const cleared = { ...prev };
+      Object.keys(updates).forEach((key) => delete cleared[key]);
+      return cleared;
+    });
   };
 
   // Handle calculation flow (validation + API call)

@@ -73,7 +73,7 @@ export function SquareCaissonTypeForm({
                     value={squareCaisson.foundationWidthX}
                     onChange={handleChange("foundationWidthX")}
                     onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(errors.foundationWidthX)} pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
+                    className={`${inputStyle(errors.foundationWidthX)} pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
                   />
                   <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
@@ -97,7 +97,7 @@ export function SquareCaissonTypeForm({
                     value={squareCaisson.foundationWidthY}
                     onChange={handleChange("foundationWidthY")}
                     onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(errors.foundationWidthY)} pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
+                    className={`${inputStyle(errors.foundationWidthY)} pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
                   />
                   <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
@@ -132,7 +132,7 @@ export function SquareCaissonTypeForm({
                     value={squareCaisson.embedmentDepth}
                     onChange={handleChange("embedmentDepth")}
                     onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(errors.embedmentDepth)} pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
+                    className={`${inputStyle(errors.embedmentDepth)} pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
                   />
                   <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
@@ -233,43 +233,45 @@ export function SquareCaissonTypeForm({
       <div className="border-t mx-4 md:mx-6 border-gray-200"></div>
 
       {/* ================= FOOTER SECTION: ACTIONS ================= */}
-      <div className="flex justify-between items-center pt-6 px-4 md:px-6 pb-6 xl:pb-6">
+      <div className="flex justify-between items-center pt-6 px-4 md:px-6 pb-6 xl:pb-6 hp:gap-2">
         {/* Reset button */}
         <button
           onClick={handleReset}
-          className="flex justify-center items-center gap-2 px-5 py-2.5 md:px-6
-              rounded-lg hp:rounded-md font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] text-xs sm:text-sm
-              ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm transition-colors"
+          title="Reset"
+          className="flex justify-center items-center gap-2 px-5 py-2.5 hp:px-3 hp:py-2 md:px-6
+            rounded-lg hp:rounded-md font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] text-xs sm:text-sm 
+            ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm transition-colors"
         >
           <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-          Reset
+          <span className="hp:hidden">Reset</span>
         </button>
 
         {/* Calculate button */}
         <button
           onClick={onCalculate}
-          className="flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 md:px-6
-              rounded-lg hp:rounded-md font-medium bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white text-sm hp:text-xs hover:brightness-110 shadow-sm transition-all"
+          className="flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-4 hp:py-2 md:px-6 
+              rounded-lg hp:rounded-md font-medium bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white text-sm hover:brightness-110 shadow-sm transition-all"
         >
           <Calculator className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-          Calculate Result
+          <span className="hp:text-[11px] whitespace-nowrap">Calculate Result</span>
         </button>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 hp:gap-0">
           {/* Next step button */}
           <button
             onClick={onNext}
             disabled={!isCalculated}
-            className={`flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 md:px-6
-                rounded-lg hp:rounded-md font-medium transition-all text-sm hp:text-xs
-                ${
-                  !isCalculated
-                    ? "bg-gray-100 text-gray-400 ring-1 ring-inset ring-gray-200 cursor-not-allowed shadow-none"
-                    : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
-                }`}
+            title={buttonLabel}
+            className={`flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-3 hp:py-2 md:px-6 
+              rounded-lg hp:rounded-md font-medium transition-all text-sm
+              ${
+                !isCalculated
+                  ? "bg-gray-100 text-gray-400 ring-1 ring-inset ring-gray-200 cursor-not-allowed shadow-none"
+                  : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
+              }`}
           >
-            {buttonLabel}
-            <ChevronRight className="w-4 md:w-5 h-4 md:h-5" />
+            <span className="hp:hidden">{buttonLabel}</span>
+            <ChevronRight className="w-4 md:w-5 h-4 md:h-5 hp:w-4 hp:h-4" />
           </button>
         </div>
       </div>
