@@ -26,7 +26,7 @@ const ErrorStyle = ({ show, text }) =>
  */
 export function BaseplateType({ baseplateType, onUpdate, errors }) {
   return (
-    <div className="bg-white border border-gray-200 px-4 md:px-5 py-6 md:py-5 shadow-sm rounded-b-lg md:rounded-b-2xl">
+    <div className="bg-white border border-gray-200 px-4 md:px-5 py-6 md:py-5 shadow-sm rounded-b-xl md:rounded-b-2xl">
       {/* HEADER */}
       <div>
         {/* CARD */}
