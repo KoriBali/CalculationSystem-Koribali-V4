@@ -41,7 +41,7 @@ const InputField = ({
  * HELPER COMPONENTS & FUNCTIONS
  */
 const inputStyle = (hasError) =>
-  `w-full px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border
+  `px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border
   ${
     hasError
       ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
@@ -83,18 +83,24 @@ export function EightRibTypeForm({
 
   return (
     <div className="bg-white rounded-b-xl md:rounded-b-2xl shadow-sm border border-gray-200">
-      <div className="p-4 md:p-6">
-        <div className="flex justify-center items-center pt-3 xl:pt-0 pl-[83px] xl:pl-0 xl:pr-[1px] 2xl:pr-[252px]">
+      <div className="sm:p-4 md:p-6">
+        <div className="flex justify-center items-center pt-3 xl:pt-0 sm:pl-[83px] xl:pl-0 xl:pr-[1px] 2xl:pr-[252px]">
           {/* ================= TOP VIEW : IMAGE + POSITIONED INPUTS ================= */}
           <div className="relative">
             <img
+              src="/images/8Rib-TopView (7).svg"
+              alt="8 rib baseplate top view"
+              className="block sm:hidden w-[290px] h-[380px] object-contain"
+            />
+
+            <img
               src="/images/8Rib-TopView (4).svg"
               alt="8 rib baseplate top view"
-              className="h-[380px] xl:h-[450px] 2xl:h-[450px] object-contain"
+              className="hidden sm:block sm:w-full h-[380px] xl:h-[450px] 2xl:h-[450px] object-contain"
             />
 
             {/* Baseplate Width (EW) — top center */}
-            <div className="absolute top-0 xl:top-2 left-[50%] xl:left-[49.99%] -translate-x-1/2">
+            <div className="absolute top-12 sm:top-0 xl:top-2 left-[50.6%] sm:left-[50%] xl:left-[49.99%] -translate-x-1/2">
               <label className="block text-xs md:text-sm text-gray-700 mb-1">
                 Baseplate Width
               </label>
@@ -105,7 +111,7 @@ export function EightRibTypeForm({
                   value={eightRibType.bpWidthEW}
                   onChange={handleChange("bpWidthEW")}
                   onWheel={(e) => e.target.blur()}
-                  className={`${inputStyle(errors.bpWidthEW)} pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
+                  className={`${inputStyle(errors.bpWidthEW)} pr-9 xl:pr-9 w-[90px] sm:w-[120px] xl:w-[140px]`}
                 />
                 <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                   mm
@@ -115,7 +121,7 @@ export function EightRibTypeForm({
             </div>
 
             {/* Anchor Pitch (EW) — below Baseplate Width (EW) */}
-            <div className="absolute top-[23%] xl:top-[24%] left-[49.99%] -translate-x-1/2">
+            <div className="absolute top-[110px] sm:top-[23%] xl:top-[24%] left-[50%] sm:left-[49.99%] -translate-x-1/2">
               <label className="block text-xs md:text-sm text-gray-700 mb-1">
                 Anchor Pitch
               </label>
@@ -126,7 +132,7 @@ export function EightRibTypeForm({
                   value={eightRibType.anchorPitchEW}
                   onChange={handleChange("anchorPitchEW")}
                   onWheel={(e) => e.target.blur()}
-                  className={`${inputStyle(errors.anchorPitchEW)} pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
+                  className={`${inputStyle(errors.anchorPitchEW)} pr-9 xl:pr-9 w-[90px] sm:w-[120px] xl:w-[140px]`}
                 />
                 <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                   mm
@@ -184,9 +190,9 @@ export function EightRibTypeForm({
             </div>
 
             {/* Anchor Bolt Diameter + Number of Anchor Bolts side by side */}
-            <div className="absolute top-[59%] xl:top-[73%] 2xl:top-[73%] -translate-y-1/2 left-[40px] xl:-left-[46px] 2xl:-left-[46px] -translate-x-1/2 flex flex-col xl:flex-row gap-3 xl:gap-2">
+            <div className="absolute top-[74%] sm:top-[59%] xl:top-[73%] 2xl:top-[73%] -translate-y-1/2 left-[35px] sm:left-[40px] xl:-left-[46px] 2xl:-left-[46px] -translate-x-1/2 flex flex-col xl:flex-row gap-2 sm:gap-3 xl:gap-2">
               <div className="relative">
-                <label className="block text-xs md:text-sm text-gray-700 mb-1">
+                <label className="w-[100px] sm:w-full block text-xs md:text-sm text-gray-700 mb-1">
                   Anchor Bolt Diameter
                 </label>
                 <div className="relative w-fit">
@@ -196,7 +202,7 @@ export function EightRibTypeForm({
                     value={eightRibType.anchorDia}
                     onChange={handleChange("anchorDia")}
                     onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(errors.anchorDia)} pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
+                    className={`${inputStyle(errors.anchorDia)} pr-9 xl:pr-9 w-[90px] sm:w-[120px] xl:w-[140px]`}
                   />
                   <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
@@ -206,7 +212,7 @@ export function EightRibTypeForm({
               </div>
 
               <div className="relative">
-                <label className="block text-xs md:text-sm text-gray-700 mb-1">
+                <label className="w-[90px] sm:w-full block text-xs md:text-sm text-gray-700 mb-1">
                   Number of Anchor Bolts
                 </label>
                 <div className="relative w-fit">
@@ -216,7 +222,7 @@ export function EightRibTypeForm({
                     value={eightRibType.anchorCount}
                     onChange={handleChange("anchorCount")}
                     onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(errors.anchorCount)} pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
+                    className={`${inputStyle(errors.anchorCount)} pr-9 xl:pr-9 w-[90px] sm:w-[120px] xl:w-[140px]`}
                   />
                   <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     pcs
@@ -230,7 +236,7 @@ export function EightRibTypeForm({
             </div>
 
             {/* Rib Angle (θ) — bottom right */}
-            <div className="absolute top-[64%] xl:top-[65%] 2xl:top-[65%] -translate-y-1/2 -right-[98px] xl:-right-[112px] -translate-x-1/2">
+            <div className="absolute top-[210px] sm:top-[64%] xl:top-[65%] 2xl:top-[65%] -translate-y-1/2 -right-[60px] sm:-right-[98px] xl:-right-[112px] -translate-x-1/2">
               <label className="block text-xs md:text-sm text-gray-700 mb-1">
                 Rib Angle (θ)
               </label>
@@ -241,7 +247,7 @@ export function EightRibTypeForm({
                   value={eightRibType.ribAngle}
                   onChange={handleChange("ribAngle")}
                   onWheel={(e) => e.target.blur()}
-                  className={`${inputStyle(errors.ribAngle)} pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
+                  className={`${inputStyle(errors.ribAngle)} pr-9 xl:pr-9 w-[90px] sm:w-[120px] xl:w-[140px]`}
                 />
                 <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                   deg
@@ -251,8 +257,8 @@ export function EightRibTypeForm({
             </div>
 
             {/* Number of Anchor Bolts on Tension Side — right aligned */}
-            <div className="absolute top-[87%] xl:top-[89%] 2xl:top-[89%] -translate-y-1/2 -right-[152px] xl:-right-[280px] -translate-x-1/2">
-              <label className="w-[170px] xl:w-full block text-xs md:text-sm text-gray-700 mb-1">
+            <div className="absolute top-[292px] sm:top-[87%] xl:top-[89%] 2xl:top-[89%] -translate-y-1/2 -right-[60px] sm:-right-[152px] xl:-right-[280px] -translate-x-1/2">
+              <label className="w-[90px] sm:w-[170px] xl:w-full block text-xs md:text-sm text-gray-700 mb-1">
                 Number of Anchor Bolts on Tension Side
               </label>
               <div className="relative w-fit">
@@ -262,7 +268,7 @@ export function EightRibTypeForm({
                   value={eightRibType.anchorCountTension}
                   onChange={handleChange("anchorCountTension")}
                   onWheel={(e) => e.target.blur()}
-                  className={`${inputStyle(errors.anchorCountTension)} pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
+                  className={`${inputStyle(errors.anchorCountTension)} pr-9 xl:pr-9 w-[90px] sm:w-[120px] xl:w-[140px]`}
                 />
                 <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                   pcs
@@ -277,18 +283,18 @@ export function EightRibTypeForm({
         </div>
 
         {/* Main content grid: Side views */}
-        <div className="flex justify-center items-center flex-col 2xl:flex-row 2xl:gap-[134px] pl-[19px] xl:pl-0 xl:pr-[75px] 2xl:pr-[75px]">
+        <div className="flex justify-center items-center flex-col 2xl:flex-row 2xl:gap-[134px] sm:pl-[19px] xl:pl-0 pr-[40px] sm:pr-0 xl:pr-[75px] 2xl:pr-[75px]">
           {/* ================= SIDE VIEW : IMAGE + POSITIONED INPUTS ================= */}
-          <div className="flex justify-center items-center pt-16">
+          <div className="flex justify-center items-center pt-4 sm:pt-16">
             <div className="relative">
               <img
                 src="/images/8Rib-SideView.svg"
                 alt="8 rib baseplate side view"
-                className="h-[215px] xl:h-[250px] 2xl:h-[250px] object-contain"
+                className="w-[300px] sm:w-full h-[185px] sm:h-[215px] xl:h-[250px] 2xl:h-[250px] object-contain"
               />
 
               {/* Baseplate Thickness */}
-              <div className="absolute -bottom-1 xl:bottom-[4%] -left-[66px] xl:-left-[76px]">
+              <div className="absolute -bottom-6 sm:-bottom-1 xl:bottom-[4%] left-[3px] sm:-left-[66px] xl:-left-[76px]">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1">
                   Baseplate Thickness
                 </label>
@@ -299,7 +305,7 @@ export function EightRibTypeForm({
                     value={eightRibType.bpThickness}
                     onChange={handleChange("bpThickness")}
                     onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(errors.bpThickness)} pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
+                    className={`${inputStyle(errors.bpThickness)} pr-9 xl:pr-9 w-[90px] sm:w-[120px] xl:w-[140px]`}
                   />
                   <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
@@ -312,7 +318,7 @@ export function EightRibTypeForm({
               </div>
 
               {/* Rib Plate Height */}
-              <div className="absolute top-[39%] xl:top-[40%] left-12 2xl:left-12">
+              <div className="absolute top-[41.5%] sm:top-[39%] xl:top-[40%] left-[3px] sm:left-12 2xl:left-12">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1">
                   Rib Plate Height
                 </label>
@@ -323,7 +329,7 @@ export function EightRibTypeForm({
                     value={eightRibType.ribHeight}
                     onChange={handleChange("ribHeight")}
                     onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(errors.ribHeight)} pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
+                    className={`${inputStyle(errors.ribHeight)} pr-9 xl:pr-9 w-[90px] sm:w-[120px] xl:w-[140px]`}
                   />
                   <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
@@ -333,7 +339,7 @@ export function EightRibTypeForm({
               </div>
 
               {/* Weld Leg Length */}
-              <div className="absolute -top-4 xl:-top-1 -right-[37px] xl:-right-[49px] 2xl:-right-[49px]">
+              <div className="absolute top-1 sm:-top-4 xl:-top-1 -right-[38px] sm:-right-[37px] xl:-right-[49px] 2xl:-right-[49px]">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1">
                   Weld Leg Length
                 </label>
@@ -344,7 +350,7 @@ export function EightRibTypeForm({
                     value={eightRibType.weldLeg}
                     onChange={handleChange("weldLeg")}
                     onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(errors.weldLeg)} pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
+                    className={`${inputStyle(errors.weldLeg)} pr-9 xl:pr-9 w-[90px] sm:w-[120px] xl:w-[140px]`}
                   />
                   <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
@@ -354,7 +360,7 @@ export function EightRibTypeForm({
               </div>
 
               {/* Rib Plate Scallop */}
-              <div className="absolute top-[26%] xl:top-[31%] -right-[37px] xl:-right-[49px] 2xl:-right-[49px]">
+              <div className="absolute top-[70px] sm:top-[26%] xl:top-[31%] -right-[38px] sm:-right-[37px] xl:-right-[49px] 2xl:-right-[49px]">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1">
                   Rib Plate Scallop
                 </label>
@@ -365,7 +371,7 @@ export function EightRibTypeForm({
                     value={eightRibType.ribScallop}
                     onChange={handleChange("ribScallop")}
                     onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(errors.ribScallop)} pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
+                    className={`${inputStyle(errors.ribScallop)} pr-9 xl:pr-9 w-[90px] sm:w-[120px] xl:w-[140px]`}
                   />
                   <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
@@ -377,16 +383,16 @@ export function EightRibTypeForm({
           </div>
 
           {/* ================= SECOND SIDE VIEW (For Rib Plate Length & Thickness) ================= */}
-          <div className="flex justify-center items-center pt-24 2xl:pt-[38px] pl-[260px] xl:pl-[301px] 2xl:pl-0">
+          <div className="flex justify-center items-center pt-24 pr-[18px] sm:pr-0 2xl:pt-[38px] sm:pl-[260px] xl:pl-[301px] 2xl:pl-0">
             <div className="relative">
               <img
                 src="/images/4Rib-SideView (6).svg"
                 alt="8 rib baseplate side view details"
-                className="h-[220px] xl:h-[237px] object-contain"
+                className="h-[160px] sm:h-[220px] xl:h-[237px] object-contain"
               />
 
               {/* Rib Plate Length */}
-              <div className="absolute -top-[50px] -right-[46px] -translate-x-1/2">
+              <div className="absolute -top-[45px] sm:-top-[50px] -right-[35px] sm:-right-[46px] -translate-x-1/2">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1">
                   Rib Plate Length
                 </label>
@@ -397,7 +403,7 @@ export function EightRibTypeForm({
                     value={eightRibType.ribLength}
                     onChange={handleChange("ribLength")}
                     onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(errors.ribLength)} pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
+                    className={`${inputStyle(errors.ribLength)} pr-9 xl:pr-9 w-[90px] sm:w-[120px] xl:w-[140px]`}
                   />
                   <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
@@ -407,7 +413,7 @@ export function EightRibTypeForm({
               </div>
 
               {/* Rib Plate Thickness */}
-              <div className="absolute top-[23%] xl:top-[16%] -right-[155px] xl:-right-[215px] -translate-x-1/2">
+              <div className="absolute top-[10%] sm:top-[23%] xl:top-[16%] -right-[150px] sm:-right-[155px] xl:-right-[215px] -translate-x-1/2">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1">
                   Rib Plate Thickness
                 </label>
@@ -418,7 +424,7 @@ export function EightRibTypeForm({
                     value={eightRibType.ribThickness}
                     onChange={handleChange("ribThickness")}
                     onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(errors.ribThickness)} pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
+                    className={`${inputStyle(errors.ribThickness)} pr-9 xl:pr-9 w-[90px] sm:w-[120px] xl:w-[140px]`}
                   />
                   <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
@@ -434,7 +440,7 @@ export function EightRibTypeForm({
         </div>
 
         {/* ================= FOOTER SECTION: ACTIONS ================= */}
-        <div className="flex justify-between items-center mt-6 pt-4 md:pt-6 border-t border-gray-200 hp:gap-2">
+        <div className="flex justify-between items-center mt-6 px-4 sm:px-0 pb-4 sm:pb-0 pt-4 md:pt-6 border-t border-gray-200 hp:gap-2">
           {/* Reset button to clear all inputs */}
           <button
             onClick={handleReset}
@@ -454,7 +460,9 @@ export function EightRibTypeForm({
                 rounded-lg hp:rounded-md font-medium bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white text-sm hover:brightness-110 shadow-sm transition-all"
           >
             <Calculator className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-            <span className="hp:text-[11px] whitespace-nowrap">Calculate Result</span>
+            <span className="hp:text-[11px] whitespace-nowrap">
+              Calculate Result
+            </span>
           </button>
 
           <div className="flex items-center gap-3 hp:gap-0">

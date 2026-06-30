@@ -313,7 +313,7 @@ export function FourRibTypeForm({
               </div>
 
               {/* Weld Leg Length */}
-              <div className="absolute top-3 sm:-top-3 xl:-top-1 -right-[38px] sm:-right-[52px] xl:-right-[65px] 2xl:-right-[65px]">
+              <div className="absolute top-2 sm:-top-3 xl:-top-1 -right-[38px] sm:-right-[52px] xl:-right-[65px] 2xl:-right-[65px]">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1">
                   Weld Leg Length
                 </label>
@@ -334,7 +334,7 @@ export function FourRibTypeForm({
               </div>
 
               {/* Rib Plate Scallop */}
-              <div className="absolute top-[72px] sm:top-[30%] xl:top-[34%] -right-[38px] sm:-right-[52px] xl:-right-[65px] 2xl:-right-[65px]">
+              <div className="absolute top-[74px] sm:top-[30%] xl:top-[34%] -right-[38px] sm:-right-[52px] xl:-right-[65px] 2xl:-right-[65px]">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1">
                   Rib Plate Scallop
                 </label>

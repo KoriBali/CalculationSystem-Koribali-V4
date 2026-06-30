@@ -4,7 +4,7 @@ import { RotateCcw, ChevronRight, Calculator } from "lucide-react";
  * HELPER COMPONENTS & FUNCTIONS
  */
 const inputStyle = (hasError) =>
-  `w-full px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border
+  `px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border
   ${
     hasError
       ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
@@ -50,20 +50,20 @@ export function SquareCaissonTypeForm({
 
   return (
     <div className="bg-white rounded-b-xl md:rounded-b-2xl shadow-sm border border-gray-200">
-      <div className="flex justify-center pb-6 pt-6 xl:pt-12">
+      <div className="flex justify-center pb-6 pt-6 xl:pt-16">
         <div className="flex flex-col gap-12 xl:gap-6 xl:flex-row xl:items-center 2xl:gap-20">
           {/* ================= TOP SECTION: TOP VIEW SVG + POSITIONED INPUTS ================= */}
-          <div className="flex justify-center items-center pr-[93px] xl:pr-0 pt-12 xl:pt-0">
+          <div className="flex justify-center items-center pl-[50px] sm:pl-0 sm:pr-[93px] xl:pr-0 pt-16 xl:pt-0">
             <div className="relative">
               <img
                 src="/images/SquareCaisson-TopView (10).svg"
                 alt="Square Caisson Top View"
-                className="h-[300px] xl:h-[310px] 2xl:h-[350px] object-contain"
+                className="w-[240px] h-[220px] sm:w-full sm:h-[300px] xl:h-[310px] 2xl:h-[350px] object-contain"
               />
 
               {/* Foundation Width X — top center */}
-              <div className="absolute -top-5 xl:-top-4 left-[255px] xl:left-[258px] 2xl:left-[288.6px] -translate-x-1/2">
-                <label className="block text-xs md:text-sm text-gray-700 mb-1">
+              <div className="absolute -top-1 sm:-top-5 xl:-top-4 left-[158px] sm:left-[255px] xl:left-[258px] 2xl:left-[288.6px] -translate-x-1/2">
+                <label className="block text-xs md:text-sm text-gray-700 mb-1 whitespace-nowrap">
                   Foundation Width (X)
                 </label>
                 <div className="relative w-fit">
@@ -86,7 +86,7 @@ export function SquareCaissonTypeForm({
               </div>
 
               {/* Foundation Width Y — middle left */}
-              <div className="absolute top-[64.4%] 2xl:top-[64.5%] -translate-y-1/2 -left-[48px] xl:-left-[53px]">
+              <div className="absolute top-[145px] sm:top-[64.4%] 2xl:top-[64.5%] -translate-y-1/2 -left-[56px] sm:-left-[48px] xl:-left-[53px]">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1">
                   Foundation Width (Y)
                 </label>
@@ -112,17 +112,22 @@ export function SquareCaissonTypeForm({
           </div>
 
           {/* ================= BOTTOM SECTION: SIDE VIEW SVG + POSITIONED INPUT ================= */}
-          <div className="flex justify-center pl-[93px] xl:pl-0 items-center">
+          <div className="flex justify-center pl-[57px] sm:pl-[93px] xl:pl-0 items-center">
             <div className="relative">
               <img
-                src="/images/SquareCaisson-SideView (2).svg"
+                src="/images/SquareCaisson-SideView (3).svg"
                 alt="Square Caisson Side View"
-                className="h-[300px] xl:h-[310px] 2xl:h-[350px] object-contain"
+                className="block sm:hidden w-[220px] h-[200px] object-contain"
+              />
+              <img
+                src="/images/SquareCaisson-SideView (4).svg"
+                alt="Square Caisson Side View"
+                className="hidden sm:block w-full h-[300px] xl:h-[310px] 2xl:h-[350px] object-contain"
               />
 
               {/* Embedment Depth — right side */}
-              <div className="absolute top-[64%] 2xl:top-[64.1%] -translate-y-1/2 -right-[52px] xl:-right-[65px]">
-                <label className="block text-xs md:text-sm text-gray-700 mb-1">
+              <div className="absolute top-[135px] sm:top-[64%] 2xl:top-[64.1%] -translate-y-1/2 right-[185px] sm:-right-[52px] xl:-right-[65px]">
+                <label className="block text-xs md:text-sm text-gray-700 mb-1 whitespace-nowrap">
                   Embedment Depth
                 </label>
                 <div className="relative w-fit">
@@ -253,7 +258,9 @@ export function SquareCaissonTypeForm({
               rounded-lg hp:rounded-md font-medium bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white text-sm hover:brightness-110 shadow-sm transition-all"
         >
           <Calculator className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-          <span className="hp:text-[11px] whitespace-nowrap">Calculate Result</span>
+          <span className="hp:text-[11px] whitespace-nowrap">
+            Calculate Result
+          </span>
         </button>
 
         <div className="flex items-center gap-3 hp:gap-0">

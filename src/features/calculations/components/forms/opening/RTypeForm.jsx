@@ -44,7 +44,7 @@ export function RTypeForm({
       <div className="flex justify-center pb-8 pt-8 xl:pt-12">
         <div className="flex flex-col gap-8 2xl:flex-row 2xl:items-center 2xl:gap-8">
           {/* ================= TOP SECTION ================= */}
-          <div className="flex xl:pr-[146px] 2xl:pr-0 justify-start sm:justify-end relative">
+          <div className="flex sm:pr-[146px] 2xl:pr-0 justify-start sm:justify-end relative">
             <img
               src="/images/RType-TopView (8).svg"
               alt="Top View"
@@ -158,7 +158,9 @@ export function RTypeForm({
               rounded-lg hp:rounded-md font-medium bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white text-sm hover:brightness-110 shadow-sm transition-all"
         >
           <Calculator className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-          <span className="hp:text-[11px] whitespace-nowrap">Calculate Result</span>
+          <span className="hp:text-[11px] whitespace-nowrap">
+            Calculate Result
+          </span>
         </button>
 
         <div className="flex items-center gap-3 hp:gap-0">
