@@ -770,32 +770,38 @@ export default function PoleFormView() {
           )}
 
           {/* ── Calculate / Finish footer ── */}
-          <div className="flex items-center justify-between p-5 mt-12 mb-20 bg-gradient-to-b from-white to-slate-50 rounded-2xl hp:rounded-xl border border-gray-200 shadow-sm">
-            <div className="w-[120px] hidden sm:inline" />
+          <div className="flex items-center justify-between p-5 mt-12 mb-20 bg-gradient-to-b from-white to-slate-50 rounded-2xl hp:rounded-xl border border-gray-200 shadow-sm hp:gap-2">
+            {/* Left spacer to keep the Calculate button centered on mobile (matching the Reset button space in BoxTypeForm) */}
+            <div className="w-[120px] hp:w-[36px] flex-shrink-0" />
 
             <button
               onClick={calculation.calculate}
-              className="flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 md:px-6 
-              rounded-lg hp:rounded-md font-medium bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white text-sm hp:text-xs hover:brightness-110 shadow-sm transition-all"
+              className="flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-4 hp:py-2 md:px-6 
+              rounded-lg hp:rounded-md font-medium bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white text-sm hover:brightness-110 shadow-sm transition-all"
             >
               <Calculator className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-              Calculate Result
+              <span className="hp:text-[11px] whitespace-nowrap">
+                Calculate Result
+              </span>
             </button>
 
-            <button
-              onClick={handleFinish}
-              disabled={!calculation.isCalculated}
-              className={`flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 md:px-6 
-              rounded-lg hp:rounded-md font-medium transition-all text-sm hp:text-xs
-              ${
-                !calculation.isCalculated
-                  ? "bg-gray-100 text-gray-400 ring-1 ring-inset ring-gray-200 cursor-not-allowed shadow-none"
-                  : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
-              }`}
-            >
-              {calculation.buttonLabel}
-              <ChevronRight className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-            </button>
+            <div className="flex items-center gap-3 hp:gap-0">
+              <button
+                onClick={handleFinish}
+                disabled={!calculation.isCalculated}
+                title={calculation.buttonLabel}
+                className={`flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-3 hp:py-2 md:px-6 
+                rounded-lg hp:rounded-md font-medium transition-all text-sm
+                ${
+                  !calculation.isCalculated
+                    ? "bg-gray-100 text-gray-400 ring-1 ring-inset ring-gray-200 cursor-not-allowed shadow-none"
+                    : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
+                }`}
+              >
+                <span className="hp:hidden">{calculation.buttonLabel}</span>
+                <ChevronRight className="w-4 md:w-5 h-4 md:h-5 hp:w-4 hp:h-4" />
+              </button>
+            </div>
           </div>
 
           {/* Results table */}
