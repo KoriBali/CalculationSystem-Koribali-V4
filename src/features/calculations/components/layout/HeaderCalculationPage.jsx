@@ -84,7 +84,7 @@ export function HeaderCalculationPage() {
   };
 
   return (
-    <div className="sticky top-16 sm:top-16 z-30 w-full rounded-t-xl sm:rounded-t-2xl bg-white">
+    <div className="sticky top-16 sm:top-16 z-30 w-[calc(100%+2px)] -mx-[1px] bg-[#f8fafc]">
       {/* ── Top bar ── */}
       <div className="rounded-t-xl sm:rounded-t-2xl bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] shadow-lg px-3 py-3 sm:px-4 sm:py-4 md:px-6 2xl:px-8">
         <div className="flex items-center justify-between gap-2 sm:gap-3 w-full">
