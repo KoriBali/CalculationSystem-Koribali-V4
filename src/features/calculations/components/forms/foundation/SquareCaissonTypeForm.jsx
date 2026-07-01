@@ -4,7 +4,7 @@ import { RotateCcw, ChevronRight, Calculator } from "lucide-react";
  * HELPER COMPONENTS & FUNCTIONS
  */
 const inputStyle = (hasError) =>
-  `px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border
+  `px-2 sm:px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border
   ${
     hasError
       ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
@@ -73,9 +73,9 @@ export function SquareCaissonTypeForm({
                     value={squareCaisson.foundationWidthX}
                     onChange={handleChange("foundationWidthX")}
                     onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(errors.foundationWidthX)} pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
+                    className={`${inputStyle(errors.foundationWidthX)} pr-6 sm:pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
                   />
-                  <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
+                  <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
                   </span>
                 </div>
@@ -97,9 +97,9 @@ export function SquareCaissonTypeForm({
                     value={squareCaisson.foundationWidthY}
                     onChange={handleChange("foundationWidthY")}
                     onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(errors.foundationWidthY)} pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
+                    className={`${inputStyle(errors.foundationWidthY)} pr-6 sm:pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
                   />
-                  <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
+                  <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
                   </span>
                 </div>
@@ -137,9 +137,9 @@ export function SquareCaissonTypeForm({
                     value={squareCaisson.embedmentDepth}
                     onChange={handleChange("embedmentDepth")}
                     onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(errors.embedmentDepth)} pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
+                    className={`${inputStyle(errors.embedmentDepth)} pr-6 sm:pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
                   />
-                  <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
+                  <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
                   </span>
                 </div>

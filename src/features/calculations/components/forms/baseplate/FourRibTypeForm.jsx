@@ -41,7 +41,7 @@ const InputField = ({
  * HELPER COMPONENTS & FUNCTIONS
  */
 const inputStyle = (hasError) =>
-  `px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border
+  `px-2 sm:px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border
   ${
     hasError
       ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
@@ -106,9 +106,9 @@ export function FourRibTypeForm({
                   value={fourRibType.bpWidthEW}
                   onChange={handleChange("bpWidthEW")}
                   onWheel={(e) => e.target.blur()}
-                  className={`${inputStyle(errors.bpWidthEW)} pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
+                  className={`${inputStyle(errors.bpWidthEW)} pr-6 sm:pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
                 />
-                <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
+                <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                   mm
                 </span>
               </div>
@@ -127,9 +127,9 @@ export function FourRibTypeForm({
                   value={fourRibType.anchorPitchEW}
                   onChange={handleChange("anchorPitchEW")}
                   onWheel={(e) => e.target.blur()}
-                  className={`${inputStyle(errors.anchorPitchEW)} pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
+                  className={`${inputStyle(errors.anchorPitchEW)} pr-6 sm:pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
                 />
-                <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
+                <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                   mm
                 </span>
               </div>
@@ -151,9 +151,9 @@ export function FourRibTypeForm({
                   value={fourRibType.bpWidthNS}
                   onChange={handleChange("bpWidthNS")}
                   onWheel={(e) => e.target.blur()}
-                  className={`${inputStyle(errors.bpWidthNS)} pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
+                  className={`${inputStyle(errors.bpWidthNS)} pr-6 sm:pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
                 />
-                <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
+                <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                   mm
                 </span>
               </div>
@@ -172,9 +172,9 @@ export function FourRibTypeForm({
                   value={fourRibType.anchorPitchNS}
                   onChange={handleChange("anchorPitchNS")}
                   onWheel={(e) => e.target.blur()}
-                  className={`${inputStyle(errors.anchorPitchNS)} pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
+                  className={`${inputStyle(errors.anchorPitchNS)} pr-6 sm:pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
                 />
-                <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
+                <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                   mm
                 </span>
               </div>
@@ -197,9 +197,9 @@ export function FourRibTypeForm({
                     value={fourRibType.anchorDia}
                     onChange={handleChange("anchorDia")}
                     onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(errors.anchorDia)} pr-9 xl:pr-9 w-[90px] sm:w-[120px] xl:w-[140px]`}
+                    className={`${inputStyle(errors.anchorDia)} pr-6 sm:pr-9 xl:pr-9 w-[90px] sm:w-[120px] xl:w-[140px]`}
                   />
-                  <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
+                  <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
                   </span>
                 </div>
@@ -217,9 +217,9 @@ export function FourRibTypeForm({
                     value={fourRibType.anchorCount}
                     onChange={handleChange("anchorCount")}
                     onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(errors.anchorCount)} pr-9 xl:pr-9 w-[90px] sm:w-[120px] xl:w-[140px]`}
+                    className={`${inputStyle(errors.anchorCount)} pr-6 sm:pr-9 xl:pr-9 w-[90px] sm:w-[120px] xl:w-[140px]`}
                   />
-                  <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
+                  <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     pcs
                   </span>
                 </div>
@@ -242,9 +242,9 @@ export function FourRibTypeForm({
                   value={fourRibType.anchorCountTension}
                   onChange={handleChange("anchorCountTension")}
                   onWheel={(e) => e.target.blur()}
-                  className={`${inputStyle(errors.anchorCountTension)} pr-9 xl:pr-9 w-[90px] sm:w-[120px] xl:w-[140px]`}
+                  className={`${inputStyle(errors.anchorCountTension)} pr-6 sm:pr-9 xl:pr-9 w-[90px] sm:w-[120px] xl:w-[140px]`}
                 />
-                <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
+                <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                   pcs
                 </span>
               </div>
@@ -279,9 +279,9 @@ export function FourRibTypeForm({
                     value={fourRibType.bpThickness}
                     onChange={handleChange("bpThickness")}
                     onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(errors.bpThickness)} pr-9 xl:pr-9 w-[90px] sm:w-[120px] xl:w-[140px]`}
+                    className={`${inputStyle(errors.bpThickness)} pr-6 sm:pr-9 xl:pr-9 w-[90px] sm:w-[120px] xl:w-[140px]`}
                   />
-                  <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
+                  <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
                   </span>
                 </div>
@@ -303,9 +303,9 @@ export function FourRibTypeForm({
                     value={fourRibType.ribHeight}
                     onChange={handleChange("ribHeight")}
                     onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(errors.ribHeight)} pr-9 xl:pr-9 w-[90px] sm:w-[120px] xl:w-[140px]`}
+                    className={`${inputStyle(errors.ribHeight)} pr-6 sm:pr-9 xl:pr-9 w-[90px] sm:w-[120px] xl:w-[140px]`}
                   />
-                  <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
+                  <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
                   </span>
                 </div>
@@ -324,9 +324,9 @@ export function FourRibTypeForm({
                     value={fourRibType.weldLeg}
                     onChange={handleChange("weldLeg")}
                     onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(errors.weldLeg)} pr-9 xl:pr-9 w-[90px] sm:w-[120px] xl:w-[140px]`}
+                    className={`${inputStyle(errors.weldLeg)} pr-6 sm:pr-9 xl:pr-9 w-[90px] sm:w-[120px] xl:w-[140px]`}
                   />
-                  <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
+                  <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
                   </span>
                 </div>
@@ -345,9 +345,9 @@ export function FourRibTypeForm({
                     value={fourRibType.ribScallop}
                     onChange={handleChange("ribScallop")}
                     onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(errors.ribScallop)} pr-9 xl:pr-9 w-[90px] sm:w-[120px] xl:w-[140px]`}
+                    className={`${inputStyle(errors.ribScallop)} pr-6 sm:pr-9 xl:pr-9 w-[90px] sm:w-[120px] xl:w-[140px]`}
                   />
-                  <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
+                  <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
                   </span>
                 </div>
@@ -366,9 +366,9 @@ export function FourRibTypeForm({
                     value={fourRibType.ribLength}
                     onChange={handleChange("ribLength")}
                     onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(errors.ribLength)} pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
+                    className={`${inputStyle(errors.ribLength)} pr-6 sm:pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
                   />
-                  <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
+                  <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
                   </span>
                 </div>
@@ -387,9 +387,9 @@ export function FourRibTypeForm({
                     value={fourRibType.ribThickness}
                     onChange={handleChange("ribThickness")}
                     onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(errors.ribThickness)} pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
+                    className={`${inputStyle(errors.ribThickness)} pr-6 sm:pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
                   />
-                  <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
+                  <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
                   </span>
                 </div>
@@ -422,9 +422,9 @@ export function FourRibTypeForm({
                     value={fourRibType.ribLength}
                     onChange={handleChange("ribLength")}
                     onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(errors.ribLength)} pr-9 xl:pr-9 w-[90px] sm:w-[120px] xl:w-[140px]`}
+                    className={`${inputStyle(errors.ribLength)} pr-6 sm:pr-9 xl:pr-9 w-[90px] sm:w-[120px] xl:w-[140px]`}
                   />
-                  <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
+                  <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
                   </span>
                 </div>
@@ -444,9 +444,9 @@ export function FourRibTypeForm({
                     value={fourRibType.ribThickness}
                     onChange={handleChange("ribThickness")}
                     onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(errors.ribThickness)} pr-9 xl:pr-9 w-[90px] sm:w-[120px] xl:w-[140px]`}
+                    className={`${inputStyle(errors.ribThickness)} pr-6 sm:pr-9 xl:pr-9 w-[90px] sm:w-[120px] xl:w-[140px]`}
                   />
-                  <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
+                  <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
                   </span>
                 </div>

@@ -4,7 +4,7 @@ import { RotateCcw, ChevronRight, Calculator } from "lucide-react";
  * HELPER COMPONENTS & FUNCTIONS
  */
 const inputStyle = (hasError) =>
-  `px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border
+  `px-2 sm:px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border
   ${
     hasError
       ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
@@ -72,9 +72,9 @@ export function BoxTypeForm({
                   value={boxType.boxHeight}
                   onChange={(e) => onUpdate({ boxHeight: e.target.value })}
                   onWheel={(e) => e.target.blur()}
-                  className={`${inputStyle(errors.boxHeight)} pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
+                  className={`${inputStyle(errors.boxHeight)} pr-6 sm:pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
                 />
-                <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
+                <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                   mm
                 </span>
               </div>
@@ -93,9 +93,9 @@ export function BoxTypeForm({
                   value={boxType.boxWidth}
                   onChange={(e) => onUpdate({ boxWidth: e.target.value })}
                   onWheel={(e) => e.target.blur()}
-                  className={`${inputStyle(errors.boxWidth)} pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
+                  className={`${inputStyle(errors.boxWidth)} pr-6 sm:pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
                 />
-                <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
+                <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                   mm
                 </span>
               </div>
@@ -114,9 +114,9 @@ export function BoxTypeForm({
                   value={boxType.opWidth}
                   onChange={(e) => onUpdate({ opWidth: e.target.value })}
                   onWheel={(e) => e.target.blur()}
-                  className={`${inputStyle(errors.opWidth)} pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
+                  className={`${inputStyle(errors.opWidth)} pr-6 sm:pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
                 />
-                <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
+                <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                   mm
                 </span>
               </div>
@@ -140,9 +140,9 @@ export function BoxTypeForm({
                     onUpdate({ opSurfaceHeight: e.target.value })
                   }
                   onWheel={(e) => e.target.blur()}
-                  className={`${inputStyle(errors.opSurfaceHeight)} pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
+                  className={`${inputStyle(errors.opSurfaceHeight)} pr-6 sm:pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
                 />
-                <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
+                <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                   mm
                 </span>
               </div>
@@ -173,9 +173,9 @@ export function BoxTypeForm({
                   value={boxType.opLength}
                   onChange={(e) => onUpdate({ opLength: e.target.value })}
                   onWheel={(e) => e.target.blur()}
-                  className={`${inputStyle(errors.opLength)} pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
+                  className={`${inputStyle(errors.opLength)} pr-6 sm:pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
                 />
-                <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
+                <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                   mm
                 </span>
               </div>
@@ -209,7 +209,9 @@ export function BoxTypeForm({
               rounded-lg hp:rounded-md font-medium bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white text-sm hover:brightness-110 shadow-sm transition-all"
         >
           <Calculator className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-          <span className="hp:text-[11px] whitespace-nowrap">Calculate Result</span>
+          <span className="hp:text-[11px] whitespace-nowrap">
+            Calculate Result
+          </span>
         </button>
 
         <div className="flex items-center gap-3 hp:gap-0">
