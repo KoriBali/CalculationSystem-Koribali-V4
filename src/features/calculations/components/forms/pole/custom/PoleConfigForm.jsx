@@ -132,7 +132,7 @@ export function PoleConfigForm({ poleConfig, onUpdate, errors }) {
         </div>
 
         {/* ── Overdesign Factor ── */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-5 bg-slate-50/50 border border-slate-200 rounded-xl hp:rounded-lg gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-start p-4 sm:p-5 bg-slate-50/50 border border-slate-200 rounded-xl hp:rounded-lg gap-4 sm:gap-8 xl:gap-16">
           <div>
             <label className="block text-xs md:text-sm font-semibold text-slate-700">
               Overdesign Factor
