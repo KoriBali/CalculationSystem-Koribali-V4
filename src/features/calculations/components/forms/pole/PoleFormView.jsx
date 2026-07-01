@@ -353,7 +353,7 @@ export default function PoleFormView() {
           {isCustomMode && (
             <>
               <div
-                className={`bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] px-4 py-3 md:p-4 flex items-center justify-between cursor-pointer mt-16 md:mt-20 transition-all duration-500 ease-in-out
+                className={`bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] px-4 py-3 md:p-4 flex items-center justify-between cursor-pointer mt-6 md:mt-8 transition-all duration-500 ease-in-out
                 ${isExpandedDo ? "rounded-t-2xl hp:rounded-t-xl" : "rounded-2xl hp:rounded-xl"}`}
                 onClick={() => setIsExpandedDo(!isExpandedDo)}
               >
@@ -411,7 +411,7 @@ export default function PoleFormView() {
           {isCustomMode && (
             <>
               <div
-                className={`bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] px-4 py-3 md:p-4 flex items-center justify-between cursor-pointer mt-16 md:mt-20 transition-all duration-500 ease-in-out
+                className={`bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] px-4 py-3 md:p-4 flex items-center justify-between cursor-pointer mt-6 md:mt-8 transition-all duration-500 ease-in-out
                 ${isExpandedOhw ? "rounded-t-2xl hp:rounded-t-xl" : "rounded-2xl hp:rounded-xl"}`}
                 onClick={() => setIsExpandedOhw(!isExpandedOhw)}
               >
@@ -469,7 +469,7 @@ export default function PoleFormView() {
           {projectType !== "acemast" && isCustomMode && (
             <>
               <div
-                className={`bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] px-4 py-3 md:p-4 flex items-center justify-between cursor-pointer mt-16 md:mt-20 transition-all duration-500 ease-in-out
+                className={`bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] px-4 py-3 md:p-4 flex items-center justify-between cursor-pointer mt-6 md:mt-8 transition-all duration-500 ease-in-out
                 ${isExpandedArm ? "rounded-t-2xl hp:rounded-t-xl" : "rounded-2xl hp:rounded-xl"}`}
                 onClick={() => setIsExpandedArm(!isExpandedArm)}
               >

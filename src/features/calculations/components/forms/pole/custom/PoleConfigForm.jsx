@@ -132,23 +132,30 @@ export function PoleConfigForm({ poleConfig, onUpdate, errors }) {
         </div>
 
         {/* ── Overdesign Factor ── */}
-        <div className="relative">
-          <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">
-            Overdesign Factor
-          </label>
-          <input
-            type="number"
-            min={0}
-            value={overdesignFactor}
-            onChange={(e) => onUpdate({ overdesignFactor: e.target.value })}
-            onWheel={(e) => e.target.blur()}
-            className={inputStyle(errors.overdesignFactor, false)}
-          />
-          {errors.overdesignFactor && (
-            <p className="absolute text-[10px] text-red-500 mt-0.5">
-              *{errors.overdesignFactor}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-5 bg-slate-50/50 border border-slate-200 rounded-xl hp:rounded-lg gap-3">
+          <div>
+            <label className="block text-xs md:text-sm font-semibold text-slate-700">
+              Overdesign Factor
+            </label>
+            <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5 sm:mt-1">
+              Safety margin multiplier applied to the structural calculation
             </p>
-          )}
+          </div>
+          <div className="relative w-full sm:w-[180px] xl:w-[200px]">
+            <input
+              type="number"
+              min={0}
+              value={overdesignFactor}
+              onChange={(e) => onUpdate({ overdesignFactor: e.target.value })}
+              onWheel={(e) => e.target.blur()}
+              className={inputStyle(errors.overdesignFactor, false)}
+            />
+            {errors.overdesignFactor && (
+              <p className="absolute text-[10px] text-red-500 mt-0.5">
+                *{errors.overdesignFactor}
+              </p>
+            )}
+          </div>
         </div>
       </div>
     </div>
