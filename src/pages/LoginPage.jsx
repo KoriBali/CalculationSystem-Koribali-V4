@@ -153,7 +153,7 @@ export default function LoginPage() {
           </h2>
 
           {/* Animated Features Carousel */}
-          <div className="hidden md:block relative h-[280px] max-w-[340px] mt-8">
+          <div className="hidden md:flex flex-1 relative w-full max-w-[400px] mt-10 mb-8 mx-auto md:mx-0">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeSlide}
@@ -161,29 +161,32 @@ export default function LoginPage() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -15 }}
                 transition={{ duration: 0.4 }}
-                className="absolute inset-0 flex flex-col gap-2"
+                className="absolute inset-0 flex flex-col h-full"
               >
-                {/* AI Generated Marketing Image */}
-                <div className="w-full h-[140px] rounded-2xl overflow-hidden border border-white/10 shadow-lg mb-2 bg-[#0a2e50]">
+                {/* AI Generated Marketing Image - Full Portrait */}
+                <div className="flex-1 w-full rounded-2xl overflow-hidden border-2 border-white/10 shadow-2xl mb-6 bg-[#0a2e50] relative">
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0d3b66] via-transparent to-transparent z-10 opacity-60" />
                   <img 
                     src={features[activeSlide].image} 
                     alt={features[activeSlide].title} 
-                    className="w-full h-full object-cover opacity-90 transition-transform duration-1000 hover:scale-105" 
+                    className="w-full h-full object-cover transition-transform duration-[4000ms] ease-out hover:scale-105" 
                   />
                 </div>
 
-                <div className="flex items-center gap-3 text-[#3399cc]">
-                  {features[activeSlide].icon}
-                  <h3 className="font-bold text-lg text-white">{features[activeSlide].title}</h3>
+                <div className="flex flex-col gap-2 mt-auto">
+                  <div className="flex items-center gap-3 text-[#3399cc]">
+                    {features[activeSlide].icon}
+                    <h3 className="font-bold text-lg md:text-xl text-white">{features[activeSlide].title}</h3>
+                  </div>
+                  <p className="text-white/70 text-sm leading-relaxed max-w-[90%]">
+                    {features[activeSlide].desc}
+                  </p>
                 </div>
-                <p className="text-white/60 text-sm leading-relaxed">
-                  {features[activeSlide].desc}
-                </p>
               </motion.div>
             </AnimatePresence>
             
             {/* Dots */}
-            <div className="absolute -bottom-6 left-0 flex gap-2">
+            <div className="absolute -bottom-2 left-0 flex gap-2">
               {features.map((_, idx) => (
                 <div 
                   key={idx} 
