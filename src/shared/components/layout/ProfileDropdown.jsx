@@ -44,29 +44,28 @@ export function ProfileDropdown({ userData, onLogout }) {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            initial={{ opacity: 0, y: 5, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            exit={{ opacity: 0, y: 5, scale: 0.98 }}
             transition={{ duration: 0.15 }}
-            className="absolute right-0 mt-3 w-64 hp:w-56 hp:mt-2 bg-white rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.1)] border border-slate-100 py-4 px-2 hp:py-3 hp:px-1.5 z-50 overflow-hidden"
+            className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-slate-200 py-2 z-50 overflow-hidden"
           >
             {/* User info header */}
-            <div className="px-4 pb-4 mb-2 border-b border-slate-50 hp:px-3 hp:pb-3">
-              <div className="flex items-center gap-3 hp:gap-2">
+            <div className="px-4 pb-3 pt-2 border-b border-slate-100 mb-1">
+              <div className="flex items-center gap-3">
                 {/* Avatar with online indicator */}
-                <div className="relative group">
-                  <div className="w-11 h-11 hp:w-9 hp:h-9 rounded-xl bg-gradient-to-br from-[#0d3b66] to-[#1a5a92] flex items-center justify-center text-white font-black text-base hp:text-sm shadow-lg shadow-blue-900/20">
+                <div className="relative">
+                  <div className="w-9 h-9 rounded-full bg-[#0d3b66] flex items-center justify-center text-white font-bold text-sm shadow-sm">
                     {userData.name.charAt(0)}
                   </div>
-                  {/* Online status dot */}
-                  <div className="absolute -bottom-1 -right-1 w-4 h-4 hp:w-3 hp:h-3 bg-green-500 border-2 border-white rounded-full" />
+                  <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full" />
                 </div>
 
                 <div className="flex flex-col min-w-0">
-                  <p className="text-sm hp:text-[13px] font-semibold text-slate-800 leading-none truncate">
+                  <p className="text-sm font-semibold text-slate-800 leading-tight truncate">
                     {userData.name}
                   </p>
-                  <p className="text-[10px] hp:text-[9px] text-slate-400 font-bold mt-1.5 hp:mt-1 truncate">
+                  <p className="text-[11px] text-slate-500 truncate">
                     {userData.email}
                   </p>
                 </div>
@@ -74,29 +73,25 @@ export function ProfileDropdown({ userData, onLogout }) {
             </div>
 
             {/* Menu items */}
-            <div className="space-y-1 hp:space-y-2 hp:px-2">
+            <div className="flex flex-col">
               {/* Account settings */}
-              <button className="w-full flex items-center gap-3 hp:gap-2 px-3 py-2.5 hp:px-2.5 hp:py-1.5 text-slate-600 bg-blue-50 hover:bg-blue-100 rounded-xl hp:rounded-lg transition-all group">
-                <div className="w-8 h-8 hp:w-7 hp:h-7 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 group-hover:text-[#0d3b66] group-hover:bg-white border border-transparent group-hover:border-slate-100 transition-all">
-                  <Settings size={14} />
-                </div>
-                <span className="text-[12px] hp:text-[11px] font-semibold tracking-wide truncate">
+              <button className="w-full flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors group">
+                <Settings size={15} className="text-slate-400 group-hover:text-slate-600 transition-colors" />
+                <span className="text-[13px] font-medium tracking-wide">
                   Account Settings
                 </span>
               </button>
 
-              {/* Logout — closes dropdown then opens confirm modal */}
+              {/* Logout */}
               <button
                 onClick={() => {
                   setIsOpen(false);
                   onLogout();
                 }}
-                className="w-full flex items-center gap-3 hp:gap-2 px-3 py-2.5 hp:px-2.5 hp:py-1.5 text-red-500 bg-red-50 hover:bg-red-100 rounded-xl hp:rounded-lg transition-all group"
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-red-600 hover:bg-red-50 transition-colors group border-t border-slate-50 mt-1"
               >
-                <div className="w-8 h-8 hp:w-7 hp:h-7 rounded-lg bg-slate-50 flex items-center justify-center text-red-400 group-hover:text-red-500 group-hover:bg-white border border-transparent group-hover:border-red-100 transition-all">
-                  <LogOut size={14} />
-                </div>
-                <span className="text-[12px] hp:text-[11px] font-semibold tracking-wide truncate">
+                <LogOut size={15} className="text-red-400 group-hover:text-red-600 transition-colors" />
+                <span className="text-[13px] font-medium tracking-wide">
                   Logout Session
                 </span>
               </button>
