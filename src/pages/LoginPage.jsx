@@ -197,7 +197,7 @@ export default function LoginPage() {
       <div className="relative z-20 flex-1 bg-white rounded-t-[32px] md:rounded-t-none md:rounded-l-[40px] lg:rounded-l-[50px] shadow-[-20px_0_50px_rgba(0,0,0,0.15)] flex flex-col px-6 py-8 sm:p-12 lg:px-24 lg:py-16 overflow-y-auto -mt-6 md:mt-0">
         
         {/* Top Header: Logo */}
-        <div className="flex items-center justify-between mb-10 md:mb-24">
+        <div className="flex items-center mb-10 md:mb-24">
           <div className="flex items-center gap-3">
             <img
               src="/images/koribali-logo.webp"
@@ -207,11 +207,6 @@ export default function LoginPage() {
             <span className="text-[18px] md:text-[22px] font-bold text-slate-800 tracking-tight">
               KORI BALI
             </span>
-          </div>
-          
-          <div className="flex items-center gap-2 text-slate-500 text-sm font-medium hover:text-slate-800 cursor-pointer transition-colors">
-            <Mail size={16} />
-            <span className="hidden sm:block">Contact Admin</span>
           </div>
         </div>
 
