@@ -18,9 +18,6 @@ import {
   AlertCircle,
   ShieldCheck,
   X,
-  CheckCircle,
-  Layers,
-  FileText,
 } from "lucide-react";
 
 import { useNavigate } from "react-router-dom";
@@ -49,24 +46,21 @@ export default function LoginPage() {
     return () => clearInterval(timer);
   }, []);
 
-  const features = [
+  const testimonials = [
     {
-      title: "Precision Engineering",
-      desc: "Bantu perhitungan struktur dengan presisi tinggi berdasarkan standar terbaru.",
-      icon: <CheckCircle className="w-5 h-5" />,
-      image: "/images/pole-slide-1.png"
+      quote: "“Simply all the calculation tools that my engineering team and I need.”",
+      name: "Lora Gotalib",
+      role: "Enterprise Account Executive"
     },
     {
-      title: "All-in-One Workflow",
-      desc: "Bingung dengan tugas desain dan perhitungan terpisah? Di sini bisa sekaligus jalan.",
-      icon: <Layers className="w-5 h-5" />,
-      image: "/images/pole-slide-2.png"
+      quote: "“An all-in-one workflow that saves us countless hours on design and validation.”",
+      name: "Michael Chen",
+      role: "Lead Structural Engineer"
     },
     {
-      title: "Instant Validation",
-      desc: "Dapatkan langsung hasil laporan perhitungan (OK/NG) untuk memastikan keamanan.",
-      icon: <FileText className="w-5 h-5" />,
-      image: "/images/pole-slide-3.png"
+      quote: "“Instant OK/NG reports give us the absolute confidence we need before deployment.”",
+      name: "David Alaba",
+      role: "Senior Architect"
     }
   ];
 
@@ -136,64 +130,58 @@ export default function LoginPage() {
       />
 
       {/* LEFT PANEL (Dark Blue) */}
-      <div className="relative z-10 w-full md:w-[45%] lg:w-[40%] flex flex-col justify-between p-8 md:p-12 lg:p-20 text-white min-h-[35vh] md:min-h-screen">
+      <div className="relative z-10 w-full md:w-[45%] lg:w-[40%] flex flex-col p-8 md:p-12 lg:p-20 text-white min-h-[35vh] md:min-h-screen">
         {/* Top text */}
-        <div className="hidden md:block">
+        <div className="hidden md:block mb-10">
           <p className="text-white/60 text-xs font-medium tracking-wide uppercase">
             Engineering-grade calculations
           </p>
         </div>
 
-        {/* Center / Hero text & Carousel */}
-        <div className="mt-auto md:mt-0 md:mb-12 text-center md:text-left">
-          <h2 className="text-4xl md:text-5xl lg:text-[54px] font-semibold leading-[1.1] tracking-tight mb-8">
+        {/* Center / Hero text */}
+        <div className="text-center md:text-left">
+          <h2 className="text-4xl md:text-5xl lg:text-[54px] font-semibold leading-[1.1] tracking-tight">
             Pole Structure<br />
             Calculation<br />
             System
           </h2>
+        </div>
 
-          {/* Animated Features Carousel */}
-          <div className="hidden md:flex flex-1 relative w-full max-w-[400px] mt-10 mb-8 mx-auto md:mx-0">
+        {/* Animated Features Carousel */}
+        <div className="hidden md:flex flex-col justify-end flex-1 relative w-full max-w-[460px] mt-12 mb-10 mx-auto md:mx-0">
+          <div className="relative w-full h-[200px] flex flex-col justify-end">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeSlide}
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -15 }}
-                transition={{ duration: 0.4 }}
-                className="absolute inset-0 flex flex-col h-full"
+                transition={{ duration: 0.5 }}
+                className="absolute bottom-0 left-0 w-full"
               >
-                {/* AI Generated Marketing Image - Full Portrait */}
-                <div className="flex-1 w-full rounded-2xl overflow-hidden border-2 border-white/10 shadow-2xl mb-6 bg-[#0a2e50] relative">
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0d3b66] via-transparent to-transparent z-10 opacity-60" />
-                  <img 
-                    src={features[activeSlide].image} 
-                    alt={features[activeSlide].title} 
-                    className="w-full h-full object-cover transition-transform duration-[4000ms] ease-out hover:scale-105" 
-                  />
-                </div>
-
-                <div className="flex flex-col gap-2 mt-auto">
-                  <div className="flex items-center gap-3 text-[#3399cc]">
-                    {features[activeSlide].icon}
-                    <h3 className="font-bold text-lg md:text-xl text-white">{features[activeSlide].title}</h3>
-                  </div>
-                  <p className="text-white/70 text-sm leading-relaxed max-w-[90%]">
-                    {features[activeSlide].desc}
+                <h3 className="font-bold text-2xl md:text-3xl lg:text-[34px] text-white leading-[1.3] tracking-tight mb-6">
+                  {testimonials[activeSlide].quote}
+                </h3>
+                <div className="flex flex-col gap-1">
+                  <p className="font-bold text-white text-sm tracking-wide">
+                    — {testimonials[activeSlide].name}
+                  </p>
+                  <p className="text-white/60 text-xs font-medium">
+                    {testimonials[activeSlide].role}
                   </p>
                 </div>
               </motion.div>
             </AnimatePresence>
-            
-            {/* Dots */}
-            <div className="absolute -bottom-2 left-0 flex gap-2">
-              {features.map((_, idx) => (
-                <div 
-                  key={idx} 
-                  className={`h-1.5 rounded-full transition-all duration-500 ${activeSlide === idx ? "w-6 bg-[#3399cc]" : "w-1.5 bg-white/20"}`}
-                />
-              ))}
-            </div>
+          </div>
+          
+          {/* Dots */}
+          <div className="flex gap-2 mt-8">
+            {testimonials.map((_, idx) => (
+              <div 
+                key={idx} 
+                className={`h-1.5 rounded-full transition-all duration-500 ${activeSlide === idx ? "w-6 bg-[#3399cc]" : "w-1.5 bg-white/20"}`}
+              />
+            ))}
           </div>
         </div>
 
