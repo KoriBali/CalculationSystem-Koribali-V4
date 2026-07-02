@@ -53,17 +53,20 @@ export default function LoginPage() {
     {
       title: "Precision Engineering",
       desc: "Empower your structural calculations with high precision based on the latest engineering standards.",
-      icon: <CheckCircle className="w-8 h-8 md:w-10 md:h-10 text-[#3399cc]" />
+      icon: <CheckCircle className="w-8 h-8 md:w-10 md:h-10 text-[#3399cc]" />,
+      image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
     },
     {
       title: "All-in-One Workflow",
       desc: "Stop juggling separate design and calculation tasks. Streamline everything into one seamless platform.",
-      icon: <Layers className="w-8 h-8 md:w-10 md:h-10 text-[#3399cc]" />
+      icon: <Layers className="w-8 h-8 md:w-10 md:h-10 text-[#3399cc]" />,
+      image: "https://images.unsplash.com/photo-1573164713988-8665fc963095?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
     },
     {
       title: "Instant Validation",
       desc: "Get immediate OK/NG calculation reports to ensure your structures are completely safe for deployment.",
-      icon: <FileText className="w-8 h-8 md:w-10 md:h-10 text-[#3399cc]" />
+      icon: <FileText className="w-8 h-8 md:w-10 md:h-10 text-[#3399cc]" />,
+      image: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
     }
   ];
 
@@ -132,23 +135,43 @@ export default function LoginPage() {
         }}
       />
 
-      {/* LEFT PANEL (Dark Blue) */}
-      <div className="relative z-10 w-full md:w-[45%] lg:w-[40%] flex flex-col p-8 md:p-12 lg:p-20 text-white min-h-[35vh] md:min-h-screen">
-        {/* Top text */}
-        <div className="hidden md:block mb-10">
-          <p className="text-white/60 text-xs font-medium tracking-wide uppercase">
-            Engineering-grade calculations
-          </p>
-        </div>
+      {/* LEFT PANEL (Dark Blue / Image Background) */}
+      <div className="relative z-10 w-full md:w-[45%] lg:w-[40%] flex flex-col p-8 md:p-12 lg:p-20 text-white min-h-[35vh] md:min-h-screen overflow-hidden bg-[#0d3b66]">
+        
+        {/* Animated Background Images */}
+        <AnimatePresence mode="wait">
+          <motion.img
+            key={activeSlide}
+            src={features[activeSlide].image}
+            alt="background"
+            initial={{ opacity: 0, scale: 1.05 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1.2, ease: "easeInOut" }}
+            className="absolute inset-0 w-full h-full object-cover z-0"
+          />
+        </AnimatePresence>
 
-        {/* Center / Hero text */}
-        <div className="text-center md:text-left">
-          <h2 className="text-4xl md:text-5xl lg:text-[54px] font-semibold leading-[1.1] tracking-tight">
-            Pole Structure<br />
-            Calculation<br />
-            System
-          </h2>
-        </div>
+        {/* Dark Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#051626] via-[#0d3b66]/80 to-[#0d3b66]/60 z-0"></div>
+
+        {/* Content Container (Needs relative z-10 to stay above bg) */}
+        <div className="relative z-10 flex flex-col flex-1 h-full w-full">
+          {/* Top text */}
+          <div className="hidden md:block mb-10">
+            <p className="text-white/80 text-xs font-bold tracking-wide uppercase">
+              Engineering-grade calculations
+            </p>
+          </div>
+
+          {/* Center / Hero text */}
+          <div className="text-center md:text-left mt-8 md:mt-0">
+            <h2 className="text-4xl md:text-5xl lg:text-[54px] font-semibold leading-[1.1] tracking-tight text-white drop-shadow-md">
+              Pole Structure<br />
+              Calculation<br />
+              System
+            </h2>
+          </div>
 
         {/* Animated Features Carousel */}
         <div className="hidden md:flex flex-col justify-end flex-1 relative w-full max-w-[480px] mt-12 mb-10 mx-auto md:mx-0">
@@ -180,17 +203,18 @@ export default function LoginPage() {
             {features.map((_, idx) => (
               <div 
                 key={idx} 
-                className={`h-2 rounded-full transition-all duration-500 ${activeSlide === idx ? "w-8 bg-[#3399cc]" : "w-2 bg-white/20"}`}
+                className={`h-2 rounded-full transition-all duration-500 ${activeSlide === idx ? "w-8 bg-[#3399cc]" : "w-2 bg-white/30"}`}
               />
             ))}
           </div>
         </div>
 
         {/* Bottom text */}
-        <div className="hidden md:flex items-center gap-3 text-[11px] font-bold text-[#3399cc] uppercase tracking-wider mt-auto">
+        <div className="hidden md:flex items-center gap-3 text-[11px] font-bold text-[#3399cc] uppercase tracking-wider mt-auto drop-shadow-md">
           <ShieldCheck size={18} />
           Authorized Personnel Only
         </div>
+      </div>
       </div>
 
       {/* RIGHT PANEL (White) */}
