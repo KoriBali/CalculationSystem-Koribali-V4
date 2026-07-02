@@ -18,6 +18,9 @@ import {
   AlertCircle,
   ShieldCheck,
   X,
+  CheckCircle,
+  Layers,
+  FileText,
 } from "lucide-react";
 
 import { useNavigate } from "react-router-dom";
@@ -36,6 +39,36 @@ export default function LoginPage() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState("");
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  // Auto-playing carousel timer
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveSlide((prev) => (prev + 1) % 3);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const features = [
+    {
+      title: "Precision Engineering",
+      desc: "Bantu perhitungan struktur dengan presisi tinggi berdasarkan standar terbaru.",
+      icon: <CheckCircle className="w-5 h-5" />,
+      image: "/images/pole-slide-1.png"
+    },
+    {
+      title: "All-in-One Workflow",
+      desc: "Bingung dengan tugas desain dan perhitungan terpisah? Di sini bisa sekaligus jalan.",
+      icon: <Layers className="w-5 h-5" />,
+      image: "/images/pole-slide-2.png"
+    },
+    {
+      title: "Instant Validation",
+      desc: "Dapatkan langsung hasil laporan perhitungan (OK/NG) untuk memastikan keamanan.",
+      icon: <FileText className="w-5 h-5" />,
+      image: "/images/pole-slide-3.png"
+    }
+  ];
 
   // Interactive Background
   const mouseX = useMotionValue(0);
@@ -111,13 +144,54 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Center / Hero text */}
-        <div className="mt-auto md:mt-0 md:mb-20 text-center md:text-left">
-          <h2 className="text-4xl md:text-5xl lg:text-[54px] font-semibold leading-[1.1] tracking-tight">
+        {/* Center / Hero text & Carousel */}
+        <div className="mt-auto md:mt-0 md:mb-12 text-center md:text-left">
+          <h2 className="text-4xl md:text-5xl lg:text-[54px] font-semibold leading-[1.1] tracking-tight mb-8">
             Pole Structure<br />
             Calculation<br />
             System
           </h2>
+
+          {/* Animated Features Carousel */}
+          <div className="hidden md:block relative h-[280px] max-w-[340px] mt-8">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeSlide}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.4 }}
+                className="absolute inset-0 flex flex-col gap-2"
+              >
+                {/* AI Generated Marketing Image */}
+                <div className="w-full h-[140px] rounded-2xl overflow-hidden border border-white/10 shadow-lg mb-2 bg-[#0a2e50]">
+                  <img 
+                    src={features[activeSlide].image} 
+                    alt={features[activeSlide].title} 
+                    className="w-full h-full object-cover opacity-90 transition-transform duration-1000 hover:scale-105" 
+                  />
+                </div>
+
+                <div className="flex items-center gap-3 text-[#3399cc]">
+                  {features[activeSlide].icon}
+                  <h3 className="font-bold text-lg text-white">{features[activeSlide].title}</h3>
+                </div>
+                <p className="text-white/60 text-sm leading-relaxed">
+                  {features[activeSlide].desc}
+                </p>
+              </motion.div>
+            </AnimatePresence>
+            
+            {/* Dots */}
+            <div className="absolute -bottom-6 left-0 flex gap-2">
+              {features.map((_, idx) => (
+                <div 
+                  key={idx} 
+                  className={`h-1.5 rounded-full transition-all duration-500 ${activeSlide === idx ? "w-6 bg-[#3399cc]" : "w-1.5 bg-white/20"}`}
+                />
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Bottom text */}
@@ -136,9 +210,9 @@ export default function LoginPage() {
             <img
               src="/images/koribali-logo.webp"
               alt="koribali icon"
-              className="w-7 h-7 md:w-8 md:h-8 object-contain"
+              className="w-10 h-10 md:w-12 md:h-12 object-contain"
             />
-            <span className="text-[16px] font-bold text-slate-800 tracking-tight">
+            <span className="text-[20px] md:text-[22px] font-bold text-slate-800 tracking-tight">
               KORI BALI
             </span>
           </div>
@@ -252,7 +326,7 @@ export default function LoginPage() {
             </div>
 
             {/* SUBMIT BUTTON */}
-            <div className="pt-2">
+            <div className="pt-2 flex flex-col gap-3">
               <button
                 type="submit"
                 disabled={formik.isSubmitting}
@@ -260,6 +334,20 @@ export default function LoginPage() {
               >
                 {formik.isSubmitting ? "Signing in..." : "Sign In"}
                 {!formik.isSubmitting && <ChevronRight size={18} />}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setAuthSession({ 
+                    token: 'guest-session-token', 
+                    user: { name: 'Guest User', email: 'guest@koribali.com' } 
+                  });
+                  navigate('/calculation');
+                }}
+                className="w-full bg-white border-2 border-slate-200 text-slate-600 hover:text-slate-800 font-medium py-3.5 px-6 rounded-full hover:border-slate-300 hover:bg-slate-50 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-sm md:text-base"
+              >
+                Login as Guest
               </button>
             </div>
           </form>
