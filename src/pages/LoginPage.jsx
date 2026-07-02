@@ -18,6 +18,9 @@ import {
   AlertCircle,
   ShieldCheck,
   X,
+  CheckCircle,
+  Layers,
+  FileText,
 } from "lucide-react";
 
 import { useNavigate } from "react-router-dom";
@@ -46,21 +49,21 @@ export default function LoginPage() {
     return () => clearInterval(timer);
   }, []);
 
-  const testimonials = [
+  const features = [
     {
-      quote: "“Simply all the calculation tools that my engineering team and I need.”",
-      name: "Lora Gotalib",
-      role: "Enterprise Account Executive"
+      title: "Precision Engineering",
+      desc: "Empower your structural calculations with high precision based on the latest engineering standards.",
+      icon: <CheckCircle className="w-8 h-8 md:w-10 md:h-10 text-[#3399cc]" />
     },
     {
-      quote: "“An all-in-one workflow that saves us countless hours on design and validation.”",
-      name: "Michael Chen",
-      role: "Lead Structural Engineer"
+      title: "All-in-One Workflow",
+      desc: "Stop juggling separate design and calculation tasks. Streamline everything into one seamless platform.",
+      icon: <Layers className="w-8 h-8 md:w-10 md:h-10 text-[#3399cc]" />
     },
     {
-      quote: "“Instant OK/NG reports give us the absolute confidence we need before deployment.”",
-      name: "David Alaba",
-      role: "Senior Architect"
+      title: "Instant Validation",
+      desc: "Get immediate OK/NG calculation reports to ensure your structures are completely safe for deployment.",
+      icon: <FileText className="w-8 h-8 md:w-10 md:h-10 text-[#3399cc]" />
     }
   ];
 
@@ -148,8 +151,8 @@ export default function LoginPage() {
         </div>
 
         {/* Animated Features Carousel */}
-        <div className="hidden md:flex flex-col justify-end flex-1 relative w-full max-w-[460px] mt-12 mb-10 mx-auto md:mx-0">
-          <div className="relative w-full h-[200px] flex flex-col justify-end">
+        <div className="hidden md:flex flex-col justify-end flex-1 relative w-full max-w-[480px] mt-12 mb-10 mx-auto md:mx-0">
+          <div className="relative w-full h-[220px] flex flex-col justify-end">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeSlide}
@@ -159,27 +162,25 @@ export default function LoginPage() {
                 transition={{ duration: 0.5 }}
                 className="absolute bottom-0 left-0 w-full"
               >
-                <h3 className="font-bold text-2xl md:text-3xl lg:text-[34px] text-white leading-[1.3] tracking-tight mb-6">
-                  {testimonials[activeSlide].quote}
-                </h3>
-                <div className="flex flex-col gap-1">
-                  <p className="font-bold text-white text-sm tracking-wide">
-                    — {testimonials[activeSlide].name}
-                  </p>
-                  <p className="text-white/60 text-xs font-medium">
-                    {testimonials[activeSlide].role}
-                  </p>
+                <div className="flex items-center gap-4 mb-4">
+                  {features[activeSlide].icon}
+                  <h3 className="font-bold text-3xl lg:text-4xl text-white tracking-tight">
+                    {features[activeSlide].title}
+                  </h3>
                 </div>
+                <p className="text-white/80 text-lg md:text-xl leading-relaxed font-medium">
+                  "{features[activeSlide].desc}"
+                </p>
               </motion.div>
             </AnimatePresence>
           </div>
           
           {/* Dots */}
-          <div className="flex gap-2 mt-8">
-            {testimonials.map((_, idx) => (
+          <div className="flex gap-3 mt-10">
+            {features.map((_, idx) => (
               <div 
                 key={idx} 
-                className={`h-1.5 rounded-full transition-all duration-500 ${activeSlide === idx ? "w-6 bg-[#3399cc]" : "w-1.5 bg-white/20"}`}
+                className={`h-2 rounded-full transition-all duration-500 ${activeSlide === idx ? "w-8 bg-[#3399cc]" : "w-2 bg-white/20"}`}
               />
             ))}
           </div>
