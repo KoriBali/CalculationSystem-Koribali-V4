@@ -1,4 +1,5 @@
 import { AlertCircle } from "lucide-react";
+import { createPortal } from "react-dom";
 // Asks the user to confirm before resetting all inputs and results on the calculation page.
 // Once confirmed, all form data and calculation results will be permanently cleared.
 export const ConfirmResetAllModal = ({
@@ -9,7 +10,8 @@ export const ConfirmResetAllModal = ({
   // Don't render if modal is closed
   if (!open) return null;
 
-  return (
+  return createPortal(
+
     // Backdrop
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm px-4">
       {/* Modal card */}
@@ -52,6 +54,7 @@ export const ConfirmResetAllModal = ({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

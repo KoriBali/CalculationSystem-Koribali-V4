@@ -38,8 +38,11 @@ export default function Layout() {
   // Derive current page title from route + session
   const projectType = sessionStorage.getItem("projectType");
   const formattedProjectType = formatProjectType(projectType);
+  const isCalculationRoot = location.pathname === "/calculation";
   const currentTitle =
-    location.pathname.startsWith("/calculation") && formattedProjectType
+    !isCalculationRoot &&
+    location.pathname.startsWith("/calculation") &&
+    formattedProjectType
       ? formattedProjectType
       : (MENU_ITEMS.find((item) => location.pathname.startsWith(item.path))
           ?.name ?? "Page Not Found");

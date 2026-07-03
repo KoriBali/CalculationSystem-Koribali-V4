@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
@@ -21,6 +22,13 @@ const cardAnimation = (index) => ({
 // === COMPONENT ===
 export default function ProjectSelectPage() {
   const navigate = useNavigate();
+
+  // Clear any existing projectType when landing on the selection page
+  // This prevents the sidebar from redirecting back to the previous project type
+  // if the user manually navigates back to this page.
+  useEffect(() => {
+    sessionStorage.removeItem("projectType");
+  }, []);
 
   // Validates selected project type, saves to session, then navigates to setup
   const handleSelectProject = (projectId) => {

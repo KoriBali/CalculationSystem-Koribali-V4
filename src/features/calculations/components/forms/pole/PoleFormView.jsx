@@ -271,7 +271,41 @@ export default function PoleFormView() {
                             </div>
                           </div>
 
-                          <div className="flex gap-2 sm:gap-3 justify-end itmes-center">
+                          <div className="flex gap-2 sm:gap-3 justify-end items-center">
+                            {/* Copy & Paste */}
+                            <div className="flex items-center gap-1.5 sm:gap-2 mr-1 sm:mr-2">
+                              <button
+                                onClick={() =>
+                                  poleForm.copyPole(poleForm.activePole)
+                                }
+                                title="Copy this Pole Spec"
+                                className="flex justify-center items-center w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-md sm:rounded-lg border bg-blue-50 text-blue-600 hover:bg-blue-100 transition"
+                              >
+                                <Copy className="w-3.5 sm:w-4 lg:w-4.5 h-3.5 sm:h-4 lg:h-4.5" />
+                              </button>
+                              <button
+                                onClick={() =>
+                                  poleForm.pastePole(poleForm.activePole.id)
+                                }
+                                disabled={!poleForm.poleClipboard}
+                                title={
+                                  poleForm.poleClipboard
+                                    ? "Paste copied Pole Spec"
+                                    : "No copied Pole Spec"
+                                }
+                                className={`flex justify-center items-center w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-md sm:rounded-lg border transition ${
+                                  poleForm.poleClipboard
+                                    ? "bg-green-50 text-green-600 hover:bg-green-100"
+                                    : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                                }`}
+                              >
+                                <ClipboardPaste className="w-3.5 sm:w-4 lg:w-4.5 h-3.5 sm:h-4 lg:h-4.5" />
+                              </button>
+                            </div>
+
+                            {/* Divider */}
+                            <div className="hidden sm:block h-6 sm:h-8 w-px bg-gray-300 opacity-70" />
+
                             {/* Reset */}
                             <button
                               onClick={poleForm.resetActivePole}

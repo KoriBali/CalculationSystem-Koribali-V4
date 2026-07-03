@@ -52,11 +52,12 @@ export default function AppRoutes() {
 
             <Route path="report" element={<ReportPage />} />
           </Route>
-        </Route>
 
-        {/* Global Redirects */}
-        <Route path="/" element={<Navigate to="/calculation" replace />} />
-        <Route path="*" element={<NotFoundPage />} />
+          {/* Global Redirects & 404 (Protected) */}
+          <Route path="/" element={<Navigate to="/calculation" replace />} />
+          <Route path="/404" element={<NotFoundPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Route>
       </Routes>
     </>
   );

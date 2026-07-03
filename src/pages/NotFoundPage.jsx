@@ -1,7 +1,15 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { AlertTriangle, ChevronLeft } from "lucide-react";
 
 export default function NotFoundPage() {
+  const navigate = useNavigate();
+
+  // Cek apakah user punya project aktif di session
+  const activeProject = sessionStorage.getItem("projectType");
+  const backPath = activeProject ? `/calculation/${activeProject}` : "/calculation";
+  const buttonLabel = activeProject ? "Back to Calculation" : "Back to Main Menu";
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 px-6">
       <div className="max-w-xl w-full text-center">
@@ -29,7 +37,7 @@ export default function NotFoundPage() {
         {/* Actions */}
         <div className="flex justify-center gap-4">
           <button
-            onClick={() => window.history.back()}
+            onClick={() => navigate(backPath)}
             className="
                   flex items-center gap-2 px-8 py-3 
                   bg-blue-700 text-white rounded-lg shadow-sm 
@@ -40,7 +48,7 @@ export default function NotFoundPage() {
                 "
           >
             <ChevronLeft className="w-5 h-5" />
-            Go Back
+            {buttonLabel}
           </button>
         </div>
 

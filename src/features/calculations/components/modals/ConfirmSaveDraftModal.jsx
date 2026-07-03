@@ -1,4 +1,5 @@
 import { AlertCircle } from "lucide-react";
+import { createPortal } from "react-dom";
 
 // Shown when the user tries to leave with unsaved calculation data.
 // Gives three choices: stay (Cancel), lose changes (Discard), or keep them (Save Draft).
@@ -11,8 +12,9 @@ export const ConfirmSaveDraftModal = ({
   // Don't render if modal is closed
   if (!open) return null;
 
-  return (
+  return createPortal(
     // Backdrop
+
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm px-4">
       {/* Modal card */}
       <div
@@ -70,6 +72,7 @@ export const ConfirmSaveDraftModal = ({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

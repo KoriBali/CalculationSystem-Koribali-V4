@@ -26,6 +26,7 @@ export function usePoleForm(projectType) {
   ]);
   const [poleErrors, setPoleErrors] = useState({});
   const [activeTab, setActiveTab] = useState("1");
+  const [poleClipboard, setPoleClipboard] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
 
   // Persists max pole ID to prevent conflicts after reload
@@ -57,6 +58,25 @@ export function usePoleForm(projectType) {
   // Removes a pole by ID
   const removePole = (id) =>
     Utils.removePole(id, poles, setPoles, activeTab, setActiveTab);
+
+  const copyPole = (pole) => Utils.copyPole(pole, setPoleClipboard);
+
+  const pastePole = (id) => {
+    Utils.pastePole(id, setPoles, poleClipboard);
+
+    if (!poleClipboard) return;
+
+    setPoleErrors((prev) => {
+      if (!prev[id]) return prev;
+      const updatedPoleErrors = { ...prev[id] };
+      Object.keys(poleClipboard).forEach((key) => {
+        const val = poleClipboard[key];
+        const isEmpty = val === "" || val === null || val === undefined;
+        if (!isEmpty) delete updatedPoleErrors[key];
+      });
+      return { ...prev, [id]: updatedPoleErrors };
+    });
+  };
 
   // Updates a specific pole's fields and clears related errors
   const updatePole = (id, updates) => {
@@ -102,6 +122,7 @@ export function usePoleForm(projectType) {
     activeIndex,
     isNextDisabled,
     isBackDisabled,
+    poleClipboard,
 
     setPoleErrors,
     setActiveTab,
@@ -111,6 +132,8 @@ export function usePoleForm(projectType) {
     addPole,
     removePole,
     updatePole,
+    copyPole,
+    pastePole,
     resetActivePole,
     goToNext,
     goToPrev,

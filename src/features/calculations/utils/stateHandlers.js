@@ -121,6 +121,32 @@ export const resetCurrentPole = (setPoles, poles, activeTab) => {
   );
 };
 
+// FUNCTION: Copy Pole data to clipboard
+export const copyPole = (pole, setPoleClipboard) => {
+  setPoleClipboard({
+    name: pole.name,
+    material: pole.material,
+    type: pole.type,
+    lowerDiameter: pole.lowerDiameter,
+    upperDiameter: pole.upperDiameter,
+    lowerThickness: pole.lowerThickness,
+    upperThickness: pole.upperThickness,
+    zHeight: pole.zHeight,
+    quantity: pole.quantity,
+  });
+};
+
+// FUNCTION: Paste clipboard data into a specific Pole
+export const pastePole = (id, setPoles, poleClipboard) => {
+  if (!poleClipboard) return;
+
+  setPoles((prev) =>
+    prev.map((poleItem) =>
+      poleItem.id === id ? { ...poleItem, ...poleClipboard } : poleItem,
+    ),
+  );
+};
+
 // ====================================================
 // Function for Direct Object Input
 // ====================================================

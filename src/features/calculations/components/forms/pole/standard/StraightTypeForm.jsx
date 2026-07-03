@@ -32,10 +32,9 @@ const groundPositionImageMapD = {
 // Returns input className based on validation state
 const inputStyle = (hasError) =>
   `px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg outline-none transition-all border text-sm pr-9
-  ${
-    hasError
-      ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
-      : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
+  ${hasError
+    ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
+    : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
   } hp:pl-2 hp:rounded-md hp:text-xs`;
 
 // Renders a red error message below an invalid field
@@ -109,10 +108,9 @@ export function StraightPoleStandardForm({
                   type="button"
                   onClick={() => onUpdate({ poleType: option.id })}
                   className={`rounded-lg hp:rounded-md border px-4 py-2 lg:py-2.5 text-xs md:text-sm font-medium transition-all
-                    ${
-                      isActive
-                        ? "border-blue-500 bg-blue-50 text-blue-600 shadow-sm"
-                        : "border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50"
+                    ${isActive
+                      ? "border-blue-500 bg-blue-50 text-blue-600 shadow-sm"
+                      : "border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50"
                     }`}
                 >
                   {option.label}
@@ -153,10 +151,9 @@ export function StraightPoleStandardForm({
                             })
                           }
                           className={`w-full py-2 lg:py-2.5 rounded-lg hp:rounded-md text-sm hp:text-xs border transition
-                            ${
-                              isActive
-                                ? "bg-blue-50 border-blue-500 text-blue-600"
-                                : "border-slate-200 text-slate-600 hover:bg-slate-50"
+                            ${isActive
+                              ? "bg-blue-50 border-blue-500 text-blue-600"
+                              : "border-slate-200 text-slate-600 hover:bg-slate-50"
                             }`}
                         >
                           {group}
@@ -257,7 +254,7 @@ export function StraightPoleStandardForm({
                             onUpdate({ upperLength: e.target.value })
                           }
                           onWheel={(e) => e.target.blur()}
-                          className={`${inputStyle(errors.upperLength)} w-full`}
+                          className={`${inputStyle(errors.upperLength)} w-full xl:pr-10`}
                         />
                         <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                           mm
@@ -320,7 +317,7 @@ export function StraightPoleStandardForm({
                             onUpdate({ lowerLength: e.target.value })
                           }
                           onWheel={(e) => e.target.blur()}
-                          className={`${inputStyle(errors.lowerLength)} w-full`}
+                          className={`${inputStyle(errors.lowerLength)} w-full xl:pr-10`}
                         />
                         <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                           mm
@@ -407,11 +404,10 @@ export function StraightPoleStandardForm({
                             }
                             onWheel={(e) => e.target.blur()}
                             className={`w-full pl-3 md:pl-4 pr-9 py-2 lg:py-2.5 rounded-lg hp:rounded-md text-xs md:text-sm outline-none transition-all border
-                                    ${
-                                      errors.embedmentLength
-                                        ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
-                                        : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
-                                    }`}
+                                    ${errors.embedmentLength
+                                ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
+                                : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
+                              }`}
                           />
                           <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                             mm
@@ -461,11 +457,10 @@ export function StraightPoleStandardForm({
                             });
                           }}
                           className={`flex flex-col gap-4 rounded-xl hp:rounded-lg border-2 p-4 cursor-pointer transition-all
-                          ${
-                            isActive
+                          ${isActive
                               ? "border-[#3399cc] bg-[#f0f8ff]"
                               : "border-gray-100 bg-gray-50 hover:border-gray-200 hover:bg-gray-100"
-                          }`}
+                            }`}
                         >
                           {/* Label */}
                           <p
@@ -519,12 +514,11 @@ export function StraightPoleStandardForm({
                                   }
                                   onWheel={(e) => e.target.blur()}
                                   className={`w-full pl-3 md:pl-4 pr-9 py-2 lg:py-2.5 rounded-lg hp:rounded-md text-xs md:text-sm outline-none transition-all border
-                                    ${
-                                      disabled
-                                        ? "bg-gray-100 border-gray-200 text-gray-400"
-                                        : errors.heightDepth
-                                          ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
-                                          : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
+                                    ${disabled
+                                      ? "bg-gray-100 border-gray-200 text-gray-400"
+                                      : errors.heightDepth
+                                        ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
+                                        : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
                                     }`}
                                 />
                                 <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
