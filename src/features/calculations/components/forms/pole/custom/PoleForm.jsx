@@ -137,7 +137,7 @@ export function PoleForm({
         <SectionCard>
           {/* Straight — single diameter & thickness */}
           {pole.type === "Straight" ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-5">
               {/* Diameter */}
               <div className="relative">
                 <label className="block text-gray-700 text-xs md:text-sm mb-1 md:mb-2">
@@ -261,7 +261,7 @@ export function PoleForm({
       <div>
         <SectionTitle>Additional Parameters</SectionTitle>
         <SectionCard>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-5 md:gap-4">
             {/* Height */}
             <div className="relative">
               <label className="block text-gray-700 text-xs md:text-sm mb-1 md:mb-2">
