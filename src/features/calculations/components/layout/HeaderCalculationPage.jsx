@@ -11,7 +11,7 @@ import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { ConfirmSaveDraftModal } from "../modals/ConfirmSaveDraftModal";
 import { ConfirmResetAllModal } from "../modals/ConfirmResetAllModal";
 import { BaseplateIcon } from "../../../../assets/icon";
-import { clearCalculationSession } from "../../utils";
+import { clearCalculationSession, hasCalculationData } from "../../utils";
 import { useScrollDirection } from "../../../../hooks/useScrollDirection";
 
 // ─── COMPONENT ───────────────────────────────────────────────────────────────
@@ -70,7 +70,15 @@ export function HeaderCalculationPage() {
       : []),
   ];
 
-  const handleBackClick = () => setShowDraftModal(true);
+  const handleBackClick = () => {
+    // If the user hasn't entered any data yet, skip the modal and just discard silently
+    if (!hasCalculationData(type)) {
+      clearCalculationSession(type);
+      navigate("/calculation");
+      return;
+    }
+    setShowDraftModal(true);
+  };
   const handleSaveDraft = () => {
     sessionStorage.removeItem("projectType");
     navigate("/calculation");
