@@ -88,13 +88,13 @@ export function EightRibTypeForm({
           {/* ================= TOP VIEW : IMAGE + POSITIONED INPUTS ================= */}
           <div className="relative">
             <img
-              src="/images/8Rib-TopView (7).svg"
+              src="/images/8Rib-TopView (9).svg"
               alt="8 rib baseplate top view"
               className="block sm:hidden w-[290px] h-[380px] object-contain"
             />
 
             <img
-              src="/images/8Rib-TopView (4).svg"
+              src="/images/8Rib-TopView (8).svg"
               alt="8 rib baseplate top view"
               className="hidden sm:block sm:w-full h-[380px] xl:h-[450px] 2xl:h-[450px] object-contain"
             />
@@ -190,7 +190,7 @@ export function EightRibTypeForm({
             </div>
 
             {/* Anchor Bolt Diameter + Number of Anchor Bolts side by side */}
-            <div className="absolute top-[74%] sm:top-[59%] xl:top-[73%] 2xl:top-[73%] -translate-y-1/2 left-[35px] sm:left-[40px] xl:-left-[46px] 2xl:-left-[46px] -translate-x-1/2 flex flex-col xl:flex-row gap-2 sm:gap-3 xl:gap-2">
+            <div className="absolute top-[62%] sm:top-[72%] xl:top-[73.5%] 2xl:top-[73.5%] -translate-y-1/2 left-[35px] sm:left-[32px] xl:left-[23px] 2xl:left-[23px] -translate-x-1/2 flex flex-col xl:flex-row gap-2 sm:gap-3 xl:gap-2">
               <div className="relative">
                 <label className="w-[100px] sm:w-full block text-xs md:text-sm text-gray-700 mb-1">
                   Anchor Bolt Diameter
@@ -211,7 +211,7 @@ export function EightRibTypeForm({
                 <ErrorStyle show={errors.anchorDia} text={errors.anchorDia} />
               </div>
 
-              <div className="relative">
+              <div className="hidden relative">
                 <label className="w-[90px] sm:w-full block text-xs md:text-sm text-gray-700 mb-1">
                   Number of Anchor Bolts
                 </label>
@@ -257,7 +257,7 @@ export function EightRibTypeForm({
             </div>
 
             {/* Number of Anchor Bolts on Tension Side — right aligned */}
-            <div className="absolute top-[292px] sm:top-[87%] xl:top-[89%] 2xl:top-[89%] -translate-y-1/2 -right-[60px] sm:-right-[152px] xl:-right-[280px] -translate-x-1/2">
+            <div className="hidden absolute top-[292px] sm:top-[87%] xl:top-[89%] 2xl:top-[89%] -translate-y-1/2 -right-[60px] sm:-right-[152px] xl:-right-[280px] -translate-x-1/2">
               <label className="w-[90px] sm:w-[170px] xl:w-full block text-xs md:text-sm text-gray-700 mb-1">
                 Number of Anchor Bolts on Tension Side
               </label>

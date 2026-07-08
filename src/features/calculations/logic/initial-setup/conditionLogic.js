@@ -28,7 +28,7 @@ export function getDisabledComponents(prev, next) {
   return disabled;
 }
 
-// Saves calculation config to sessionStorage — used by header nav to determine visible steps
+// Saves calculation config to localStorage — used by header nav to determine visible steps
 export function saveCalculationConfig(projectType, condition) {
   const config = {
     pole: true,
@@ -36,29 +36,29 @@ export function saveCalculationConfig(projectType, condition) {
     baseplate: !!condition.baseplateEnabled,
     foundation: !!condition.foundationEnabled,
   };
-  sessionStorage.setItem(
+  localStorage.setItem(
     `${projectType}_calculation_config`,
     JSON.stringify(config),
   );
 }
 
-// Cleans up sessionStorage for components that were disabled
+// Cleans up localStorage for components that were disabled
 export function cleanupDisabledComponents(projectType, condition) {
   if (!condition.openingEnabled) {
-    sessionStorage.removeItem(`${projectType}_openingType`);
-    sessionStorage.removeItem(`${projectType}_boxType`);
-    sessionStorage.removeItem(`${projectType}_rType`);
+    localStorage.removeItem(`${projectType}_openingType`);
+    localStorage.removeItem(`${projectType}_boxType`);
+    localStorage.removeItem(`${projectType}_rType`);
   }
 
   if (!condition.baseplateEnabled) {
-    sessionStorage.removeItem(`${projectType}_baseplateType`);
-    sessionStorage.removeItem(`${projectType}_fourRibType`);
-    sessionStorage.removeItem(`${projectType}_eightRibType`);
+    localStorage.removeItem(`${projectType}_baseplateType`);
+    localStorage.removeItem(`${projectType}_fourRibType`);
+    localStorage.removeItem(`${projectType}_eightRibType`);
   }
 
   if (!condition.foundationEnabled) {
-    sessionStorage.removeItem(`${projectType}_foundationType`);
-    sessionStorage.removeItem(`${projectType}_squareCaisson`);
-    sessionStorage.removeItem(`${projectType}_roundCaisson`);
+    localStorage.removeItem(`${projectType}_foundationType`);
+    localStorage.removeItem(`${projectType}_squareCaisson`);
+    localStorage.removeItem(`${projectType}_roundCaisson`);
   }
 }

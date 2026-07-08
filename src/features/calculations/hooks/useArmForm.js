@@ -18,7 +18,7 @@ export function useArmForm(projectType) {
   // Persists max Arm ID to prevent conflicts after reload
   const armIdRef = useRef(1);
   useEffect(() => {
-    const saved = sessionStorage.getItem(`${projectType}_arms`);
+    const saved = localStorage.getItem(`${projectType}_arms`);
     if (!saved) return;
     const parsed = JSON.parse(saved);
     const maxId = Math.max(0, ...parsed.map((a) => Number(a.idArm)));
@@ -28,7 +28,7 @@ export function useArmForm(projectType) {
   // Persists max Arm Object ID across all arms
   const aoIdRef = useRef(1);
   useEffect(() => {
-    const saved = sessionStorage.getItem(`${projectType}_arms`);
+    const saved = localStorage.getItem(`${projectType}_arms`);
     if (!saved) return;
     const parsed = JSON.parse(saved);
     const allAoIds = parsed.flatMap(

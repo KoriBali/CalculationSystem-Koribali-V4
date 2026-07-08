@@ -48,19 +48,27 @@ export function RoundCaissonTypeForm({
 
   return (
     <div className="bg-white rounded-b-xl md:rounded-b-2xl shadow-sm border border-gray-200">
-      <div className="flex justify-center pb-6 pt-6 xl:pt-16">
-        <div className="flex flex-col gap-12 xl:gap-6 xl:flex-row xl:items-center 2xl:gap-20">
+      {/* ================= DIMENSION INPUT ================= */}
+      <div className="px-6 md:px-8 pt-6 md:pt-8">
+        <h3 className="text-[#0d3b66] flex items-center gap-2 text-xs md:text-sm font-medium">
+          <div className="w-1 h-4 md:h-5 bg-[#3399cc] rounded-full" />
+          Dimension Input
+        </h3>
+      </div>
+
+      <div className="flex justify-center pb-8 sm:pb-12 pt-0 xl:pt-0">
+        <div className="flex flex-col gap-0 sm:gap-12 xl:gap-6 xl:flex-row xl:items-center 2xl:gap-20">
           {/* ================= TOP SECTION: TOP VIEW SVG + POSITIONED INPUTS ================= */}
-          <div className="flex justify-center items-center pl-[50px] sm:pl-0 sm:pr-[87px] xl:pr-0 pt-16 xl:pt-0">
+          <div className="flex justify-center items-center pl-[50px] sm:pl-0 sm:pr-[87px] xl:pr-0 pt-0 xl:pt-0">
             <div className="relative">
               <img
-                src="/images/RoundCaisson-TopView (1).svg"
+                src="/images/RoundCaisson-TopView (2).svg"
                 alt="Round Caisson Top View"
                 className="h-[220px] sm:h-[320px] xl:h-[330px] 2xl:h-[350px] object-contain"
               />
 
               {/* Foundation Width — top center */}
-              <div className="absolute -top-8 xl:-top-8 left-[156px] sm:left-[215px] xl:left-[219px] 2xl:left-[230px] -translate-x-1/2">
+              <div className="hidden absolute -top-8 xl:-top-8 left-[156px] sm:left-[215px] xl:left-[219px] 2xl:left-[230px] -translate-x-1/2">
                 <label className="block whitespace-nowrap text-xs md:text-sm text-gray-700 mb-1">
                   Foundation Width (X)
                 </label>
@@ -86,7 +94,7 @@ export function RoundCaissonTypeForm({
               {/* Foundation Width — middle left */}
               <div className="absolute top-[138px] sm:top-[61%] 2xl:top-[61%] -translate-y-1/2 -left-[56px] sm:-left-[48px] xl:-left-[60px] 2xl:-left-[55px]">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1">
-                  Foundation Width (Y)
+                  Foundation Width
                 </label>
                 <div className="relative w-fit">
                   <input
@@ -151,84 +159,88 @@ export function RoundCaissonTypeForm({
         </div>
       </div>
 
-      {/* ================= HIDDEN FIELDS (kept for future use) ================= */}
-      <div className="hidden">
-        {/* N Value */}
-        <div className="relative">
-          <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-3">
-            N Value
-          </label>
-          <div className="relative">
-            <input
-              type="number"
-              min={0}
-              value={roundCaisson.nValue}
-              onChange={handleChange("nValue")}
-              onWheel={(e) => e.target.blur()}
-              className={inputStyle(errors.nValue)}
-            />
-          </div>
-          <ErrorStyle show={errors.nValue} text={errors.nValue} />
-        </div>
+      {/* ================= SOIL PARAMETERS ================= */}
+      <div className="px-6 md:px-8 pt-6 pb-8">
+        <h3 className="text-[#0d3b66] mb-4 flex items-center gap-2 text-xs md:text-sm font-medium">
+          <div className="w-1 h-4 md:h-5 bg-[#3399cc] rounded-full" />
+          Soil Parameters
+        </h3>
+        <div className="bg-white px-4 md:px-5 py-5 rounded-xl hp:rounded-lg border border-gray-200">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 xl:gap-4 2xl:gap-6">
+            {/* N Value */}
+            <div className="relative">
+              <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">
+                N Value
+              </label>
+              <input
+                type="number"
+                min={0}
+                value={roundCaisson.nValue}
+                onChange={handleChange("nValue")}
+                onWheel={(e) => e.target.blur()}
+                className={`${inputStyle(errors.nValue)} w-full`}
+              />
+              <ErrorStyle show={errors.nValue} text={errors.nValue} />
+            </div>
 
-        {/* γ */}
-        <div className="relative">
-          <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-3">
-            γ
-          </label>
-          <div className="relative">
-            <input
-              type="number"
-              min={0}
-              value={roundCaisson.yValue}
-              onChange={handleChange("yValue")}
-              onWheel={(e) => e.target.blur()}
-              className={`${inputStyle(errors.yValue)} pr-16`}
-            />
-            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400">
-              kN/m<sup>3</sup>
-            </span>
-          </div>
-          <ErrorStyle show={errors.yValue} text={errors.yValue} />
-        </div>
+            {/* γ */}
+            <div className="relative">
+              <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">
+                γ
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  min={0}
+                  value={roundCaisson.yValue}
+                  onChange={handleChange("yValue")}
+                  onWheel={(e) => e.target.blur()}
+                  className={`${inputStyle(errors.yValue)} w-full !pr-10 md:!pr-14`}
+                />
+                <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
+                  kN/m<sup>3</sup>
+                </span>
+              </div>
+              <ErrorStyle show={errors.yValue} text={errors.yValue} />
+            </div>
 
-        {/* γc */}
-        <div className="relative">
-          <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-3">
-            γc
-          </label>
-          <div className="relative">
-            <input
-              type="number"
-              min={0}
-              value={roundCaisson.ycValue}
-              onChange={handleChange("ycValue")}
-              onWheel={(e) => e.target.blur()}
-              className={`${inputStyle(errors.ycValue)} pr-16`}
-            />
-            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-400">
-              kN/m<sup>3</sup>
-            </span>
-          </div>
-          <ErrorStyle show={errors.ycValue} text={errors.ycValue} />
-        </div>
+            {/* γc */}
+            <div className="relative">
+              <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">
+                γc
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  min={0}
+                  value={roundCaisson.ycValue}
+                  onChange={handleChange("ycValue")}
+                  onWheel={(e) => e.target.blur()}
+                  className={`${inputStyle(errors.ycValue)} w-full !pr-10 md:!pr-14`}
+                />
+                <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
+                  kN/m<sup>3</sup>
+                </span>
+              </div>
+              <ErrorStyle show={errors.ycValue} text={errors.ycValue} />
+            </div>
 
-        {/* α */}
-        <div className="relative">
-          <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-3">
-            α
-          </label>
-          <div className="relative">
-            <input
-              type="number"
-              min={0}
-              value={roundCaisson.alphaValue}
-              onChange={handleChange("alphaValue")}
-              onWheel={(e) => e.target.blur()}
-              className={inputStyle(errors.alphaValue)}
-            />
+            {/* α */}
+            <div className="relative">
+              <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">
+                α
+              </label>
+              <input
+                type="number"
+                min={0}
+                value={roundCaisson.alphaValue}
+                onChange={handleChange("alphaValue")}
+                onWheel={(e) => e.target.blur()}
+                className={`${inputStyle(errors.alphaValue)} w-full min-h-[38px]`}
+              />
+              <ErrorStyle show={errors.alphaValue} text={errors.alphaValue} />
+            </div>
           </div>
-          <ErrorStyle show={errors.alphaValue} text={errors.alphaValue} />
         </div>
       </div>
 

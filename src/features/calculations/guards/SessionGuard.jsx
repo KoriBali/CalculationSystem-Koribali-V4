@@ -5,7 +5,7 @@ import { useParams, Outlet, Navigate } from "react-router-dom";
 // Mencegah user manual ganti URL ke project type lain
 export default function SessionGuard() {
   const { type } = useParams();
-  const savedType = sessionStorage.getItem("projectType");
+  const savedType = localStorage.getItem("projectType");
 
   if (type !== savedType) {
     return <Navigate to="/404" replace />;

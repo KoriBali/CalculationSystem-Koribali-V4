@@ -7,10 +7,10 @@ export function useReport(projectType) {
   const navigate = useNavigate();
 
   // ── Read helper ──
-  // Reads and parses a value from sessionStorage by key
+  // Reads and parses a value from localStorage by key
   const read = (key, fallback = null) => {
     try {
-      const raw = sessionStorage.getItem(`${projectType}_${key}`);
+      const raw = localStorage.getItem(`${projectType}_${key}`);
       return raw ? JSON.parse(raw) : fallback;
     } catch {
       return fallback;
@@ -148,7 +148,7 @@ export function useReport(projectType) {
       return;
     }
 
-    // Read all results from sessionStorage at call time
+    // Read all results from localStorage at call time
     const results = read("results", []);
     const resultsDo = read("resultsDo", []);
     const resultsOhw = read("resultsOhw", []);
@@ -213,7 +213,7 @@ export function useReport(projectType) {
     };
 
     // Persist snapshot so report page can access it on reload
-    sessionStorage.setItem(
+    localStorage.setItem(
       `${projectType}_reportSnapshot`,
       JSON.stringify(reportPayload),
     );

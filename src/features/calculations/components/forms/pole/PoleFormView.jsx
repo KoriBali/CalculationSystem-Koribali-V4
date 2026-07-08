@@ -46,11 +46,11 @@ import { useReport } from "../../../../report/hooks/useReport";
 export default function PoleFormView() {
   const { type: projectType } = useParams();
 
-  // Read condition from sessionStorage
+  // Read condition from localStorage
   const condition = (() => {
     try {
       return JSON.parse(
-        sessionStorage.getItem(`${projectType}_condition`) || "{}",
+        localStorage.getItem(`${projectType}_condition`) || "{}",
       );
     } catch {
       return {};

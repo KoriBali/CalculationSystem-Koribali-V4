@@ -21,11 +21,11 @@ export function usePoleCalculation({
   const { type: projectType } = useParams();
   const navigate = useNavigate();
 
-  // Read condition from sessionStorage
+  // Read condition from localStorage
   const condition = (() => {
     try {
       return JSON.parse(
-        sessionStorage.getItem(`${projectType}_condition`) || "{}",
+        localStorage.getItem(`${projectType}_condition`) || "{}",
       );
     } catch {
       return {};
@@ -93,7 +93,7 @@ export function usePoleCalculation({
   };
 
   // ── Merge helpers ──
-  // Menggabungkan input FE (dari sessionStorage) dengan hasil kalkulasi BE.
+  // Menggabungkan input FE (dari localStorage) dengan hasil kalkulasi BE.
   // Input FE dijadikan base, field dari BE menimpa jika ada key yang sama —
   // karena BE adalah sumber kebenaran untuk field kalkulasi.
 
@@ -222,7 +222,7 @@ export function usePoleCalculation({
     // results sudah merged (input + kalkulasi), langsung dipakai untuk report
     const cover = (() => {
       try {
-        return JSON.parse(sessionStorage.getItem(`${projectType}_cover`) || "{}");
+        return JSON.parse(localStorage.getItem(`${projectType}_cover`) || "{}");
       } catch {
         return {};
       }
@@ -238,7 +238,7 @@ export function usePoleCalculation({
       poleConfig: poleConfigForm.poleConfig,
     };
 
-    sessionStorage.setItem(
+    localStorage.setItem(
       `${projectType}_reportSnapshot`,
       JSON.stringify(reportPayload),
     );

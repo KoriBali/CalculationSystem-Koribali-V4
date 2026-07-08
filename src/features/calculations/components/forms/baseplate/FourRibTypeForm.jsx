@@ -89,7 +89,7 @@ export function FourRibTypeForm({
           {/* ================= TOP VIEW : SVG + POSITIONED INPUTS ================= */}
           <div className="relative">
             <img
-              src="/images/4Rib-TopView (21).svg"
+              src="/images/4Rib-TopView (22).svg"
               alt="4 rib baseplate top view"
               className="w-[290px] sm:w-full h-[380px] xl:h-[450px] 2xl:h-[450px] object-contain"
             />
@@ -185,7 +185,7 @@ export function FourRibTypeForm({
             </div>
 
             {/* Anchor Bolt Diameter + Number of Anchor Bolts side by side */}
-            <div className="absolute top-[74%] sm:top-[59%] xl:top-[73%] 2xl:top-[73%] -translate-y-1/2 left-[35px] sm:left-[35px] xl:-left-[50px] -translate-x-1/2 flex flex-col xl:flex-row gap-2 sm:gap-3 xl:gap-2">
+            <div className="absolute top-[63%] sm:top-[73%] xl:top-[73.5%] 2xl:top-[73.5%] -translate-y-1/2 left-[35px] sm:left-[28px] xl:left-[18px] -translate-x-1/2 flex flex-col xl:flex-row gap-2 sm:gap-3 xl:gap-2">
               <div className="relative">
                 <label className="w-[100px] sm:w-full block text-xs md:text-sm text-gray-700 mb-1">
                   Anchor Bolt Diameter
@@ -206,7 +206,7 @@ export function FourRibTypeForm({
                 <ErrorStyle show={errors.anchorDia} text={errors.anchorDia} />
               </div>
 
-              <div className="relative">
+              <div className="hidden relative">
                 <label className="w-[90px] sm:w-full block text-xs md:text-sm text-gray-700 mb-1">
                   Number of Anchor Bolts
                 </label>
@@ -231,7 +231,7 @@ export function FourRibTypeForm({
             </div>
 
             {/* Number of Anchor Bolts on Tension Side — left aligned */}
-            <div className="absolute top-[232px] sm:top-[72%] xl:top-[72%] 2xl:top-[72%] -translate-y-1/2 -right-[59px] sm:-right-[148px] xl:-right-[300px] -translate-x-1/2">
+            <div className="hidden absolute top-[232px] sm:top-[72%] xl:top-[72%] 2xl:top-[72%] -translate-y-1/2 -right-[59px] sm:-right-[148px] xl:-right-[300px] -translate-x-1/2">
               <label className="w-[90px] sm:w-[170px] xl:w-full block text-xs md:text-sm text-gray-700 mb-1">
                 Number of Anchor Bolts on Tension Side
               </label>

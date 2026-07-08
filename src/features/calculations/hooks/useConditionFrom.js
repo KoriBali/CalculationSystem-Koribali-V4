@@ -28,7 +28,7 @@ export function useConditionForm() {
   const { type: projectType } = useParams();
   const navigate = useNavigate();
 
-  // Persisted condition — auto sync ke sessionStorage via useProjectStorage
+  // Persisted condition — auto sync ke localStorage via useProjectStorage
   const [condition, setCondition] = useProjectStorage(
     projectType,
     "condition",
@@ -76,15 +76,15 @@ export function useConditionForm() {
     proceed();
   };
 
-  // Commit local draft to sessionStorage then navigate to next step
+  // Commit local draft to localStorage then navigate to next step
   const proceed = () => {
     // 1. Save config — determines which steps are visible in header nav
     saveCalculationConfig(projectType, localCondition);
 
-    // 2. Cleanup sessionStorage for disabled components
+    // 2. Cleanup localStorage for disabled components
     cleanupDisabledComponents(projectType, localCondition);
 
-    // 3. Commit condition to sessionStorage
+    // 3. Commit condition to localStorage
     setCondition(localCondition);
 
     // 4. Navigate to pole step

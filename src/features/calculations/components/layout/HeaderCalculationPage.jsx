@@ -23,7 +23,7 @@ export function HeaderCalculationPage() {
   const [showDraftModal, setShowDraftModal] = useState(false);
   const [confirmResetAll, setConfirmResetAll] = useState(false);
 
-  const raw = sessionStorage.getItem(`${type}_calculation_config`);
+  const raw = localStorage.getItem(`${type}_calculation_config`);
   const config = raw ? JSON.parse(raw) : null;
 
   const navItems = [
@@ -88,7 +88,7 @@ export function HeaderCalculationPage() {
     }
   };
   const handleSaveDraft = () => {
-    sessionStorage.removeItem("projectType");
+    localStorage.removeItem("projectType");
     navigate("/calculation");
   };
   const handleDiscard = () => {

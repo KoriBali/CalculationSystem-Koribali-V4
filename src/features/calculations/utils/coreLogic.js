@@ -49,12 +49,12 @@ const DATA_KEYS = [
  */
 export const hasCalculationData = (projectType) => {
   // Primary signal: config is only saved after the user confirms Initial Input
-  if (sessionStorage.getItem(`${projectType}_calculation_config`) !== null) {
+  if (localStorage.getItem(`${projectType}_calculation_config`) !== null) {
     return true;
   }
 
   // Check if cover data has been filled
-  const coverRaw = sessionStorage.getItem(`${projectType}_cover`);
+  const coverRaw = localStorage.getItem(`${projectType}_cover`);
   if (coverRaw) {
     try {
       const cover = JSON.parse(coverRaw);
@@ -82,7 +82,7 @@ export const hasCalculationData = (projectType) => {
   ];
 
   return deepKeys.some(
-    (key) => sessionStorage.getItem(`${projectType}_${key}`) !== null,
+    (key) => localStorage.getItem(`${projectType}_${key}`) !== null,
   );
 };
 
@@ -93,8 +93,8 @@ export const clearCalculationSession = (projectType) => {
   // All keys except "calculation_config" which is handled separately below
   const keys = DATA_KEYS.filter((k) => k !== "calculation_config");
 
-  keys.forEach((key) => sessionStorage.removeItem(`${projectType}_${key}`));
+  keys.forEach((key) => localStorage.removeItem(`${projectType}_${key}`));
 
-  sessionStorage.removeItem(`${projectType}_calculation_config`);
-  sessionStorage.removeItem("projectType");
+  localStorage.removeItem(`${projectType}_calculation_config`);
+  localStorage.removeItem("projectType");
 };

@@ -27,7 +27,7 @@ export default function ProjectSelectPage() {
   // This prevents the sidebar from redirecting back to the previous project type
   // if the user manually navigates back to this page.
   useEffect(() => {
-    sessionStorage.removeItem("projectType");
+    localStorage.removeItem("projectType");
   }, []);
 
   // Validates selected project type, saves to session, then navigates to setup
@@ -41,7 +41,7 @@ export default function ProjectSelectPage() {
     }
 
     // Persist selected project type — used by SessionGuard and condition form
-    sessionStorage.setItem("projectType", projectId);
+    localStorage.setItem("projectType", projectId);
     navigate(`/calculation/${projectId}`);
   };
 

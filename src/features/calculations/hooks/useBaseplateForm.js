@@ -16,7 +16,7 @@ export function useBaseplateForm() {
   const getCondition = () => {
     try {
       return JSON.parse(
-        sessionStorage.getItem(`${projectType}_condition`) || "{}",
+        localStorage.getItem(`${projectType}_condition`) || "{}",
       );
     } catch {
       return {};

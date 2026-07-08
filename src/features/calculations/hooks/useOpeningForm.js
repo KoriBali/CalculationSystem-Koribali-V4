@@ -20,11 +20,11 @@ export function useOpeningForm() {
   const { type: projectType } = useParams();
   const navigate = useNavigate();
 
-  // Read condition from sessionStorage — projectType must be available first
+  // Read condition from localStorage — projectType must be available first
   const condition = (() => {
     try {
       return JSON.parse(
-        sessionStorage.getItem(`${projectType}_condition`) || "{}",
+        localStorage.getItem(`${projectType}_condition`) || "{}",
       );
     } catch {
       return {};

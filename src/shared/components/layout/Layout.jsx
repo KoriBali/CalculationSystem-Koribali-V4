@@ -9,7 +9,7 @@ import { getUser, clearAuthSession } from "../../../utils/auth";
 
 // ─── HELPERS ────────────────────────────────────────────────────────────────
 
-// Formats sessionStorage projectType into a readable title (e.g. "lighting-pole" → "Lighting Pole Type")
+// Formats localStorage projectType into a readable title (e.g. "lighting-pole" → "Lighting Pole Type")
 function formatProjectType(type) {
   if (!type) return null;
   return (
@@ -36,7 +36,7 @@ export default function Layout() {
   const [userData, setUserData] = useState({ name: "User", email: "" });
 
   // Derive current page title from route + session
-  const projectType = sessionStorage.getItem("projectType");
+  const projectType = localStorage.getItem("projectType");
   const formattedProjectType = formatProjectType(projectType);
   const isCalculationRoot = location.pathname === "/calculation";
   const currentTitle =
@@ -81,7 +81,7 @@ export default function Layout() {
   // Clears session data and redirects to login
   const handleLogout = () => {
     clearAuthSession();
-    sessionStorage.removeItem("projectType");
+    localStorage.removeItem("projectType");
 
     navigate("/login");
   };

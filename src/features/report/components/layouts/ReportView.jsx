@@ -22,14 +22,14 @@ import { EmptyReport } from "../../../../assets/icon";
 export function ReportView() {
   const navigate = useNavigate();
   const location = useLocation();
-  const projectType = sessionStorage.getItem("projectType");
+  const projectType = localStorage.getItem("projectType");
 
   // ── Load report data ──
-  // Prioritize route state (fresh navigation), fallback to sessionStorage snapshot (reload)
+  // Prioritize route state (fresh navigation), fallback to localStorage snapshot (reload)
   const reportData =
     location.state ||
     JSON.parse(
-      sessionStorage.getItem(`${projectType}_reportSnapshot`) || "null",
+      localStorage.getItem(`${projectType}_reportSnapshot`) || "null",
     );
 
   // ── Destructure all fields from merged reportPayload ──
@@ -50,7 +50,7 @@ export function ReportView() {
   // ── UI state ──
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [hasReport, setHasReport] = useState(
-    sessionStorage.getItem(`${projectType}_hasReport`) === "true",
+    localStorage.getItem(`${projectType}_hasReport`) === "true",
   );
 
   // ── Handlers ──

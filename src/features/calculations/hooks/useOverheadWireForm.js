@@ -18,7 +18,7 @@ export function useOverheadWireForm(projectType) {
   // Persists max OHW ID to prevent conflicts after reload
   const ohwIdRef = useRef(1);
   useEffect(() => {
-    const saved = sessionStorage.getItem(`${projectType}_overheadWires`);
+    const saved = localStorage.getItem(`${projectType}_overheadWires`);
     if (!saved) return;
     const parsed = JSON.parse(saved);
     const maxId = Math.max(0, ...parsed.map((o) => Number(o.idOhw)));
