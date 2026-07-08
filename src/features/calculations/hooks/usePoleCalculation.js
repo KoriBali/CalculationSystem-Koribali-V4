@@ -18,7 +18,7 @@ export function usePoleCalculation({
   poleStandardForm,
   poleConfigForm, // structural design (lowestStep, overDesign)
 }) {
-  const { type: projectType } = useParams();
+  const { type: projectType, draftId } = useParams();
   const navigate = useNavigate();
 
   // Read condition from localStorage
@@ -251,7 +251,7 @@ export function usePoleCalculation({
   const finish = () => {
     if (!isCalculated) return;
     if (isLast) return "OPEN_COVER";
-    navigate(`/calculation/${projectType}/${nextStep}`);
+    navigate(`/calculation/${projectType}/${draftId}/${nextStep}`);
   };
 
   return {

@@ -6,6 +6,7 @@ export const NextStepModal = ({
   onClose,
   withDrawing,
   projectType,
+  draftId,
 }) => {
   const navigate = useNavigate();
 
@@ -37,7 +38,7 @@ export const NextStepModal = ({
           {/* Option: Calculation */}
           <button
             onClick={() =>
-              handleNavigate(`/calculation/${projectType}/initial`)
+              handleNavigate(`/calculation/${projectType}/${draftId}/initial`)
             }
             className="w-full flex items-center gap-4 p-4  rounded-xl border border-slate-200 bg-white hover:border-blue-500 hover:bg-blue-50/50 transition-all text-left group"
           >
@@ -59,7 +60,7 @@ export const NextStepModal = ({
           <button
             onClick={() =>
               withDrawing &&
-              handleNavigate(`/calculation/${projectType}/drawing`)
+              handleNavigate(`/calculation/${projectType}/${draftId}/drawing`)
             }
             disabled={!withDrawing}
             className={`w-full flex items-center gap-4 p-4  rounded-xl border transition-all text-left
@@ -104,7 +105,7 @@ export const NextStepModal = ({
             onClick={onClose}
             className="px-10 py-2.5 rounded-xl font-semibold text-sm text-slate-600 border border-slate-300 hover:bg-slate-200 hover:text-slate-800 transition-colors"
           >
-            Tutup
+            Close
           </button>
         </div>
       </div>

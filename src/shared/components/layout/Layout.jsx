@@ -39,19 +39,37 @@ export default function Layout() {
   const projectType = localStorage.getItem("projectType");
   const formattedProjectType = formatProjectType(projectType);
   const isCalculationRoot = location.pathname === "/calculation";
-  const currentTitle =
-    !isCalculationRoot &&
-    location.pathname.startsWith("/calculation") &&
-    formattedProjectType
-      ? formattedProjectType
-      : (MENU_ITEMS.find((item) => location.pathname.startsWith(item.path))
-          ?.name ?? "Page Not Found");
+  let currentTitle = "Page Not Found";
+  if (isCalculationRoot) {
+    currentTitle = MENU_ITEMS.find((item) => item.path === "/calculation")?.name ?? "Calculation";
+  } else if (location.pathname.startsWith("/calculation") && formattedProjectType) {
+    if (location.pathname.includes("/drawing")) {
+      currentTitle = `${formattedProjectType} - Drawing`;
+    } else if (
+      location.pathname.includes("/initial") ||
+      location.pathname.includes("/pole") ||
+      location.pathname.includes("/opening") ||
+      location.pathname.includes("/baseplate") ||
+      location.pathname.includes("/foundation")
+    ) {
+      currentTitle = `${formattedProjectType} - Calculation`;
+    } else {
+      currentTitle = formattedProjectType;
+    }
+  } else {
+    currentTitle = MENU_ITEMS.find((item) => location.pathname.startsWith(item.path))?.name ?? "Page Not Found";
+  }
 
-  // Returns nav path — if projectType exists, go directly to that calculation
-  const getMenuPath = (path) =>
-    path === "/calculation" && projectType
-      ? `/calculation/${projectType}`
-      : path;
+  // Returns nav path — if projectType exists, go directly to that calculation or its active draft
+  const getMenuPath = (path) => {
+    if (path === "/calculation" && projectType) {
+      const activeDraftId = localStorage.getItem(`${projectType}_active_draft_id`);
+      return activeDraftId
+        ? `/calculation/${projectType}/${activeDraftId}`
+        : `/calculation/${projectType}`;
+    }
+    return path;
+  };
 
   // Load user session from localStorage on mount
   useEffect(() => {

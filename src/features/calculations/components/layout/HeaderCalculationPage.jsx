@@ -8,17 +8,18 @@ import {
 } from "lucide-react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 
-import { ConfirmSaveDraftModal } from "../modals/ConfirmSaveDraftModal";
+import { DraftActionModal } from "../modals/DraftActionModal";
 import { ConfirmResetAllModal } from "../modals/ConfirmResetAllModal";
 import { BaseplateIcon } from "../../../../assets/icon";
 import { clearCalculationSession, hasCalculationData } from "../../utils";
+import { saveWorkingSessionToDraft, clearActiveDraftId, hasDraftChanged } from "../../utils/coreLogic";
 import { useScrollDirection } from "../../../../hooks/useScrollDirection";
 
 // ─── COMPONENT ───────────────────────────────────────────────────────────────
 export function HeaderCalculationPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { type } = useParams();
+  const { type, draftId } = useParams();
 
   const [showDraftModal, setShowDraftModal] = useState(false);
   const [confirmResetAll, setConfirmResetAll] = useState(false);
@@ -29,14 +30,14 @@ export function HeaderCalculationPage() {
   const navItems = [
     {
       label: "Initial",
-      path: `/calculation/${type}/initial`,
+      path: `/calculation/${type}/${draftId}/initial`,
       icon: LayoutDashboard,
     },
     ...(config?.pole
       ? [
           {
             label: "Pole",
-            path: `/calculation/${type}/pole`,
+            path: `/calculation/${type}/${draftId}/pole`,
             icon: TowerControl,
           },
         ]
@@ -45,7 +46,7 @@ export function HeaderCalculationPage() {
       ? [
           {
             label: "Opening",
-            path: `/calculation/${type}/opening`,
+            path: `/calculation/${type}/${draftId}/opening`,
             icon: DoorOpen,
           },
         ]
@@ -54,7 +55,7 @@ export function HeaderCalculationPage() {
       ? [
           {
             label: "Baseplate",
-            path: `/calculation/${type}/baseplate`,
+            path: `/calculation/${type}/${draftId}/baseplate`,
             icon: BaseplateIcon,
           },
         ]
@@ -63,41 +64,43 @@ export function HeaderCalculationPage() {
       ? [
           {
             label: "Foundation",
-            path: `/calculation/${type}/foundation`,
+            path: `/calculation/${type}/${draftId}/foundation`,
             icon: Layers,
           },
         ]
       : []),
   ];
 
-  const isProjectIdentityPage = location.pathname === `/calculation/${type}` || location.pathname === `/calculation/${type}/`;
-  const isDrawingPage = location.pathname.includes(`/calculation/${type}/drawing`);
+  const isProjectIdentityPage = location.pathname === `/calculation/${type}/${draftId}` || location.pathname === `/calculation/${type}/${draftId}/`;
+  const isDrawingPage = location.pathname.includes(`/calculation/${type}/${draftId}/drawing`);
 
   const handleBackClick = () => {
     if (isProjectIdentityPage) {
-      // If we are on Project Identity, go back to project selection
-      if (!hasCalculationData(type)) {
-        clearCalculationSession(type);
-        navigate("/calculation");
-        return;
+      // Check if draft actually changed before showing modal
+      if (!hasDraftChanged(type, draftId)) {
+        handleDiscard(); // Just discard and go back
+      } else {
+        setShowDraftModal(true);
       }
-      setShowDraftModal(true);
     } else {
       // If we are on any other calculation step, go back to Project Identity without a draft modal
-      navigate(`/calculation/${type}`);
+      navigate(`/calculation/${type}/${draftId}`);
     }
   };
   const handleSaveDraft = () => {
-    localStorage.removeItem("projectType");
-    navigate("/calculation");
+    saveWorkingSessionToDraft(type, draftId);
+    clearCalculationSession(type);
+    clearActiveDraftId(type);
+    navigate(`/calculation/${type}`);
   };
   const handleDiscard = () => {
     clearCalculationSession(type);
-    navigate("/calculation");
+    clearActiveDraftId(type);
+    navigate(`/calculation/${type}`);
   };
   const handleResetAll = () => {
     clearCalculationSession(type);
-    navigate("/calculation");
+    navigate(`/calculation/${type}/${draftId}`); // Just stay and reset
   };
 
   const scrollDirection = useScrollDirection();
@@ -115,7 +118,7 @@ export function HeaderCalculationPage() {
           >
             <ArrowLeft className="w-4 h-4 shrink-0" />
             <span className="truncate">
-              {isProjectIdentityPage ? "Back to Project Type" : "Back to Project Identity"}
+              {isProjectIdentityPage ? "Back to Drafts" : "Back to Project Setup"}
             </span>
           </button>
         </div>
@@ -158,10 +161,10 @@ export function HeaderCalculationPage() {
         </div>
       )}
 
-      <ConfirmSaveDraftModal
+      <DraftActionModal
         open={showDraftModal}
         onClose={() => setShowDraftModal(false)}
-        onSaveDraft={handleSaveDraft}
+        onSave={handleSaveDraft}
         onDiscard={handleDiscard}
       />
 

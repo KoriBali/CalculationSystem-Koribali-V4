@@ -17,7 +17,7 @@ const TYPE_LABEL_MAP = {
 // ─── HOOK ────────────────────────────────────────────────────────────────────
 
 export function useOpeningForm() {
-  const { type: projectType } = useParams();
+  const { type: projectType, draftId } = useParams();
   const navigate = useNavigate();
 
   // Read condition from localStorage — projectType must be available first
@@ -175,7 +175,7 @@ export function useOpeningForm() {
   const finish = () => {
     if (!isCalculated) return;
     if (isLast) return "OPEN_COVER";
-    navigate(`/calculation/${projectType}/${nextStep}`);
+    navigate(`/calculation/${projectType}/${draftId}/${nextStep}`);
   };
 
   // ── Return ──

@@ -9,7 +9,7 @@ import * as Utils from "../utils";
 
 // Main custom hook to manage baseplate form state and workflow
 export function useBaseplateForm() {
-  const { type: projectType } = useParams();
+  const { type: projectType, draftId } = useParams();
   const navigate = useNavigate();
 
   // Safely retrieve condition data from session storage
@@ -216,7 +216,7 @@ export function useBaseplateForm() {
       return "OPEN_COVER";
     }
 
-    navigate(`/calculation/${projectType}/${nextStep}`);
+    navigate(`/calculation/${projectType}/${draftId}/${nextStep}`);
   };
 
   // Mapping for UI labels

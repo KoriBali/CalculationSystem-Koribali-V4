@@ -25,7 +25,7 @@ const getDefaultCondition = (projectType) => ({
 // ─── HOOK ────────────────────────────────────────────────────────────────────
 
 export function useConditionForm() {
-  const { type: projectType } = useParams();
+  const { type: projectType, draftId } = useParams();
   const navigate = useNavigate();
 
   // Persisted condition — auto sync ke localStorage via useProjectStorage
@@ -88,7 +88,7 @@ export function useConditionForm() {
     setCondition(localCondition);
 
     // 4. Navigate to pole step
-    navigate(`/calculation/${projectType}/pole`);
+    navigate(`/calculation/${projectType}/${draftId}/pole`);
   };
 
   return {

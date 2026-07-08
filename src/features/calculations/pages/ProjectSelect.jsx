@@ -46,23 +46,24 @@ export default function ProjectSelectPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/50 px-2 py-6 xl:p-12">
-      {/* ── Page header ── */}
-      <motion.div
-        {...HEADER_ANIMATION}
-        className="max-w-4xl mx-auto text-center mb-16"
-      >
-        <h1 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight mb-4">
-          Select Project Type
-        </h1>
-        <p className="text-base text-slate-500 mx-auto">
-          Select the type of pole structure you want to analyze to begin the
-          structural calculation process.
-        </p>
-      </motion.div>
+    <div className="min-h-screen bg-slate-50/50">
+      <div className="w-full max-w-[1400px] mx-auto py-4 sm:py-6 lg:py-8 px-4 sm:px-6 lg:px-8">
+        {/* ── Page header ── */}
+        <motion.div
+          {...HEADER_ANIMATION}
+          className="max-w-4xl mx-auto text-center mb-16 mt-8"
+        >
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight mb-4">
+            Select Project Type
+          </h1>
+          <p className="text-sm md:text-base text-slate-500 mx-auto">
+            Select the type of pole structure you want to analyze to begin the
+            structural calculation process.
+          </p>
+        </motion.div>
 
-      {/* ── Project type cards ── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mx-0 sm:mx-6 xl:mx-12">
+        {/* ── Project type cards ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         {PROJECT_TYPES.map((project, index) => (
           <motion.div key={project.id} {...cardAnimation(index)}>
             <button
@@ -89,6 +90,7 @@ export default function ProjectSelectPage() {
           </motion.div>
         ))}
       </div>
+    </div>
     </div>
   );
 }

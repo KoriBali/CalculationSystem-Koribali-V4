@@ -9,6 +9,7 @@ import ScrollToTop from "../shared/components/ScroolTop";
 // Import Pages (Sesuaikan path folder barumu)
 import LoginPage from "../pages/LoginPage";
 import ProjectSelectPage from "../features/calculations/pages/ProjectSelect";
+import DraftsDashboardPage from "../features/calculations/pages/DraftsDashboardPage";
 import ProjectIdentityPage from "../features/calculations/pages/ProjectIdentityPage";
 import InitialInputPage from "../features/calculations/pages/InitialInputPage";
 import DrawingInputPage from "../features/calculations/pages/DrawingInputPage";
@@ -24,6 +25,7 @@ import FoundationFormPage from "../features/calculations/pages/steps/FoundationS
 // Guards
 import TypeGuard from "../features/calculations/guards/TypeGuard";
 import SessionGuard from "../features/calculations/guards/SessionGuard";
+import DraftSessionGuard from "../features/calculations/guards/DraftSessionGuard";
 
 export default function AppRoutes() {
   return (
@@ -43,13 +45,16 @@ export default function AppRoutes() {
               {/* Dynamic Path with Multi-Guards */}
               <Route path=":type" element={<TypeGuard />}>
                 <Route element={<SessionGuard />}>
-                  <Route index element={<ProjectIdentityPage />} />
-                  <Route path="initial" element={<InitialInputPage />} />
-                  <Route path="drawing" element={<DrawingInputPage />} />
-                  <Route path="pole" element={<PoleFormPage />} />
-                  <Route path="opening" element={<OpeningFormPage />} />
-                  <Route path="baseplate" element={<BaseplateFormPage />} />
-                  <Route path="foundation" element={<FoundationFormPage />} />
+                  <Route index element={<DraftsDashboardPage />} />
+                  <Route path=":draftId" element={<DraftSessionGuard />}>
+                    <Route index element={<ProjectIdentityPage />} />
+                    <Route path="initial" element={<InitialInputPage />} />
+                    <Route path="drawing" element={<DrawingInputPage />} />
+                    <Route path="pole" element={<PoleFormPage />} />
+                    <Route path="opening" element={<OpeningFormPage />} />
+                    <Route path="baseplate" element={<BaseplateFormPage />} />
+                    <Route path="foundation" element={<FoundationFormPage />} />
+                  </Route>
                 </Route>
               </Route>
             </Route>

@@ -9,7 +9,7 @@ import { ChevronUp, ChevronDown } from "lucide-react";
 import { NextStepModal } from "../components/modals/NextStepModal";
 
 export default function ProjectIdentityPage() {
-  const { type: projectType } = useParams();
+  const { type: projectType, draftId } = useParams();
   const navigate = useNavigate();
   const coverForm = useCoverForm(projectType);
   const [toast, setToast] = useState(null);
@@ -85,6 +85,7 @@ export default function ProjectIdentityPage() {
           onClose={() => setShowNextStepModal(false)}
           withDrawing={coverForm.coverData.withDrawing}
           projectType={projectType}
+          draftId={draftId}
         />
       </div>
     </>
