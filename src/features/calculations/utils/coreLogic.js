@@ -53,6 +53,20 @@ export const hasCalculationData = (projectType) => {
     return true;
   }
 
+  // Check if cover data has been filled
+  const coverRaw = sessionStorage.getItem(`${projectType}_cover`);
+  if (coverRaw) {
+    try {
+      const cover = JSON.parse(coverRaw);
+      // If any of the cover fields have actual text entered, we have data.
+      if (Object.values(cover).some((val) => typeof val === "string" && val.trim() !== "")) {
+        return true;
+      }
+    } catch (e) {
+      // ignore JSON error
+    }
+  }
+
   // Secondary signal: any computed/result data exists
   const deepKeys = [
     "results",

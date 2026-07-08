@@ -17,7 +17,6 @@ export function usePoleCalculation({
   armForm,
   poleStandardForm,
   poleConfigForm, // structural design (lowestStep, overDesign)
-  coverForm, // cover info only (projectName, date, dll)
 }) {
   const { type: projectType } = useParams();
   const navigate = useNavigate();
@@ -202,7 +201,7 @@ export function usePoleCalculation({
   const makeReport = async () => {
     resetAllErrors();
 
-    const validation = await validatePoleReport({
+    const validation = await validatePoleForm({
       condition,
       poleTypeStandard: poleStandardForm.poleTypeStandard,
       taperPoleStandard: poleStandardForm.taperPoleStandard,
@@ -212,8 +211,6 @@ export function usePoleCalculation({
       directObjects: directObjectForm.directObjects,
       overheadWires: ohwForm.overheadWires,
       arms: armForm.arms,
-      results,
-      isCoverComplete: () => coverForm.validate(),
     });
 
     if (!validation.isValid) {
@@ -223,12 +220,20 @@ export function usePoleCalculation({
     }
 
     // results sudah merged (input + kalkulasi), langsung dipakai untuk report
+    const cover = (() => {
+      try {
+        return JSON.parse(sessionStorage.getItem(`${projectType}_cover`) || "{}");
+      } catch {
+        return {};
+      }
+    })();
+
     const reportPayload = {
       results,
       resultsDo,
       resultsOhw,
       resultsArm,
-      cover: coverForm.coverData,
+      cover,
       condition,
       poleConfig: poleConfigForm.poleConfig,
     };

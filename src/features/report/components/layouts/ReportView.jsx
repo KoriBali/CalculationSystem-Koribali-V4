@@ -169,7 +169,7 @@ export function ReportView() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
               <button
                 onClick={onBackCalculation}
-                className="flex items-center gap-2 px-8 py-3 bg-blue-800 text-white rounded-lg shadow-sm hover:bg-blue-900 hover:shadow-md transition-all duration-200 font-medium text-base focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white rounded-lg shadow-sm hover:brightness-110 transition-all duration-200 font-medium text-base focus:outline-none focus:ring-2 focus:ring-[#3399cc]/50"
               >
                 <Calculator className="w-5 h-5" />
                 Go to Calculation

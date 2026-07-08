@@ -1,19 +1,18 @@
 import { useState } from "react";
 import { Helmet } from "react-helmet";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { useParams } from "react-router-dom";
+import { ChevronUp, ChevronDown } from "lucide-react";
+import { HeaderCalculationPage } from "../components/layout/HeaderCalculationPage";
+import { ConditionForm } from "../components/forms/initial-setup/ConditionForm";
+import { ConfirmDisableModal } from "../components/modals/ConfirmDisableModal";
+import { ToastModal } from "../components/modals/ToastModal";
+import { useConditionForm } from "../hooks/useConditionFrom";
 
-import { HeaderCalculationPage } from "../../layout/HeaderCalculationPage";
-import { ConditionForm } from "./ConditionForm";
-import { ConfirmDisableModal } from "../../modals/ConfirmDisableModal";
-import { ToastModal } from "../../modals/ToastModal";
-import { useConditionForm } from "../../../hooks/useConditionFrom";
-
-export default function CalculationSetupForm() {
-  // UI-only state — lives in page, not in hook
-  const [isExpanded, setIsExpanded] = useState(true);
+export default function InitialInputPage() {
+  const { type: projectType } = useParams();
+  const [isConditionExpanded, setIsConditionExpanded] = useState(true);
 
   const {
-    projectType,
     localCondition,
     errors,
     toast,
@@ -34,46 +33,26 @@ export default function CalculationSetupForm() {
       <div className="flex flex-col h-full">
         <Helmet>
           <title>Calculation - KORI BALI</title>
-          <meta
-            name="calculation"
-            content="Calculation System CV. KORI BALI membantu Anda menghitung dan menganalisis struktur pole dengan mudah."
-          />
         </Helmet>
 
         <div className="flex-1 rounded-t-2xl hp:rounded-t-xl bg-gray-50 border border-gray-250">
           <HeaderCalculationPage />
 
           <div className="mx-6 2040:mx-[250px] pt-0 pb-8 hp:mx-2">
-            {/* Section header — collapsible toggle */}
             <div
               className={`bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] px-4 py-3 md:p-4 flex items-center justify-between cursor-pointer mt-6 transition-all duration-500 ease-in-out
-                ${isExpanded ? "rounded-t-2xl hp:rounded-t-xl" : "rounded-2xl hp:rounded-xl"}`}
-              onClick={() => setIsExpanded(!isExpanded)}
+                ${isConditionExpanded ? "rounded-t-2xl hp:rounded-t-xl" : "rounded-2xl hp:rounded-xl"}`}
+              onClick={() => setIsConditionExpanded(!isConditionExpanded)}
             >
-              {/* Title */}
               <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg hp:rounded-md border border-white/20 hp:px-3 hp:py-[8px]">
                 <h2 className="text-white text-xs md:text-sm font-semibold md:font-bold">
                   Initial Input
                 </h2>
               </div>
-
-              {/* Expand/collapse icon */}
               <div
-                className="
-                  flex h-8 w-8
-                  sm:h-9 sm:w-9
-                  shrink-0
-                  items-center justify-center
-                  rounded-full
-                  bg-white/15
-                  text-white
-                  border border-white/20
-                  transition
-                  group-hover:bg-white/20
-                  group-active:bg-white/25
-                "
+                className="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full bg-white/15 text-white border border-white/20 transition group-hover:bg-white/20 group-active:bg-white/25"
               >
-                {isExpanded ? (
+                {isConditionExpanded ? (
                   <ChevronUp className="w-4 h-4 sm:w-5 sm:h-5" />
                 ) : (
                   <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -81,11 +60,10 @@ export default function CalculationSetupForm() {
               </div>
             </div>
 
-            {/* Collapsible body */}
             <div
               className={`transition-all duration-500 ease-in-out overflow-hidden
               ${
-                isExpanded
+                isConditionExpanded
                   ? "max-h-[5000px] rounded-b-2xl hp:rounded-b-xl"
                   : "max-h-0 rounded-b-2xl hp:rounded-b-xl"
               }`}
@@ -105,12 +83,12 @@ export default function CalculationSetupForm() {
         <ConfirmDisableModal
           data={confirmDisable}
           onClose={() => {
-            setConfirmDisable(null); // tutup modal
-            setLocalCondition(prevCondition); // rollback ke state sebelumnya
+            setConfirmDisable(null);
+            setLocalCondition(prevCondition);
           }}
           onConfirm={() => {
-            setConfirmDisable(null); // tutup modal
-            proceed(); // lanjut dengan perubahan
+            setConfirmDisable(null);
+            proceed();
           }}
         />
 

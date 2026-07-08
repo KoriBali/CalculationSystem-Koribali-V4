@@ -178,27 +178,34 @@ export function ConditionForm({
                     <button
                       key={option.id}
                       type="button"
+                      title={option.desc}
                       onClick={() => onUpdate({ poleType: option.id })}
-                      className={`w-full text-left relative rounded-lg hp:rounded-md border p-4 transition-all duration-200
+                      className={`group w-full text-left relative overflow-hidden rounded-lg hp:rounded-md border-2 p-3 md:p-5 transition-all duration-300 cursor-pointer active:scale-[0.98]
                         ${
                           isActive
-                            ? "border-blue-500 bg-blue-50 text-blue-600 shadow-sm"
-                            : "border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50"
+                            ? "border-blue-500 bg-blue-50 shadow-sm ring-1 ring-blue-50"
+                            : "border-slate-100 bg-slate-50/50 hover:border-slate-300 hover:bg-slate-50 hover:shadow-sm"
                         }`}
                     >
-                      <div className="flex items-start gap-4">
-                        <div
-                          className={`p-2 md:p-2.5 xl:p-3 rounded-lg hp:rounded-md transition-colors ${isActive ? "bg-blue-100 text-blue-600" : "bg-slate-100 text-slate-500"}`}
-                        >
-                          <Icon className="w-4 h-4 lg:w-5 xl:h-5" />
-                        </div>
-                        <div>
-                          <p className="font-semibold text-[12px] md:text-[14px] text-slate-800">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={`p-2 rounded-lg hp:rounded-md transition-colors ${isActive ? "bg-blue-100 text-blue-600" : "bg-slate-200 text-slate-500 group-hover:bg-slate-300 group-hover:text-slate-600"}`}
+                          >
+                            <Icon size={16} />
+                          </div>
+                          <p
+                            className={`text-[12px] md:text-sm font-medium ${isActive ? "text-slate-900" : "text-slate-500 group-hover:text-slate-700"}`}
+                          >
                             {option.title}
                           </p>
-                          <p className="text-[11px] md:text-[12px] text-slate-500 mt-1">
-                            {option.desc}
-                          </p>
+                        </div>
+                        <div className="shrink-0 ml-2">
+                          {isActive ? (
+                            <CheckCircle className="w-5 h-5 text-blue-500" />
+                          ) : (
+                            <Circle className="w-5 h-5 text-slate-300 group-hover:text-slate-400" />
+                          )}
                         </div>
                       </div>
                     </button>

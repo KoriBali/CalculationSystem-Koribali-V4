@@ -8,11 +8,9 @@ import { FourRibTypeForm } from "./FourRibTypeForm";
 import { EightRibTypeForm } from "./EightRibTypeForm";
 import { BaseplateResultTable } from "../../tables/baseplate-result/BaseplateResultTable";
 
-import { CoverFormModal } from "../../modals/CoverFormModal";
 import { ToastModal } from "../../modals/ToastModal";
 
 import { useBaseplateForm } from "../../../hooks/useBaseplateForm";
-import { useCoverForm } from "../../../hooks/useCoverForm";
 import { useReport } from "../../../../report/hooks/useReport";
 
 // Main view component for baseplate calculation form
@@ -50,25 +48,17 @@ export default function BaseplateFormView() {
     showToast,
   } = useBaseplateForm();
 
-  // ================= COVER HOOK =================
-  const {
-    cover,
-    coverErrors,
-    showCoverPopup,
-    handleCoverUpdate,
-    handleOpenCoverPopup,
-    handleCloseCoverPopup,
-    validate: validateCover, // Mapping validate ke validateCover agar sesuai fungsi report
-  } = useCoverForm(projectType);
-
   // ================= REPORT HOOK =================
-  const { handleMakeReport } = useReport(projectType);
+  const { makeReport } = useReport(projectType);
 
-  // Handle navigation to next step or open cover modal
+  // Handle navigation to next step or create report
   const handleNextStep = () => {
     const result = handleFinish();
     if (result === "OPEN_COVER") {
-      handleOpenCoverPopup();
+      makeReport({
+        isCalculated,
+        showToast,
+      });
     }
   };
 
@@ -250,22 +240,7 @@ export default function BaseplateFormView() {
         </div>
       </div>
 
-      {/* ================= COVER MODAL ================= */}
-      <CoverFormModal
-        open={showCoverPopup}
-        onClose={handleCloseCoverPopup}
-        cover={cover} // Menambahkan data cover
-        coverErrors={coverErrors} // Menambahkan error data
-        onUpdateCover={handleCoverUpdate}
-        onMakeReport={() =>
-          handleMakeReport({
-            cover,
-            validateCover,
-            isCalculated,
-            showToast,
-          })
-        }
-      />
+
 
       {/* ================= TOAST ================= */}
       <ToastModal toast={toast} onClose={() => setToast(null)} />

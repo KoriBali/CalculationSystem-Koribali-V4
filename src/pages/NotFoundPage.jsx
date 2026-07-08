@@ -15,7 +15,7 @@ export default function NotFoundPage() {
       <div className="max-w-xl w-full text-center">
         {/* Icon */}
         <div className="flex justify-center mb-6">
-          <div className="bg-blue-100 text-blue-700 p-4 rounded-xl shadow-sm">
+          <div className="bg-blue-100 text-[#0d3b66] p-4 rounded-xl shadow-sm">
             <AlertTriangle className="w-12 h-12" />
           </div>
         </div>
@@ -40,11 +40,10 @@ export default function NotFoundPage() {
             onClick={() => navigate(backPath)}
             className="
                   flex items-center gap-2 px-8 py-3 
-                  bg-blue-700 text-white rounded-lg shadow-sm 
-                  hover:bg-blue-800 hover:shadow-md 
-                  transition-all duration-200
+                  bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white rounded-lg shadow-sm 
+                  hover:brightness-110 transition-all duration-200
                   font-medium text-base
-                  focus:outline-none focus:ring-2 focus:ring-blue-500/50
+                  focus:outline-none focus:ring-2 focus:ring-[#3399cc]/50
                 "
           >
             <ChevronLeft className="w-5 h-5" />

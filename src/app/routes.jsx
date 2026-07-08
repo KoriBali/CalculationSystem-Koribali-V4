@@ -9,7 +9,9 @@ import ScrollToTop from "../shared/components/ScroolTop";
 // Import Pages (Sesuaikan path folder barumu)
 import LoginPage from "../pages/LoginPage";
 import ProjectSelectPage from "../features/calculations/pages/ProjectSelect";
-import CalculationSetupPage from "../features/calculations/pages/CalcSetup";
+import ProjectIdentityPage from "../features/calculations/pages/ProjectIdentityPage";
+import InitialInputPage from "../features/calculations/pages/InitialInputPage";
+import DrawingInputPage from "../features/calculations/pages/DrawingInputPage";
 import ReportPage from "../features/report/pages/ReportPage";
 import NotFoundPage from "../pages/NotFoundPage";
 
@@ -41,7 +43,9 @@ export default function AppRoutes() {
               {/* Dynamic Path with Multi-Guards */}
               <Route path=":type" element={<TypeGuard />}>
                 <Route element={<SessionGuard />}>
-                  <Route index element={<CalculationSetupPage />} />
+                  <Route index element={<ProjectIdentityPage />} />
+                  <Route path="initial" element={<InitialInputPage />} />
+                  <Route path="drawing" element={<DrawingInputPage />} />
                   <Route path="pole" element={<PoleFormPage />} />
                   <Route path="opening" element={<OpeningFormPage />} />
                   <Route path="baseplate" element={<BaseplateFormPage />} />

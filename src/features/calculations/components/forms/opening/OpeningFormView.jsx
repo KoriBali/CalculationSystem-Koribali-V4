@@ -8,10 +8,7 @@ import { BoxTypeForm } from "./BoxTypeForm";
 import { RTypeForm } from "./RTypeForm";
 import { OpeningResultTable } from "../../tables/opening-result/OpeningResultTable";
 import { ToastModal } from "../../modals/ToastModal";
-import { CoverFormModal } from "../../modals/CoverFormModal";
-
 import { useOpeningForm } from "../../../hooks/useOpeningForm";
-import { useCoverForm } from "../../../hooks/useCoverForm";
 import { useReport } from "../../../../report/hooks/useReport";
 
 // Main view for the opening calculation step
@@ -20,13 +17,17 @@ export default function OpeningFormView() {
 
   // ── Hooks ──
   const opening = useOpeningForm();
-  const cover = useCoverForm(projectType);
-  const report = useReport(projectType);
+  const { makeReport } = useReport(projectType);
 
   // Opens cover modal if this is the last step, otherwise navigates to next
   const handleNextStep = () => {
     const result = opening.finish();
-    if (result === "OPEN_COVER") cover.openCoverPopup();
+    if (result === "OPEN_COVER") {
+      makeReport({
+        isCalculated: opening.isCalculated,
+        showToast: opening.showToast,
+      });
+    }
   };
 
   return (
@@ -192,22 +193,7 @@ export default function OpeningFormView() {
         </div>
       </div>
 
-      {/* ── Cover modal — shown when this is the last step ── */}
-      <CoverFormModal
-        open={cover.showCoverPopup}
-        onClose={cover.closeCoverPopup}
-        cover={cover.coverData}
-        onUpdateCover={cover.updateCover}
-        coverErrors={cover.coverErrors}
-        onMakeReport={() =>
-          report.makeReport({
-            cover: cover.coverData,
-            validateCover: cover.validate,
-            isCalculated: opening.isCalculated,
-            showToast: opening.showToast,
-          })
-        }
-      />
+
 
       {/* ── Toast notification ── */}
       <ToastModal

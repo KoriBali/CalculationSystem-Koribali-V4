@@ -30,7 +30,6 @@ import { StraightPoleStandardForm } from "./standard/StraightTypeForm";
 import { ResultsTableView } from "../../tables/pole-result/ResultTableView";
 
 import { ToastModal } from "../../modals/ToastModal";
-import { CoverFormModal } from "../../modals/CoverFormModal";
 import { ConfirmDeleteModal } from "../../modals/ConfirmDeleteModal";
 import { ConfirmReduceModal } from "../../modals/ConfirmReduceModal";
 import { usePoleForm } from "../../../hooks/usePoleForm";
@@ -39,8 +38,8 @@ import { useOverheadWireForm } from "../../../hooks/useOverheadWireForm";
 import { useArmForm } from "../../../hooks/useArmForm";
 import { usePoleStandardForm } from "../../../hooks/usePoleStandardForm";
 import { usePoleConfigForm } from "../../../hooks/usePoleConfigForm";
-import { useCoverForm } from "../../../hooks/useCoverForm";
 import { usePoleCalculation } from "../../../hooks/usePoleCalculation";
+import { useReport } from "../../../../report/hooks/useReport";
 
 // ─── COMPONENT ───────────────────────────────────────────────────────────────
 
@@ -71,7 +70,6 @@ export default function PoleFormView() {
   const armForm = useArmForm(projectType);
   const poleStandardForm = usePoleStandardForm(projectType);
   const poleConfigForm = usePoleConfigForm(projectType);
-  const coverForm = useCoverForm(projectType); // cover info only
 
   const calculation = usePoleCalculation({
     poleForm,
@@ -80,13 +78,19 @@ export default function PoleFormView() {
     armForm,
     poleStandardForm,
     poleConfigForm,
-    coverForm,
   });
+
+  const report = useReport(projectType);
 
   // Opens cover modal if last step, otherwise navigates to next
   const handleFinish = () => {
     const result = calculation.finish();
-    if (result === "OPEN_COVER") coverForm.openCoverPopup();
+    if (result === "OPEN_COVER") {
+      report.makeReport({
+        isCalculated: calculation.isCalculated,
+        showToast: calculation.showToast,
+      });
+    }
   };
 
   // custom mode — non lighting-pole always custom, lighting-pole only if poleType === custom
@@ -852,15 +856,7 @@ export default function PoleFormView() {
         </div>
       </div>
 
-      {/* ── Cover modal ── */}
-      <CoverFormModal
-        open={coverForm.showCoverPopup}
-        onClose={coverForm.closeCoverPopup}
-        cover={coverForm.coverData}
-        onUpdateCover={coverForm.updateCover}
-        coverErrors={coverForm.coverErrors}
-        onMakeReport={calculation.makeReport}
-      />
+
 
       {/* ── Toast ── */}
       <ToastModal

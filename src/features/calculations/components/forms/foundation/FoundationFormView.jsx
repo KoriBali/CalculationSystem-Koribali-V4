@@ -7,12 +7,9 @@ import { FoundationType } from "./FoundationType";
 import { RoundCaissonTypeForm } from "./RoundCaissonTypeForm";
 import { SquareCaissonTypeForm } from "./SquareCaissonTypeForm";
 import { FoundationResultTable } from "../../tables/foundation-result/FoundationResultTable";
-
-import { CoverFormModal } from "../../modals/CoverFormModal";
 import { ToastModal } from "../../modals/ToastModal";
 
 import { useFoundationForm } from "../../../hooks/useFoundationForm";
-import { useCoverForm } from "../../../hooks/useCoverForm";
 import { useReport } from "../../../../report/hooks/useReport";
 
 // Main view component for foundation calculation form
@@ -50,25 +47,19 @@ export default function FoundationFormView() {
     showToast,
   } = useFoundationForm();
 
-  // ================= COVER HOOK =================
-  const {
-    cover,
-    coverErrors,
-    showCoverPopup,
-    handleCoverUpdate,
-    handleOpenCoverPopup,
-    handleCloseCoverPopup,
-    validate: validateCover, // Mapping validate ke validateCover agar sesuai fungsi report
-  } = useCoverForm(projectType);
+
 
   // ================= REPORT HOOK =================
-  const { handleMakeReport } = useReport(projectType);
+  const { makeReport } = useReport(projectType);
 
-  // Handle navigation to next step or open cover modal
+  // Handle navigation to next step or create report
   const handleNextStep = () => {
     const result = handleFinish();
     if (result === "OPEN_COVER") {
-      handleOpenCoverPopup();
+      makeReport({
+        isCalculated,
+        showToast,
+      });
     }
   };
 
@@ -251,22 +242,7 @@ export default function FoundationFormView() {
         </div>
       </div>
 
-      {/* ================= COVER MODAL ================= */}
-      <CoverFormModal
-        open={showCoverPopup}
-        onClose={handleCloseCoverPopup}
-        cover={cover} // Menambahkan data cover ke modal
-        coverErrors={coverErrors} // Menambahkan error data ke modal
-        onUpdateCover={handleCoverUpdate}
-        onMakeReport={() =>
-          handleMakeReport({
-            cover,
-            validateCover,
-            isCalculated,
-            showToast,
-          })
-        }
-      />
+
 
       {/* ================= TOAST ================= */}
       <ToastModal toast={toast} onClose={() => setToast(null)} />

@@ -137,10 +137,8 @@ export function useReport(projectType) {
 
   // ── Main function ──
 
-  // Validates cover + all required results, then navigates to report page
+  // Validates all required results, then navigates to report page
   const makeReport = async ({
-    cover,
-    validateCover,
     isCalculated,
     showToast,
   }) => {
@@ -150,13 +148,13 @@ export function useReport(projectType) {
       return;
     }
 
-    // Read all results from sessionStorage at call time — not at hook init
-    // Ini mencegah stale data jika user kalkulasi ulang setelah hook pertama kali diinisialisasi
+    // Read all results from sessionStorage at call time
     const results = read("results", []);
     const resultsDo = read("resultsDo", []);
     const resultsOhw = read("resultsOhw", []);
     const resultsArm = read("resultsArm", []);
     const poleConfig = read("poleConfig", {});
+    const cover = read("cover", {});
 
     // Read calculated results for optional steps
     const calculatedOp = read("calculatedOp", {});
@@ -173,16 +171,13 @@ export function useReport(projectType) {
     );
     if (!isResultsValid) return;
 
-    // Cover fields must be complete
-    const isCoverValid = await validateCover();
-    if (!isCoverValid) {
-      showToast("Please complete the Cover Information fields.");
+    // Cover fields must be complete (simple validation since they already validated at step 1)
+    if (!cover.managementCode || !cover.calculationNumber || !cover.projectName || !cover.date) {
+      showToast("Please complete the Cover Information fields in Initial Setup.");
       return;
     }
 
     // Build report payload
-    // Results pole sudah merged di usePoleCalculation, langsung pakai
-    // Opening/baseplate/foundation di-merge di sini karena input dan result disimpan terpisah
     const reportPayload = {
       results,
       resultsDo,
@@ -191,7 +186,6 @@ export function useReport(projectType) {
       cover,
       condition,
       poleConfig,
-      // Merge input + result, hanya dimasukkan jika step-nya enabled
       ...(openingEnabled && {
         calculatedOp: mergeOpening(
           read("openingType", {}),
