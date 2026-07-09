@@ -40,24 +40,24 @@ export const ConfirmSaveDraftModal = ({
         </p>
 
         {/* Actions */}
-        <div className="flex gap-2 sm:gap-3">
-          {/* Cancel => stays on the page, no changes */}
-          <button
-            onClick={onClose}
-            className="flex-1 py-2 sm:py-3 font-bold text-xs sm:text-sm bg-slate-100 text-slate-600 rounded-md sm:rounded-lg hover:bg-slate-200 transition"
-          >
-            Cancel
-          </button>
-
+        <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 w-full">
           {/* Discard => leaves without saving */}
           <button
             onClick={() => {
               onDiscard();
               onClose();
             }}
-            className="flex-1 py-2 sm:py-3 font-bold text-xs sm:text-sm bg-red-500 text-white rounded-md sm:rounded-lg hover:bg-red-600 transition"
+            className="flex-1 py-2.5 sm:py-3 font-bold text-xs sm:text-sm bg-red-50 text-red-600 border border-red-200 rounded-md sm:rounded-lg hover:bg-red-100 hover:border-red-300 transition-colors"
           >
             Discard
+          </button>
+
+          {/* Cancel => stays on the page, no changes */}
+          <button
+            onClick={onClose}
+            className="flex-1 py-2.5 sm:py-3 font-bold text-xs sm:text-sm bg-slate-100 text-slate-600 rounded-md sm:rounded-lg hover:bg-slate-200 transition-colors"
+          >
+            Cancel
           </button>
 
           {/* Save Draft => saves then leaves */}
@@ -66,7 +66,7 @@ export const ConfirmSaveDraftModal = ({
               onSaveDraft();
               onClose();
             }}
-            className="flex-1 py-2 sm:py-3 font-bold text-xs sm:text-sm bg-green-600 text-white rounded-md sm:rounded-lg hover:bg-green-700 transition"
+            className="flex-1 py-2.5 sm:py-3 font-bold text-xs sm:text-sm bg-[#0d3b66] text-white rounded-md sm:rounded-lg hover:bg-[#154c80] transition-colors"
           >
             Save Draft
           </button>

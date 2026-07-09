@@ -105,7 +105,9 @@ export const clearCalculationSession = (projectType) => {
 
 export const getDraftsIndex = (projectType) => {
   const raw = localStorage.getItem(`${projectType}_drafts_index`);
-  return raw ? JSON.parse(raw) : [];
+  if (!raw) return [];
+  const drafts = JSON.parse(raw);
+  return drafts.sort((a, b) => new Date(b.lastEdited) - new Date(a.lastEdited));
 };
 
 export const saveDraftsIndex = (projectType, drafts) => {

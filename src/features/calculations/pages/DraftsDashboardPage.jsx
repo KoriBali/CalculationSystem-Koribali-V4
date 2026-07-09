@@ -123,7 +123,7 @@ export default function DraftsDashboardPage() {
         <div className="w-full">
           {drafts.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full min-h-[300px] text-center max-w-sm mx-auto">
-              <div className="w-24 h-24 bg-gradient-to-br from-[#f0f4f8] to-[#e6eef5] rounded-full flex items-center justify-center mb-6 shadow-sm ring-8 ring-white">
+              <div className="w-24 h-24 bg-gradient-to-br from-[#f0f4f8] to-[#e6eef5] rounded-full flex items-center justify-center mb-6 shadow-sm">
                 <FileEdit className="w-10 h-10 text-[#254b73]" strokeWidth={1.5} />
               </div>
               <h3 className="text-lg font-semibold text-slate-800 mb-2">No drafts found</h3>
@@ -192,7 +192,11 @@ export default function DraftsDashboardPage() {
         open={!!draftToDelete}
         onClose={() => setDraftToDelete(null)}
         onConfirm={confirmDelete}
-        itemName="Draft"
+        itemName={
+          draftToDelete 
+            ? `Draft "${drafts.find(d => d.id === draftToDelete)?.title || 'Untitled'}"`
+            : "Draft"
+        }
       />
     </div>
   );

@@ -1,5 +1,5 @@
 import { Helmet } from "react-helmet";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { ChevronDown, ChevronUp, Box } from "lucide-react";
 
 import { HeaderCalculationPage } from "../../layout/HeaderCalculationPage";
@@ -15,9 +15,11 @@ import { useReport } from "../../../../report/hooks/useReport";
 
 // Main view component for baseplate calculation form
 export default function BaseplateFormView() {
-  const { type: projectType } = useParams();
+  const { type: projectType, draftId } = useParams();
 
-  // ================= BASEPLATE FORM HOOK =================
+  
+  const navigate = useNavigate();
+// ================= BASEPLATE FORM HOOK =================
   const {
     // State
     baseplateType,
@@ -55,10 +57,19 @@ export default function BaseplateFormView() {
   const handleNextStep = () => {
     const result = handleFinish();
     if (result === "OPEN_COVER") {
-      makeReport({
-        isCalculated,
-        showToast,
-      });
+      const cover = (() => {
+        try {
+          return JSON.parse(localStorage.getItem(`${projectType}_cover`) || "{}");
+        } catch {
+          return {};
+        }
+      })();
+      if (cover.withReport) {
+        makeReport({ isCalculated, showToast });
+      } else {
+        showToast("Calculation Saved!");
+        navigate(`/calculation/${projectType}/${draftId}`);
+      }
     }
   };
 

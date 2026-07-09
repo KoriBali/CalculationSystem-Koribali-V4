@@ -25,6 +25,18 @@ export function useFoundationForm() {
 
   const condition = getCondition();
 
+  // Read cover from localStorage
+  const cover = (() => {
+    try {
+      return JSON.parse(
+        localStorage.getItem(`${projectType}_cover`) || "{}"
+      ) || {};
+    } catch {
+      return {};
+    }
+  })();
+
+
   // ================= STATE =================
 
   // Foundation type state (square caisson / round caisson)
@@ -106,6 +118,7 @@ export function useFoundationForm() {
   const { buttonLabel, nextStep, isLast } = Utils.getStepNavigation(
     condition,
     "foundation",
+    cover.withReport
   );
 
   // ================= HANDLERS =================

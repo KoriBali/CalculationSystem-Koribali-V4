@@ -19,7 +19,11 @@ export default function ProjectIdentityPage() {
   const handleFinishCover = async () => {
     const isValid = await coverForm.validate();
     if (isValid) {
-      setShowNextStepModal(true);
+      if (coverForm.coverData.withDrawing) {
+        setShowNextStepModal(true);
+      } else {
+        navigate(`/calculation/${projectType}/${draftId}/initial`);
+      }
     } else {
       setToast({
         message: "Please fill all required project information fields.",

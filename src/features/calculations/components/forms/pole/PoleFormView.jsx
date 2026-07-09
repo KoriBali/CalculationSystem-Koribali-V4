@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Helmet } from "react-helmet";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   Plus,
   CheckCircle,
@@ -44,9 +44,11 @@ import { useReport } from "../../../../report/hooks/useReport";
 // ─── COMPONENT ───────────────────────────────────────────────────────────────
 
 export default function PoleFormView() {
-  const { type: projectType } = useParams();
+  const { type: projectType, draftId } = useParams();
 
-  // Read condition from localStorage
+  
+  const navigate = useNavigate();
+// Read condition from localStorage
   const condition = (() => {
     try {
       return JSON.parse(

@@ -11,7 +11,7 @@ export function getStepFlow(condition) {
   return steps;
 }
 
-export function getStepNavigation(condition, currentStep) {
+export function getStepNavigation(condition, currentStep, withReport = false) {
   const steps = getStepFlow(condition);
 
   const currentIndex = steps.indexOf(currentStep);
@@ -24,6 +24,6 @@ export function getStepNavigation(condition, currentStep) {
     currentIndex,
     isLast,
     nextStep,
-    buttonLabel: isLast ? "Finish" : "Next Input",
+    buttonLabel: isLast ? (withReport ? "Generate Report" : "Save & Finish") : "Next Input",
   };
 }

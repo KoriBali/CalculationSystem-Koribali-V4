@@ -31,6 +31,18 @@ export function useOpeningForm() {
     }
   })();
 
+  // Read cover from localStorage
+  const cover = (() => {
+    try {
+      return JSON.parse(
+        localStorage.getItem(`${projectType}_cover`) || "{}"
+      ) || {};
+    } catch {
+      return {};
+    }
+  })();
+
+
   // ── Persisted state ──
 
   // Opening type selection (box / r)
@@ -87,6 +99,7 @@ export function useOpeningForm() {
   const { buttonLabel, nextStep, isLast } = Utils.getStepNavigation(
     condition,
     "opening",
+    cover.withReport
   );
 
   // ── Helpers ──

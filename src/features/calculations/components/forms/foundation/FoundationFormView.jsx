@@ -1,5 +1,5 @@
 import { Helmet } from "react-helmet";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { ChevronDown, ChevronUp, Box } from "lucide-react";
 
 import { HeaderCalculationPage } from "../../layout/HeaderCalculationPage";
@@ -14,9 +14,11 @@ import { useReport } from "../../../../report/hooks/useReport";
 
 // Main view component for foundation calculation form
 export default function FoundationFormView() {
-  const { type: projectType } = useParams();
+  const { type: projectType, draftId } = useParams();
 
-  // ================= FOUNDATION FORM HOOK =================
+  
+  const navigate = useNavigate();
+// ================= FOUNDATION FORM HOOK =================
   const {
     // State
     foundationType,
@@ -56,10 +58,19 @@ export default function FoundationFormView() {
   const handleNextStep = () => {
     const result = handleFinish();
     if (result === "OPEN_COVER") {
-      makeReport({
-        isCalculated,
-        showToast,
-      });
+      const cover = (() => {
+        try {
+          return JSON.parse(localStorage.getItem(`${projectType}_cover`) || "{}");
+        } catch {
+          return {};
+        }
+      })();
+      if (cover.withReport) {
+        makeReport({ isCalculated, showToast });
+      } else {
+        showToast("Calculation Saved!");
+        navigate(`/calculation/${projectType}/${draftId}`);
+      }
     }
   };
 

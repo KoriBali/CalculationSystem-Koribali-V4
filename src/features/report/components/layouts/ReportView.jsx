@@ -56,7 +56,17 @@ export function ReportView() {
   // ── Handlers ──
 
   const onBackCalculation = () => {
-    navigate(projectType ? `/calculation/${projectType}` : "/calculation");
+    if (!projectType) {
+      navigate("/calculation");
+      return;
+    }
+    
+    const activeDraftId = localStorage.getItem(`${projectType}_active_draft_id`);
+    if (activeDraftId) {
+      navigate(`/calculation/${projectType}/${activeDraftId}`);
+    } else {
+      navigate(`/calculation/${projectType}`);
+    }
   };
 
   // Rename PDF filename via document.title (common browser workaround)

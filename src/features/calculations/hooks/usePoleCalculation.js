@@ -32,6 +32,17 @@ export function usePoleCalculation({
     }
   })();
 
+  // Read cover from localStorage
+  const cover = (() => {
+    try {
+      return JSON.parse(
+        localStorage.getItem(`${projectType}_cover`) || "{}"
+      ) || {};
+    } catch {
+      return {};
+    }
+  })();
+
   // ── Persisted results ──
   const [results, setResults] = useProjectStorage(projectType, "results", []);
   const [resultsDo, setResultsDo] = useProjectStorage(
@@ -66,6 +77,7 @@ export function usePoleCalculation({
   const { buttonLabel, nextStep, isLast } = Utils.getStepNavigation(
     condition,
     "pole",
+    cover.withReport
   );
 
   // ── Resets all error states across all sub-forms ──
@@ -220,13 +232,7 @@ export function usePoleCalculation({
     }
 
     // results sudah merged (input + kalkulasi), langsung dipakai untuk report
-    const cover = (() => {
-      try {
-        return JSON.parse(localStorage.getItem(`${projectType}_cover`) || "{}");
-      } catch {
-        return {};
-      }
-    })();
+
 
     const reportPayload = {
       results,

@@ -5,11 +5,17 @@ import {
   TowerControl,
   DoorOpen,
   Layers,
+  Save,
+  ChevronDown,
+  FileText,
+  Database,
 } from "lucide-react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 
 import { DraftActionModal } from "../modals/DraftActionModal";
 import { ConfirmResetAllModal } from "../modals/ConfirmResetAllModal";
+import { ConfirmSaveDatabaseModal } from "../modals/ConfirmSaveDatabaseModal";
+import { ToastModal } from "../modals/ToastModal";
 import { BaseplateIcon } from "../../../../assets/icon";
 import { clearCalculationSession, hasCalculationData } from "../../utils";
 import { saveWorkingSessionToDraft, clearActiveDraftId, hasDraftChanged } from "../../utils/coreLogic";
@@ -22,10 +28,35 @@ export function HeaderCalculationPage() {
   const { type, draftId } = useParams();
 
   const [showDraftModal, setShowDraftModal] = useState(false);
+  const [showSaveDropdown, setShowSaveDropdown] = useState(false);
   const [confirmResetAll, setConfirmResetAll] = useState(false);
+  const [showDbModal, setShowDbModal] = useState(false);
+  const [toast, setToast] = useState(null);
 
   const raw = localStorage.getItem(`${type}_calculation_config`);
   const config = raw ? JSON.parse(raw) : null;
+
+  const isProjectComplete = () => {
+    if (!config) return false;
+    
+    const hasArrayData = (key) => {
+      const val = localStorage.getItem(`${type}_${key}`);
+      if (!val) return false;
+      try {
+        const arr = JSON.parse(val);
+        return Array.isArray(arr) && arr.length > 0;
+      } catch {
+        return false;
+      }
+    };
+
+    const hasPole = config.pole ? hasArrayData("results") : true;
+    const hasOpening = config.opening ? localStorage.getItem(`${type}_calculatedOp`) === "true" : true;
+    const hasBaseplate = config.baseplate ? localStorage.getItem(`${type}_calculatedBaseplate`) === "true" : true;
+    const hasFoundation = config.foundation ? localStorage.getItem(`${type}_calculatedFoundation`) === "true" : true;
+
+    return hasPole && hasOpening && hasBaseplate && hasFoundation;
+  };
 
   const navItems = [
     {
@@ -87,12 +118,31 @@ export function HeaderCalculationPage() {
       navigate(`/calculation/${type}/${draftId}`);
     }
   };
-  const handleSaveDraft = () => {
+  const handleSaveAndLeave = () => {
     saveWorkingSessionToDraft(type, draftId);
     clearCalculationSession(type);
     clearActiveDraftId(type);
     navigate(`/calculation/${type}`);
   };
+  const handleQuickSave = () => {
+    saveWorkingSessionToDraft(type, draftId);
+    setToast({ message: "Draft successfully saved!", type: "success" });
+  };
+  
+  const handleSaveToDatabaseClick = () => {
+    setShowSaveDropdown(false);
+    if (!isProjectComplete()) {
+      setToast({ message: "Please complete all calculation steps first.", type: "error" });
+    } else {
+      setShowDbModal(true);
+    }
+  };
+
+  const handleConfirmSaveDb = () => {
+    // Database save logic will go here
+    setToast({ message: "Project successfully saved to database!", type: "success" });
+  };
+
   const handleDiscard = () => {
     clearCalculationSession(type);
     clearActiveDraftId(type);
@@ -121,6 +171,46 @@ export function HeaderCalculationPage() {
               {isProjectIdentityPage ? "Back to Drafts" : "Back to Project Setup"}
             </span>
           </button>
+          <div className="relative">
+            <button
+              onClick={() => setShowSaveDropdown(!showSaveDropdown)}
+              className="flex items-center gap-1 sm:gap-2 px-3 py-2 sm:px-4 bg-white/10 hover:bg-white/20 active:bg-white/25 border border-white/20 text-white rounded-lg hp:rounded-md text-xs sm:text-sm font-medium transition"
+            >
+              <Save className="w-4 h-4 shrink-0" />
+              <span className="hidden sm:inline">Save Project</span>
+              <span className="sm:hidden">Save</span>
+              <ChevronDown className="w-4 h-4 shrink-0" />
+            </button>
+            {showSaveDropdown && (
+              <>
+                <div 
+                  className="fixed inset-0 z-40" 
+                  onClick={() => setShowSaveDropdown(false)}
+                />
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-slate-200 overflow-hidden z-50">
+                  <button
+                    onClick={() => {
+                      handleQuickSave();
+                      setShowSaveDropdown(false);
+                      // Optional: Alert or toast could be added here
+                    }}
+                    className="flex items-center w-full px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 transition border-b border-slate-100"
+                  >
+                    <FileText className="w-4 h-4 mr-2 text-slate-400" />
+                    Save as Draft
+                  </button>
+                  <button
+                    onClick={handleSaveToDatabaseClick}
+                    className="flex items-center w-full px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 transition"
+                  >
+                    <Database className="w-4 h-4 mr-2 text-slate-400" />
+                    Save to Database
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+
         </div>
       </div>
 
@@ -164,7 +254,7 @@ export function HeaderCalculationPage() {
       <DraftActionModal
         open={showDraftModal}
         onClose={() => setShowDraftModal(false)}
-        onSave={handleSaveDraft}
+        onSave={handleSaveAndLeave}
         onDiscard={handleDiscard}
       />
 
@@ -173,6 +263,14 @@ export function HeaderCalculationPage() {
         onClose={() => setConfirmResetAll(false)}
         onReset={handleResetAll}
       />
+
+      <ConfirmSaveDatabaseModal
+        open={showDbModal}
+        onClose={() => setShowDbModal(false)}
+        onConfirm={handleConfirmSaveDb}
+      />
+
+      <ToastModal toast={toast} onClose={() => setToast(null)} />
     </div>
   );
 }

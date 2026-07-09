@@ -25,6 +25,18 @@ export function useBaseplateForm() {
 
   const condition = getCondition();
 
+  // Read cover from localStorage
+  const cover = (() => {
+    try {
+      return JSON.parse(
+        localStorage.getItem(`${projectType}_cover`) || "{}"
+      ) || {};
+    } catch {
+      return {};
+    }
+  })();
+
+
   // ================= STATE =================
 
   // Baseplate type state (4 rib / 8 rib)
@@ -119,6 +131,7 @@ export function useBaseplateForm() {
   const { buttonLabel, nextStep, isLast } = Utils.getStepNavigation(
     condition,
     "baseplate",
+    cover.withReport
   );
 
   // ================= HANDLERS =================

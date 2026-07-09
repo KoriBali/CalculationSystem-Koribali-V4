@@ -1,5 +1,5 @@
 import { Helmet } from "react-helmet";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { ChevronDown, ChevronUp, Box } from "lucide-react";
 
 import { HeaderCalculationPage } from "../../layout/HeaderCalculationPage";
@@ -13,20 +13,31 @@ import { useReport } from "../../../../report/hooks/useReport";
 
 // Main view for the opening calculation step
 export default function OpeningFormView() {
-  const { type: projectType } = useParams();
+  const { type: projectType, draftId } = useParams();
 
-  // ── Hooks ──
+  
+  const navigate = useNavigate();
+// ── Hooks ──
   const opening = useOpeningForm();
   const { makeReport } = useReport(projectType);
 
   // Opens cover modal if this is the last step, otherwise navigates to next
   const handleNextStep = () => {
-    const result = opening.finish();
+    const result = finish();
     if (result === "OPEN_COVER") {
-      makeReport({
-        isCalculated: opening.isCalculated,
-        showToast: opening.showToast,
-      });
+      const cover = (() => {
+        try {
+          return JSON.parse(localStorage.getItem(`${projectType}_cover`) || "{}");
+        } catch {
+          return {};
+        }
+      })();
+      if (cover.withReport) {
+        makeReport({ isCalculated, showToast });
+      } else {
+        showToast("Calculation Saved!");
+        navigate(`/calculation/${projectType}/${draftId}`);
+      }
     }
   };
 

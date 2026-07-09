@@ -28,20 +28,20 @@ export function DraftActionModal({ open, onClose, onSave, onDiscard }) {
 
           {/* Actions */}
           <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 w-full">
-            {/* Cancel */}
-            <button
-              onClick={onClose}
-              className="flex-1 py-2.5 sm:py-3 font-bold text-xs sm:text-sm bg-slate-100 text-slate-600 rounded-md sm:rounded-lg hover:bg-slate-200 transition-colors"
-            >
-              Cancel
-            </button>
-
             {/* Don't Save */}
             <button
               onClick={onDiscard}
               className="flex-1 py-2.5 sm:py-3 font-bold text-xs sm:text-sm bg-red-50 text-red-600 border border-red-200 rounded-md sm:rounded-lg hover:bg-red-100 hover:border-red-300 transition-colors"
             >
               Don't Save
+            </button>
+
+            {/* Cancel */}
+            <button
+              onClick={onClose}
+              className="flex-1 py-2.5 sm:py-3 font-bold text-xs sm:text-sm bg-slate-100 text-slate-600 rounded-md sm:rounded-lg hover:bg-slate-200 transition-colors"
+            >
+              Cancel
             </button>
 
             {/* Save */}
