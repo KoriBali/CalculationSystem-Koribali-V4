@@ -7,7 +7,7 @@ import {
   Layers,
   Save,
   ChevronDown,
-  FileText,
+  FileEdit,
   Database,
 } from "lucide-react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
@@ -196,7 +196,7 @@ export function HeaderCalculationPage() {
                     }}
                     className="flex items-center w-full px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 transition border-b border-slate-100"
                   >
-                    <FileText className="w-4 h-4 mr-2 text-slate-400" />
+                    <FileEdit className="w-4 h-4 mr-2 text-slate-400" />
                     Save as Draft
                   </button>
                   <button

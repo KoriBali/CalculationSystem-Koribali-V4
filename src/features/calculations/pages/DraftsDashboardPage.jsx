@@ -25,13 +25,13 @@ export default function DraftsDashboardPage() {
   const navigate = useNavigate();
   const [drafts, setDrafts] = useState([]);
   const [draftToDelete, setDraftToDelete] = useState(null);
-  
+
   // Format the project type name for display
   const formattedType = type
     ? type
-        .split("-")
-        .map((w) => w[0].toUpperCase() + w.slice(1))
-        .join(" ")
+      .split("-")
+      .map((w) => w[0].toUpperCase() + w.slice(1))
+      .join(" ")
     : "Project";
 
   useEffect(() => {
@@ -68,6 +68,16 @@ export default function DraftsDashboardPage() {
     if (!isoString) return "Unknown date";
     const d = new Date(isoString);
     if (isNaN(d.getTime())) return "Unknown date";
+
+    const now = new Date();
+    const isToday = d.getDate() === now.getDate() &&
+      d.getMonth() === now.getMonth() &&
+      d.getFullYear() === now.getFullYear();
+
+    if (isToday) {
+      return `Today, ${d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}`;
+    }
+
     return d.toLocaleDateString("en-GB", {
       day: "2-digit",
       month: "short",
@@ -81,9 +91,9 @@ export default function DraftsDashboardPage() {
         <title>{formattedType} Drafts - KORI BALI</title>
       </Helmet>
 
-      {/* Hybrid Layout: No white header block, just max-w container ensuring perfect alignment */}
-      <div className="w-full max-w-[1400px] mx-auto py-4 sm:py-6 lg:py-8 px-4 sm:px-6 lg:px-8">
-        
+      {/* Hybrid Layout: No white header block, matching spacing with Project Setup */}
+      <div className="mx-6 2040:mx-[250px] hp:mx-2 py-4 sm:py-6 lg:py-8">
+
         {/* Back button */}
         <button
           onClick={() => navigate("/calculation")}
@@ -108,10 +118,9 @@ export default function DraftsDashboardPage() {
             onClick={handleCreateNew}
             disabled={drafts.length >= 6}
             className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-all shadow-sm
-              ${
-                drafts.length >= 6
-                  ? "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200"
-                  : "bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] text-white hover:brightness-110"
+              ${drafts.length >= 6
+                ? "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200"
+                : "bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] text-white hover:brightness-110"
               }`}
           >
             <Plus className="w-4.5 h-4.5" />
@@ -120,7 +129,7 @@ export default function DraftsDashboardPage() {
         </div>
 
         {/* Drafts Grid (Old styles) */}
-        <div className="w-full">
+        <div className="w-full pt-4">
           {drafts.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full min-h-[300px] text-center max-w-sm mx-auto">
               <div className="w-24 h-24 bg-gradient-to-br from-[#f0f4f8] to-[#e6eef5] rounded-full flex items-center justify-center mb-6 shadow-sm">
@@ -193,7 +202,7 @@ export default function DraftsDashboardPage() {
         onClose={() => setDraftToDelete(null)}
         onConfirm={confirmDelete}
         itemName={
-          draftToDelete 
+          draftToDelete
             ? `Draft "${drafts.find(d => d.id === draftToDelete)?.title || 'Untitled'}"`
             : "Draft"
         }

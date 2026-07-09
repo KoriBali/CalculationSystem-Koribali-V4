@@ -47,7 +47,7 @@ export default function ProjectSelectPage() {
 
   return (
     <div className="min-h-screen bg-slate-50/50">
-      <div className="w-full max-w-[1400px] mx-auto py-4 sm:py-6 lg:py-8 px-4 sm:px-6 lg:px-8">
+      <div className="mx-6 2040:mx-[250px] hp:mx-2 py-4 sm:py-6 lg:py-8">
         {/* ── Page header ── */}
         <motion.div
           {...HEADER_ANIMATION}
