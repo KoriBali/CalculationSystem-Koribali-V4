@@ -1,4 +1,4 @@
-import { RotateCcw, ChevronRight, PenTool, FileText } from "lucide-react";
+import { RotateCcw, ChevronRight, PenTool, LayoutDashboard, Blocks, CheckCircle, Circle } from "lucide-react";
 
 /**
  * HELPER COMPONENTS & FUNCTIONS
@@ -54,7 +54,7 @@ const EMPTY_COVER = {
   coverTopText: "",
   coverBottomText: "",
   date: "",
-  withDrawing: false,
+  projectMode: "calculation",
   withReport: false,
 };
 
@@ -164,20 +164,26 @@ export function CoverForm({ coverData, onUpdate, onFinish, errors }) {
 
           {/* New Section for Document Options */}
           <div>
-            <SectionTitle>Document Options</SectionTitle>
+            <SectionTitle>Project Mode</SectionTitle>
             <SectionCard>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <ToggleCard
-                  label="Include Drawing"
-                  icon={<PenTool size={16} />}
-                  enabled={coverData.withDrawing}
-                  onToggle={() => onUpdate({ withDrawing: !coverData.withDrawing })}
+              <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
+                <RadioCard
+                  label="Calculation Only"
+                  icon={<LayoutDashboard size={16} />}
+                  selected={coverData.projectMode === "calculation"}
+                  onSelect={() => onUpdate({ projectMode: "calculation" })}
                 />
-                <ToggleCard
-                  label="Include Report"
-                  icon={<FileText size={16} />}
-                  enabled={coverData.withReport}
-                  onToggle={() => onUpdate({ withReport: !coverData.withReport })}
+                <RadioCard
+                  label="Drawing Only"
+                  icon={<PenTool size={16} />}
+                  selected={coverData.projectMode === "drawing"}
+                  onSelect={() => onUpdate({ projectMode: "drawing" })}
+                />
+                <RadioCard
+                  label="Calculation & Drawing"
+                  icon={<Blocks size={16} />}
+                  selected={coverData.projectMode === "both"}
+                  onSelect={() => onUpdate({ projectMode: "both" })}
                 />
               </div>
             </SectionCard>
@@ -206,7 +212,11 @@ export function CoverForm({ coverData, onUpdate, onFinish, errors }) {
             className="flex justify-center items-center gap-2 px-5 py-2.5 md:px-6 
             rounded-lg hp:rounded-md font-medium bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white text-xs md:text-sm hover:brightness-110 shadow-sm transition-all"
           >
-            {coverData.withDrawing ? "Next Step" : "Go to Calculation"}
+            {coverData.projectMode === "drawing"
+              ? "Go to Drawing"
+              : coverData.projectMode === "calculation"
+              ? "Go to Calculation"
+              : "Next Step"}
             <ChevronRight className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
           </button>
         </div>
@@ -217,47 +227,44 @@ export function CoverForm({ coverData, onUpdate, onFinish, errors }) {
 
 // ─── SUB-COMPONENT ───────────────────────────────────────────────────────────
 
-// Reusable toggle card for boolean selections
-function ToggleCard({ label, icon, enabled, onToggle }) {
+// Reusable radio card for mutually exclusive selections
+function RadioCard({ label, icon, selected, onSelect }) {
   return (
-    <div
-      onClick={onToggle}
-      className={`cursor-pointer relative overflow-hidden rounded-lg hp:rounded-md border-2 p-3 md:p-5 transition-all duration-300
+    <button
+      type="button"
+      onClick={onSelect}
+      className={`group w-full text-left relative overflow-hidden rounded-lg hp:rounded-md border-2 p-3 md:p-5 transition-all duration-300 cursor-pointer active:scale-[0.98]
         ${
-          enabled
-            ? "border-blue-500 bg-white shadow-sm ring-1 ring-blue-50"
-            : "border-slate-100 bg-slate-50/50 hover:border-slate-300 hover:bg-slate-50"
+          selected
+            ? "border-blue-500 bg-blue-50 shadow-sm ring-1 ring-blue-50"
+            : "border-slate-100 bg-slate-50/50 hover:border-slate-300 hover:bg-slate-50 hover:shadow-sm"
         }`}
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           {/* Icon */}
           <div
-            className={`p-2 rounded-lg hp:rounded-md ${enabled ? "bg-blue-100 text-blue-600" : "bg-slate-200 text-slate-500"}`}
+            className={`p-2 rounded-lg hp:rounded-md transition-colors ${selected ? "bg-blue-100 text-blue-600" : "bg-slate-200 text-slate-500 group-hover:bg-slate-300 group-hover:text-slate-600"}`}
           >
             {icon}
           </div>
           {/* Label */}
           <p
-            className={`text-[12px] md:text-sm font-medium ${enabled ? "text-slate-900" : "text-slate-500"}`}
+            className={`text-[12px] md:text-sm font-medium ${selected ? "text-slate-900" : "text-slate-500 group-hover:text-slate-700"}`}
           >
             {label}
           </p>
         </div>
 
-        {/* Toggle switch */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onToggle();
-          }}
-          className={`relative inline-flex h-5 w-10 md:h-6 md:w-11 items-center rounded-full ${enabled ? "bg-blue-500" : "bg-slate-300"}`}
-        >
-          <span
-            className={`inline-block h-2.5 w-2.5 md:h-4 md:w-4 transform rounded-full bg-white transition ${enabled ? "translate-x-6" : "translate-x-1"}`}
-          />
-        </button>
+        {/* Radio Indicator */}
+        <div className="shrink-0 ml-2">
+          {selected ? (
+            <CheckCircle className="w-5 h-5 text-blue-500" />
+          ) : (
+            <Circle className="w-5 h-5 text-slate-300 group-hover:text-slate-400" />
+          )}
+        </div>
       </div>
-    </div>
+    </button>
   );
 }

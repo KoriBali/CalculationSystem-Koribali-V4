@@ -9,9 +9,14 @@ import { EightRibTypeForm } from "./EightRibTypeForm";
 import { BaseplateResultTable } from "../../tables/baseplate-result/BaseplateResultTable";
 
 import { ToastModal } from "../../modals/ToastModal";
+import { FinishCalculationModal } from "../../modals/FinishCalculationModal";
+import { ConfirmSaveDatabaseModal } from "../../modals/ConfirmSaveDatabaseModal";
+import { saveWorkingSessionToDraft, clearActiveDraftId } from "../../../utils/coreLogic";
+import { clearCalculationSession } from "../../../utils";
 
 import { useBaseplateForm } from "../../../hooks/useBaseplateForm";
 import { useReport } from "../../../../report/hooks/useReport";
+import { useState } from "react";
 
 // Main view component for baseplate calculation form
 export default function BaseplateFormView() {
@@ -19,6 +24,9 @@ export default function BaseplateFormView() {
 
   
   const navigate = useNavigate();
+  const [showFinishModal, setShowFinishModal] = useState(false);
+  const [showDbModal, setShowDbModal] = useState(false);
+
 // ================= BASEPLATE FORM HOOK =================
   const {
     // State
@@ -67,10 +75,32 @@ export default function BaseplateFormView() {
       if (cover.withReport) {
         makeReport({ isCalculated, showToast });
       } else {
-        showToast("Calculation Saved!");
-        navigate(`/calculation/${projectType}/${draftId}`);
+        setShowFinishModal(true);
       }
     }
+  };
+
+  const handleSaveDraft = () => {
+    saveWorkingSessionToDraft(projectType, draftId);
+    showToast("Draft successfully saved!", "success");
+    setShowFinishModal(false);
+    clearCalculationSession(projectType);
+    clearActiveDraftId(projectType);
+    navigate(`/calculation/${projectType}`);
+  };
+
+  const handleSaveDatabaseClick = () => {
+    setShowFinishModal(false);
+    setShowDbModal(true);
+  };
+
+  const handleConfirmSaveDb = () => {
+    // Database save logic will go here
+    showToast("Project successfully saved to database!", "success");
+    setShowDbModal(false);
+    clearCalculationSession(projectType);
+    clearActiveDraftId(projectType);
+    navigate(`/calculation/${projectType}`);
   };
 
   return (
@@ -253,7 +283,18 @@ export default function BaseplateFormView() {
 
 
 
-      {/* ================= TOAST ================= */}
+      {/* ================= MODALS ================= */}
+      <FinishCalculationModal
+        open={showFinishModal}
+        onClose={() => setShowFinishModal(false)}
+        onSaveDraft={handleSaveDraft}
+        onSaveDatabase={handleSaveDatabaseClick}
+      />
+      <ConfirmSaveDatabaseModal
+        open={showDbModal}
+        onClose={() => setShowDbModal(false)}
+        onConfirm={handleConfirmSaveDb}
+      />
       <ToastModal toast={toast} onClose={() => setToast(null)} />
     </>
   );

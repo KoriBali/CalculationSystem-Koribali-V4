@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useProjectStorage } from "./useProjectStorage";
 import { validateWithYup } from "../utils";
 import { CoverSchema } from "../schemas/cover/CoverSchema";
@@ -13,7 +13,7 @@ const DEFAULT_COVER = {
   coverTopText: "",
   coverBottomText: "",
   date: "",
-  withDrawing: false,
+  projectMode: "calculation",
   withReport: false,
 };
 
@@ -26,6 +26,18 @@ export function useCoverForm(projectType) {
     "cover",
     DEFAULT_COVER,
   );
+
+  // Migrate old drafts that used `withDrawing` to `projectMode`
+  useEffect(() => {
+    if (cover.projectMode === undefined && cover.withDrawing !== undefined) {
+      const migratedMode = cover.withDrawing ? "both" : "calculation";
+      setCover((prev) => ({
+        ...prev,
+        projectMode: migratedMode,
+        withDrawing: undefined,
+      }));
+    }
+  }, [cover.projectMode, cover.withDrawing, setCover]);
 
   const [coverErrors, setCoverErrors] = useState({});
 

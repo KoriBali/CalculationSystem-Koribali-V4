@@ -19,8 +19,11 @@ export default function ProjectIdentityPage() {
   const handleFinishCover = async () => {
     const isValid = await coverForm.validate();
     if (isValid) {
-      if (coverForm.coverData.withDrawing) {
+      const mode = coverForm.coverData.projectMode || "calculation";
+      if (mode === "both") {
         setShowNextStepModal(true);
+      } else if (mode === "drawing") {
+        navigate(`/calculation/${projectType}/${draftId}/drawing`);
       } else {
         navigate(`/calculation/${projectType}/${draftId}/initial`);
       }
@@ -87,7 +90,7 @@ export default function ProjectIdentityPage() {
         <NextStepModal
           isOpen={showNextStepModal}
           onClose={() => setShowNextStepModal(false)}
-          withDrawing={coverForm.coverData.withDrawing}
+          withDrawing={true}
           projectType={projectType}
           draftId={draftId}
         />

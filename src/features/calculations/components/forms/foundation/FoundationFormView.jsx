@@ -8,6 +8,10 @@ import { RoundCaissonTypeForm } from "./RoundCaissonTypeForm";
 import { SquareCaissonTypeForm } from "./SquareCaissonTypeForm";
 import { FoundationResultTable } from "../../tables/foundation-result/FoundationResultTable";
 import { ToastModal } from "../../modals/ToastModal";
+import { FinishCalculationModal } from "../../modals/FinishCalculationModal";
+import { ConfirmSaveDatabaseModal } from "../../modals/ConfirmSaveDatabaseModal";
+import { saveWorkingSessionToDraft, clearActiveDraftId } from "../../../utils/coreLogic";
+import { clearCalculationSession } from "../../../utils";
 
 import { useFoundationForm } from "../../../hooks/useFoundationForm";
 import { useReport } from "../../../../report/hooks/useReport";
@@ -15,7 +19,8 @@ import { useReport } from "../../../../report/hooks/useReport";
 // Main view component for foundation calculation form
 export default function FoundationFormView() {
   const { type: projectType, draftId } = useParams();
-
+  const [showFinishModal, setShowFinishModal] = useState(false);
+  const [showDbModal, setShowDbModal] = useState(false);
   
   const navigate = useNavigate();
 // ================= FOUNDATION FORM HOOK =================
@@ -68,10 +73,32 @@ export default function FoundationFormView() {
       if (cover.withReport) {
         makeReport({ isCalculated, showToast });
       } else {
-        showToast("Calculation Saved!");
-        navigate(`/calculation/${projectType}/${draftId}`);
+        setShowFinishModal(true);
       }
     }
+  };
+
+  const handleSaveDraft = () => {
+    saveWorkingSessionToDraft(projectType, draftId);
+    showToast("Draft successfully saved!", "success");
+    setShowFinishModal(false);
+    clearCalculationSession(projectType);
+    clearActiveDraftId(projectType);
+    navigate(`/calculation/${projectType}`);
+  };
+
+  const handleSaveDatabaseClick = () => {
+    setShowFinishModal(false);
+    setShowDbModal(true);
+  };
+
+  const handleConfirmSaveDb = () => {
+    // Database save logic will go here
+    showToast("Project successfully saved to database!", "success");
+    setShowDbModal(false);
+    clearCalculationSession(projectType);
+    clearActiveDraftId(projectType);
+    navigate(`/calculation/${projectType}`);
   };
 
   return (
@@ -255,7 +282,18 @@ export default function FoundationFormView() {
 
 
 
-      {/* ================= TOAST ================= */}
+      {/* ================= MODALS ================= */}
+      <FinishCalculationModal
+        open={showFinishModal}
+        onClose={() => setShowFinishModal(false)}
+        onSaveDraft={handleSaveDraft}
+        onSaveDatabase={handleSaveDatabaseClick}
+      />
+      <ConfirmSaveDatabaseModal
+        open={showDbModal}
+        onClose={() => setShowDbModal(false)}
+        onConfirm={handleConfirmSaveDb}
+      />
       <ToastModal toast={toast} onClose={() => setToast(null)} />
     </>
   );

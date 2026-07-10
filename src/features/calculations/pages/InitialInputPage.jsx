@@ -7,10 +7,12 @@ import { ConditionForm } from "../components/forms/initial-setup/ConditionForm";
 import { ConfirmDisableModal } from "../components/modals/ConfirmDisableModal";
 import { ToastModal } from "../components/modals/ToastModal";
 import { useConditionForm } from "../hooks/useConditionFrom";
+import { useCoverForm } from "../hooks/useCoverForm";
 
 export default function InitialInputPage() {
   const { type: projectType } = useParams();
   const [isConditionExpanded, setIsConditionExpanded] = useState(true);
+  const coverForm = useCoverForm(projectType);
 
   const {
     localCondition,
@@ -74,6 +76,12 @@ export default function InitialInputPage() {
                 onUpdate={handleUpdate}
                 onFinish={handleNext}
                 errors={errors}
+                withReport={coverForm.coverData.withReport}
+                onToggleReport={() =>
+                  coverForm.updateCover({
+                    withReport: !coverForm.coverData.withReport,
+                  })
+                }
               />
             </div>
           </div>

@@ -14,7 +14,6 @@ import { useNavigate, useLocation, useParams } from "react-router-dom";
 
 import { DraftActionModal } from "../modals/DraftActionModal";
 import { ConfirmResetAllModal } from "../modals/ConfirmResetAllModal";
-import { ConfirmSaveDatabaseModal } from "../modals/ConfirmSaveDatabaseModal";
 import { ToastModal } from "../modals/ToastModal";
 import { BaseplateIcon } from "../../../../assets/icon";
 import { clearCalculationSession, hasCalculationData } from "../../utils";
@@ -28,10 +27,12 @@ export function HeaderCalculationPage() {
   const { type, draftId } = useParams();
 
   const [showDraftModal, setShowDraftModal] = useState(false);
-  const [showSaveDropdown, setShowSaveDropdown] = useState(false);
   const [confirmResetAll, setConfirmResetAll] = useState(false);
-  const [showDbModal, setShowDbModal] = useState(false);
   const [toast, setToast] = useState(null);
+
+  const rawCover = localStorage.getItem(`${type}_cover`);
+  const cover = rawCover ? JSON.parse(rawCover) : {};
+  const isDrawingOnlyMode = cover.projectMode === "drawing";
 
   const raw = localStorage.getItem(`${type}_calculation_config`);
   const config = raw ? JSON.parse(raw) : null;
@@ -128,20 +129,6 @@ export function HeaderCalculationPage() {
     saveWorkingSessionToDraft(type, draftId);
     setToast({ message: "Draft successfully saved!", type: "success" });
   };
-  
-  const handleSaveToDatabaseClick = () => {
-    setShowSaveDropdown(false);
-    if (!isProjectComplete()) {
-      setToast({ message: "Please complete all calculation steps first.", type: "error" });
-    } else {
-      setShowDbModal(true);
-    }
-  };
-
-  const handleConfirmSaveDb = () => {
-    // Database save logic will go here
-    setToast({ message: "Project successfully saved to database!", type: "success" });
-  };
 
   const handleDiscard = () => {
     clearCalculationSession(type);
@@ -173,49 +160,20 @@ export function HeaderCalculationPage() {
           </button>
           <div className="relative">
             <button
-              onClick={() => setShowSaveDropdown(!showSaveDropdown)}
+              onClick={handleQuickSave}
               className="flex items-center gap-1 sm:gap-2 px-3 py-2 sm:px-4 bg-white/10 hover:bg-white/20 active:bg-white/25 border border-white/20 text-white rounded-lg hp:rounded-md text-xs sm:text-sm font-medium transition"
             >
               <Save className="w-4 h-4 shrink-0" />
-              <span className="hidden sm:inline">Save Project</span>
+              <span className="hidden sm:inline">Save Draft</span>
               <span className="sm:hidden">Save</span>
-              <ChevronDown className="w-4 h-4 shrink-0" />
             </button>
-            {showSaveDropdown && (
-              <>
-                <div 
-                  className="fixed inset-0 z-40" 
-                  onClick={() => setShowSaveDropdown(false)}
-                />
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-slate-200 overflow-hidden z-50">
-                  <button
-                    onClick={() => {
-                      handleQuickSave();
-                      setShowSaveDropdown(false);
-                      // Optional: Alert or toast could be added here
-                    }}
-                    className="flex items-center w-full px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 transition border-b border-slate-100"
-                  >
-                    <FileEdit className="w-4 h-4 mr-2 text-slate-400" />
-                    Save as Draft
-                  </button>
-                  <button
-                    onClick={handleSaveToDatabaseClick}
-                    className="flex items-center w-full px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 transition"
-                  >
-                    <Database className="w-4 h-4 mr-2 text-slate-400" />
-                    Save to Database
-                  </button>
-                </div>
-              </>
-            )}
           </div>
 
         </div>
       </div>
 
       {/* ── Step navigation (Bottom Bar on Mobile, Sticky on Desktop) ── */}
-      {!isProjectIdentityPage && !isDrawingPage && (
+      {!isProjectIdentityPage && !isDrawingPage && !isDrawingOnlyMode && (
         <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-200 px-2 py-1.5 [@media(max-width:639px)_and_(max-height:600px)]:hidden sm:static sm:pb-2 sm:border-t-0 sm:border-b sm:px-4 sm:py-3 md:px-6 2xl:px-8 shadow-[0_-4px_10px_-1px_rgba(0,0,0,0.1)] sm:shadow-none">
           <div className="flex items-center justify-around sm:justify-start gap-1 sm:gap-2 md:gap-3 overflow-x-auto overflow-y-hidden whitespace-nowrap scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {navItems.map((item) => {
@@ -262,12 +220,6 @@ export function HeaderCalculationPage() {
         open={confirmResetAll}
         onClose={() => setConfirmResetAll(false)}
         onReset={handleResetAll}
-      />
-
-      <ConfirmSaveDatabaseModal
-        open={showDbModal}
-        onClose={() => setShowDbModal(false)}
-        onConfirm={handleConfirmSaveDb}
       />
 
       <ToastModal toast={toast} onClose={() => setToast(null)} />
