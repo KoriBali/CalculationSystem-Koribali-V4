@@ -84,10 +84,19 @@ export function useConditionForm() {
     // 2. Cleanup localStorage for disabled components
     cleanupDisabledComponents(projectType, localCondition);
 
-    // 3. Commit condition to localStorage
+    // 3. Clear pole results if condition changes so they must recalculate
+    if (JSON.stringify(condition) !== JSON.stringify(localCondition)) {
+      localStorage.removeItem(`${projectType}_results`);
+      localStorage.removeItem(`${projectType}_resultsDo`);
+      localStorage.removeItem(`${projectType}_resultsOhw`);
+      localStorage.removeItem(`${projectType}_resultsArm`);
+      localStorage.removeItem(`${projectType}_showResults`);
+    }
+
+    // 4. Commit condition to localStorage
     setCondition(localCondition);
 
-    // 4. Navigate to pole step
+    // 5. Navigate to pole step
     navigate(`/calculation/${projectType}/${draftId}/pole`);
   };
 

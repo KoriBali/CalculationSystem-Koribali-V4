@@ -51,7 +51,7 @@ export function ResultsTableView({
       </div>
 
       {/* ── Pole Result Table ── */}
-      {currentPole && <PoleResultTable results={results} />}
+      {currentPole && <PoleResultTable resultPole={results} />}
 
       {/* ── Direct Object Result Table ── */}
       {currentDo && <DirectObjectResultTable resultsDo={resultsDo} />}
@@ -75,7 +75,7 @@ export function ResultsTableView({
       {hasResults && <div className="border-t border-gray-200 my-8" />}
 
       {/* ── Summary Table ── */}
-      {hasResults && <SummaryResultTable results={results} />}
+      {hasResults && <SummaryResultTable resultPole={results} />}
 
       {/* ── Empty State ── */}
       {!hasResults && (

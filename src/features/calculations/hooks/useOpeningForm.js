@@ -31,11 +31,11 @@ export function useOpeningForm() {
     }
   })();
 
-  // Read cover from localStorage
-  const cover = (() => {
+  // Read workflow flags from localStorage
+  const workflow = (() => {
     try {
       return JSON.parse(
-        localStorage.getItem(`${projectType}_cover`) || "{}"
+        localStorage.getItem(`${projectType}_workflow`) || "{}"
       ) || {};
     } catch {
       return {};
@@ -90,7 +90,7 @@ export function useOpeningForm() {
   const [isOpeningExpanded, setIsOpeningExpanded] = useState(true);
   const [isSelectExpanded, setIsSelectExpanded] = useState(true);
   const [loading, setLoading] = useState(false);
-  const [isCalculated, setIsCalculated] = useState(!!calculatedOp);
+  const isCalculated = !!calculatedOp;
   const [toast, setToast] = useState(null);
 
   // ── Navigation ──
@@ -99,7 +99,7 @@ export function useOpeningForm() {
   const { buttonLabel, nextStep, isLast } = Utils.getStepNavigation(
     condition,
     "opening",
-    cover.withReport
+    workflow.withReport
   );
 
   // ── Helpers ──
@@ -173,7 +173,6 @@ export function useOpeningForm() {
 
       // Persist result alongside its opening type for the result table
       setCalculatedOp({ ...data, openingType });
-      setIsCalculated(true);
       setShowResultsOp(true);
     } catch (err) {
       showToast(err?.message || "Something went wrong");

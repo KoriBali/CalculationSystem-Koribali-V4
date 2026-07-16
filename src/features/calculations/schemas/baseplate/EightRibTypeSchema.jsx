@@ -7,14 +7,22 @@ const numberField = yup
   .required("Required field")
   .min(0, "Must be positive");
 
+const optionalNumberField = yup
+  .number()
+  .transform((_, val) => (val === "" ? undefined : Number(val)))
+  .typeError("Must be a number")
+  .min(0, "Must be positive")
+  .nullable()
+  .optional();
+
 export const EightRibTypeSchema = yup.object({
   bpWidthEW: numberField,
-  bpWidthNS: numberField,
+  bpWidthNS: optionalNumberField,
   anchorPitchEW: numberField,
-  anchorPitchNS: numberField,
+  anchorPitchNS: optionalNumberField,
   anchorDia: numberField,
-  anchorCount: numberField,
-  anchorCountTension: numberField,
+  anchorCount: optionalNumberField,
+  anchorCountTension: optionalNumberField,
   ribAngle: numberField,
   bpThickness: numberField,
   ribHeight: numberField,

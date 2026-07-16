@@ -1,43 +1,33 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useProjectStorage } from "./useProjectStorage";
 import { validateWithYup } from "../utils";
 import { CoverSchema } from "../schemas/cover/CoverSchema";
 
 // ─── CONSTANTS ───────────────────────────────────────────────────────────────
 
-// Default empty cover state
+// Default empty cover state — report-cover fields only (identity and
+// workflow flags live in useProjectIdentityForm / useWorkflowMode).
 const DEFAULT_COVER = {
-  managementCode: "",
-  calculationNumber: "",
-  projectName: "",
-  coverTopText: "",
-  coverBottomText: "",
-  date: "",
-  projectMode: "calculation",
-  withReport: false,
+  reportNumber: "",
+  title1: "",
+  title2: "",
+  title3: "",
+  designRequestManagementNo: "",
+  region: "",
+  author: "",
+  departmentInCharge: "",
 };
 
 // ─── HOOK ────────────────────────────────────────────────────────────────────
 
-// Manages cover form state, validation, and popup visibility
+// Manages report cover form state and validation — used by the Report
+// Cover modal shown at the end of the calculation flow.
 export function useCoverForm(projectType) {
   const [cover, setCover] = useProjectStorage(
     projectType,
     "cover",
     DEFAULT_COVER,
   );
-
-  // Migrate old drafts that used `withDrawing` to `projectMode`
-  useEffect(() => {
-    if (cover.projectMode === undefined && cover.withDrawing !== undefined) {
-      const migratedMode = cover.withDrawing ? "both" : "calculation";
-      setCover((prev) => ({
-        ...prev,
-        projectMode: migratedMode,
-        withDrawing: undefined,
-      }));
-    }
-  }, [cover.projectMode, cover.withDrawing, setCover]);
 
   const [coverErrors, setCoverErrors] = useState({});
 
@@ -52,7 +42,7 @@ export function useCoverForm(projectType) {
     });
   };
 
-  // Validates cover form against CoverSchema — updates error state
+  // Validates cover form against CoverSchema (for final report cover)
   const validate = async () => {
     const result = await validateWithYup(CoverSchema, cover);
     setCoverErrors(result.errors || {});

@@ -3,7 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { HeaderCalculationPage } from "../components/layout/HeaderCalculationPage";
 import { CoverForm } from "../components/forms/cover/CoverForm";
 import { ToastModal } from "../components/modals/ToastModal";
-import { useCoverForm } from "../hooks/useCoverForm";
+import { useProjectIdentityForm } from "../hooks/useProjectIdentityForm";
+import { useWorkflowMode } from "../hooks/useWorkflowMode";
 import { useState } from "react";
 import { ChevronUp, ChevronDown } from "lucide-react";
 import { NextStepModal } from "../components/modals/NextStepModal";
@@ -11,27 +12,31 @@ import { NextStepModal } from "../components/modals/NextStepModal";
 export default function ProjectIdentityPage() {
   const { type: projectType, draftId } = useParams();
   const navigate = useNavigate();
-  const coverForm = useCoverForm(projectType);
+  const identityForm = useProjectIdentityForm(projectType);
+  const workflowForm = useWorkflowMode(projectType);
   const [toast, setToast] = useState(null);
   const [isCoverExpanded, setIsCoverExpanded] = useState(true);
   const [showNextStepModal, setShowNextStepModal] = useState(false);
 
   const handleFinishCover = async () => {
-    const isValid = await coverForm.validate();
-    if (isValid) {
-      const mode = coverForm.coverData.projectMode || "calculation";
-      if (mode === "both") {
-        setShowNextStepModal(true);
-      } else if (mode === "drawing") {
-        navigate(`/calculation/${projectType}/${draftId}/drawing`);
-      } else {
-        navigate(`/calculation/${projectType}/${draftId}/initial`);
-      }
-    } else {
-      setToast({
-        message: "Please fill all required project information fields.",
-      });
+    const isValid = await identityForm.validate();
+    if (!isValid) {
+      setToast({ message: "Please fill all required project information fields.", type: "error" });
+      return;
     }
+
+    const mode = workflowForm.workflowData.projectMode || "calculation";
+    if (mode === "drawing") {
+      navigate(`/calculation/${projectType}/${draftId}/drawing`);
+    } else {
+      // Both 'calculation' and 'both' start at the initial calculation setup
+      navigate(`/calculation/${projectType}/${draftId}/initial`);
+    }
+  };
+
+  const handleReset = () => {
+    identityForm.resetIdentity();
+    workflowForm.resetMode();
   };
 
   return (
@@ -77,23 +82,18 @@ export default function ProjectIdentityPage() {
               }`}
             >
               <CoverForm
-                coverData={coverForm.coverData}
-                onUpdate={coverForm.updateCover}
+                identityData={identityForm.identityData}
+                identityErrors={identityForm.identityErrors}
+                onUpdateIdentity={identityForm.updateIdentity}
+                projectMode={workflowForm.workflowData.projectMode}
+                onSelectMode={(mode) => workflowForm.updateWorkflow({ projectMode: mode })}
+                onReset={handleReset}
                 onFinish={handleFinishCover}
-                errors={coverForm.coverErrors}
               />
             </div>
           </div>
         </div>
         <ToastModal toast={toast} onClose={() => setToast(null)} />
-
-        <NextStepModal
-          isOpen={showNextStepModal}
-          onClose={() => setShowNextStepModal(false)}
-          withDrawing={true}
-          projectType={projectType}
-          draftId={draftId}
-        />
       </div>
     </>
   );

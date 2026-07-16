@@ -50,6 +50,10 @@ export async function executePoleCalculation({
       payload = {
         ...payload,
         poleTypeStandard,
+        poles,
+        directObjects,
+        overheadWires,
+        arms,
       };
 
       if (type === "taper") {

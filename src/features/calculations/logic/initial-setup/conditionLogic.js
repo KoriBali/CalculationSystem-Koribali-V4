@@ -42,23 +42,28 @@ export function saveCalculationConfig(projectType, condition) {
   );
 }
 
-// Cleans up localStorage for components that were disabled
 export function cleanupDisabledComponents(projectType, condition) {
   if (!condition.openingEnabled) {
     localStorage.removeItem(`${projectType}_openingType`);
     localStorage.removeItem(`${projectType}_boxType`);
     localStorage.removeItem(`${projectType}_rType`);
+    localStorage.removeItem(`${projectType}_calculatedOp`);
+    localStorage.removeItem(`${projectType}_showResultsOp`);
   }
 
   if (!condition.baseplateEnabled) {
     localStorage.removeItem(`${projectType}_baseplateType`);
     localStorage.removeItem(`${projectType}_fourRibType`);
     localStorage.removeItem(`${projectType}_eightRibType`);
+    localStorage.removeItem(`${projectType}_calculatedBaseplate`);
+    localStorage.removeItem(`${projectType}_showResultsBaseplate`);
   }
 
   if (!condition.foundationEnabled) {
     localStorage.removeItem(`${projectType}_foundationType`);
     localStorage.removeItem(`${projectType}_squareCaisson`);
     localStorage.removeItem(`${projectType}_roundCaisson`);
+    localStorage.removeItem(`${projectType}_calculatedFoundation`);
+    localStorage.removeItem(`${projectType}_showResultsFoundation`);
   }
 }

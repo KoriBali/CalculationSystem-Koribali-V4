@@ -25,11 +25,11 @@ export function useFoundationForm() {
 
   const condition = getCondition();
 
-  // Read cover from localStorage
-  const cover = (() => {
+  // Read workflow flags from localStorage
+  const workflow = (() => {
     try {
       return JSON.parse(
-        localStorage.getItem(`${projectType}_cover`) || "{}"
+        localStorage.getItem(`${projectType}_workflow`) || "{}"
       ) || {};
     } catch {
       return {};
@@ -103,8 +103,7 @@ export function useFoundationForm() {
 
   // Loading and calculation status
   const [loading, setLoading] = useState(false);
-  // PERBAIKAN: Gunakan !!calculatedFoundation agar sinkron setelah reload
-  const [isCalculated, setIsCalculated] = useState(!!calculatedFoundation);
+  const isCalculated = !!calculatedFoundation;
 
   // Toast notification state
   const [toast, setToast] = useState(null);
@@ -118,7 +117,7 @@ export function useFoundationForm() {
   const { buttonLabel, nextStep, isLast } = Utils.getStepNavigation(
     condition,
     "foundation",
-    cover.withReport
+    workflow.withReport
   );
 
   // ================= HANDLERS =================
@@ -197,7 +196,6 @@ export function useFoundationForm() {
       });
 
       // Update UI state after success
-      setIsCalculated(true);
       setShowResultsFoundation(true);
     } catch (err) {
       // Handle API or unexpected errors

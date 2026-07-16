@@ -132,7 +132,7 @@ export async function validatePoleForm({
   // ── 3. Step Pole Standard (straight standard) ──
   if (isStandard && isStraight) {
     const { isValid, errors } = await validateWithYup(
-      StraightTypeSchema,
+      StraightTypeSchema(condition),
       straightPoleStandard,
     );
 

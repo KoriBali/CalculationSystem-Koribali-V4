@@ -32,11 +32,22 @@ export function usePoleCalculation({
     }
   })();
 
-  // Read cover from localStorage
+  // Read cover from localStorage — used for the report payload in makeReport()
   const cover = (() => {
     try {
       return JSON.parse(
         localStorage.getItem(`${projectType}_cover`) || "{}"
+      ) || {};
+    } catch {
+      return {};
+    }
+  })();
+
+  // Read workflow flags from localStorage
+  const workflow = (() => {
+    try {
+      return JSON.parse(
+        localStorage.getItem(`${projectType}_workflow`) || "{}"
       ) || {};
     } catch {
       return {};
@@ -67,7 +78,7 @@ export function usePoleCalculation({
   );
 
   // ── UI state ──
-  const [isCalculated, setIsCalculated] = useState(!!results?.length);
+  const isCalculated = !!results?.length;
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState(null);
 
@@ -77,7 +88,7 @@ export function usePoleCalculation({
   const { buttonLabel, nextStep, isLast } = Utils.getStepNavigation(
     condition,
     "pole",
-    cover.withReport
+    workflow.withReport
   );
 
   // ── Resets all error states across all sub-forms ──
@@ -196,7 +207,6 @@ export function usePoleCalculation({
       );
       setResultsArm(mergeArms(data.resultsArm, validation.resolvedArms));
       setShowResults(true);
-      setIsCalculated(true);
 
       document
         .getElementById("results-pole")

@@ -5,6 +5,8 @@
 // Keys that represent user-filled data (excludes projectType itself)
 export const DATA_KEYS = [
   "cover",
+  "projectIdentity",
+  "workflow",
   "condition",
   "poleConfig",
   "poles",
@@ -37,6 +39,7 @@ export const DATA_KEYS = [
   "showResultsFoundation",
   "reportSnapshot",
   "calculation_config",
+  "drawing",
 ];
 
 /**
@@ -53,19 +56,19 @@ export const hasCalculationData = (projectType) => {
     return true;
   }
 
-  // Check if cover data has been filled
-  const coverRaw = localStorage.getItem(`${projectType}_cover`);
-  if (coverRaw) {
+  // Check if cover or identity data has been filled
+  const hasNonEmptyStringField = (raw) => {
+    if (!raw) return false;
     try {
-      const cover = JSON.parse(coverRaw);
-      // If any of the cover fields have actual text entered, we have data.
-      if (Object.values(cover).some((val) => typeof val === "string" && val.trim() !== "")) {
-        return true;
-      }
-    } catch (e) {
-      // ignore JSON error
+      const obj = JSON.parse(raw);
+      return Object.values(obj).some((val) => typeof val === "string" && val.trim() !== "");
+    } catch {
+      return false;
     }
-  }
+  };
+
+  if (hasNonEmptyStringField(localStorage.getItem(`${projectType}_cover`))) return true;
+  if (hasNonEmptyStringField(localStorage.getItem(`${projectType}_projectIdentity`))) return true;
 
   // Secondary signal: any computed/result data exists
   const deepKeys = [
@@ -84,6 +87,50 @@ export const hasCalculationData = (projectType) => {
   return deepKeys.some(
     (key) => localStorage.getItem(`${projectType}_${key}`) !== null,
   );
+};
+
+export const isProjectComplete = (projectType) => {
+  const workflowRaw = localStorage.getItem(`${projectType}_workflow`);
+  const workflow = workflowRaw ? JSON.parse(workflowRaw) : {};
+  const mode = workflow.projectMode || "calculation";
+
+  const isCalculationDone = () => {
+    const raw = localStorage.getItem(`${projectType}_calculation_config`);
+    if (!raw) return false;
+    const config = JSON.parse(raw);
+    const hasArrayData = (key) => {
+      const val = localStorage.getItem(`${projectType}_${key}`);
+      return val && val !== "null" && Array.isArray(JSON.parse(val)) && JSON.parse(val).length > 0;
+    };
+    const isValueSet = (key) => {
+      const val = localStorage.getItem(`${projectType}_${key}`);
+      return val !== null && val !== "null";
+    };
+    const hasPole = config.pole ? hasArrayData("results") : true;
+    const hasOpening = config.opening ? isValueSet("calculatedOp") : true;
+    const hasBaseplate = config.baseplate ? isValueSet("calculatedBaseplate") : true;
+    const hasFoundation = config.foundation ? isValueSet("calculatedFoundation") : true;
+    return hasPole && hasOpening && hasBaseplate && hasFoundation;
+  };
+
+  const isDrawingDone = () => {
+    // Basic check for drawing completion, if drawing is implemented.
+    const raw = localStorage.getItem(`${projectType}_drawing`);
+    if (!raw) return false;
+    try {
+      const drawingData = JSON.parse(raw);
+      return drawingData && Object.keys(drawingData).length > 0;
+    } catch {
+      return false;
+    }
+  };
+
+  if (mode === "both") {
+    return isCalculationDone() && isDrawingDone();
+  } else if (mode === "drawing") {
+    return isDrawingDone();
+  }
+  return isCalculationDone();
 };
 
 // ===============================================================================
@@ -145,16 +192,33 @@ export const deserializeWorkingSession = (projectType, draftData) => {
 export const saveWorkingSessionToDraft = (projectType, draftId, defaultTitle = "Untitled") => {
   const data = serializeWorkingSession(projectType);
   
-  // Extract title/subtitle from cover data if available
+  // Extract title/subtitle from identity data if available — falls back to
+  // the legacy combined `cover` blob for drafts saved before the
+  // identity/workflow/cover split.
   let title = defaultTitle;
   let subtitle = "No request number";
-  if (data.cover) {
+
+  const tryExtract = (raw) => {
+    if (!raw) return null;
     try {
-      const cover = JSON.parse(data.cover);
-      if (cover.projectName?.trim()) title = cover.projectName.trim();
-      if (cover.requestNumber?.trim()) subtitle = cover.requestNumber.trim();
-    } catch(e) {}
-  }
+      const obj = JSON.parse(raw);
+      return {
+        name: obj.projectName?.trim() || null,
+        number: obj.requestNo?.trim() || null,
+      };
+    } catch {
+      return null;
+    }
+  };
+
+  const fromIdentity = tryExtract(data.projectIdentity);
+  const fromLegacyCover = tryExtract(data.cover);
+
+  if (fromIdentity?.name) title = fromIdentity.name;
+  else if (fromLegacyCover?.name) title = fromLegacyCover.name;
+
+  if (fromIdentity?.number) subtitle = fromIdentity.number;
+  else if (fromLegacyCover?.number) subtitle = fromLegacyCover.number;
 
   // Save the draft data payload
   localStorage.setItem(`${projectType}_draft_data_${draftId}`, JSON.stringify(data));

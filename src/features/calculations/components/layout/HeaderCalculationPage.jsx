@@ -17,7 +17,11 @@ import { ConfirmResetAllModal } from "../modals/ConfirmResetAllModal";
 import { ToastModal } from "../modals/ToastModal";
 import { BaseplateIcon } from "../../../../assets/icon";
 import { clearCalculationSession, hasCalculationData } from "../../utils";
-import { saveWorkingSessionToDraft, clearActiveDraftId, hasDraftChanged } from "../../utils/coreLogic";
+import {
+  saveWorkingSessionToDraft,
+  clearActiveDraftId,
+  hasDraftChanged,
+} from "../../utils/coreLogic";
 import { useScrollDirection } from "../../../../hooks/useScrollDirection";
 
 // ─── COMPONENT ───────────────────────────────────────────────────────────────
@@ -30,16 +34,16 @@ export function HeaderCalculationPage() {
   const [confirmResetAll, setConfirmResetAll] = useState(false);
   const [toast, setToast] = useState(null);
 
-  const rawCover = localStorage.getItem(`${type}_cover`);
-  const cover = rawCover ? JSON.parse(rawCover) : {};
-  const isDrawingOnlyMode = cover.projectMode === "drawing";
+  const rawWorkflow = localStorage.getItem(`${type}_workflow`);
+  const workflow = rawWorkflow ? JSON.parse(rawWorkflow) : {};
+  const isDrawingOnlyMode = workflow.projectMode === "drawing";
 
   const raw = localStorage.getItem(`${type}_calculation_config`);
   const config = raw ? JSON.parse(raw) : null;
 
   const isProjectComplete = () => {
     if (!config) return false;
-    
+
     const hasArrayData = (key) => {
       const val = localStorage.getItem(`${type}_${key}`);
       if (!val) return false;
@@ -52,9 +56,15 @@ export function HeaderCalculationPage() {
     };
 
     const hasPole = config.pole ? hasArrayData("results") : true;
-    const hasOpening = config.opening ? localStorage.getItem(`${type}_calculatedOp`) === "true" : true;
-    const hasBaseplate = config.baseplate ? localStorage.getItem(`${type}_calculatedBaseplate`) === "true" : true;
-    const hasFoundation = config.foundation ? localStorage.getItem(`${type}_calculatedFoundation`) === "true" : true;
+    const hasOpening = config.opening
+      ? localStorage.getItem(`${type}_calculatedOp`) === "true"
+      : true;
+    const hasBaseplate = config.baseplate
+      ? localStorage.getItem(`${type}_calculatedBaseplate`) === "true"
+      : true;
+    const hasFoundation = config.foundation
+      ? localStorage.getItem(`${type}_calculatedFoundation`) === "true"
+      : true;
 
     return hasPole && hasOpening && hasBaseplate && hasFoundation;
   };
@@ -103,8 +113,12 @@ export function HeaderCalculationPage() {
       : []),
   ];
 
-  const isProjectIdentityPage = location.pathname === `/calculation/${type}/${draftId}` || location.pathname === `/calculation/${type}/${draftId}/`;
-  const isDrawingPage = location.pathname.includes(`/calculation/${type}/${draftId}/drawing`);
+  const isProjectIdentityPage =
+    location.pathname === `/calculation/${type}/${draftId}` ||
+    location.pathname === `/calculation/${type}/${draftId}/`;
+  const isDrawingPage = location.pathname.includes(
+    `/calculation/${type}/${draftId}/drawing`,
+  );
 
   const handleBackClick = () => {
     if (isProjectIdentityPage) {
@@ -121,9 +135,14 @@ export function HeaderCalculationPage() {
   };
   const handleSaveAndLeave = () => {
     saveWorkingSessionToDraft(type, draftId);
-    clearCalculationSession(type);
-    clearActiveDraftId(type);
-    navigate(`/calculation/${type}`);
+    setToast({ message: "Draft successfully saved!", type: "success" });
+    setShowDraftModal(false);
+    
+    setTimeout(() => {
+      clearCalculationSession(type);
+      clearActiveDraftId(type);
+      navigate(`/calculation/${type}`);
+    }, 2500);
   };
   const handleQuickSave = () => {
     saveWorkingSessionToDraft(type, draftId);
@@ -144,9 +163,11 @@ export function HeaderCalculationPage() {
   const isHidden = scrollDirection === "down";
 
   return (
-    <div className={`relative z-10 sm:sticky sm:top-16 sm:z-30 w-[calc(100%+2px)] -mx-[1px] bg-[#f8fafc] transition-transform duration-300 ease-in-out ${isHidden ? "sm:-translate-y-16" : "sm:translate-y-0"}`}>
+    <div
+      className={`relative z-10 sm:sticky sm:top-16 sm:z-30 w-[calc(100%+2px)] -mx-[1px] bg-[#f8fafc] transition-transform duration-300 ease-in-out ${isHidden ? "sm:-translate-y-16" : "sm:translate-y-0"}`}
+    >
       {/* ── Top bar ── */}
-      <div className="rounded-t-xl sm:rounded-t-2xl bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] shadow-lg px-3 py-3 sm:px-4 sm:py-4 md:px-6 2xl:px-8">
+      <div className="rounded-t-xl sm:rounded-t-2xl bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] shadow-lg px-3 py-3 sm:px-4 sm:py-4 md:px-6 2xl:px-8 flex flex-col gap-3 sm:gap-0">
         <div className="flex items-center justify-between gap-2 sm:gap-3 w-full">
           <button
             type="button"
@@ -155,9 +176,42 @@ export function HeaderCalculationPage() {
           >
             <ArrowLeft className="w-4 h-4 shrink-0" />
             <span className="truncate">
-              {isProjectIdentityPage ? "Back to Drafts" : "Back to Project Setup"}
+              {isProjectIdentityPage
+                ? "Back to Drafts"
+                : "Back to Project Setup"}
             </span>
           </button>
+          
+          {/* Desktop Nav */}
+          {workflow.projectMode === "both" && !isProjectIdentityPage && (
+            <div className="hidden sm:flex bg-white/10 p-1 rounded-lg gap-4 border border-white/20">
+              <button
+                onClick={() =>
+                  navigate(`/calculation/${type}/${draftId}/initial`)
+                }
+                className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
+                  !isDrawingPage
+                    ? "bg-white text-[#0d3b66] shadow-sm"
+                    : "text-white hover:bg-white/10"
+                }`}
+              >
+                Calculation
+              </button>
+              <button
+                onClick={() =>
+                  navigate(`/calculation/${type}/${draftId}/drawing`)
+                }
+                className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
+                  isDrawingPage
+                    ? "bg-white text-[#0d3b66] shadow-sm"
+                    : "text-white hover:bg-white/10"
+                }`}
+              >
+                Drawing
+              </button>
+            </div>
+          )}
+
           <div className="relative">
             <button
               onClick={handleQuickSave}
@@ -168,8 +222,37 @@ export function HeaderCalculationPage() {
               <span className="sm:hidden">Save</span>
             </button>
           </div>
-
         </div>
+
+        {/* Mobile Nav */}
+        {workflow.projectMode === "both" && !isProjectIdentityPage && (
+          <div className="flex sm:hidden bg-white/10 p-1 rounded-lg gap-2 border border-white/20 w-full mt-1">
+            <button
+              onClick={() =>
+                navigate(`/calculation/${type}/${draftId}/initial`)
+              }
+              className={`flex-1 flex justify-center items-center gap-2 px-2 py-2 rounded-md text-xs font-medium transition-all ${
+                !isDrawingPage
+                  ? "bg-white text-[#0d3b66] shadow-sm"
+                  : "text-white hover:bg-white/10"
+              }`}
+            >
+              Calculation
+            </button>
+            <button
+              onClick={() =>
+                navigate(`/calculation/${type}/${draftId}/drawing`)
+              }
+              className={`flex-1 flex justify-center items-center gap-2 px-2 py-2 rounded-md text-xs font-medium transition-all ${
+                isDrawingPage
+                  ? "bg-white text-[#0d3b66] shadow-sm"
+                  : "text-white hover:bg-white/10"
+              }`}
+            >
+              Drawing
+            </button>
+          </div>
+        )}
       </div>
 
       {/* ── Step navigation (Bottom Bar on Mobile, Sticky on Desktop) ── */}
@@ -201,7 +284,9 @@ export function HeaderCalculationPage() {
                         : "text-slate-400 sm:text-slate-500"
                     }`}
                   />
-                  <span className="truncate w-full text-center">{item.label}</span>
+                  <span className="truncate w-full text-center">
+                    {item.label}
+                  </span>
                 </button>
               );
             })}

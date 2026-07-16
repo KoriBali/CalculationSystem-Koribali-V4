@@ -25,11 +25,11 @@ export function useBaseplateForm() {
 
   const condition = getCondition();
 
-  // Read cover from localStorage
-  const cover = (() => {
+  // Read workflow flags from localStorage
+  const workflow = (() => {
     try {
       return JSON.parse(
-        localStorage.getItem(`${projectType}_cover`) || "{}"
+        localStorage.getItem(`${projectType}_workflow`) || "{}"
       ) || {};
     } catch {
       return {};
@@ -105,41 +105,39 @@ export function useBaseplateForm() {
     false,
   );
 
-  // Validation error states for each section
+  // Validation error states for each section  // ── UI state ──
+
   const [baseplateTypeErrors, setBaseplateTypeErrors] = useState({});
   const [fourRibTypeErrors, setFourRibTypeErrors] = useState({});
   const [eightRibTypeErrors, setEightRibTypeErrors] = useState({});
-
-  // UI expand/collapse states
   const [isBaseplateExpanded, setIsBaseplateExpanded] = useState(true);
   const [isSelectExpanded, setIsSelectExpanded] = useState(true);
 
   // Loading and calculation status
   const [loading, setLoading] = useState(false);
-  // PERBAIKAN: Gunakan !!calculatedBaseplate agar status kalkulasi bertahan setelah reload
-  const [isCalculated, setIsCalculated] = useState(!!calculatedBaseplate);
+  const isCalculated = !!calculatedBaseplate;
 
   // Toast notification state
   const [toast, setToast] = useState(null);
 
-  // Helper to show toast messages
-  const showToast = (message, type = "error") => {
-    setToast({ message, type });
-  };
+  // ── Navigation ──
 
-  // Navigation helper for multi-step flow
+  // Determines button label, next step path, and whether this is the last step
   const { buttonLabel, nextStep, isLast } = Utils.getStepNavigation(
     condition,
     "baseplate",
-    cover.withReport
+    workflow.withReport
   );
 
-  // ================= HANDLERS =================
+  // ── Helpers ──
 
-  // Update baseplate type
+  // Displays a toast notification
+  const showToast = (message, type = "error") => setToast({ message, type });
+
+  // ── Update handlers ──
+
   const handleBaseplateTypeUpdate = (updates) => {
     Utils.updateBaseplateType(baseplateType, updates, setBaseplateType);
-
     setBaseplateTypeErrors((prev) => {
       const cleared = { ...prev };
       Object.keys(updates).forEach((key) => delete cleared[key]);
@@ -147,10 +145,8 @@ export function useBaseplateForm() {
     });
   };
 
-  // Update 4 Rib Type inputs and clear related errors
   const handleFourRibTypeUpdate = (updates) => {
     Utils.updateFourRibType(fourRibType, updates, setFourRibType);
-
     setFourRibTypeErrors((prev) => {
       const cleared = { ...prev };
       Object.keys(updates).forEach((key) => delete cleared[key]);
@@ -158,10 +154,8 @@ export function useBaseplateForm() {
     });
   };
 
-  // Update 8 Rib Type inputs and clear related errors
   const handleEightRibTypeUpdate = (updates) => {
     Utils.updateEightRibType(eightRibType, updates, setEightRibType);
-
     setEightRibTypeErrors((prev) => {
       const cleared = { ...prev };
       Object.keys(updates).forEach((key) => delete cleared[key]);
@@ -169,21 +163,21 @@ export function useBaseplateForm() {
     });
   };
 
-  // Handle calculation flow (validation + API call)
+  // ── Calculation ──
+
+  // Validates inputs then calls the baseplate calculation API
   const handleCalculate = async () => {
-    // Reset all error states before validation
+    // Reset any previous errors
     setBaseplateTypeErrors({});
     setFourRibTypeErrors({});
     setEightRibTypeErrors({});
 
-    // Run validation logic
     const validation = await validateBaseplate({
       baseplateType,
       fourRibType,
       eightRibType,
     });
 
-    // Handle validation failure
     if (!validation.isValid) {
       setBaseplateTypeErrors(validation.typeErrors || {});
       setFourRibTypeErrors(validation.fourRibTypeErrors || {});
@@ -193,27 +187,20 @@ export function useBaseplateForm() {
     }
 
     try {
-      // Start loading state
       setLoading(true);
 
-      // Execute API calculation
       const data = await executeBaseplateCalculation({
         baseplateType,
         fourRibType,
         eightRibType,
       });
 
-      // Save calculated result
-      setCalculatedBaseplate({
-        ...data,
-        baseplateType,
-      });
+      // Persist result alongside its baseplate type for the result table
+      setCalculatedBaseplate({ ...data, baseplateType });
 
       // Update UI state after success
-      setIsCalculated(true);
       setShowResultsBaseplate(true);
     } catch (err) {
-      // Handle API or unexpected errors
       showToast(err?.message || "Something went wrong");
     } finally {
       // Stop loading state

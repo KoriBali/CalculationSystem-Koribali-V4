@@ -10,6 +10,7 @@ import { OpeningResultTable } from "../../tables/opening-result/OpeningResultTab
 import { ToastModal } from "../../modals/ToastModal";
 import { FinishCalculationModal } from "../../modals/FinishCalculationModal";
 import { ConfirmSaveDatabaseModal } from "../../modals/ConfirmSaveDatabaseModal";
+import { CoverFormModal } from "../../modals/CoverFormModal";
 import { saveWorkingSessionToDraft, clearActiveDraftId } from "../../../utils/coreLogic";
 import { clearCalculationSession } from "../../../utils";
 import { useOpeningForm } from "../../../hooks/useOpeningForm";
@@ -24,6 +25,7 @@ export default function OpeningFormView() {
   const navigate = useNavigate();
   const [showFinishModal, setShowFinishModal] = useState(false);
   const [showDbModal, setShowDbModal] = useState(false);
+  const [showCoverModal, setShowCoverModal] = useState(false);
 
 // ── Hooks ──
   const opening = useOpeningForm();
@@ -33,28 +35,19 @@ export default function OpeningFormView() {
   const handleNextStep = () => {
     const result = opening.finish();
     if (result === "OPEN_COVER") {
-      const cover = (() => {
-        try {
-          return JSON.parse(localStorage.getItem(`${projectType}_cover`) || "{}");
-        } catch {
-          return {};
-        }
-      })();
-      if (cover.withReport) {
-        makeReport({ isCalculated: opening.isCalculated, showToast: opening.showToast });
-      } else {
-        setShowFinishModal(true);
-      }
+      setShowFinishModal(true);
     }
+  };
+
+  const handleConfirmCover = () => {
+    setShowCoverModal(false);
+    makeReport({ isCalculated: opening.isCalculated, showToast: opening.showToast });
   };
 
   const handleSaveDraft = () => {
     saveWorkingSessionToDraft(projectType, draftId);
     opening.showToast("Draft successfully saved!", "success");
     setShowFinishModal(false);
-    clearCalculationSession(projectType);
-    clearActiveDraftId(projectType);
-    navigate(`/calculation/${projectType}`);
   };
 
   const handleSaveDatabaseClick = () => {
@@ -66,9 +59,11 @@ export default function OpeningFormView() {
     // Database save logic will go here
     opening.showToast("Project successfully saved to database!", "success");
     setShowDbModal(false);
-    clearCalculationSession(projectType);
-    clearActiveDraftId(projectType);
-    navigate(`/calculation/${projectType}`);
+    setTimeout(() => {
+      clearCalculationSession(projectType);
+      clearActiveDraftId(projectType);
+      navigate(`/calculation/${projectType}`);
+    }, 2500);
   };
 
   return (
@@ -242,6 +237,10 @@ export default function OpeningFormView() {
         onClose={() => setShowFinishModal(false)}
         onSaveDraft={handleSaveDraft}
         onSaveDatabase={handleSaveDatabaseClick}
+        onGenerateReport={() => {
+          setShowFinishModal(false);
+          setShowCoverModal(true);
+        }}
       />
       <ConfirmSaveDatabaseModal
         open={showDbModal}
@@ -251,6 +250,13 @@ export default function OpeningFormView() {
       <ToastModal
         toast={opening.toast}
         onClose={() => opening.setToast(null)}
+      />
+      <CoverFormModal 
+        open={showCoverModal} 
+        onClose={() => setShowCoverModal(false)} 
+        projectType={projectType} 
+        draftId={draftId} 
+        onConfirm={handleConfirmCover} 
       />
     </>
   );

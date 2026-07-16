@@ -6,6 +6,7 @@ import { Header } from "./Header";
 import { LogoutModal } from "./LogoutModal";
 import { MENU_ITEMS } from "../../constants/layoutConstants";
 import { getUser, clearAuthSession } from "../../../utils/auth";
+import { ScrollToTopButton } from "../ScrollToTopButton";
 
 // ─── HELPERS ────────────────────────────────────────────────────────────────
 
@@ -149,12 +150,13 @@ export default function Layout() {
           <Outlet />
         </main>
 
-        {/* Footer */}
         <footer className="py-4 px-6 lg:px-8 border-t border-slate-200 text-center text-[10px] text-slate-400 font-bold uppercase tracking-widest">
           &copy; {new Date().getFullYear()} KORI BALI &bull; Pole Structure
           Calculation System
         </footer>
       </div>
+      
+      <ScrollToTopButton />
     </div>
   );
 }

@@ -4,6 +4,13 @@ export const StraightTypeSchema = (condition) => {
   const isBase = condition.baseplateEnabled;
   const isEmbedment = !condition.baseplateEnabled;
 
+  const optionalNumberField = yup
+    .number()
+    .transform((_, val) => (val === "" ? undefined : Number(val)))
+    .typeError("Must be a number")
+    .nullable()
+    .notRequired();
+
   return yup.object({
     upperThickness: yup.number().required("Required field"),
 
@@ -22,11 +29,9 @@ export const StraightTypeSchema = (condition) => {
       .min(0, "Must be positive"),
 
     // ===== EMBEDMENT =====
-    embedmentLength: yup.number().when([], {
+    embedmentLength: optionalNumberField.when([], {
       is: () => isEmbedment,
-      then: (schema) =>
-        schema.typeError("Must be a number").required("Required field"),
-      otherwise: (schema) => schema.notRequired(),
+      then: (schema) => schema.required("Required field"),
     }),
 
     // ===== BASE =====
@@ -37,14 +42,12 @@ export const StraightTypeSchema = (condition) => {
     }),
 
     // ===== UNDER GL ONLY =====
-    heightDepth: yup.number().when("groundPosition", {
+    heightDepth: optionalNumberField.when("groundPosition", {
       is: (val) => isBase && val === "underGL",
       then: (schema) =>
         schema
-          .typeError("Must be a number")
           .required("Required field")
           .lessThan(0, "Value must be less than 0"),
-      otherwise: (schema) => schema.notRequired(),
     }),
   });
 };

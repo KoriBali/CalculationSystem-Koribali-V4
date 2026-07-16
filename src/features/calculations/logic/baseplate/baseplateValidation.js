@@ -1,7 +1,7 @@
 import { validateWithYup } from "../../utils";
 import { BaseplateTypeSchema } from "../../schemas/baseplate/BaseplateTypeSchema";
 import { FourRibTypeSchema } from "../../schemas/baseplate/FourRibTypeSchema";
-import { EightRibTypeSchema } from "../../schemas/baseplate/EightRibTypeSchema ";
+import { EightRibTypeSchema } from "../../schemas/baseplate/EightRibTypeSchema";
 
 // Validate all baseplate inputs (type + specific detail)
 export async function validateBaseplate({

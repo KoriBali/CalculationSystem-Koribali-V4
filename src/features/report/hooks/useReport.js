@@ -171,11 +171,6 @@ export function useReport(projectType) {
     );
     if (!isResultsValid) return;
 
-    // Cover fields must be complete (simple validation since they already validated at step 1)
-    if (!cover.managementCode || !cover.calculationNumber || !cover.projectName || !cover.date) {
-      showToast("Please complete the Cover Information fields in Initial Setup.");
-      return;
-    }
 
     // Build report payload
     const reportPayload = {

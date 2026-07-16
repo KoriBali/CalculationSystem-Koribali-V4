@@ -1,63 +1,111 @@
 import React from "react";
-import { Database, FileEdit, X } from "lucide-react";
+import { Database, FileEdit, ChevronRight, FileText } from "lucide-react";
+import { useParams } from "react-router-dom";
+import { isProjectComplete } from "../../utils/coreLogic";
 
-export function FinishCalculationModal({ open, onClose, onSaveDraft, onSaveDatabase }) {
+export function FinishCalculationModal({ open, onClose, onSaveDraft, onSaveDatabase, onGenerateReport, isDrawingMode = false }) {
+  const { type: projectType } = useParams();
   if (!open) return null;
 
+  const projectComplete = isProjectComplete(projectType);
+
   return (
-    <>
-      <div 
-        className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 transition-opacity"
-        onClick={onClose}
-      />
-      
-      <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white rounded-2xl shadow-2xl z-50 overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm px-4">
+      <div className="relative w-full max-w-md sm:max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] px-6 py-4 flex items-center justify-between shrink-0">
-          <h2 className="text-lg font-bold text-white">Save Calculation</h2>
-          <button 
-            onClick={onClose}
-            className="text-white/70 hover:text-white bg-white/10 hover:bg-white/20 p-1.5 rounded-lg transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
+        <div className="bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] px-8 py-5 sm:px-10 sm:py-6">
+          <h2 className="text-white font-bold text-base sm:text-lg">
+            Finish Calculation
+          </h2>
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto">
-          <p className="text-slate-600 mb-6">
-            You have completed the calculation. How would you like to save your work?
+        <div className="p-8 space-y-4 sm:space-y-4">
+          <p className="text-slate-600 text-sm sm:text-base mb-2">
+            Calculation completed. What would you like to do next?
           </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <button
-              onClick={onSaveDraft}
-              className="flex flex-col items-center justify-center gap-3 p-6 rounded-xl border-2 border-slate-200 hover:border-[#1a5a92] hover:bg-slate-50 transition group text-center"
-            >
-              <div className="w-12 h-12 rounded-full bg-slate-100 group-hover:bg-[#1a5a92]/10 flex items-center justify-center transition">
-                <FileEdit className="w-6 h-6 text-slate-500 group-hover:text-[#1a5a92] transition" />
-              </div>
-              <div>
-                <h3 className="font-bold text-slate-800 group-hover:text-[#1a5a92] transition">Save as Draft</h3>
-                <p className="text-xs text-slate-500 mt-1">Keep it as a draft to edit later</p>
-              </div>
-            </button>
+          <button
+            onClick={onGenerateReport}
+            className="w-full flex items-center gap-4 p-4 rounded-xl border border-slate-200 bg-white hover:border-blue-500 hover:bg-blue-50/50 transition-all text-left group cursor-pointer"
+          >
+            <div className="flex-shrink-0 w-9 h-9 sm:w-10 sm:h-10 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-500 group-hover:text-white transition-colors duration-300">
+              {isDrawingMode ? (
+                <FileEdit className="w-4 h-4 sm:w-5 sm:h-5" />
+              ) : (
+                <FileText className="w-4 h-4 sm:w-5 sm:h-5" />
+              )}
+            </div>
+            <div className="flex-1">
+              <h3 className="font-bold text-slate-800 text-sm group-hover:text-blue-700 transition-colors">
+                {isDrawingMode ? "Preview Drawing Output" : "Generate Report (Preview)"}
+              </h3>
+              <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5 leading-snug">
+                {isDrawingMode ? "Preview the AutoCAD drawing output (Coming Soon)." : "Preview results in PDF report format before finalizing."}
+              </p>
+            </div>
+            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-slate-400 group-hover:text-blue-500 transition-colors shrink-0" />
+          </button>
 
-            <button
-              onClick={onSaveDatabase}
-              className="flex flex-col items-center justify-center gap-3 p-6 rounded-xl border-2 border-slate-200 hover:border-[#1a5a92] hover:bg-slate-50 transition group text-center"
+          <button
+            onClick={projectComplete ? onSaveDatabase : undefined}
+            disabled={!projectComplete}
+            className={`w-full flex items-center gap-4 p-4 rounded-xl border transition-all text-left group
+              ${projectComplete 
+                ? "border-slate-200 bg-white hover:border-blue-500 hover:bg-blue-50/50 cursor-pointer" 
+                : "border-slate-100 bg-slate-50 cursor-not-allowed opacity-80"
+              }`}
+          >
+            <div className={`flex-shrink-0 w-9 h-9 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center transition-colors duration-300
+              ${projectComplete 
+                ? "bg-blue-50 text-blue-600 group-hover:bg-blue-500 group-hover:text-white" 
+                : "bg-slate-200 text-slate-400"
+              }`}
             >
-              <div className="w-12 h-12 rounded-full bg-slate-100 group-hover:bg-[#1a5a92]/10 flex items-center justify-center transition">
-                <Database className="w-6 h-6 text-slate-500 group-hover:text-[#1a5a92] transition" />
-              </div>
-              <div>
-                <h3 className="font-bold text-slate-800 group-hover:text-[#1a5a92] transition">Save to Database</h3>
-                <p className="text-xs text-slate-500 mt-1">Store it permanently in database</p>
-              </div>
-            </button>
-          </div>
+              <Database className="w-4 h-4 sm:w-5 sm:h-5" />
+            </div>
+            <div className="flex-1">
+              <h3 className={`font-bold text-sm transition-colors ${projectComplete ? "text-slate-800 group-hover:text-blue-700" : "text-slate-500"}`}>
+                Save to Database
+              </h3>
+              <p className={`text-[11px] sm:text-xs mt-0.5 leading-snug ${projectComplete ? "text-slate-500" : "text-red-500 font-medium"}`}>
+                {projectComplete 
+                  ? "Save project permanently without generating a report."
+                  : "Please complete all calculation and drawing steps to save to database."}
+              </p>
+            </div>
+            <ChevronRight className={`w-4 h-4 sm:w-5 sm:h-5 shrink-0 transition-colors ${projectComplete ? "text-slate-400 group-hover:text-blue-500" : "text-slate-300"}`} />
+          </button>
+
+          <button
+            onClick={onSaveDraft}
+            className="w-full flex items-center gap-4 p-4 rounded-xl border border-slate-200 bg-white hover:border-blue-500 hover:bg-blue-50/50 transition-all text-left group cursor-pointer"
+          >
+            <div className="flex-shrink-0 w-9 h-9 sm:w-10 sm:h-10 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-500 group-hover:text-white transition-colors duration-300">
+              <FileEdit className="w-4 h-4 sm:w-5 sm:h-5" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-bold text-slate-800 text-sm group-hover:text-blue-700 transition-colors">
+                Save as Draft
+              </h3>
+              <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5 leading-snug">
+                Keep it as a draft to edit later.
+              </p>
+            </div>
+            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-slate-400 group-hover:text-blue-500 transition-colors shrink-0" />
+          </button>
+        </div>
+
+        {/* Footer */}
+        <div className="bg-slate-50 px-8 py-5 sm:px-10 border-t border-slate-100 flex justify-center">
+          <button
+            onClick={onClose}
+            className="px-10 py-2.5 rounded-xl font-semibold text-sm text-slate-600 border border-slate-300 hover:bg-slate-200 hover:text-slate-800 transition-colors cursor-pointer"
+          >
+            Close
+          </button>
         </div>
       </div>
-    </>
+    </div>
   );
 }

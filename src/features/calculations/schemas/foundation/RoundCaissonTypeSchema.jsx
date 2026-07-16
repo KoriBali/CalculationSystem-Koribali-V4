@@ -7,8 +7,16 @@ const numberField = yup
   .required("Required field")
   .min(0, "Must be positive");
 
+const optionalNumberField = yup
+  .number()
+  .transform((_, val) => (val === "" ? undefined : Number(val)))
+  .typeError("Must be a number")
+  .min(0, "Must be positive")
+  .nullable()
+  .optional();
+
 export const RoundCaissonTypeSchema = yup.object({
-  foundationWidthX: numberField,
+  foundationWidthX: optionalNumberField,
   foundationWidthY: numberField,
   embedmentDepth: numberField,
   nValue: numberField,

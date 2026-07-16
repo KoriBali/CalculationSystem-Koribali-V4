@@ -5,6 +5,12 @@ const listeners = new Set();
 let lastScrollY = 0;
 let isListening = false;
 
+export const resetScrollDirection = () => {
+  globalScrollDirection = "up";
+  lastScrollY = window.scrollY > 0 ? window.scrollY : 0;
+  listeners.forEach(listener => listener("up"));
+};
+
 const updateScrollDirection = () => {
   const scrollY = window.scrollY;
   const direction = scrollY > lastScrollY ? "down" : "up";

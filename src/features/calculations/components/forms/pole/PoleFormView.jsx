@@ -43,6 +43,7 @@ import { useReport } from "../../../../report/hooks/useReport";
 
 import { FinishCalculationModal } from "../../modals/FinishCalculationModal";
 import { ConfirmSaveDatabaseModal } from "../../modals/ConfirmSaveDatabaseModal";
+import { CoverFormModal } from "../../modals/CoverFormModal";
 import { saveWorkingSessionToDraft, clearActiveDraftId } from "../../../utils/coreLogic";
 import { clearCalculationSession } from "../../../utils";
 
@@ -72,6 +73,7 @@ export default function PoleFormView() {
 
   const [showFinishModal, setShowFinishModal] = useState(false);
   const [showDbModal, setShowDbModal] = useState(false);
+  const [showCoverModal, setShowCoverModal] = useState(false);
 
   // ── Hooks ──
   const poleForm = usePoleForm(projectType);
@@ -96,31 +98,22 @@ export default function PoleFormView() {
   const handleFinish = () => {
     const result = calculation.finish();
     if (result === "OPEN_COVER") {
-      const cover = (() => {
-        try {
-          return JSON.parse(localStorage.getItem(`${projectType}_cover`) || "{}");
-        } catch {
-          return {};
-        }
-      })();
-      if (cover.withReport) {
-        report.makeReport({
-          isCalculated: calculation.isCalculated,
-          showToast: calculation.showToast,
-        });
-      } else {
-        setShowFinishModal(true);
-      }
+      setShowFinishModal(true);
     }
+  };
+
+  const handleConfirmCover = () => {
+    setShowCoverModal(false);
+    report.makeReport({
+      isCalculated: calculation.isCalculated,
+      showToast: calculation.showToast,
+    });
   };
 
   const handleSaveDraft = () => {
     saveWorkingSessionToDraft(projectType, draftId);
     calculation.showToast("Draft successfully saved!", "success");
     setShowFinishModal(false);
-    clearCalculationSession(projectType);
-    clearActiveDraftId(projectType);
-    navigate(`/calculation/${projectType}`);
   };
 
   const handleSaveDatabaseClick = () => {
@@ -132,9 +125,11 @@ export default function PoleFormView() {
     // Database save logic will go here
     calculation.showToast("Project successfully saved to database!", "success");
     setShowDbModal(false);
-    clearCalculationSession(projectType);
-    clearActiveDraftId(projectType);
-    navigate(`/calculation/${projectType}`);
+    setTimeout(() => {
+      clearCalculationSession(projectType);
+      clearActiveDraftId(projectType);
+      navigate(`/calculation/${projectType}`);
+    }, 2500);
   };
 
   // custom mode — non lighting-pole always custom, lighting-pole only if poleType === custom
@@ -908,6 +903,10 @@ export default function PoleFormView() {
         onClose={() => setShowFinishModal(false)}
         onSaveDraft={handleSaveDraft}
         onSaveDatabase={handleSaveDatabaseClick}
+        onGenerateReport={() => {
+          setShowFinishModal(false);
+          setShowCoverModal(true);
+        }}
       />
       <ConfirmSaveDatabaseModal
         open={showDbModal}
@@ -967,6 +966,14 @@ export default function PoleFormView() {
         onClose={armForm.cancelReduceArmObjects}
         onConfirm={armForm.confirmReduceArmObjects}
         itemName="arm objects"
+      />
+      
+      <CoverFormModal 
+        open={showCoverModal} 
+        onClose={() => setShowCoverModal(false)} 
+        projectType={projectType} 
+        draftId={draftId} 
+        onConfirm={handleConfirmCover} 
       />
     </div>
   );

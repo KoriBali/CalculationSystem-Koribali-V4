@@ -1,12 +1,12 @@
 import * as yup from "yup";
 
 export const CoverSchema = yup.object({
-  managementCode: yup.string().required("Required field"),
-  calculationNumber: yup.string().required("Required field"),
-  projectName: yup.string().required("Required field"),
-  withDrawing: yup.boolean(),
-  withReport: yup.boolean(),
-  coverTopText: yup.string(),
-  coverBottomText: yup.string(),
-  date: yup.string().required("Required field"),
+  reportNumber: yup.string().required("Required field"),
+  title1: yup.string().required("Required field"),
+  title2: yup.string(),
+  title3: yup.string(),
+  designRequestManagementNo: yup.string().required("Required field"),
+  region: yup.string().required("Required field"),
+  author: yup.string().required("Required field"),
+  departmentInCharge: yup.string().required("Required field"),
 });

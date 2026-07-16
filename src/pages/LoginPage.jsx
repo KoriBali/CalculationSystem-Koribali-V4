@@ -53,18 +53,18 @@ export default function LoginPage() {
     {
       title: "Precision Engineering",
       desc: "Empower your structural calculations with high precision based on the latest engineering standards.",
-      icon: <CheckCircle className="w-8 h-8 md:w-10 md:h-10 text-[#3399cc]" />
+      icon: <CheckCircle className="w-8 h-8 md:w-10 md:h-10 text-[#3399cc]" />,
     },
     {
       title: "All-in-One Workflow",
       desc: "Stop juggling separate design and calculation tasks. Streamline everything into one seamless platform.",
-      icon: <Layers className="w-8 h-8 md:w-10 md:h-10 text-[#3399cc]" />
+      icon: <Layers className="w-8 h-8 md:w-10 md:h-10 text-[#3399cc]" />,
     },
     {
       title: "Instant Validation",
       desc: "Get immediate OK/NG calculation reports to ensure your structures are completely safe for deployment.",
-      icon: <FileText className="w-8 h-8 md:w-10 md:h-10 text-[#3399cc]" />
-    }
+      icon: <FileText className="w-8 h-8 md:w-10 md:h-10 text-[#3399cc]" />,
+    },
   ];
 
   // Interactive Background
@@ -144,8 +144,10 @@ export default function LoginPage() {
         {/* Center / Hero text */}
         <div className="text-center md:text-left">
           <h2 className="text-[32px] leading-[1.15] md:text-5xl lg:text-[54px] font-semibold md:leading-[1.1] tracking-tight">
-            Pole Structure<br />
-            Calculation<br />
+            Pole Structure
+            <br />
+            Calculation
+            <br />
             System
           </h2>
         </div>
@@ -174,12 +176,12 @@ export default function LoginPage() {
               </motion.div>
             </AnimatePresence>
           </div>
-          
+
           {/* Dots */}
           <div className="flex gap-3 mt-10">
             {features.map((_, idx) => (
-              <div 
-                key={idx} 
+              <div
+                key={idx}
                 className={`h-2 rounded-full transition-all duration-500 ${activeSlide === idx ? "w-8 bg-[#3399cc]" : "w-2 bg-white/20"}`}
               />
             ))}
@@ -195,7 +197,6 @@ export default function LoginPage() {
 
       {/* RIGHT PANEL (White) */}
       <div className="relative z-20 flex-1 bg-white rounded-t-[32px] md:rounded-t-none md:rounded-l-[40px] lg:rounded-l-[50px] shadow-[-20px_0_50px_rgba(0,0,0,0.15)] flex flex-col px-6 py-8 sm:p-12 lg:px-24 lg:py-16 overflow-y-auto -mt-6 md:mt-0">
-        
         {/* Top Header: Logo */}
         <div className="flex items-center mb-10 md:mb-24">
           <div className="flex items-center gap-3">
@@ -205,7 +206,7 @@ export default function LoginPage() {
               className="w-10 h-10 md:w-12 md:h-12 object-contain"
             />
             <span className="text-[18px] md:text-[22px] font-bold text-slate-800 tracking-tight">
-              KORI BALI
+              KORIBALI
             </span>
           </div>
         </div>
@@ -292,7 +293,11 @@ export default function LoginPage() {
                   onClick={() => setShowPassword((prev) => !prev)}
                   className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
                 >
-                  {showPassword ? <EyeOff size={18} strokeWidth={1.5} /> : <Eye size={18} strokeWidth={1.5} />}
+                  {showPassword ? (
+                    <EyeOff size={18} strokeWidth={1.5} />
+                  ) : (
+                    <Eye size={18} strokeWidth={1.5} />
+                  )}
                 </button>
               </div>
 
@@ -326,11 +331,11 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => {
-                  setAuthSession({ 
-                    token: 'guest-session-token', 
-                    user: { name: 'Guest User', email: 'guest@koribali.com' } 
+                  setAuthSession({
+                    token: "guest-session-token",
+                    user: { name: "Guest User", email: "guest@koribali.com" },
                   });
-                  navigate('/calculation');
+                  navigate("/calculation");
                 }}
                 className="w-full bg-white border-2 border-slate-200 text-slate-600 hover:text-slate-800 font-medium py-3.5 px-6 rounded-full hover:border-slate-300 hover:bg-slate-50 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-sm md:text-base"
               >
@@ -344,8 +349,12 @@ export default function LoginPage() {
         <div className="mt-16 text-center md:text-left flex flex-col md:flex-row justify-between items-center text-xs text-slate-400 font-medium">
           <p>© {new Date().getFullYear()} Kori Bali Inc.</p>
           <div className="flex gap-4 mt-2 md:mt-0">
-            <span className="cursor-pointer hover:text-slate-600">Privacy Policy</span>
-            <span className="cursor-pointer hover:text-slate-600">Terms of Use</span>
+            <span className="cursor-pointer hover:text-slate-600">
+              Privacy Policy
+            </span>
+            <span className="cursor-pointer hover:text-slate-600">
+              Terms of Use
+            </span>
           </div>
         </div>
       </div>

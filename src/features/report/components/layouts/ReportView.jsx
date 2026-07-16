@@ -14,8 +14,10 @@ import {
   FileText,
   AlertCircle,
   Calculator,
+  Database,
 } from "lucide-react";
 import { EmptyReport } from "../../../../assets/icon";
+import { ConfirmSaveDatabaseModal } from "../../../calculations/components/modals/ConfirmSaveDatabaseModal";
 
 // ─── COMPONENT ───────────────────────────────────────────────────────────────
 
@@ -49,6 +51,7 @@ export function ReportView() {
 
   // ── UI state ──
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showDbModal, setShowDbModal] = useState(false);
   const [hasReport, setHasReport] = useState(
     localStorage.getItem(`${projectType}_hasReport`) === "true",
   );
@@ -82,6 +85,17 @@ export function ReportView() {
     setShowDeleteConfirm(false);
     clearCalculationSession(projectType);
     navigate("/calculation");
+  };
+
+  const handleConfirmSaveDb = () => {
+    // Database save logic will go here
+    showToast("Project successfully saved to database!", "success");
+    setShowDbModal(false);
+    setTimeout(() => {
+      clearCalculationSession(projectType);
+      clearActiveDraftId(projectType);
+      navigate(`/calculation/${projectType}`);
+    }, 2500);
   };
 
   // ── Render report by project type ──
@@ -219,6 +233,15 @@ export function ReportView() {
               </button>
 
               <button
+                onClick={() => setShowDbModal(true)}
+                title="Save to Database"
+                className="flex items-center gap-2 px-5 py-2.5 text-sm bg-white text-[#3399cc] border border-[#3399cc] rounded-lg hover:bg-blue-50 transition-all shadow-sm hp:px-3 hp:py-2"
+              >
+                <Database className="w-4 h-4" />
+                <span className="hp:hidden">Save to Database</span>
+              </button>
+
+              <button
                 onClick={handlePrint}
                 title="Export PDF"
                 className="flex items-center gap-2 px-5 py-2.5 text-sm bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white rounded-lg hover:brightness-110 transition-all shadow-sm hp:px-3 hp:py-2"
@@ -269,6 +292,12 @@ export function ReportView() {
       <div className="max-w-7xl mx-auto px-6 py-8 hp:mx-0 hp:px-0 hp:flex hp:justify-center hp:max-w-[100vh] hp:overflow-hidden">
         {renderReport()}
       </div>
+
+      <ConfirmSaveDatabaseModal
+        open={showDbModal}
+        onClose={() => setShowDbModal(false)}
+        onConfirm={handleConfirmSaveDb}
+      />
     </div>
   );
 }

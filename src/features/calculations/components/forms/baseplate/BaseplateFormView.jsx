@@ -11,6 +11,7 @@ import { BaseplateResultTable } from "../../tables/baseplate-result/BaseplateRes
 import { ToastModal } from "../../modals/ToastModal";
 import { FinishCalculationModal } from "../../modals/FinishCalculationModal";
 import { ConfirmSaveDatabaseModal } from "../../modals/ConfirmSaveDatabaseModal";
+import { CoverFormModal } from "../../modals/CoverFormModal";
 import { saveWorkingSessionToDraft, clearActiveDraftId } from "../../../utils/coreLogic";
 import { clearCalculationSession } from "../../../utils";
 
@@ -26,6 +27,7 @@ export default function BaseplateFormView() {
   const navigate = useNavigate();
   const [showFinishModal, setShowFinishModal] = useState(false);
   const [showDbModal, setShowDbModal] = useState(false);
+  const [showCoverModal, setShowCoverModal] = useState(false);
 
 // ================= BASEPLATE FORM HOOK =================
   const {
@@ -65,28 +67,19 @@ export default function BaseplateFormView() {
   const handleNextStep = () => {
     const result = handleFinish();
     if (result === "OPEN_COVER") {
-      const cover = (() => {
-        try {
-          return JSON.parse(localStorage.getItem(`${projectType}_cover`) || "{}");
-        } catch {
-          return {};
-        }
-      })();
-      if (cover.withReport) {
-        makeReport({ isCalculated, showToast });
-      } else {
-        setShowFinishModal(true);
-      }
+      setShowFinishModal(true);
     }
+  };
+
+  const handleConfirmCover = () => {
+    setShowCoverModal(false);
+    makeReport({ isCalculated, showToast });
   };
 
   const handleSaveDraft = () => {
     saveWorkingSessionToDraft(projectType, draftId);
     showToast("Draft successfully saved!", "success");
     setShowFinishModal(false);
-    clearCalculationSession(projectType);
-    clearActiveDraftId(projectType);
-    navigate(`/calculation/${projectType}`);
   };
 
   const handleSaveDatabaseClick = () => {
@@ -98,9 +91,11 @@ export default function BaseplateFormView() {
     // Database save logic will go here
     showToast("Project successfully saved to database!", "success");
     setShowDbModal(false);
-    clearCalculationSession(projectType);
-    clearActiveDraftId(projectType);
-    navigate(`/calculation/${projectType}`);
+    setTimeout(() => {
+      clearCalculationSession(projectType);
+      clearActiveDraftId(projectType);
+      navigate(`/calculation/${projectType}`);
+    }, 2500);
   };
 
   return (
@@ -289,6 +284,10 @@ export default function BaseplateFormView() {
         onClose={() => setShowFinishModal(false)}
         onSaveDraft={handleSaveDraft}
         onSaveDatabase={handleSaveDatabaseClick}
+        onGenerateReport={() => {
+          setShowFinishModal(false);
+          setShowCoverModal(true);
+        }}
       />
       <ConfirmSaveDatabaseModal
         open={showDbModal}
@@ -296,6 +295,13 @@ export default function BaseplateFormView() {
         onConfirm={handleConfirmSaveDb}
       />
       <ToastModal toast={toast} onClose={() => setToast(null)} />
+      <CoverFormModal 
+        open={showCoverModal} 
+        onClose={() => setShowCoverModal(false)} 
+        projectType={projectType} 
+        draftId={draftId} 
+        onConfirm={handleConfirmCover} 
+      />
     </>
   );
 }

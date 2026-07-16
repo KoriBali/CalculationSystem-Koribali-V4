@@ -70,8 +70,6 @@ export function ConditionForm({
   onUpdate,
   onFinish,
   errors,
-  withReport,
-  onToggleReport,
 }) {
   // Resets all fields back to empty
   const handleReset = () => onUpdate(EMPTY_CONDITION);
@@ -262,20 +260,6 @@ export function ConditionForm({
           </SectionCard>
         </div>
 
-        {/* ── Document Options ── */}
-        <div>
-          <SectionTitle>Document Options</SectionTitle>
-          <SectionCard>
-            <div className="grid xl:grid-cols-3 gap-6">
-              <ToggleCard
-                label="Include Report"
-                icon={<FileText size={16} />}
-                enabled={withReport}
-                onToggle={onToggleReport}
-              />
-            </div>
-          </SectionCard>
-        </div>
 
         {/* Divider */}
         <div className="border-t border-gray-200" />
