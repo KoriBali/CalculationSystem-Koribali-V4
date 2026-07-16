@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { NavLink, useLocation } from "react-router-dom";
-import { Calculator, FileText, ChevronLeft, X } from "lucide-react";
+import { Calculator, FileText, ChevronLeft, X, Database } from "lucide-react";
 import { MENU_ITEMS, SPRING_TRANSITION } from "../../constants/layoutConstants";
 
 // Reusable nav item => used in both mobile and desktop sidebar
@@ -10,13 +10,13 @@ function NavItem({ item, path, isActive, isCollapsed, layoutId }) {
       to={path}
       className={`group relative flex items-center rounded-lg h-11 transition-all duration-300
         ${isCollapsed ? "justify-center px-0" : "justify-between px-3"}
-        ${isActive ? "text-white bg-gradient-to-r from-white/10 to-transparent" : "text-white/60 hover:text-white hover:bg-white/5"}`}
+        ${isActive ? "text-white bg-white/10 shadow-sm" : "text-white/60 hover:text-white hover:bg-white/5"}`}
     >
       {/* Active background highlight layer (optional for framer motion layoutId) */}
       {isActive && (
         <motion.div
           layoutId={layoutId}
-          className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent rounded-lg z-0"
+          className="absolute inset-0 bg-white/10 rounded-lg z-0"
           transition={SPRING_TRANSITION}
         />
       )}
@@ -25,7 +25,7 @@ function NavItem({ item, path, isActive, isCollapsed, layoutId }) {
       {isActive && (
         <motion.div
           layoutId={`${layoutId}-pill`}
-          className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-[#3399cc] rounded-r-md z-10 shadow-[0_0_8px_rgba(51,153,204,0.6)]"
+          className="absolute left-0 top-2 bottom-2 w-1 bg-white rounded-r-md z-10"
           transition={SPRING_TRANSITION}
         />
       )}
@@ -33,7 +33,7 @@ function NavItem({ item, path, isActive, isCollapsed, layoutId }) {
       <div
         className={`flex items-center relative z-10 ${isCollapsed ? "" : "gap-3"} transition-transform duration-300 ${!isActive && !isCollapsed ? "group-hover:translate-x-1" : ""}`}
       >
-        <item.icon size={20} className={`shrink-0 transition-colors ${isActive ? "text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]" : "text-white/60 group-hover:text-white"}`} />
+        <item.icon size={20} className={`shrink-0 transition-colors ${isActive ? "text-white" : "text-white/60 group-hover:text-white"}`} />
         {!isCollapsed && (
           <span className="font-semibold text-[14px] whitespace-nowrap">
             {item.name}
@@ -118,7 +118,13 @@ export function MobileSidebar({ isOpen, onClose, getMenuPath }) {
               {MENU_ITEMS.map((item) => {
                 const path = getMenuPath(item.path);
                 const isActive = location.pathname.startsWith(item.path);
-                const Icon = item.icon === "Calculator" ? Calculator : FileText;
+                
+                const IconMap = {
+                  Calculator,
+                  FileText,
+                  Database
+                };
+                const Icon = IconMap[item.icon] || FileText;
 
                 return (
                   <NavItem
@@ -162,7 +168,13 @@ export function DesktopSidebar({ isCollapsed, onToggleCollapse, getMenuPath }) {
         {MENU_ITEMS.map((item) => {
           const path = getMenuPath(item.path);
           const isActive = location.pathname.startsWith(item.path);
-          const Icon = item.icon === "Calculator" ? Calculator : FileText;
+          
+          const IconMap = {
+            Calculator,
+            FileText,
+            Database
+          };
+          const Icon = IconMap[item.icon] || FileText;
 
           return (
             <NavItem

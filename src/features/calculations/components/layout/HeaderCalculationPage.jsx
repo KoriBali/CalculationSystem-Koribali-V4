@@ -7,6 +7,7 @@ import {
   Layers,
   Save,
   ChevronDown,
+  ChevronRight,
   FileEdit,
   Database,
 } from "lucide-react";
@@ -184,7 +185,7 @@ export function HeaderCalculationPage() {
           
           {/* Desktop Nav */}
           {workflow.projectMode === "both" && !isProjectIdentityPage && (
-            <div className="hidden sm:flex bg-white/10 p-1 rounded-lg gap-4 border border-white/20">
+            <div className="hidden sm:flex bg-white/10 p-1 rounded-lg gap-2 border border-white/20 items-center">
               <button
                 onClick={() =>
                   navigate(`/calculation/${type}/${draftId}/initial`)
@@ -197,6 +198,11 @@ export function HeaderCalculationPage() {
               >
                 Calculation
               </button>
+              
+              <div className="flex items-center justify-center text-white/50 px-0.5">
+                <ChevronRight className={`w-4 h-4 transition-transform duration-300 ${isDrawingPage ? "rotate-180" : ""}`} />
+              </div>
+
               <button
                 onClick={() =>
                   navigate(`/calculation/${type}/${draftId}/drawing`)
@@ -226,7 +232,7 @@ export function HeaderCalculationPage() {
 
         {/* Mobile Nav */}
         {workflow.projectMode === "both" && !isProjectIdentityPage && (
-          <div className="flex sm:hidden bg-white/10 p-1 rounded-lg gap-2 border border-white/20 w-full mt-1">
+          <div className="flex sm:hidden bg-white/10 p-1 rounded-lg gap-1 border border-white/20 w-full mt-1 items-center">
             <button
               onClick={() =>
                 navigate(`/calculation/${type}/${draftId}/initial`)
@@ -239,6 +245,11 @@ export function HeaderCalculationPage() {
             >
               Calculation
             </button>
+            
+            <div className="flex items-center justify-center text-white/50 shrink-0">
+              <ChevronRight className={`w-3.5 h-3.5 transition-transform duration-300 ${isDrawingPage ? "rotate-180" : ""}`} />
+            </div>
+
             <button
               onClick={() =>
                 navigate(`/calculation/${type}/${draftId}/drawing`)

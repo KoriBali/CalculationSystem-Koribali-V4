@@ -14,6 +14,7 @@ import ProjectIdentityPage from "../features/calculations/pages/ProjectIdentityP
 import InitialInputPage from "../features/calculations/pages/InitialInputPage";
 import DrawingInputPage from "../features/calculations/pages/DrawingInputPage";
 import ReportPage from "../features/report/pages/ReportPage";
+import ProjectDatabasePage from "../features/database/pages/ProjectDatabasePage";
 import NotFoundPage from "../pages/NotFoundPage";
 
 // Detail Input Steps
@@ -60,6 +61,7 @@ export default function AppRoutes() {
             </Route>
 
             <Route path="report" element={<ReportPage />} />
+            <Route path="database" element={<ProjectDatabasePage />} />
           </Route>
 
           {/* Global Redirects & 404 (Protected) */}

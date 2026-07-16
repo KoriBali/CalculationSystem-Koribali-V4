@@ -58,7 +58,6 @@ export function usePoleStandardForm(projectType) {
       setTaperPoleStandard,
     );
 
-  // Updates straight pole fields — resets heightDepth when switching to onGL
   const updateStraightPoleStandard = (updates) => {
     let next = { ...updates };
 
@@ -71,6 +70,16 @@ export function usePoleStandardForm(projectType) {
       next,
       setStraightPoleStandard,
     );
+    
+    // Clear errors for updated fields
+    setStraightPoleErrors((prev) => {
+      if (Object.keys(prev).length === 0) return prev;
+      const newErrors = { ...prev };
+      Object.keys(next).forEach((key) => {
+        delete newErrors[key];
+      });
+      return newErrors;
+    });
   };
 
   return {

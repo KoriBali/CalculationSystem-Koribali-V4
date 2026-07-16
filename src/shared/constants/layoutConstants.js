@@ -1,7 +1,7 @@
-// Navigation menu items
 export const MENU_ITEMS = [
   { name: "Pole Calculation", icon: "Calculator", path: "/calculation" },
-  { name: "Data Reports", icon: "FileText", path: "/report" },
+  { name: "Report Preview", icon: "FileText", path: "/report" },
+  { name: "Project Database", icon: "Database", path: "/database" },
 ];
 
 // Shared spring animation config — used across sidebar and nav animations

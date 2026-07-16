@@ -11,22 +11,20 @@ export const StraightTypeSchema = (condition) => {
     .nullable()
     .notRequired();
 
+  const requiredNumberField = yup
+    .number()
+    .transform((_, val) => (val === "" ? undefined : Number(val)))
+    .typeError("Must be a number")
+    .required("Required field");
+
   return yup.object({
-    upperThickness: yup.number().required("Required field"),
+    upperThickness: requiredNumberField,
 
-    upperLength: yup
-      .number()
-      .typeError("Must be a number")
-      .required("Required field")
-      .min(0, "Must be positive"),
+    upperLength: requiredNumberField.min(0, "Must be positive"),
 
-    lowerThickness: yup.number().required("Required field"),
+    lowerThickness: requiredNumberField,
 
-    lowerLength: yup
-      .number()
-      .typeError("Must be a number")
-      .required("Required field")
-      .min(0, "Must be positive"),
+    lowerLength: requiredNumberField.min(0, "Must be positive"),
 
     // ===== EMBEDMENT =====
     embedmentLength: optionalNumberField.when([], {
@@ -41,13 +39,21 @@ export const StraightTypeSchema = (condition) => {
       otherwise: (schema) => schema.notRequired(),
     }),
 
-    // ===== UNDER GL ONLY =====
-    heightDepth: optionalNumberField.when("groundPosition", {
-      is: (val) => isBase && val === "underGL",
-      then: (schema) =>
-        schema
-          .required("Required field")
-          .lessThan(0, "Value must be less than 0"),
-    }),
+    // ===== UNDER & UPPER GL ONLY =====
+    heightDepth: optionalNumberField
+      .when("groundPosition", {
+        is: (val) => isBase && val === "underGL",
+        then: (schema) =>
+          schema
+            .required("Required field")
+            .lessThan(0, "Value must be less than 0"),
+      })
+      .when("groundPosition", {
+        is: (val) => isBase && val === "upperGL",
+        then: (schema) =>
+          schema
+            .required("Required field")
+            .moreThan(0, "Must be greater than 0"),
+      }),
   });
 };
