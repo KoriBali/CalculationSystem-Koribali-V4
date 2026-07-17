@@ -6,8 +6,13 @@ import { useProjectStorage } from "./useProjectStorage";
 
 const getDefaultDrawing = () => ({
   drawingType: "",
-  surfaceTreatment: "",
-  coatingType: "",
+  surfaceTreatmentType: "Plating Only",
+  platingType: "",
+  specificPlatingTypeCode: "",
+  paintingType: "",
+  colorName: "",
+  munsellValue: "",
+  colorCode: "",
 });
 
 export function useDrawingForm() {

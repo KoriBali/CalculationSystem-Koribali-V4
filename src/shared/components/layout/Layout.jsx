@@ -7,6 +7,7 @@ import { LogoutModal } from "./LogoutModal";
 import { MENU_ITEMS } from "../../constants/layoutConstants";
 import { getUser, clearAuthSession } from "../../../utils/auth";
 import { ScrollToTopButton } from "../ScrollToTopButton";
+import { resetScrollDirection } from "../../../hooks/useScrollDirection";
 
 // ─── HELPERS ────────────────────────────────────────────────────────────────
 
@@ -81,10 +82,16 @@ export default function Layout() {
     }
   }, []);
 
-  // Close mobile sidebar on route change
+  // Close mobile sidebar and reset scroll position on route change
   useEffect(() => {
     setIsMobileOpen(false);
-  }, [location]);
+    resetScrollDirection();
+    // Use timeout to ensure DOM has updated before scrolling
+    setTimeout(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+      resetScrollDirection();
+    }, 10);
+  }, [location.pathname]);
 
   // Sync isMobile state with window resize
   useEffect(() => {
@@ -150,10 +157,6 @@ export default function Layout() {
           <Outlet />
         </main>
 
-        <footer className="py-4 px-6 lg:px-8 border-t border-slate-200 text-center text-[10px] text-slate-400 font-bold uppercase tracking-widest">
-          &copy; {new Date().getFullYear()} KORI BALI &bull; Pole Structure
-          Calculation System
-        </footer>
       </div>
       
       <ScrollToTopButton />
