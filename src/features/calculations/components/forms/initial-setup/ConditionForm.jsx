@@ -87,20 +87,25 @@ export function ConditionForm({
                 <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">
                   Design Standard
                 </label>
-                <select
-                  value={condition.designStandard}
-                  onChange={(e) => onUpdate({ designStandard: e.target.value })}
-                  className={`${inputStyle(errors.designStandard)} lg:px-2 xl:px-4 min-h-[34px] sm:min-h-[38px] lg:min-h-[42px]`}
-                >
-                  <option value="" disabled>
-                    Select Design Standard
-                  </option>
-                  {(designStandardOptions[projectType] || []).map((item) => (
-                    <option key={item.value} value={item.value}>
-                      {item.label}
+                <div className="relative">
+                  <select
+                    value={condition.designStandard}
+                    onChange={(e) => onUpdate({ designStandard: e.target.value })}
+                    className={`${inputStyle(errors.designStandard)} lg:px-2 xl:px-4 min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] appearance-none`}
+                  >
+                    <option value="" disabled>
+                      Select Design Standard
                     </option>
-                  ))}
-                </select>
+                    {(designStandardOptions[projectType] || []).map((item) => (
+                      <option key={item.value} value={item.value}>
+                        {item.label}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <ChevronRight className="w-4 h-4 text-gray-400 rotate-90" />
+                  </div>
+                </div>
                 <ErrorStyle
                   show={errors.designStandard}
                   text={errors.designStandard}

@@ -1,4 +1,4 @@
-import { RotateCcw, Box } from "lucide-react";
+import { RotateCcw, Box, ChevronRight } from "lucide-react";
 import {
   POLE_STANDARD_OPTIONS,
   HEIGHT_OPTIONS_BY_STANDARD,
@@ -198,22 +198,27 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate }) {
                     <span className="block text-gray-600 text-xs md:text-sm font-medium mb-2">
                       Height
                     </span>
-                    <select
-                      value={taperPoleStandard.height}
-                      onChange={(e) => onUpdate({ height: e.target.value })}
-                      className="w-full px-1 md:px-3 py-2 lg:py-2.5 border border-gray-300 rounded-lg hp:rounded-md text-xs md:text-sm min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] focus:border-[#1D4ED8] outline-none transition-all bg-white"
-                    >
-                      <option value="" disabled>
-                        Select Height
-                      </option>
-                      {currentHeightOptions[
-                        taperPoleStandard.groundPosition
-                      ]?.map((h) => (
-                        <option key={h.id} value={h.id}>
-                          {h.label}
+                    <div className="relative">
+                      <select
+                        value={taperPoleStandard.height}
+                        onChange={(e) => onUpdate({ height: e.target.value })}
+                        className="w-full px-1 md:px-3 py-2 lg:py-2.5 border border-gray-300 rounded-lg hp:rounded-md text-xs md:text-sm min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] focus:border-[#1D4ED8] outline-none transition-all bg-white appearance-none"
+                      >
+                        <option value="" disabled>
+                          Select Height
                         </option>
-                      ))}
-                    </select>
+                        {currentHeightOptions[
+                          taperPoleStandard.groundPosition
+                        ]?.map((h) => (
+                          <option key={h.id} value={h.id}>
+                            {h.label}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                        <ChevronRight className="w-4 h-4 text-gray-400 rotate-90" />
+                      </div>
+                    </div>
                   </div>
                 </div>
 

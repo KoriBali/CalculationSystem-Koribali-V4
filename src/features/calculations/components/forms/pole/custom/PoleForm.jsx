@@ -1,3 +1,5 @@
+import { ChevronRight } from "lucide-react";
+
 /**
  * HELPER COMPONENTS & FUNCTIONS
  * Defined outside to prevent re-creation on every component re-render
@@ -86,46 +88,55 @@ export function PoleForm({
               <label className="block text-gray-700 text-xs md:text-sm mb-1 md:mb-2">
                 Material Type
               </label>
-              <select
-                value={pole.material}
-                onChange={(e) => onUpdate({ material: e.target.value })}
-                className={`${inputStyle(errors.material)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px]`}
-              >
-                <option value="STK400">STK400</option>
-                <option value="STK490">STK490</option>
-                <option value="STK500">STK500</option>
-                <option value="STK540">STK540</option>
-                <option value="STKR400">STKR400</option>
-              </select>
+              <div className="relative">
+                <select
+                  value={pole.material}
+                  onChange={(e) => onUpdate({ material: e.target.value })}
+                  className={`${inputStyle(errors.material)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] appearance-none`}
+                >
+                  <option value="STK400">STK400</option>
+                  <option value="STK490">STK490</option>
+                  <option value="STK500">STK500</option>
+                  <option value="STK540">STK540</option>
+                  <option value="STKR400">STKR400</option>
+                </select>
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                  <ChevronRight className="w-4 h-4 text-gray-400 rotate-90" />
+                </div>
+              </div>
               <ErrorStyle show={errors.material} text={errors.material} />
             </div>
 
             {/* Pole Type — determines which dimension fields are shown */}
-            <div>
+            <div className="relative">
               <label className="block text-gray-700 text-xs md:text-sm mb-1 md:mb-2">
                 Pole Type
               </label>
-              <select
-                value={pole.type}
-                onChange={(e) => {
-                  const newType = e.target.value;
-                  if (newType === "Straight") {
-                    // Sync upper → lower saat switch ke Straight
-                    onUpdate({
-                      type: newType,
-                      upperDiameter: pole.lowerDiameter,
-                      upperThickness: pole.lowerThickness,
-                    });
-                  } else {
-                    onUpdate({ type: newType });
-                  }
-                }}
-                className="w-full min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] px-2 md:px-4 py-2 md:py-2.5 border border-gray-300 rounded-md sm:rounded-lg text-xs md:text-sm
-                focus:ring-2 focus:ring-[#3399cc] focus:border-[#3399cc] outline-none transition-all bg-white"
-              >
-                <option value="Straight">Straight</option>
-                <option value="Taper">Taper</option>
-              </select>
+              <div className="relative">
+                <select
+                  value={pole.type}
+                  onChange={(e) => {
+                    const newType = e.target.value;
+                    if (newType === "Straight") {
+                      // Sync upper → lower saat switch ke Straight
+                      onUpdate({
+                        type: newType,
+                        upperDiameter: pole.lowerDiameter,
+                        upperThickness: pole.lowerThickness,
+                      });
+                    } else {
+                      onUpdate({ type: newType });
+                    }
+                  }}
+                  className="w-full min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] pl-3 md:pl-4 pr-8 py-2 md:py-2.5 border border-gray-300 rounded-lg hp:rounded-md text-xs md:text-sm focus:ring-1 focus:ring-[#3399cc] focus:border-[#3399cc] outline-none transition-all bg-white appearance-none"
+                >
+                  <option value="Straight">Straight</option>
+                  <option value="Taper">Taper</option>
+                </select>
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                  <ChevronRight className="w-4 h-4 text-gray-400 rotate-90" />
+                </div>
+              </div>
             </div>
           </div>
         </SectionCard>

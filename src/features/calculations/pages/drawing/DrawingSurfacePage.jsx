@@ -2,41 +2,35 @@ import { useState } from "react";
 import { Helmet } from "react-helmet";
 import { useParams, useNavigate } from "react-router-dom";
 import { ChevronUp, ChevronDown } from "lucide-react";
-import { HeaderCalculationPage } from "../components/layout/HeaderCalculationPage";
-import { DrawingForm } from "../components/forms/drawing/DrawingForm";
-import { ToastModal } from "../components/modals/ToastModal";
-import { FinishCalculationModal } from "../components/modals/FinishCalculationModal";
-import { ConfirmSaveDatabaseModal } from "../components/modals/ConfirmSaveDatabaseModal";
-import { useDrawingForm } from "../hooks/useDrawingForm";
-import { useReport } from "../../report/hooks/useReport";
-import { saveWorkingSessionToDraft, clearCalculationSession, clearActiveDraftId } from "../utils/coreLogic";
+import { HeaderCalculationPage } from "../../components/layout/HeaderCalculationPage";
+import { SurfaceForm } from "../../components/forms/drawing/SurfaceForm";
+import { ToastModal } from "../../components/modals/ToastModal";
+import { useSurfaceForm } from "../../hooks/useSurfaceForm";
+import { FinishCalculationModal } from "../../components/modals/FinishCalculationModal";
+import { ConfirmSaveDatabaseModal } from "../../components/modals/ConfirmSaveDatabaseModal";
+import { saveWorkingSessionToDraft, clearCalculationSession, clearActiveDraftId } from "../../utils/coreLogic";
 
-export default function DrawingInputPage() {
+export default function DrawingSurfacePage() {
   const { type: projectType, draftId } = useParams();
   const navigate = useNavigate();
-  const [isDrawingExpanded, setIsDrawingExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(true);
 
-  // Modal States
   const [showFinishModal, setShowFinishModal] = useState(false);
   const [showDbModal, setShowDbModal] = useState(false);
 
   const {
-    localDrawing,
+    localSurface,
     errors,
     toast,
     setToast,
     handleUpdate,
     handleReset,
-    handleNext,
-  } = useDrawingForm();
+    handleFinish,
+  } = useSurfaceForm();
 
-  const report = useReport(projectType);
-
-  // Empty space to remove the function
-
-  const onFinishDrawing = async () => {
-    const result = await handleNext();
-    if (result === "OPEN_COVER") {
+  const onFinishStep = async () => {
+    const result = await handleFinish();
+    if (result === "OPEN_FINISH") {
       setShowFinishModal(true);
     }
   };
@@ -48,8 +42,6 @@ export default function DrawingInputPage() {
       type: "success" 
     });
   };
-
-  // Empty block removed handleConfirmCover
 
   const handleSaveDraft = () => {
     saveWorkingSessionToDraft(projectType, draftId);
@@ -63,7 +55,6 @@ export default function DrawingInputPage() {
   };
 
   const handleConfirmSaveDb = () => {
-    // Database save logic will go here
     setToast({ message: "Project successfully saved to database!", type: "success" });
     setShowDbModal(false);
     setTimeout(() => {
@@ -77,7 +68,7 @@ export default function DrawingInputPage() {
     <>
       <div className="flex flex-col h-full">
         <Helmet>
-          <title>Drawing Configuration - KORI BALI</title>
+          <title>Surface Configuration - KORI BALI</title>
         </Helmet>
 
         <div className="flex-1 rounded-t-2xl hp:rounded-t-xl bg-gray-50 border border-gray-250">
@@ -86,18 +77,18 @@ export default function DrawingInputPage() {
           <div className="mx-6 2040:mx-[250px] pt-0 pb-8 hp:mx-2">
             <div
               className={`bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] px-4 py-3 md:p-4 flex items-center justify-between cursor-pointer mt-6 transition-all duration-500 ease-in-out
-                ${isDrawingExpanded ? "rounded-t-2xl hp:rounded-t-xl" : "rounded-2xl hp:rounded-xl"}`}
-              onClick={() => setIsDrawingExpanded(!isDrawingExpanded)}
+                ${isExpanded ? "rounded-t-2xl hp:rounded-t-xl" : "rounded-2xl hp:rounded-xl"}`}
+              onClick={() => setIsExpanded(!isExpanded)}
             >
               <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg hp:rounded-md border border-white/20 hp:px-3 hp:py-[8px]">
                 <h2 className="text-white text-xs md:text-sm font-semibold md:font-bold">
-                  Drawing Input
+                  Surface Input
                 </h2>
               </div>
               <div
                 className="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full bg-white/15 text-white border border-white/20 transition group-hover:bg-white/20 group-active:bg-white/25"
               >
-                {isDrawingExpanded ? (
+                {isExpanded ? (
                   <ChevronUp className="w-4 h-4 sm:w-5 sm:h-5" />
                 ) : (
                   <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -108,16 +99,16 @@ export default function DrawingInputPage() {
             <div
               className={`transition-all duration-500 ease-in-out overflow-hidden
               ${
-                isDrawingExpanded
+                isExpanded
                   ? "max-h-[5000px] rounded-b-2xl hp:rounded-b-xl"
                   : "max-h-0 rounded-b-2xl hp:rounded-b-xl"
               }`}
             >
-              <DrawingForm
-                drawing={localDrawing}
+              <SurfaceForm
+                surface={localSurface}
                 onUpdate={handleUpdate}
                 onReset={handleReset}
-                onFinish={onFinishDrawing}
+                onFinish={onFinishStep}
                 errors={errors}
               />
             </div>
@@ -140,7 +131,7 @@ export default function DrawingInputPage() {
           onConfirm={handleConfirmSaveDb}
         />
 
-        {/* Toast — shown on validation error */}
+        {/* Toast */}
         <ToastModal toast={toast} onClose={() => setToast(null)} />
       </div>
     </>

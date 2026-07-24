@@ -7,8 +7,8 @@ import {
   SectionCard,
 } from "./coverFieldPrimitives";
 
-// Project identity fields — Request No., Company Name, Request Type,
-// Project No., Requested Due Date, Project Name. Shown on the Project
+// Project identity fields — Request Number, Company Name, Request Type,
+// Project Number, Requested Due Date, Project Name. Shown on the Project
 // Setup page, independent of workflow mode and report cover data.
 export function ProjectIdentityFields({ identityData, onUpdate, errors }) {
   return (
@@ -16,9 +16,9 @@ export function ProjectIdentityFields({ identityData, onUpdate, errors }) {
       <SectionTitle>Project Information</SectionTitle>
       <SectionCard>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
-          {/* Request No. */}
+          {/* Request Number */}
           <div className="relative">
-            <Label>Request No.</Label>
+            <Label>Request Number</Label>
             <input
               type="text"
               value={identityData.requestNo || ""}
@@ -39,7 +39,10 @@ export function ProjectIdentityFields({ identityData, onUpdate, errors }) {
               className={inputStyle(errors?.companyName)}
               placeholder="e.g. YS Pole"
             />
-            <ErrorStyle show={!!errors?.companyName} text={errors?.companyName} />
+            <ErrorStyle
+              show={!!errors?.companyName}
+              text={errors?.companyName}
+            />
           </div>
 
           {/* Request Type */}
@@ -51,7 +54,9 @@ export function ProjectIdentityFields({ identityData, onUpdate, errors }) {
                 onChange={(e) => onUpdate({ requestType: e.target.value })}
                 className={`${inputStyle(errors?.requestType)} appearance-none`}
               >
-                <option value="" disabled>Select Type</option>
+                <option value="" disabled>
+                  Select Type
+                </option>
                 <option value="New">New</option>
                 <option value="Revision">Revision</option>
                 <option value="Modification">Modification</option>
@@ -61,12 +66,15 @@ export function ProjectIdentityFields({ identityData, onUpdate, errors }) {
                 <ChevronRight className="w-4 h-4 text-gray-400 rotate-90" />
               </div>
             </div>
-            <ErrorStyle show={!!errors?.requestType} text={errors?.requestType} />
+            <ErrorStyle
+              show={!!errors?.requestType}
+              text={errors?.requestType}
+            />
           </div>
 
-          {/* Project No. */}
+          {/* Project Number */}
           <div className="relative">
-            <Label>Project No.</Label>
+            <Label>Project Number</Label>
             <input
               type="text"
               value={identityData.projectNo || ""}
@@ -102,7 +110,10 @@ export function ProjectIdentityFields({ identityData, onUpdate, errors }) {
               className={inputStyle(errors?.projectName)}
               placeholder="e.g. Miyashita Children's Playground"
             />
-            <ErrorStyle show={!!errors?.projectName} text={errors?.projectName} />
+            <ErrorStyle
+              show={!!errors?.projectName}
+              text={errors?.projectName}
+            />
           </div>
         </div>
       </SectionCard>

@@ -1,6 +1,9 @@
 import { FileSpreadsheet } from "lucide-react";
 
 export function PoleResultTable({ resultPole }) {
+  // Temporarily hidden as per user request
+  return null;
+  
   return (
     <div className="mx-6 my-6 mb-16 space-y-6 hp:mx-2 hp:mt-4 hp:mb-8 ">
       <div className="bg-gradient-to-r from-[#0d3b66] to-[#0d3b66] px-5 py-4 shadow-sm hp:px-4 hp:py-3">

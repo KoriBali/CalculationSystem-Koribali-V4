@@ -7,7 +7,7 @@ export async function validateCondition(condition, projectType) {
   const { isValid, errors } = await validateWithYup(
     ConditionSchema,
     condition,
-    { context: { projectType } }, // ← pass ke yup context
+    { context: { projectType } }, // <= pass ke yup context
   );
 
   if (!isValid) {

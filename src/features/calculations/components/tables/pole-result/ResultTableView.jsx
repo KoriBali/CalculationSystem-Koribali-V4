@@ -54,25 +54,29 @@ export function ResultsTableView({
       {currentPole && <PoleResultTable resultPole={results} />}
 
       {/* ── Direct Object Result Table ── */}
-      {currentDo && <DirectObjectResultTable resultsDo={resultsDo} />}
+      {/* Temporarily hidden as per user request */}
+      {/* {currentDo && <DirectObjectResultTable resultsDo={resultsDo} />} */}
 
       {/* ── Overhead Wire Result Table ── */}
-      {currentOhw && <OverheadWireResultTable resultsOhw={resultsOhw} />}
+      {/* Temporarily hidden as per user request */}
+      {/* {currentOhw && <OverheadWireResultTable resultsOhw={resultsOhw} />} */}
 
       {/* ── Arm Result Table ── */}
-      {currentArm && <ArmResultTable resultsArm={resultsArm} />}
+      {/* Temporarily hidden as per user request */}
+      {/* {currentArm && <ArmResultTable resultsArm={resultsArm} />} */}
 
       {/* ── Arm Object Result Tables — one per arm ── */}
-      {resultsArm?.map((arm, armIndex) => (
+      {/* Temporarily hidden as per user request */}
+      {/* {resultsArm?.map((arm, armIndex) => (
         <ArmObjectResultTable
           key={arm.armNum ?? armIndex}
           arm={arm}
           armIndex={armIndex}
         />
-      ))}
+      ))} */}
 
       {/* ── Divider ── */}
-      {hasResults && <div className="border-t border-gray-200 my-8" />}
+      {/* {hasResults && (currentDo || currentOhw || currentArm) && <div className="border-t border-gray-200 my-8" />} */}
 
       {/* ── Summary Table ── */}
       {hasResults && <SummaryResultTable resultPole={results} />}

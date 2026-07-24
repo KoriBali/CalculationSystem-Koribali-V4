@@ -1,10 +1,13 @@
 import * as yup from "yup";
 
-export const DrawingSchema = yup.object({
-  drawingType: yup.string(),
+export const SurfaceSchema = yup.object({
   surfaceTreatmentType: yup.string().required("Required field"),
   platingType: yup.string().required("Required field"),
-  specificPlatingTypeCode: yup.string(),
+  specificPlatingTypeCode: yup.string().when("platingType", {
+    is: "Not Standard Plating",
+    then: (schema) => schema.required("Required field"),
+    otherwise: (schema) => schema.optional(),
+  }),
   paintingType: yup.string().when("surfaceTreatmentType", {
     is: "Plating + Painting",
     then: (schema) => schema.required("Required field"),

@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { validateWithYup } from "../utils/validation";
-import { DrawingSchema } from "../schemas/drawing/DrawingSchema";
+import { SurfaceSchema } from "../schemas/drawing/SurfaceSchema";
 import { useProjectStorage } from "./useProjectStorage";
 
-const getDefaultDrawing = () => ({
-  drawingType: "",
+const getDefaultSurface = () => ({
   surfaceTreatmentType: "Plating Only",
   platingType: "",
   specificPlatingTypeCode: "",
@@ -15,25 +14,25 @@ const getDefaultDrawing = () => ({
   colorCode: "",
 });
 
-export function useDrawingForm() {
+export function useSurfaceForm() {
   const { type: projectType, draftId } = useParams();
   const navigate = useNavigate();
 
-  const [drawing, setDrawing] = useProjectStorage(
+  const [surface, setSurface] = useProjectStorage(
     projectType,
     "drawing",
-    getDefaultDrawing()
+    getDefaultSurface()
   );
 
-  const [localDrawing, setLocalDrawing] = useState(drawing);
+  const [localSurface, setLocalSurface] = useState(surface);
   const [errors, setErrors] = useState({});
   const [toast, setToast] = useState(null);
 
   const handleUpdate = (updates) => {
-    const newDrawing = { ...localDrawing, ...updates };
-    setLocalDrawing(newDrawing);
-    setDrawing(newDrawing); // Sync to localStorage immediately so "Save Draft" works
-    
+    const newSurface = { ...localSurface, ...updates };
+    setLocalSurface(newSurface);
+    setSurface(newSurface); // Sync to localStorage immediately so "Save Draft" works
+
     setErrors((prev) => {
       const cleared = { ...prev };
       Object.keys(updates).forEach((key) => delete cleared[key]);
@@ -42,37 +41,37 @@ export function useDrawingForm() {
   };
 
   const handleReset = () => {
-    const emptyDrawing = getDefaultDrawing();
-    setLocalDrawing(emptyDrawing);
-    setDrawing(emptyDrawing); // Reset localStorage as well
+    const emptySurface = getDefaultSurface();
+    setLocalSurface(emptySurface);
+    setSurface(emptySurface); // Reset localStorage as well
     setErrors({});
   };
 
-  const handleNext = async () => {
+  const handleFinish = async () => {
     const { isValid, errors: validationErrors } = await validateWithYup(
-      DrawingSchema,
-      localDrawing
+      SurfaceSchema,
+      localSurface
     );
 
     if (!isValid) {
       setErrors(validationErrors);
-      setToast({ message: "Please correct the errors in Drawing Input." });
+      setToast({ message: "Please correct the errors in Surface Input." });
       return;
     }
     
     // Allow the view to handle the next step (e.g. Finish Modal)
-    return "OPEN_COVER";
+    return "OPEN_FINISH";
   };
 
   return {
     projectType,
-    localDrawing,
+    localSurface,
     errors,
     toast,
     setToast,
-    setLocalDrawing,
+    setLocalSurface,
     handleUpdate,
     handleReset,
-    handleNext,
+    handleFinish,
   };
 }

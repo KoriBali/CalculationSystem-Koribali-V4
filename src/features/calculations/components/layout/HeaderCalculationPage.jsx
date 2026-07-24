@@ -10,6 +10,8 @@ import {
   ChevronRight,
   FileEdit,
   Database,
+  Link,
+  PaintBucket,
 } from "lucide-react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 
@@ -120,6 +122,39 @@ export function HeaderCalculationPage() {
   const isDrawingPage = location.pathname.includes(
     `/calculation/${type}/${draftId}/drawing`,
   );
+  
+  const isDrawingCompleted = localStorage.getItem(`${type}_drawing_completed`) === "true";
+  
+  // Only show coupling tab if the user explicitly clicked Next Step with coupling enabled
+  const isCouplingUsed = localStorage.getItem(`${type}_drawing_coupling_confirmed`) === "true";
+
+  const drawingNavItems = [
+    {
+      label: "General",
+      path: `/calculation/${type}/${draftId}/drawing/general`,
+      icon: FileEdit,
+    },
+    ...(isDrawingCompleted && isCouplingUsed
+      ? [
+          {
+            label: "Coupling",
+            path: `/calculation/${type}/${draftId}/drawing/coupling`,
+            icon: Link,
+          },
+        ]
+      : []),
+    ...(isDrawingCompleted
+      ? [
+          {
+            label: "Surface",
+            path: `/calculation/${type}/${draftId}/drawing/surface`,
+            icon: PaintBucket,
+          },
+        ]
+      : []),
+  ];
+
+  const currentNavItems = isDrawingPage ? drawingNavItems : navItems;
 
   const handleBackClick = () => {
     if (isProjectIdentityPage) {
@@ -267,10 +302,10 @@ export function HeaderCalculationPage() {
       </div>
 
       {/* ── Step navigation (Bottom Bar on Mobile, Sticky on Desktop) ── */}
-      {!isProjectIdentityPage && !isDrawingPage && !isDrawingOnlyMode && (
+      {!isProjectIdentityPage && (
         <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-200 px-2 py-1.5 [@media(max-width:639px)_and_(max-height:600px)]:hidden sm:static sm:pb-2 sm:border-t-0 sm:border-b sm:px-4 sm:py-3 md:px-6 2xl:px-8 shadow-[0_-4px_10px_-1px_rgba(0,0,0,0.1)] sm:shadow-none">
           <div className="flex items-center justify-around sm:justify-start gap-1 sm:gap-2 md:gap-3 overflow-x-auto overflow-y-hidden whitespace-nowrap scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {navItems.map((item) => {
+            {currentNavItems.map((item) => {
               const isActive = location.pathname === item.path;
               const Icon = item.icon;
 

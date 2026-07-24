@@ -1,4 +1,4 @@
-import { RotateCcw } from "lucide-react";
+import { RotateCcw, ChevronRight } from "lucide-react";
 import {
   STEPPED_POLE_OPTIONS,
   COMBINATION_GROUPS,
@@ -180,7 +180,7 @@ export function StraightPoleStandardForm({
                             lowerThickness: "",
                           })
                         }
-                        className={`${inputStyle(errors.combination)} w-full min-h-[34px] sm:min-h-[38px] lg:min-h-[42px]`}
+                        className={`${inputStyle(errors.combination)} w-full min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] appearance-none`}
                       >
                         <option value="" disabled>
                           Select Combination
@@ -193,6 +193,9 @@ export function StraightPoleStandardForm({
                           </option>
                         ))}
                       </select>
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                        <ChevronRight className="w-4 h-4 text-gray-400 rotate-90" />
+                      </div>
                     </div>
                   ) : (
                     <SelectFirst message="Select lower pole diameter first" />
@@ -213,22 +216,27 @@ export function StraightPoleStandardForm({
                       </h4>
                       {straightPoleStandard.combination ? (
                         <div className="relative">
-                          <select
-                            value={straightPoleStandard.upperThickness}
-                            onChange={(e) =>
-                              onUpdate({ upperThickness: e.target.value })
-                            }
-                            className={`${inputStyle(errors.upperThickness)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] w-full`}
-                          >
-                            <option value="" disabled>
-                              Select Thickness
-                            </option>
-                            {upperOptions.map((t) => (
-                              <option key={t} value={t}>
-                                {t} mm
+                          <div className="relative">
+                            <select
+                              value={straightPoleStandard.upperThickness}
+                              onChange={(e) =>
+                                onUpdate({ upperThickness: e.target.value })
+                              }
+                              className={`${inputStyle(errors.upperThickness)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] w-full appearance-none`}
+                            >
+                              <option value="" disabled>
+                                Select Thickness
                               </option>
-                            ))}
-                          </select>
+                              {upperOptions.map((t) => (
+                                <option key={t} value={t}>
+                                  {t} mm
+                                </option>
+                              ))}
+                            </select>
+                            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                              <ChevronRight className="w-4 h-4 text-gray-400 rotate-90" />
+                            </div>
+                          </div>
                           <ErrorStyle
                             show={errors.upperThickness}
                             text="Required field"
@@ -276,22 +284,27 @@ export function StraightPoleStandardForm({
                       </h4>
                       {straightPoleStandard.combination ? (
                         <div className="relative">
-                          <select
-                            value={straightPoleStandard.lowerThickness}
-                            onChange={(e) =>
-                              onUpdate({ lowerThickness: e.target.value })
-                            }
-                            className={`${inputStyle(errors.lowerThickness)} w-full min-h-[34px] sm:min-h-[38px] lg:min-h-[42px]`}
-                          >
-                            <option value="" disabled>
-                              Select Thickness
-                            </option>
-                            {lowerOptions.map((t) => (
-                              <option key={t} value={t}>
-                                {t} mm
+                          <div className="relative">
+                            <select
+                              value={straightPoleStandard.lowerThickness}
+                              onChange={(e) =>
+                                onUpdate({ lowerThickness: e.target.value })
+                              }
+                              className={`${inputStyle(errors.lowerThickness)} w-full min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] appearance-none`}
+                            >
+                              <option value="" disabled>
+                                Select Thickness
                               </option>
-                            ))}
-                          </select>
+                              {lowerOptions.map((t) => (
+                                <option key={t} value={t}>
+                                  {t} mm
+                                </option>
+                              ))}
+                            </select>
+                            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                              <ChevronRight className="w-4 h-4 text-gray-400 rotate-90" />
+                            </div>
+                          </div>
                           <ErrorStyle
                             show={errors.lowerThickness}
                             text="Required field"

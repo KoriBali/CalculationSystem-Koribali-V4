@@ -6,6 +6,7 @@ import {
   ClipboardPaste,
   CheckCircle,
   Circle,
+  ChevronRight,
 } from "lucide-react";
 
 /**
@@ -377,16 +378,21 @@ export function ArmObjectForm({
                   <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
                     Type
                   </label>
-                  <select
-                    value={armObject.type}
-                    onChange={(e) =>
-                      onUpdate(armObject.idAo, { type: e.target.value })
-                    }
-                    className={`${inputStyle(aoError.type)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] px-3 2xl:px-4`}
-                  >
-                    <option value="omni">Omni</option>
-                    <option value="directional">Directional</option>
-                  </select>
+                  <div className="relative">
+                    <select
+                      value={armObject.type}
+                      onChange={(e) =>
+                        onUpdate(armObject.idAo, { type: e.target.value })
+                      }
+                      className={`${inputStyle(aoError.type)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] pl-3 2xl:pl-4 pr-8 appearance-none`}
+                    >
+                      <option value="omni">Omni</option>
+                      <option value="directional">Directional</option>
+                    </select>
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                      <ChevronRight className="w-4 h-4 text-gray-400 rotate-90" />
+                    </div>
+                  </div>
                   <ErrorStyle show={aoError.type} text={aoError.type} />
                 </div>
 

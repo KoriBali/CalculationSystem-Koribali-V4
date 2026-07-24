@@ -18,6 +18,8 @@ export const DATA_KEYS = [
   "resultsOhw",
   "resultsArm",
   "showResults",
+  "drawing",
+  "drawing_completed",
   "openingType",
   "boxType",
   "rType",

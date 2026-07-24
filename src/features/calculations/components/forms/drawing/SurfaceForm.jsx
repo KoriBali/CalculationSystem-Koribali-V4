@@ -5,10 +5,9 @@ import { RotateCcw, ChevronRight, CheckCircle, Circle, Sparkles, PaintBucket } f
  */
 const inputStyle = (hasError) =>
   `w-full px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border
-  ${
-    hasError
-      ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
-      : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
+  ${hasError
+    ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
+    : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
   }`;
 
 const ErrorStyle = ({ show, text }) =>
@@ -38,10 +37,9 @@ const CardOption = ({ label, icon: Icon, current, value, onChange }) => {
       type="button"
       onClick={() => onChange(value)}
       className={`group w-full text-left relative overflow-hidden rounded-lg hp:rounded-md border-2 p-3 md:p-5 transition-all duration-300 cursor-pointer active:scale-[0.98]
-        ${
-          isActive
-            ? "border-blue-500 bg-blue-50 shadow-sm ring-1 ring-blue-50"
-            : "border-slate-100 bg-slate-50/50 hover:border-slate-300 hover:bg-slate-50 hover:shadow-sm"
+        ${isActive
+          ? "border-blue-500 bg-blue-50 shadow-sm ring-1 ring-blue-50"
+          : "border-slate-100 bg-slate-50/50 hover:border-slate-300 hover:bg-slate-50 hover:shadow-sm"
         }`}
     >
       <div className="flex items-center justify-between">
@@ -71,7 +69,7 @@ const CardOption = ({ label, icon: Icon, current, value, onChange }) => {
   );
 };
 
-export function DrawingForm({ drawing, onUpdate, onReset, onFinish, errors }) {
+export function SurfaceForm({ surface, onUpdate, onReset, onFinish, errors }) {
   const handleSurfaceTreatmentChange = (val) => {
     const updates = { surfaceTreatmentType: val };
     if (val === "Plating Only") {
@@ -86,7 +84,7 @@ export function DrawingForm({ drawing, onUpdate, onReset, onFinish, errors }) {
   const handlePlatingTypeChange = (val) => {
     const updates = { platingType: val };
     if (val === "Standard Plating") {
-      updates.specificPlatingTypeCode = "HZTA";
+      updates.specificPlatingTypeCode = "HZTD";
     } else {
       updates.specificPlatingTypeCode = "";
     }
@@ -103,48 +101,25 @@ export function DrawingForm({ drawing, onUpdate, onReset, onFinish, errors }) {
     onUpdate(updates);
   };
 
-  const isPaintingEnabled = drawing.surfaceTreatmentType === "Plating + Painting";
+  const isPaintingEnabled = surface.surfaceTreatmentType === "Plating + Painting";
 
   // Generate color combined string
   const colorParts = [];
-  if (drawing.colorName) colorParts.push(drawing.colorName);
-  if (drawing.munsellValue) colorParts.push(drawing.munsellValue);
-  if (drawing.colorCode) colorParts.push(drawing.colorCode);
+  if (surface.colorName) colorParts.push(surface.colorName);
+  if (surface.munsellValue) colorParts.push(surface.munsellValue);
+  if (surface.colorCode) colorParts.push(surface.colorCode);
   const colorCombined = colorParts.join(" ");
 
   return (
     <div className="bg-white rounded-b-2xl hp:rounded-b-xl shadow-sm border border-gray-200">
       <div className="p-4 md:p-6 shadow-sm space-y-4 md:space-y-6">
-        
-        {/* ── Drawing Specifications (HIDDEN BY REQUEST) ── */}
-        {/* 
-        <div>
-          <SectionTitle>Drawing Specifications</SectionTitle>
-          <SectionCard>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="relative">
-                <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">
-                  Drawing Type
-                </label>
-                <input
-                  type="text"
-                  value={drawing.drawingType || ""}
-                  onChange={(e) => onUpdate({ drawingType: e.target.value })}
-                  className={`${inputStyle(errors.drawingType)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px]`}
-                />
-                <ErrorStyle show={errors.drawingType} text={errors.drawingType} />
-              </div>
-            </div>
-          </SectionCard>
-        </div>
-        */}
 
         {/* ── Surface Treatment ── */}
         <div>
           <SectionTitle>Surface Treatment of Pole</SectionTitle>
           <SectionCard>
             <div className="space-y-6 md:space-y-8">
-              
+
               {/* 1. Selection */}
               <div>
                 <label className="block text-xs md:text-sm font-medium text-gray-800 mb-3">
@@ -155,14 +130,14 @@ export function DrawingForm({ drawing, onUpdate, onReset, onFinish, errors }) {
                     label="Plating Only"
                     value="Plating Only"
                     icon={Sparkles}
-                    current={drawing.surfaceTreatmentType}
+                    current={surface.surfaceTreatmentType}
                     onChange={handleSurfaceTreatmentChange}
                   />
                   <CardOption
                     label="Plating + Painting"
                     value="Plating + Painting"
                     icon={PaintBucket}
-                    current={drawing.surfaceTreatmentType}
+                    current={surface.surfaceTreatmentType}
                     onChange={handleSurfaceTreatmentChange}
                   />
                 </div>
@@ -178,9 +153,9 @@ export function DrawingForm({ drawing, onUpdate, onReset, onFinish, errors }) {
                   </label>
                   <div className="relative">
                     <select
-                      value={drawing.platingType || ""}
+                      value={surface.platingType || ""}
                       onChange={(e) => handlePlatingTypeChange(e.target.value)}
-                      className={`${inputStyle(errors.platingType)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] bg-white cursor-pointer appearance-none`}
+                      className={`${inputStyle(errors.platingType)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] cursor-pointer appearance-none`}
                     >
                       <option value="" disabled>Select Plating Type</option>
                       <option value="Standard Plating">Standard Plating</option>
@@ -193,20 +168,20 @@ export function DrawingForm({ drawing, onUpdate, onReset, onFinish, errors }) {
                   <ErrorStyle show={errors.platingType} text={errors.platingType} />
                 </div>
 
-                <div className="relative">
+                <div className="relative pb-1">
                   <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">
-                    Specific Plating Type Code (optional)
+                    Specific Plating Type Code
                   </label>
                   <input
                     type="text"
-                    placeholder="ex: HDZT63, HZTA, etc"
-                    value={drawing.specificPlatingTypeCode || ""}
+                    placeholder="ex: HDZT63, HZTD, etc"
+                    value={surface.specificPlatingTypeCode || ""}
                     onChange={(e) => onUpdate({ specificPlatingTypeCode: e.target.value })}
-                    readOnly={drawing.platingType === "Standard Plating"}
-                    className={`${inputStyle(errors.specificPlatingTypeCode)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] ${
-                      drawing.platingType === "Standard Plating" ? "bg-slate-50 text-slate-800 cursor-default focus:border-gray-300 focus:ring-0" : ""
-                    }`}
+                    readOnly={surface.platingType === "Standard Plating"}
+                    className={`${inputStyle(errors.specificPlatingTypeCode)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] ${surface.platingType === "Standard Plating" ? "bg-slate-50 text-slate-800 cursor-default focus:border-gray-300 focus:ring-0" : ""
+                      }`}
                   />
+                  <ErrorStyle show={errors.specificPlatingTypeCode} text={errors.specificPlatingTypeCode} />
                 </div>
               </div>
 
@@ -214,7 +189,7 @@ export function DrawingForm({ drawing, onUpdate, onReset, onFinish, errors }) {
               {isPaintingEnabled && (
                 <div className="animate-in fade-in slide-in-from-top-4 duration-300">
                   <div className="border-t border-gray-100 mb-6" />
-                  
+
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="relative">
@@ -223,9 +198,9 @@ export function DrawingForm({ drawing, onUpdate, onReset, onFinish, errors }) {
                         </label>
                         <div className="relative">
                           <select
-                            value={drawing.paintingType || ""}
+                            value={surface.paintingType || ""}
                             onChange={(e) => handlePaintingTypeChange(e.target.value)}
-                            className={`${inputStyle(errors.paintingType)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] bg-white cursor-pointer appearance-none`}
+                            className={`${inputStyle(errors.paintingType)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] cursor-pointer appearance-none`}
                           >
                             <option value="" disabled>Select Painting Type</option>
                             <option value="Acrilic Silicone">Acrilic Silicone</option>
@@ -241,57 +216,59 @@ export function DrawingForm({ drawing, onUpdate, onReset, onFinish, errors }) {
                       </div>
                     </div>
 
-                    <div className="p-4 md:p-5 rounded-xl border border-gray-200 space-y-4">
-                      <label className="block text-xs md:text-sm font-semibold text-gray-800">
-                        Specified Color Details
-                      </label>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="relative">
-                          <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">Color Name</label>
-                          <input
-                            type="text"
-                            value={drawing.colorName || ""}
-                            onChange={(e) => onUpdate({ colorName: e.target.value })}
-                            className={`${inputStyle(errors.colorName)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] bg-white`}
-                          />
-                          <ErrorStyle show={errors.colorName} text={errors.colorName} />
-                        </div>
-                        <div className="relative">
-                          <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">Munsell value</label>
-                          <input
-                            type="text"
-                            value={drawing.munsellValue || ""}
-                            onChange={(e) => onUpdate({ munsellValue: e.target.value })}
-                            className={`${inputStyle(errors.munsellValue)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] bg-white`}
-                          />
-                          <ErrorStyle show={errors.munsellValue} text={errors.munsellValue} />
-                        </div>
-                        <div className="relative">
-                          <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">Color code</label>
-                          <input
-                            type="text"
-                            value={drawing.colorCode || ""}
-                            onChange={(e) => onUpdate({ colorCode: e.target.value })}
-                            className={`${inputStyle(errors.colorCode)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] bg-white`}
-                          />
-                          <ErrorStyle show={errors.colorCode} text={errors.colorCode} />
-                        </div>
-                      </div>
-
-                      <div className="relative pt-1">
-                        <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">
-                          Color Name + Munsell value + Color code
+                    {surface.paintingType === "Specified Color Paint" && (
+                      <div className="p-4 md:p-5 rounded-xl border border-gray-200 space-y-4">
+                        <label className="block text-xs md:text-sm font-semibold text-gray-800">
+                          Specified Color Details
                         </label>
-                        <input
-                          type="text"
-                          readOnly
-                          value={colorCombined}
-                          placeholder="ex: ブラウン 日塗工No.15-20B 近似 (YPTR-363A)"
-                          className={`${inputStyle()} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] bg-gray-100 cursor-default text-gray-700 font-medium focus:border-gray-300 focus:ring-0`}
-                        />
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-6">
+                          <div className="relative pb-1">
+                            <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">Color Name</label>
+                            <input
+                              type="text"
+                              value={surface.colorName || ""}
+                              onChange={(e) => onUpdate({ colorName: e.target.value })}
+                              className={`${inputStyle(errors.colorName)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px]`}
+                            />
+                            <ErrorStyle show={errors.colorName} text={errors.colorName} />
+                          </div>
+                          <div className="relative pb-1">
+                            <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">Munsell value</label>
+                            <input
+                              type="text"
+                              value={surface.munsellValue || ""}
+                              onChange={(e) => onUpdate({ munsellValue: e.target.value })}
+                              className={`${inputStyle(errors.munsellValue)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px]`}
+                            />
+                            <ErrorStyle show={errors.munsellValue} text={errors.munsellValue} />
+                          </div>
+                          <div className="relative pb-1">
+                            <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">Color code</label>
+                            <input
+                              type="text"
+                              value={surface.colorCode || ""}
+                              onChange={(e) => onUpdate({ colorCode: e.target.value })}
+                              className={`${inputStyle(errors.colorCode)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px]`}
+                            />
+                            <ErrorStyle show={errors.colorCode} text={errors.colorCode} />
+                          </div>
+                        </div>
+
+                        <div className="relative pt-1">
+                          <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">
+                            Color Name + Munsell value + Color code
+                          </label>
+                          <input
+                            type="text"
+                            readOnly
+                            value={colorCombined}
+                            placeholder="ex: ブラウン 日塗工No.15-20B 近似 (YPTR-363A)"
+                            className={`${inputStyle()} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] bg-gray-100 cursor-default text-gray-700 font-medium focus:border-gray-300 focus:ring-0`}
+                          />
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
                 </div>
               )}

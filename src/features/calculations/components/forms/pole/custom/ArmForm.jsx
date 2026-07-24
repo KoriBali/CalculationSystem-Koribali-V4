@@ -1,3 +1,5 @@
+import { ChevronRight } from "lucide-react";
+
 /**
  * HELPER COMPONENTS & FUNCTIONS
  * Defined outside to prevent re-creation on every component re-render
@@ -52,19 +54,24 @@ export function ArmForm({ arm, onUpdate, armError }) {
           <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
             Material
           </label>
-          <select
-            value={arm.material}
-            onChange={(e) => onUpdate({ material: e.target.value })}
-            className={`
-              ${inputStyle(armError.material)}
-              min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] px-3 2xl:px-4`}
-          >
-            <option value="STK400">STK400</option>
-            <option value="STK490">STK490</option>
-            <option value="STK500">STK500</option>
-            <option value="STK540">STK540</option>
-            <option value="STKR400">STKR400</option>
-          </select>
+          <div className="relative">
+            <select
+              value={arm.material}
+              onChange={(e) => onUpdate({ material: e.target.value })}
+              className={`
+                ${inputStyle(armError.material)}
+                min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] pl-3 2xl:pl-4 pr-8 appearance-none`}
+            >
+              <option value="STK400">STK400</option>
+              <option value="STK490">STK490</option>
+              <option value="STK500">STK500</option>
+              <option value="STK540">STK540</option>
+              <option value="STKR400">STKR400</option>
+            </select>
+            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+              <ChevronRight className="w-4 h-4 text-gray-400 rotate-90" />
+            </div>
+          </div>
           <ErrorStyle show={armError.material} text={armError.material} />
         </div>
 

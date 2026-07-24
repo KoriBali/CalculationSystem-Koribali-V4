@@ -1,4 +1,5 @@
 import React from "react";
+import { ChevronRight } from "lucide-react";
 
 /**
  * HELPER COMPONENTS & FUNCTIONS
@@ -7,10 +8,9 @@ import React from "react";
 
 const inputStyle = (hasError) =>
   `w-full px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border
-  ${
-    hasError
-      ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
-      : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
+  ${hasError
+    ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
+    : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
   }`;
 
 // Small component to display validation error messages
@@ -31,18 +31,23 @@ export function BaseplateType({ baseplateType, onUpdate, errors }) {
       <div>
         {/* CARD */}
         <div className="relative">
-          <select
-            value={baseplateType.type}
-            onChange={(e) => onUpdate({ type: e.target.value })}
-            className={`${inputStyle(errors.type)} lg:px-2 xl:px-4 min-h-[34px] sm:min-h-[38px] lg:min-h-[42px]`}
-          >
-            <option value="" disabled>
-              Select Baseplate Type
-            </option>
+          <div className="relative">
+            <select
+              value={baseplateType.type}
+              onChange={(e) => onUpdate({ type: e.target.value })}
+              className={`${inputStyle(errors.type)} lg:pl-3 xl:pl-4 pr-8 lg:pr-8 xl:pr-8 min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] appearance-none`}
+            >
+              <option value="" disabled>
+                Select Baseplate Type
+              </option>
 
-            <option value="4rib">4 Rib Type</option>
-            <option value="8rib">8 Rib Type</option>
-          </select>
+              <option value="4rib">4 Rib Type</option>
+              <option value="8rib">8 Rib Type</option>
+            </select>
+            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+              <ChevronRight className="w-4 h-4 text-gray-400 rotate-90" />
+            </div>
+          </div>
           <ErrorStyle show={errors.type} text={errors.type} />
         </div>
       </div>
