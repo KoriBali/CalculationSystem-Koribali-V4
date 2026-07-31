@@ -18,7 +18,7 @@ export function useDirectObjectForm(projectType) {
   // Persists max DO ID to prevent conflicts after reload
   const doIdRef = useRef(1);
   useEffect(() => {
-    const saved = localStorage.getItem(`${projectType}_directObjects`);
+    const saved = sessionStorage.getItem(`${projectType}_directObjects`);
     if (!saved) return;
     const parsed = JSON.parse(saved);
     const maxId = Math.max(0, ...parsed.map((d) => Number(d.idDo)));

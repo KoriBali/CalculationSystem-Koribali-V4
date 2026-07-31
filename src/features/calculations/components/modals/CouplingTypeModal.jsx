@@ -18,7 +18,7 @@ export function CouplingTypeModal({ isOpen, onClose, couplingIndex, onSelect }) 
   const cases = Array.from({ length: 10 }, (_, i) => ({
     id: i + 1,
     title: `Case ${i + 1} of Coupling`,
-    image: "/images/coupling-case1.svg",
+    image: `/images/CP-Case${i + 1}.svg`,
   }));
 
   const handleNext = () => {
@@ -51,13 +51,13 @@ export function CouplingTypeModal({ isOpen, onClose, couplingIndex, onSelect }) 
                 <button
                   key={c.id}
                   onClick={() => setSelectedCaseId(c.id)}
-                  className={`group relative flex flex-col bg-white rounded-xl border-2 overflow-hidden transition-all duration-200 text-left focus:outline-none focus:ring-2 focus:ring-[#3399cc]/50 focus:ring-offset-2
+                  className={`group relative flex flex-col h-full bg-white rounded-xl border-2 overflow-hidden transition-all duration-200 text-left focus:outline-none focus:ring-2 focus:ring-[#3399cc]/50 focus:ring-offset-2
                     ${isSelected 
                       ? "border-[#3399cc] shadow-md ring-1 ring-[#3399cc]" 
                       : "border-slate-200 hover:border-[#3399cc] hover:shadow-sm"
                     }`}
                 >
-                  <div className="w-full bg-slate-50/30 border-b border-slate-100 p-4 flex items-center justify-center aspect-square relative">
+                  <div className="w-full flex-1 bg-slate-50/30 border-b border-slate-100 p-4 flex items-center justify-center relative min-h-[120px] sm:min-h-[140px]">
                     <img
                       src={c.image}
                       alt={c.title}
@@ -69,7 +69,7 @@ export function CouplingTypeModal({ isOpen, onClose, couplingIndex, onSelect }) 
                       </div>
                     )}
                   </div>
-                  <div className="p-3 bg-white">
+                  <div className="p-3 bg-white w-full mt-auto shrink-0">
                     <p className={`text-xs md:text-sm font-bold text-center transition-colors
                       ${isSelected ? "text-[#0d3b66]" : "text-slate-700 group-hover:text-[#3399cc]"}`}
                     >

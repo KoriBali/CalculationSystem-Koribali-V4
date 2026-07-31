@@ -11,7 +11,7 @@ import { resetScrollDirection } from "../../../hooks/useScrollDirection";
 
 // ─── HELPERS ────────────────────────────────────────────────────────────────
 
-// Formats localStorage projectType into a readable title (e.g. "lighting-pole" → "Lighting Pole Type")
+// Formats sessionStorage projectType into a readable title (e.g. "lighting-pole" → "Lighting Pole Type")
 function formatProjectType(type) {
   if (!type) return null;
   return (
@@ -38,7 +38,7 @@ export default function Layout() {
   const [userData, setUserData] = useState({ name: "User", email: "" });
 
   // Derive current page title from route + session
-  const projectType = localStorage.getItem("projectType");
+  const projectType = sessionStorage.getItem("projectType");
   const formattedProjectType = formatProjectType(projectType);
   const isCalculationRoot = location.pathname === "/calculation";
   let currentTitle = "Page Not Found";
@@ -65,7 +65,7 @@ export default function Layout() {
   // Returns nav path — if projectType exists, go directly to that calculation or its active draft
   const getMenuPath = (path) => {
     if (path === "/calculation" && projectType) {
-      const activeDraftId = localStorage.getItem(`${projectType}_active_draft_id`);
+      const activeDraftId = sessionStorage.getItem(`${projectType}_active_draft_id`);
       return activeDraftId
         ? `/calculation/${projectType}/${activeDraftId}`
         : `/calculation/${projectType}`;
@@ -73,7 +73,7 @@ export default function Layout() {
     return path;
   };
 
-  // Load user session from localStorage on mount
+  // Load user session from sessionStorage on mount
   useEffect(() => {
     const user = getUser();
 
@@ -107,7 +107,7 @@ export default function Layout() {
   // Clears session data and redirects to login
   const handleLogout = () => {
     clearAuthSession();
-    localStorage.removeItem("projectType");
+    sessionStorage.removeItem("projectType");
 
     navigate("/login");
   };

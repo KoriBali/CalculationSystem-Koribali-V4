@@ -24,14 +24,14 @@ import { ConfirmSaveDatabaseModal } from "../../../calculations/components/modal
 export function ReportView() {
   const navigate = useNavigate();
   const location = useLocation();
-  const projectType = localStorage.getItem("projectType");
+  const projectType = sessionStorage.getItem("projectType");
 
   // ── Load report data ──
-  // Prioritize route state (fresh navigation), fallback to localStorage snapshot (reload)
+  // Prioritize route state (fresh navigation), fallback to sessionStorage snapshot (reload)
   const reportData =
     location.state ||
     JSON.parse(
-      localStorage.getItem(`${projectType}_reportSnapshot`) || "null",
+      sessionStorage.getItem(`${projectType}_reportSnapshot`) || "null",
     );
 
   // ── Destructure all fields from merged reportPayload ──
@@ -53,7 +53,7 @@ export function ReportView() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showDbModal, setShowDbModal] = useState(false);
   const [hasReport, setHasReport] = useState(
-    localStorage.getItem(`${projectType}_hasReport`) === "true",
+    sessionStorage.getItem(`${projectType}_hasReport`) === "true",
   );
 
   // ── Handlers ──
@@ -64,7 +64,7 @@ export function ReportView() {
       return;
     }
     
-    const activeDraftId = localStorage.getItem(`${projectType}_active_draft_id`);
+    const activeDraftId = sessionStorage.getItem(`${projectType}_active_draft_id`);
     if (activeDraftId) {
       navigate(`/calculation/${projectType}/${activeDraftId}`);
     } else {

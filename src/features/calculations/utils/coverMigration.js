@@ -9,7 +9,7 @@
 
 const readLegacyCover = (projectType) => {
   try {
-    const raw = localStorage.getItem(`${projectType}_cover`);
+    const raw = sessionStorage.getItem(`${projectType}_cover`);
     return raw ? JSON.parse(raw) : null;
   } catch {
     return null;
@@ -18,7 +18,7 @@ const readLegacyCover = (projectType) => {
 
 // One-time seed for `${type}_projectIdentity` from the legacy cover blob.
 export const computeInitialIdentity = (projectType, defaultIdentity) => {
-  if (localStorage.getItem(`${projectType}_projectIdentity`) !== null) {
+  if (sessionStorage.getItem(`${projectType}_projectIdentity`) !== null) {
     return defaultIdentity;
   }
   const legacy = readLegacyCover(projectType);
@@ -37,7 +37,7 @@ export const computeInitialIdentity = (projectType, defaultIdentity) => {
 // One-time seed for `${type}_workflow` from the legacy cover blob.
 // Handles both the `projectMode` shape and the older `withDrawing` boolean shape.
 export const computeInitialWorkflow = (projectType, defaultWorkflow) => {
-  if (localStorage.getItem(`${projectType}_workflow`) !== null) {
+  if (sessionStorage.getItem(`${projectType}_workflow`) !== null) {
     return defaultWorkflow;
   }
   const legacy = readLegacyCover(projectType);

@@ -49,8 +49,7 @@ const EMPTY_POLE_STANDARD = {
   height: "",
 };
 
-// === COMPONENT ===
-export function TaperPoleStandardForm({ taperPoleStandard, onUpdate }) {
+export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset = false }) {
   const currentHeightOptions =
     HEIGHT_OPTIONS_BY_STANDARD[taperPoleStandard.poleType] ??
     EMPTY_HEIGHT_OPTIONS;
@@ -254,17 +253,19 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate }) {
       </div>
 
       {/* ── Footer: Reset ── */}
-      <div className="flex justify-between pt-5 border-t mt-6">
-        <button
-          type="button"
-          onClick={() => onUpdate(EMPTY_POLE_STANDARD)}
-          className="flex justify-center items-center text-sm gap-2 px-5 py-2.5 sm:py-2.5 lg:py-2.5 md:px-6 bg-[#eef2f6] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] rounded-lg hp:rounded-md 
-          hover:bg-[#e2e8f0] transition-colors font-medium hp:text-xs"
-        >
-          <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-          Reset
-        </button>
-      </div>
+      {!hideReset && (
+        <div className="flex justify-between pt-5 border-t mt-6">
+          <button
+            type="button"
+            onClick={() => onUpdate(EMPTY_POLE_STANDARD)}
+            className="flex justify-center items-center text-sm gap-2 px-5 py-2.5 sm:py-2.5 lg:py-2.5 md:px-6 bg-[#eef2f6] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] rounded-lg hp:rounded-md 
+            hover:bg-[#e2e8f0] transition-colors font-medium hp:text-xs"
+          >
+            <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+            Reset
+          </button>
+        </div>
+      )}
     </div>
   );
 }

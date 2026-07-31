@@ -17,6 +17,7 @@ export default function DrawingCouplingPage() {
   };
 
   const handleNext = () => {
+    sessionStorage.setItem(`${projectType}_drawing_coupling_completed`, "true");
     navigate(`/calculation/${projectType}/${draftId}/drawing/surface`);
   };
 

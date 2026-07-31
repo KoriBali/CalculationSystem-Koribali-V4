@@ -42,6 +42,14 @@ export const DATA_KEYS = [
   "reportSnapshot",
   "calculation_config",
   "drawing",
+  "drawing_completed",
+  "drawing_general",
+  "drawing_coupling_location",
+  "drawing_coupling_count",
+  "drawing_coupling_data",
+  "drawing_coupling_completed",
+  "drawing_surface",
+  "drawing_coupling_confirmed",
 ];
 
 /**
@@ -54,7 +62,7 @@ export const DATA_KEYS = [
  */
 export const hasCalculationData = (projectType) => {
   // Primary signal: config is only saved after the user confirms Initial Input
-  if (localStorage.getItem(`${projectType}_calculation_config`) !== null) {
+  if (sessionStorage.getItem(`${projectType}_calculation_config`) !== null) {
     return true;
   }
 
@@ -69,8 +77,8 @@ export const hasCalculationData = (projectType) => {
     }
   };
 
-  if (hasNonEmptyStringField(localStorage.getItem(`${projectType}_cover`))) return true;
-  if (hasNonEmptyStringField(localStorage.getItem(`${projectType}_projectIdentity`))) return true;
+  if (hasNonEmptyStringField(sessionStorage.getItem(`${projectType}_cover`))) return true;
+  if (hasNonEmptyStringField(sessionStorage.getItem(`${projectType}_projectIdentity`))) return true;
 
   // Secondary signal: any computed/result data exists
   const deepKeys = [
@@ -87,25 +95,25 @@ export const hasCalculationData = (projectType) => {
   ];
 
   return deepKeys.some(
-    (key) => localStorage.getItem(`${projectType}_${key}`) !== null,
+    (key) => sessionStorage.getItem(`${projectType}_${key}`) !== null,
   );
 };
 
 export const isProjectComplete = (projectType) => {
-  const workflowRaw = localStorage.getItem(`${projectType}_workflow`);
+  const workflowRaw = sessionStorage.getItem(`${projectType}_workflow`);
   const workflow = workflowRaw ? JSON.parse(workflowRaw) : {};
   const mode = workflow.projectMode || "calculation";
 
   const isCalculationDone = () => {
-    const raw = localStorage.getItem(`${projectType}_calculation_config`);
+    const raw = sessionStorage.getItem(`${projectType}_calculation_config`);
     if (!raw) return false;
     const config = JSON.parse(raw);
     const hasArrayData = (key) => {
-      const val = localStorage.getItem(`${projectType}_${key}`);
+      const val = sessionStorage.getItem(`${projectType}_${key}`);
       return val && val !== "null" && Array.isArray(JSON.parse(val)) && JSON.parse(val).length > 0;
     };
     const isValueSet = (key) => {
-      const val = localStorage.getItem(`${projectType}_${key}`);
+      const val = sessionStorage.getItem(`${projectType}_${key}`);
       return val !== null && val !== "null";
     };
     const hasPole = config.pole ? hasArrayData("results") : true;
@@ -117,7 +125,7 @@ export const isProjectComplete = (projectType) => {
 
   const isDrawingDone = () => {
     // Basic check for drawing completion, if drawing is implemented.
-    const raw = localStorage.getItem(`${projectType}_drawing`);
+    const raw = sessionStorage.getItem(`${projectType}_drawing`);
     if (!raw) return false;
     try {
       const drawingData = JSON.parse(raw);
@@ -142,9 +150,9 @@ export const clearCalculationSession = (projectType) => {
   // All keys except "calculation_config" which is handled separately below
   const keys = DATA_KEYS.filter((k) => k !== "calculation_config");
 
-  keys.forEach((key) => localStorage.removeItem(`${projectType}_${key}`));
+  keys.forEach((key) => sessionStorage.removeItem(`${projectType}_${key}`));
 
-  localStorage.removeItem(`${projectType}_calculation_config`);
+  sessionStorage.removeItem(`${projectType}_calculation_config`);
 };
 
 
@@ -153,18 +161,18 @@ export const clearCalculationSession = (projectType) => {
 // ===============================================================================
 
 export const getDraftsIndex = (projectType) => {
-  const raw = localStorage.getItem(`${projectType}_drafts_index`);
+  const raw = sessionStorage.getItem(`${projectType}_drafts_index`);
   if (!raw) return [];
   const drafts = JSON.parse(raw);
   return drafts.sort((a, b) => new Date(b.lastEdited) - new Date(a.lastEdited));
 };
 
 export const saveDraftsIndex = (projectType, drafts) => {
-  localStorage.setItem(`${projectType}_drafts_index`, JSON.stringify(drafts));
+  sessionStorage.setItem(`${projectType}_drafts_index`, JSON.stringify(drafts));
 };
 
 export const getDraftData = (projectType, draftId) => {
-  const raw = localStorage.getItem(`${projectType}_draft_data_${draftId}`);
+  const raw = sessionStorage.getItem(`${projectType}_draft_data_${draftId}`);
   return raw ? JSON.parse(raw) : null;
 };
 
@@ -172,7 +180,7 @@ export const getDraftData = (projectType, draftId) => {
 export const serializeWorkingSession = (projectType) => {
   const data = {};
   DATA_KEYS.forEach(key => {
-    const val = localStorage.getItem(`${projectType}_${key}`);
+    const val = sessionStorage.getItem(`${projectType}_${key}`);
     if (val !== null) {
       data[key] = val; // Store raw stringified JSON
     }
@@ -185,7 +193,7 @@ export const deserializeWorkingSession = (projectType, draftData) => {
   clearCalculationSession(projectType); // Clear existing first
   if (draftData) {
     Object.entries(draftData).forEach(([key, val]) => {
-      localStorage.setItem(`${projectType}_${key}`, val);
+      sessionStorage.setItem(`${projectType}_${key}`, val);
     });
   }
 };
@@ -223,7 +231,7 @@ export const saveWorkingSessionToDraft = (projectType, draftId, defaultTitle = "
   else if (fromLegacyCover?.number) subtitle = fromLegacyCover.number;
 
   // Save the draft data payload
-  localStorage.setItem(`${projectType}_draft_data_${draftId}`, JSON.stringify(data));
+  sessionStorage.setItem(`${projectType}_draft_data_${draftId}`, JSON.stringify(data));
 
   // Update index
   const drafts = getDraftsIndex(projectType);
@@ -245,7 +253,7 @@ export const saveWorkingSessionToDraft = (projectType, draftId, defaultTitle = "
 
 export const deleteDraft = (projectType, draftId) => {
   // Remove data
-  localStorage.removeItem(`${projectType}_draft_data_${draftId}`);
+  sessionStorage.removeItem(`${projectType}_draft_data_${draftId}`);
   // Update index
   const drafts = getDraftsIndex(projectType);
   saveDraftsIndex(projectType, drafts.filter(d => d.id !== draftId));
@@ -276,7 +284,7 @@ export const hasDraftChanged = (projectType, draftId) => {
 };
 
 export const handleSessionTransition = (projectType, targetDraftId) => {
-  const activeDraftId = localStorage.getItem(`${projectType}_active_draft_id`);
+  const activeDraftId = sessionStorage.getItem(`${projectType}_active_draft_id`);
   
   if (activeDraftId && activeDraftId !== targetDraftId) {
     // Auto-save the previous draft before transitioning
@@ -286,7 +294,7 @@ export const handleSessionTransition = (projectType, targetDraftId) => {
   if (targetDraftId && targetDraftId !== activeDraftId) {
     const draftData = getDraftData(projectType, targetDraftId);
     deserializeWorkingSession(projectType, draftData); // Load target draft into working session
-    localStorage.setItem(`${projectType}_active_draft_id`, targetDraftId);
+    sessionStorage.setItem(`${projectType}_active_draft_id`, targetDraftId);
   } else if (!targetDraftId) {
     clearCalculationSession(projectType);
     clearActiveDraftId(projectType);
@@ -294,5 +302,5 @@ export const handleSessionTransition = (projectType, targetDraftId) => {
 };
 
 export const clearActiveDraftId = (projectType) => {
-  localStorage.removeItem(`${projectType}_active_draft_id`);
+  sessionStorage.removeItem(`${projectType}_active_draft_id`);
 };

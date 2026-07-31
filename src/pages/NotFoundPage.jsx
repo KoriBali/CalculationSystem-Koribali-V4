@@ -6,8 +6,8 @@ export default function NotFoundPage() {
   const navigate = useNavigate();
 
   // Cek apakah user punya project aktif di session
-  const activeProject = localStorage.getItem("projectType");
-  const activeDraftId = activeProject ? localStorage.getItem(`${activeProject}_active_draft_id`) : null;
+  const activeProject = sessionStorage.getItem("projectType");
+  const activeDraftId = activeProject ? sessionStorage.getItem(`${activeProject}_active_draft_id`) : null;
 
   let backPath = "/calculation";
   if (activeProject) {

@@ -7,7 +7,7 @@ import { WorkflowModePicker } from "./WorkflowModePicker";
  *
  * Composing shell for the "Project Setup" page — combines the Project
  * Identity fields and the Document Type (workflow mode) picker, which are
- * backed by two independent hooks/localStorage keys (useProjectIdentityForm,
+ * backed by two independent hooks/sessionStorage keys (useProjectIdentityForm,
  * useWorkflowMode) even though they render together on the same page.
  */
 export function CoverForm({

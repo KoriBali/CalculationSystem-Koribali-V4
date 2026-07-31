@@ -16,7 +16,7 @@ export function useBaseplateForm() {
   const getCondition = () => {
     try {
       return JSON.parse(
-        localStorage.getItem(`${projectType}_condition`) || "{}",
+        sessionStorage.getItem(`${projectType}_condition`) || "{}",
       );
     } catch {
       return {};
@@ -25,11 +25,11 @@ export function useBaseplateForm() {
 
   const condition = getCondition();
 
-  // Read workflow flags from localStorage
+  // Read workflow flags from sessionStorage
   const workflow = (() => {
     try {
       return JSON.parse(
-        localStorage.getItem(`${projectType}_workflow`) || "{}"
+        sessionStorage.getItem(`${projectType}_workflow`) || "{}"
       ) || {};
     } catch {
       return {};

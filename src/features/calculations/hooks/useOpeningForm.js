@@ -20,22 +20,22 @@ export function useOpeningForm() {
   const { type: projectType, draftId } = useParams();
   const navigate = useNavigate();
 
-  // Read condition from localStorage — projectType must be available first
+  // Read condition from sessionStorage — projectType must be available first
   const condition = (() => {
     try {
       return JSON.parse(
-        localStorage.getItem(`${projectType}_condition`) || "{}",
+        sessionStorage.getItem(`${projectType}_condition`) || "{}",
       );
     } catch {
       return {};
     }
   })();
 
-  // Read workflow flags from localStorage
+  // Read workflow flags from sessionStorage
   const workflow = (() => {
     try {
       return JSON.parse(
-        localStorage.getItem(`${projectType}_workflow`) || "{}"
+        sessionStorage.getItem(`${projectType}_workflow`) || "{}"
       ) || {};
     } catch {
       return {};

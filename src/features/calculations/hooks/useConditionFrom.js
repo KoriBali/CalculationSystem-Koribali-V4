@@ -28,7 +28,7 @@ export function useConditionForm() {
   const { type: projectType, draftId } = useParams();
   const navigate = useNavigate();
 
-  // Persisted condition — auto sync ke localStorage via useProjectStorage
+  // Persisted condition — auto sync ke sessionStorage via useProjectStorage
   const [condition, setCondition] = useProjectStorage(
     projectType,
     "condition",
@@ -47,7 +47,7 @@ export function useConditionForm() {
     const next = applyStandardDefaults(updates);
     setLocalCondition((prev) => ({ ...prev, ...next }));
 
-    // ✅ Pakai `next` bukan `updates` — supaya key yang di-autofill juga ter-clear
+    // Pakai `next` bukan `updates` — supaya key yang di-autofill juga ter-clear
     setErrors((prev) => {
       const cleared = { ...prev };
       Object.keys(next).forEach((key) => delete cleared[key]);
@@ -60,7 +60,7 @@ export function useConditionForm() {
     const validation = await validateCondition(localCondition, projectType);
 
     if (!validation.isValid) {
-      setErrors(validation.errors); // ✅ Yup langsung set error yang benar
+      setErrors(validation.errors); // Yup langsung set error yang benar
       setToast({ message: validation.message });
       return;
     }
@@ -76,24 +76,31 @@ export function useConditionForm() {
     proceed();
   };
 
-  // Commit local draft to localStorage then navigate to next step
+  // Commit local draft to sessionStorage then navigate to next step
   const proceed = () => {
     // 1. Save config — determines which steps are visible in header nav
     saveCalculationConfig(projectType, localCondition);
 
-    // 2. Cleanup localStorage for disabled components
+    // 2. Cleanup sessionStorage for disabled components
     cleanupDisabledComponents(projectType, localCondition);
 
-    // 3. Clear pole results if condition changes so they must recalculate
+    // 3. Clear all calculation results if condition changes so they must recalculate
     if (JSON.stringify(condition) !== JSON.stringify(localCondition)) {
-      localStorage.removeItem(`${projectType}_results`);
-      localStorage.removeItem(`${projectType}_resultsDo`);
-      localStorage.removeItem(`${projectType}_resultsOhw`);
-      localStorage.removeItem(`${projectType}_resultsArm`);
-      localStorage.removeItem(`${projectType}_showResults`);
+      sessionStorage.removeItem(`${projectType}_results`);
+      sessionStorage.removeItem(`${projectType}_resultsDo`);
+      sessionStorage.removeItem(`${projectType}_resultsOhw`);
+      sessionStorage.removeItem(`${projectType}_resultsArm`);
+      sessionStorage.removeItem(`${projectType}_showResults`);
+
+      sessionStorage.removeItem(`${projectType}_calculatedOp`);
+      sessionStorage.removeItem(`${projectType}_showResultsOp`);
+      sessionStorage.removeItem(`${projectType}_calculatedBaseplate`);
+      sessionStorage.removeItem(`${projectType}_showResultsBaseplate`);
+      sessionStorage.removeItem(`${projectType}_calculatedFoundation`);
+      sessionStorage.removeItem(`${projectType}_showResultsFoundation`);
     }
 
-    // 4. Commit condition to localStorage
+    // 4. Commit condition to sessionStorage
     setCondition(localCondition);
 
     // 5. Navigate to pole step

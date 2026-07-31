@@ -21,33 +21,33 @@ export function usePoleCalculation({
   const { type: projectType, draftId } = useParams();
   const navigate = useNavigate();
 
-  // Read condition from localStorage
+  // Read condition from sessionStorage
   const condition = (() => {
     try {
       return JSON.parse(
-        localStorage.getItem(`${projectType}_condition`) || "{}",
+        sessionStorage.getItem(`${projectType}_condition`) || "{}",
       );
     } catch {
       return {};
     }
   })();
 
-  // Read cover from localStorage — used for the report payload in makeReport()
+  // Read cover from sessionStorage — used for the report payload in makeReport()
   const cover = (() => {
     try {
       return JSON.parse(
-        localStorage.getItem(`${projectType}_cover`) || "{}"
+        sessionStorage.getItem(`${projectType}_cover`) || "{}"
       ) || {};
     } catch {
       return {};
     }
   })();
 
-  // Read workflow flags from localStorage
+  // Read workflow flags from sessionStorage
   const workflow = (() => {
     try {
       return JSON.parse(
-        localStorage.getItem(`${projectType}_workflow`) || "{}"
+        sessionStorage.getItem(`${projectType}_workflow`) || "{}"
       ) || {};
     } catch {
       return {};
@@ -116,7 +116,7 @@ export function usePoleCalculation({
   };
 
   // ── Merge helpers ──
-  // Menggabungkan input FE (dari localStorage) dengan hasil kalkulasi BE.
+  // Menggabungkan input FE (dari sessionStorage) dengan hasil kalkulasi BE.
   // Input FE dijadikan base, field dari BE menimpa jika ada key yang sama —
   // karena BE adalah sumber kebenaran untuk field kalkulasi.
 
@@ -254,7 +254,7 @@ export function usePoleCalculation({
       poleConfig: poleConfigForm.poleConfig,
     };
 
-    localStorage.setItem(
+    sessionStorage.setItem(
       `${projectType}_reportSnapshot`,
       JSON.stringify(reportPayload),
     );

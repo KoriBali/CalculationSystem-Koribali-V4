@@ -3,30 +3,28 @@ import { Helmet } from "react-helmet";
 import { useParams, useNavigate } from "react-router-dom";
 import { ChevronUp, ChevronDown } from "lucide-react";
 import { HeaderCalculationPage } from "../../components/layout/HeaderCalculationPage";
-import { DrawingGeneralForm } from "../../components/forms/drawing/DrawingGeneralForm";
+import { DrawingPoleForm } from "../../components/forms/drawing/DrawingPoleForm";
 import { ToastModal } from "../../components/modals/ToastModal";
-import { useDrawingGeneralForm } from "../../hooks/useDrawingGeneralForm";
+import { useDrawingPoleForm } from "../../hooks/useDrawingPoleForm";
 
-export default function DrawingGeneralPage() {
+export default function DrawingPolePage() {
   const { type: projectType, draftId } = useParams();
   const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(true);
 
   const {
-    localGeneral,
+    localPole,
     errors,
     toast,
     setToast,
     handleUpdate,
     handleReset,
     handleNext,
-  } = useDrawingGeneralForm();
+  } = useDrawingPoleForm();
 
   const onNextStep = async () => {
     const result = await handleNext();
-    if (result === "GO_POLE") {
-      navigate(`/calculation/${projectType}/${draftId}/drawing/pole`);
-    } else if (result === "GO_COUPLING") {
+    if (result === "GO_COUPLING") {
       navigate(`/calculation/${projectType}/${draftId}/drawing/coupling`);
     } else if (result === "GO_SURFACE") {
       navigate(`/calculation/${projectType}/${draftId}/drawing/surface`);
@@ -37,7 +35,7 @@ export default function DrawingGeneralPage() {
     <>
       <div className="flex flex-col h-full">
         <Helmet>
-          <title>General Drawing Input - KORI BALI</title>
+          <title>Pole Drawing Input - KORI BALI</title>
         </Helmet>
 
         <div className="flex-1 rounded-t-2xl hp:rounded-t-xl bg-gray-50 border border-gray-250">
@@ -51,7 +49,7 @@ export default function DrawingGeneralPage() {
             >
               <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg hp:rounded-md border border-white/20 hp:px-3 hp:py-[8px]">
                 <h2 className="text-white text-xs md:text-sm font-semibold md:font-bold">
-                  General Drawing Input
+                  Pole Drawing Input
                 </h2>
               </div>
               <div
@@ -73,12 +71,13 @@ export default function DrawingGeneralPage() {
                   : "max-h-0 rounded-b-2xl hp:rounded-b-xl"
               }`}
             >
-              <DrawingGeneralForm
-                general={localGeneral}
+              <DrawingPoleForm
+                pole={localPole}
                 onUpdate={handleUpdate}
                 onReset={handleReset}
                 onNext={onNextStep}
                 errors={errors}
+                onToast={setToast}
               />
             </div>
           </div>

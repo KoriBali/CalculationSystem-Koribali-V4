@@ -28,7 +28,7 @@ export function getDisabledComponents(prev, next) {
   return disabled;
 }
 
-// Saves calculation config to localStorage — used by header nav to determine visible steps
+// Saves calculation config to sessionStorage — used by header nav to determine visible steps
 export function saveCalculationConfig(projectType, condition) {
   const config = {
     pole: true,
@@ -36,7 +36,7 @@ export function saveCalculationConfig(projectType, condition) {
     baseplate: !!condition.baseplateEnabled,
     foundation: !!condition.foundationEnabled,
   };
-  localStorage.setItem(
+  sessionStorage.setItem(
     `${projectType}_calculation_config`,
     JSON.stringify(config),
   );
@@ -44,26 +44,26 @@ export function saveCalculationConfig(projectType, condition) {
 
 export function cleanupDisabledComponents(projectType, condition) {
   if (!condition.openingEnabled) {
-    localStorage.removeItem(`${projectType}_openingType`);
-    localStorage.removeItem(`${projectType}_boxType`);
-    localStorage.removeItem(`${projectType}_rType`);
-    localStorage.removeItem(`${projectType}_calculatedOp`);
-    localStorage.removeItem(`${projectType}_showResultsOp`);
+    sessionStorage.removeItem(`${projectType}_openingType`);
+    sessionStorage.removeItem(`${projectType}_boxType`);
+    sessionStorage.removeItem(`${projectType}_rType`);
+    sessionStorage.removeItem(`${projectType}_calculatedOp`);
+    sessionStorage.removeItem(`${projectType}_showResultsOp`);
   }
 
   if (!condition.baseplateEnabled) {
-    localStorage.removeItem(`${projectType}_baseplateType`);
-    localStorage.removeItem(`${projectType}_fourRibType`);
-    localStorage.removeItem(`${projectType}_eightRibType`);
-    localStorage.removeItem(`${projectType}_calculatedBaseplate`);
-    localStorage.removeItem(`${projectType}_showResultsBaseplate`);
+    sessionStorage.removeItem(`${projectType}_baseplateType`);
+    sessionStorage.removeItem(`${projectType}_fourRibType`);
+    sessionStorage.removeItem(`${projectType}_eightRibType`);
+    sessionStorage.removeItem(`${projectType}_calculatedBaseplate`);
+    sessionStorage.removeItem(`${projectType}_showResultsBaseplate`);
   }
 
   if (!condition.foundationEnabled) {
-    localStorage.removeItem(`${projectType}_foundationType`);
-    localStorage.removeItem(`${projectType}_squareCaisson`);
-    localStorage.removeItem(`${projectType}_roundCaisson`);
-    localStorage.removeItem(`${projectType}_calculatedFoundation`);
-    localStorage.removeItem(`${projectType}_showResultsFoundation`);
+    sessionStorage.removeItem(`${projectType}_foundationType`);
+    sessionStorage.removeItem(`${projectType}_squareCaisson`);
+    sessionStorage.removeItem(`${projectType}_roundCaisson`);
+    sessionStorage.removeItem(`${projectType}_calculatedFoundation`);
+    sessionStorage.removeItem(`${projectType}_showResultsFoundation`);
   }
 }

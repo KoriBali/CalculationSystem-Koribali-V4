@@ -13,6 +13,7 @@ import DraftsDashboardPage from "../features/calculations/pages/DraftsDashboardP
 import ProjectIdentityPage from "../features/calculations/pages/ProjectIdentityPage";
 import InitialInputPage from "../features/calculations/pages/InitialInputPage";
 import DrawingGeneralPage from "../features/calculations/pages/drawing/DrawingGeneralPage";
+import DrawingPolePage from "../features/calculations/pages/drawing/DrawingPolePage";
 import DrawingCouplingPage from "../features/calculations/pages/drawing/DrawingCouplingPage";
 import DrawingSurfacePage from "../features/calculations/pages/drawing/DrawingSurfacePage";
 import ReportPage from "../features/report/pages/ReportPage";
@@ -54,6 +55,7 @@ export default function AppRoutes() {
                     <Route path="initial" element={<InitialInputPage />} />
                     <Route path="drawing" element={<Navigate to="general" replace />} />
                     <Route path="drawing/general" element={<DrawingGeneralPage />} />
+                    <Route path="drawing/pole" element={<DrawingPolePage />} />
                     <Route path="drawing/coupling" element={<DrawingCouplingPage />} />
                     <Route path="drawing/surface" element={<DrawingSurfacePage />} />
                     <Route path="pole" element={<PoleFormPage />} />

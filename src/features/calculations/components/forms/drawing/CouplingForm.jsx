@@ -324,23 +324,40 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
                             with Hookband
                           </span>
                         </label>
-                        <button 
-                          type="button"
-                          onClick={() => {
-                            const existingCase = couplings[i]?.caseDetails;
-                            if (existingCase) {
-                              setModalState({ isOpen: true, index: i, step: "form", selectedCaseId: existingCase.caseId });
-                            } else {
-                              setModalState({ isOpen: true, index: i, step: "grid", selectedCaseId: null });
-                            }
-                          }}
-                          className="group/btn flex items-center justify-start gap-1.5 sm:gap-3 pl-2 pr-4 sm:px-4 py-2 lg:py-2.5 min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] bg-white border border-gray-300 shadow-sm rounded-lg text-[10px] sm:text-[11px] md:text-sm font-medium text-gray-700 hover:bg-[#0d3b66] hover:text-white hover:border-[#0d3b66] transition-all w-full xl:w-auto"
-                        >
-                          <Settings2 className="hidden sm:block w-3.5 h-3.5 md:w-4 md:h-4 shrink-0 text-gray-500 group-hover/btn:text-white transition-colors" />
-                          <span className="whitespace-nowrap">
-                            Input Coupling at H{i + 1}
-                          </span>
-                        </button>
+                        <div className="flex flex-col items-end relative">
+                          <button 
+                            type="button"
+                            onClick={() => {
+                              const existingCase = couplings[i]?.caseDetails;
+                              if (existingCase) {
+                                setModalState({ isOpen: true, index: i, step: "form", selectedCaseId: existingCase.caseId });
+                              } else {
+                                setModalState({ isOpen: true, index: i, step: "grid", selectedCaseId: null });
+                              }
+                            }}
+                            className={`group/btn flex items-center justify-start gap-1.5 sm:gap-3 pl-2 pr-4 sm:px-4 py-2 lg:py-2.5 min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] border shadow-sm rounded-lg text-[10px] sm:text-[11px] md:text-sm font-medium transition-all w-full xl:w-auto ${
+                              errors[`couplings[${i}].caseDetails`]
+                                ? "bg-red-50 border-red-400 text-red-600 hover:bg-red-100 hover:border-red-500"
+                                : c.caseDetails 
+                                  ? "bg-emerald-50 border-emerald-400 text-emerald-700 hover:bg-emerald-100 hover:border-emerald-500" 
+                                  : "bg-white border-slate-300 text-slate-700 hover:bg-slate-50 hover:border-slate-400"
+                            }`}
+                          >
+                            {c.caseDetails ? (
+                              <CheckCircle className={`hidden sm:block w-3.5 h-3.5 md:w-4 md:h-4 shrink-0 transition-colors ${errors[`couplings[${i}].caseDetails`] ? "text-red-500" : "text-emerald-600"}`} />
+                            ) : (
+                              <Settings2 className={`hidden sm:block w-3.5 h-3.5 md:w-4 md:h-4 shrink-0 transition-colors ${errors[`couplings[${i}].caseDetails`] ? "text-red-500" : "text-slate-500"}`} />
+                            )}
+                            <span className="whitespace-nowrap">
+                              {c.caseDetails ? `Coupling H${i + 1} Configured` : `Input Coupling at H${i + 1}`}
+                            </span>
+                          </button>
+                          {errors[`couplings[${i}].caseDetails`] && (
+                            <span className="absolute top-[105%] right-0 text-[9px] sm:text-[10px] text-red-500 whitespace-nowrap mt-0.5">
+                              {errors[`couplings[${i}].caseDetails`]}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   );
@@ -390,8 +407,9 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
         caseData={modalState.selectedCaseId ? {
           id: modalState.selectedCaseId,
           title: `Case ${modalState.selectedCaseId} of Coupling`,
-          image: "/images/coupling-case1.svg"
+          image: `/images/CPdetail-Case${modalState.selectedCaseId}.svg`
         } : null}
+        location={location}
         initialData={
           modalState.index !== null && 
           couplings[modalState.index]?.caseDetails?.caseId === modalState.selectedCaseId
@@ -399,14 +417,7 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
             : null
         }
         onSave={(details) => {
-          setCouplings(prev => {
-            const updated = [...prev];
-            updated[modalState.index] = {
-              ...updated[modalState.index],
-              caseDetails: details
-            };
-            return updated;
-          });
+          updateCoupling(modalState.index, "caseDetails", details);
           setModalState({ isOpen: false, index: null, step: "grid", selectedCaseId: null });
         }}
       />

@@ -32,7 +32,7 @@ export function usePoleForm(projectType) {
   // Persists max pole ID to prevent conflicts after reload
   const poleIdRef = useRef(1);
   useEffect(() => {
-    const saved = localStorage.getItem(`${projectType}_poles`);
+    const saved = sessionStorage.getItem(`${projectType}_poles`);
     if (!saved) return;
     const parsed = JSON.parse(saved);
     const maxId = Math.max(0, ...parsed.map((p) => Number(p.id)));

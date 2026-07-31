@@ -54,11 +54,11 @@ export default function PoleFormView() {
 
   
   const navigate = useNavigate();
-// Read condition from localStorage
+// Read condition from sessionStorage
   const condition = (() => {
     try {
       return JSON.parse(
-        localStorage.getItem(`${projectType}_condition`) || "{}",
+        sessionStorage.getItem(`${projectType}_condition`) || "{}",
       );
     } catch {
       return {};

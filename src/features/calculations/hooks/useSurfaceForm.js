@@ -31,7 +31,7 @@ export function useSurfaceForm() {
   const handleUpdate = (updates) => {
     const newSurface = { ...localSurface, ...updates };
     setLocalSurface(newSurface);
-    setSurface(newSurface); // Sync to localStorage immediately so "Save Draft" works
+    setSurface(newSurface); // Sync to sessionStorage immediately so "Save Draft" works
 
     setErrors((prev) => {
       const cleared = { ...prev };
@@ -43,7 +43,7 @@ export function useSurfaceForm() {
   const handleReset = () => {
     const emptySurface = getDefaultSurface();
     setLocalSurface(emptySurface);
-    setSurface(emptySurface); // Reset localStorage as well
+    setSurface(emptySurface); // Reset sessionStorage as well
     setErrors({});
   };
 

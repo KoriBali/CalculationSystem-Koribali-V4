@@ -13,7 +13,7 @@ const getDefaultGeneral = () => ({
   approvedByName: "",
   openingDirection: "",
   lightingCompanyName: "",
-  useCoupling: false,
+  useCoupling: null,
 });
 
 export function useDrawingGeneralForm() {
@@ -26,6 +26,10 @@ export function useDrawingGeneralForm() {
     getDefaultGeneral()
   );
 
+  const workflowRaw = sessionStorage.getItem(`${projectType}_workflow`);
+  const workflow = workflowRaw ? JSON.parse(workflowRaw) : {};
+  const projectMode = workflow.projectMode || "calculation";
+
   const [localGeneral, setLocalGeneral] = useState(general);
   const [errors, setErrors] = useState({});
   const [toast, setToast] = useState(null);
@@ -33,7 +37,7 @@ export function useDrawingGeneralForm() {
   const handleUpdate = (updates) => {
     const newGeneral = { ...localGeneral, ...updates };
     setLocalGeneral(newGeneral);
-    setGeneral(newGeneral); // Sync to localStorage immediately
+    setGeneral(newGeneral); // Sync to sessionStorage immediately
     
     setErrors((prev) => {
       const cleared = { ...prev };
@@ -52,7 +56,8 @@ export function useDrawingGeneralForm() {
   const handleNext = async () => {
     const { isValid, errors: validationErrors } = await validateWithYup(
       DrawingGeneralSchema,
-      localGeneral
+      localGeneral,
+      { context: { projectMode } }
     );
 
     if (!isValid) {
@@ -62,10 +67,14 @@ export function useDrawingGeneralForm() {
     }
     
     // Set drawing completed to show other tabs
-    localStorage.setItem(`${projectType}_drawing_completed`, "true");
+    sessionStorage.setItem(`${projectType}_drawing_completed`, "true");
     
     // Explicitly save the user's coupling choice here so the navigation header only updates after "Next Step"
-    localStorage.setItem(`${projectType}_drawing_coupling_confirmed`, String(localGeneral.useCoupling));
+    sessionStorage.setItem(`${projectType}_drawing_coupling_confirmed`, String(localGeneral.useCoupling));
+    
+    if (workflow.projectMode === "drawing") {
+      return "GO_POLE";
+    }
     
     return localGeneral.useCoupling ? "GO_COUPLING" : "GO_SURFACE";
   };
@@ -79,5 +88,6 @@ export function useDrawingGeneralForm() {
     handleUpdate,
     handleReset,
     handleNext,
+    projectMode,
   };
 }
