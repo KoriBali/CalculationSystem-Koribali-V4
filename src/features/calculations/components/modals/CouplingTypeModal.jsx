@@ -1,5 +1,33 @@
 import { useState, useEffect } from "react";
-import { ChevronRight, CheckCircle } from "lucide-react";
+import { ChevronRight, CheckCircle, Image as ImageIcon } from "lucide-react";
+
+const ImageLoader = ({ src, alt, className, wrapperClass }) => {
+  const [loaded, setLoaded] = useState(false);
+  const [error, setError] = useState(false);
+
+  return (
+    <div className={`relative flex items-center justify-center ${wrapperClass || 'w-full h-full'}`}>
+      {!loaded && !error && (
+        <div className="absolute inset-0 bg-slate-200 animate-pulse rounded-lg flex items-center justify-center">
+          <ImageIcon className="w-8 h-8 text-slate-300" />
+        </div>
+      )}
+      {error && (
+        <div className="absolute inset-0 bg-slate-100 rounded-lg flex flex-col items-center justify-center text-slate-400">
+          <ImageIcon className="w-8 h-8 mb-2" />
+          <span className="text-[10px]">Failed to load</span>
+        </div>
+      )}
+      <img
+        src={src}
+        alt={alt}
+        className={`${className} ${loaded ? 'opacity-100' : 'opacity-0'}`}
+        onLoad={() => setLoaded(true)}
+        onError={() => { setLoaded(true); setError(true); }}
+      />
+    </div>
+  );
+};
 
 export function CouplingTypeModal({ isOpen, onClose, couplingIndex, onSelect }) {
   const [selectedCaseId, setSelectedCaseId] = useState(null);
@@ -58,10 +86,11 @@ export function CouplingTypeModal({ isOpen, onClose, couplingIndex, onSelect }) 
                     }`}
                 >
                   <div className="w-full flex-1 bg-slate-50/30 border-b border-slate-100 p-4 flex items-center justify-center relative min-h-[120px] sm:min-h-[140px]">
-                    <img
+                    <ImageLoader
                       src={c.image}
                       alt={c.title}
-                      className={`object-contain w-full h-full transition-all duration-200 ${isSelected ? 'opacity-100 scale-105' : 'opacity-70 group-hover:opacity-100'}`}
+                      wrapperClass="w-full h-full absolute inset-0 p-4"
+                      className={`object-contain w-full h-full transition-all duration-200 ${isSelected ? 'scale-105' : 'opacity-70 group-hover:opacity-100'}`}
                     />
                     {isSelected && (
                       <div className="absolute top-2 right-2 text-[#3399cc] bg-white rounded-full shadow-sm">

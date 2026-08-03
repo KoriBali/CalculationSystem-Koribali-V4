@@ -1,6 +1,34 @@
 import { useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight, RotateCcw, X, AlertTriangle } from "lucide-react";
+import { ChevronLeft, ChevronRight, RotateCcw, X, AlertTriangle, Image as ImageIcon } from "lucide-react";
 import { ExternalObjectModal } from "./ExternalObjectModal";
+
+const ImageLoader = ({ src, alt, className, wrapperClass }) => {
+  const [loaded, setLoaded] = useState(false);
+  const [error, setError] = useState(false);
+
+  return (
+    <div className={`relative flex items-center justify-center ${wrapperClass || 'w-full h-full'}`}>
+      {!loaded && !error && (
+        <div className="absolute inset-0 bg-slate-200 animate-pulse rounded-lg flex items-center justify-center">
+          <ImageIcon className="w-8 h-8 text-slate-300" />
+        </div>
+      )}
+      {error && (
+        <div className="absolute inset-0 bg-slate-100 rounded-lg flex flex-col items-center justify-center text-slate-400">
+          <ImageIcon className="w-8 h-8 mb-2" />
+          <span className="text-[10px]">Failed to load</span>
+        </div>
+      )}
+      <img
+        src={src}
+        alt={alt}
+        className={`${className} ${loaded ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300`}
+        onLoad={() => setLoaded(true)}
+        onError={() => { setLoaded(true); setError(true); }}
+      />
+    </div>
+  );
+};
 
 const POSITIONS = ["front", "right", "back", "left"];
 const SIZES = ["#16", "#22", "#28", "#36", "#42", "#54", "#70"];
@@ -373,9 +401,10 @@ export function CouplingCaseFormModal({
         <div className="p-6 sm:p-8 overflow-y-auto flex-1 bg-slate-50/50 flex flex-col sm:flex-row gap-8">
           {/* Image */}
           <div className="w-full sm:w-1/2 bg-white rounded-xl border-2 border-slate-200 p-8 flex items-center justify-center min-h-[300px] shadow-sm relative overflow-hidden">
-            <img 
+            <ImageLoader 
               src={caseData.image} 
               alt={caseData.title} 
+              wrapperClass="w-full h-full"
               className="max-w-[80%] max-h-[300px] object-contain mix-blend-multiply" 
             />
           </div>
