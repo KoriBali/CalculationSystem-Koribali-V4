@@ -1,4 +1,80 @@
-import { RotateCcw, ChevronRight } from "lucide-react";
+import { RotateCcw, ChevronRight, CheckCircle, Circle, FileText, Settings2, Link, XCircle, DoorOpen, Layers } from "lucide-react";
+import { BaseplateIcon } from "../../../../../assets/icon";
+
+const ToggleCard = ({ label, icon, enabled, onToggle, disabled = false }) => {
+  return (
+    <div
+      onClick={disabled ? undefined : onToggle}
+      className={`relative overflow-hidden rounded-lg border px-3 xl:px-4 py-2 lg:py-3 transition-all duration-300
+        ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}
+        ${
+          enabled
+            ? "border-blue-500 bg-white shadow-sm ring-1 ring-blue-50"
+            : "border-slate-200 bg-slate-50/50"
+        }
+        ${!disabled && !enabled ? "hover:border-slate-300 hover:bg-slate-50" : ""}
+      `}
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div
+            className={`p-1.5 rounded-md ${enabled ? "bg-blue-100 text-blue-600" : "bg-slate-100 text-slate-500"}`}
+          >
+            {icon}
+          </div>
+          <p
+            className={`text-[12px] md:text-sm font-medium ${enabled ? "text-slate-900" : "text-slate-500"}`}
+          >
+            {label}
+          </p>
+        </div>
+        <button
+          disabled={disabled}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (!disabled) onToggle();
+          }}
+          className={`relative inline-flex h-5 w-10 md:h-6 md:w-11 items-center rounded-full ${enabled ? "bg-blue-500" : "bg-slate-300"} ${disabled ? 'cursor-not-allowed' : ''}`}
+        >
+          <span
+            className={`inline-block h-2.5 w-2.5 md:h-4 md:w-4 transform rounded-full bg-white transition ${enabled ? "translate-x-6" : "translate-x-1"}`}
+          />
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const CardOption = ({ label, icon: Icon, current, value, onChange }) => {
+  const isActive = current === value;
+  return (
+    <button
+      type="button"
+      onClick={() => onChange(value)}
+      className={`group w-full flex items-center justify-between px-3 xl:px-4 py-2 lg:py-3 relative overflow-hidden rounded-lg border transition-all duration-300 cursor-pointer active:scale-[0.98]
+        ${isActive
+          ? "border-blue-500 bg-blue-50 shadow-sm ring-1 ring-blue-50"
+          : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+        }`}
+    >
+      <div className="flex items-center gap-3">
+        <div className={`p-1.5 rounded-md ${isActive ? "bg-blue-100 text-blue-600" : "bg-slate-100 text-slate-500"}`}>
+          <Icon className="w-4 h-4 md:w-4.5 md:h-4.5" />
+        </div>
+        <p className={`text-[12px] md:text-sm font-medium ${isActive ? "text-slate-900" : "text-slate-700"}`}>
+          {label}
+        </p>
+      </div>
+      <div className="shrink-0 ml-2 flex items-center">
+        {isActive ? (
+          <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-blue-500" />
+        ) : (
+          <Circle className="w-4 h-4 md:w-5 md:h-5 text-slate-300 group-hover:text-slate-400" />
+        )}
+      </div>
+    </button>
+  );
+};
 
 const inputStyle = (hasError) =>
   `w-full px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border
@@ -147,6 +223,89 @@ export function DrawingGeneralForm({ general, onUpdate, onReset, onNext, errors 
           </SectionCard>
         </div>
 
+        {/* ── Select Pole Type ── */}
+        <div>
+          <SectionTitle>Select Pole Type</SectionTitle>
+          <SectionCard>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <CardOption
+                label="Lighting Pole Standard"
+                icon={FileText}
+                value="Lighting Pole Standard"
+                current={general.poleType}
+                onChange={(val) => {
+                  onUpdate({ 
+                    poleType: val,
+                    additionalComponents: {
+                      ...(general.additionalComponents || {}),
+                      opening: true,
+                      foundation: false
+                    }
+                  });
+                }}
+              />
+              <CardOption
+                label="Custom Pole"
+                icon={Settings2}
+                value="Custom Pole"
+                current={general.poleType}
+                onChange={(val) => onUpdate({ poleType: val })}
+              />
+            </div>
+            <ErrorStyle show={errors.poleType} text={errors.poleType} />
+          </SectionCard>
+        </div>
+
+        {/* ── Additional Component ── */}
+        <div>
+          <SectionTitle>Additional Component</SectionTitle>
+          <SectionCard>
+            <div className="grid xl:grid-cols-3 gap-6">
+              <ToggleCard
+                label="Opening"
+                icon={<DoorOpen size={16} />}
+                enabled={general.additionalComponents?.opening || false}
+                disabled={general.poleType === "Lighting Pole Standard"}
+                onToggle={() =>
+                  onUpdate({
+                    additionalComponents: {
+                      ...(general.additionalComponents || {}),
+                      opening: !(general.additionalComponents?.opening || false),
+                    },
+                  })
+                }
+              />
+              <ToggleCard
+                label="Baseplate"
+                icon={<BaseplateIcon size={18} />}
+                enabled={general.additionalComponents?.baseplate || false}
+                onToggle={() =>
+                  onUpdate({
+                    additionalComponents: {
+                      ...(general.additionalComponents || {}),
+                      baseplate: !(general.additionalComponents?.baseplate || false),
+                    },
+                  })
+                }
+              />
+              <ToggleCard
+                label="Foundation"
+                icon={<Layers size={16} />}
+                enabled={general.additionalComponents?.foundation || false}
+                disabled={general.poleType === "Lighting Pole Standard"}
+                onToggle={() =>
+                  onUpdate({
+                    additionalComponents: {
+                      ...(general.additionalComponents || {}),
+                      foundation: !(general.additionalComponents?.foundation || false),
+                    },
+                  })
+                }
+              />
+            </div>
+          </SectionCard>
+        </div>
+
         {/* ── Coupling Configuration ── */}
         <div>
           <SectionTitle>Coupling Usage</SectionTitle>
@@ -155,27 +314,21 @@ export function DrawingGeneralForm({ general, onUpdate, onReset, onNext, errors 
               <label className="block text-xs md:text-sm font-medium text-gray-800 mb-3">
                 Do you want to use coupling?
               </label>
-              <div className="flex gap-6">
-                <label className="flex items-center gap-2 cursor-pointer group">
-                  <input
-                    type="radio"
-                    name="useCoupling"
-                    checked={general.useCoupling === true}
-                    onChange={() => onUpdate({ useCoupling: true })}
-                    className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                  />
-                  <span className="text-xs md:text-sm text-gray-700 group-hover:text-gray-900 font-medium">Yes, use coupling</span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer group">
-                  <input
-                    type="radio"
-                    name="useCoupling"
-                    checked={general.useCoupling === false}
-                    onChange={() => onUpdate({ useCoupling: false })}
-                    className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                  />
-                  <span className="text-xs md:text-sm text-gray-700 group-hover:text-gray-900 font-medium">No, skip coupling</span>
-                </label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <CardOption
+                  label="Yes, use coupling"
+                  icon={Link}
+                  value={true}
+                  current={general.useCoupling}
+                  onChange={(val) => onUpdate({ useCoupling: val })}
+                />
+                <CardOption
+                  label="No, skip coupling"
+                  icon={XCircle}
+                  value={false}
+                  current={general.useCoupling}
+                  onChange={(val) => onUpdate({ useCoupling: val })}
+                />
               </div>
               <ErrorStyle show={errors.useCoupling} text={errors.useCoupling} />
             </div>

@@ -59,44 +59,15 @@ const CardOption = ({ label, current, value, onChange, icon: Icon }) => {
   );
 };
 
-export function DrawingPoleForm({ pole, onUpdate, onReset, onNext, errors, onToast }) {
+export function DrawingPoleForm({ pole, onUpdate, onReset, onNext, errors, onToast, isBaseplate }) {
   return (
     <div className="bg-white rounded-b-2xl hp:rounded-b-xl shadow-sm border border-gray-200">
       <div className="p-4 md:p-6 shadow-sm space-y-4 md:space-y-6">
 
-        {/* ── Pole Selection ── */}
-        <div className="mb-4">
-          <SectionTitle>Select Pole Type</SectionTitle>
-          <SectionCard>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <CardOption
-                label="Lighting Pole Standard"
-                value="lighting-pole"
-                current={pole.poleType}
-                icon={FileText}
-                onChange={(val) => onUpdate({ poleType: val })}
-              />
-              <CardOption
-                label="Custom Pole"
-                value="custom"
-                current={pole.poleType}
-                icon={Settings2}
-                onChange={() => {
-                  if (onToast) {
-                    onToast({ message: "Custom Pole drawing is not ready yet.", type: "error" });
-                  }
-                }}
-              />
-            </div>
-            <ErrorStyle show={errors.poleType} text={errors.poleType} />
-          </SectionCard>
-        </div>
-
         {/* ── Taper Pole Form ── */}
-        {pole.poleType === "lighting-pole" && (
-          <div className="mb-4 relative">
-            <div className="border border-gray-200 rounded-xl overflow-hidden shadow-sm pt-4 md:pt-6">
-              <TaperPoleStandardForm
+        <div className="mb-4 relative">
+          <div className="border border-gray-200 rounded-xl overflow-hidden shadow-sm pt-4 md:pt-6">
+            <TaperPoleStandardForm
                 hideReset={true}
                 taperPoleStandard={pole.taperPoleStandard || { poleType: "", groundPosition: "", height: "" }}
                 onUpdate={(data) =>
@@ -104,13 +75,13 @@ export function DrawingPoleForm({ pole, onUpdate, onReset, onNext, errors, onToa
                     taperPoleStandard: { ...(pole.taperPoleStandard || {}), ...data },
                   })
                 }
+                isBaseplate={isBaseplate}
               />
             </div>
             {(errors["taperPoleStandard.poleType"] || errors["taperPoleStandard.groundPosition"] || errors["taperPoleStandard.height"]) && (
               <ErrorStyle show={true} text="Please complete the Pole Standard Configuration" />
             )}
           </div>
-        )}
 
         {/* Divider */}
         <div className="border-t border-gray-200 mt-6" />

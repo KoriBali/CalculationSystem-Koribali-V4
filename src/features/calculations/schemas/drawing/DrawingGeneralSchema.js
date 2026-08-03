@@ -9,5 +9,11 @@ export const DrawingGeneralSchema = yup.object({
   approvedByName: yup.string().required("Required field"),
   openingDirection: yup.string(),
   lightingCompanyName: yup.string().required("Required field"),
+  poleType: yup.string().required("Please select pole type"),
+  additionalComponents: yup.object().shape({
+    opening: yup.boolean(),
+    baseplate: yup.boolean(),
+    foundation: yup.boolean(),
+  }),
   useCoupling: yup.boolean().required("Required field"),
 });

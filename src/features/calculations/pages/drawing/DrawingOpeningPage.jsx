@@ -3,29 +3,39 @@ import { Helmet } from "react-helmet";
 import { useParams, useNavigate } from "react-router-dom";
 import { ChevronUp, ChevronDown } from "lucide-react";
 import { HeaderCalculationPage } from "../../components/layout/HeaderCalculationPage";
-import { CouplingForm } from "../../components/forms/drawing/CouplingForm";
+import { DrawingOpeningForm } from "../../components/forms/drawing/DrawingOpeningForm";
 import { ToastModal } from "../../components/modals/ToastModal";
+import { useDrawingOpeningForm } from "../../hooks/useDrawingOpeningForm";
 
-export default function DrawingCouplingPage() {
+export default function DrawingOpeningPage() {
   const { type: projectType, draftId } = useParams();
   const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(true);
-  const [toast, setToast] = useState(null);
 
-  const handleBack = () => {
-    navigate(`/calculation/${projectType}/${draftId}/drawing/general`);
-  };
+  const {
+    localOpening,
+    errors,
+    toast,
+    setToast,
+    handleUpdate,
+    handleReset,
+    handleNext,
+  } = useDrawingOpeningForm();
 
-  const handleNext = () => {
-    sessionStorage.setItem(`${projectType}_drawing_coupling_completed`, "true");
-    navigate(`/calculation/${projectType}/${draftId}/drawing/surface`);
+  const onNextStep = async () => {
+    const result = await handleNext();
+    if (result === "GO_COUPLING") {
+      navigate(`/calculation/${projectType}/${draftId}/drawing/coupling`);
+    } else if (result === "GO_SURFACE") {
+      navigate(`/calculation/${projectType}/${draftId}/drawing/surface`);
+    }
   };
 
   return (
     <>
       <div className="flex flex-col h-full">
         <Helmet>
-          <title>Coupling Configuration - KORI BALI</title>
+          <title>Opening Drawing Input - KORI BALI</title>
         </Helmet>
 
         <div className="flex-1 rounded-t-2xl hp:rounded-t-xl bg-gray-50 border border-gray-250">
@@ -39,7 +49,7 @@ export default function DrawingCouplingPage() {
             >
               <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg hp:rounded-md border border-white/20 hp:px-3 hp:py-[8px]">
                 <h2 className="text-white text-xs md:text-sm font-semibold md:font-bold">
-                  Coupling Configuration
+                  Opening Drawing Input
                 </h2>
               </div>
               <div
@@ -61,15 +71,17 @@ export default function DrawingCouplingPage() {
                   : "max-h-0 rounded-b-2xl hp:rounded-b-xl"
               }`}
             >
-              <CouplingForm 
-                onBack={handleBack}
-                onReset={() => {}}
-                onNext={handleNext}
-                onError={(msg) => setToast({ message: msg })}
+              <DrawingOpeningForm
+                opening={localOpening}
+                onUpdate={handleUpdate}
+                onReset={handleReset}
+                onNext={onNextStep}
+                errors={errors}
               />
             </div>
           </div>
         </div>
+
         <ToastModal toast={toast} onClose={() => setToast(null)} />
       </div>
     </>

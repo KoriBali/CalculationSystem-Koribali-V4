@@ -5,7 +5,6 @@ import { DrawingPoleSchema } from "../schemas/drawing/DrawingPoleSchema";
 import { useProjectStorage } from "./useProjectStorage";
 
 const getDefaultPole = () => ({
-  poleType: "",
   taperPoleStandard: { poleType: "", groundPosition: "", height: "" },
 });
 
@@ -56,10 +55,17 @@ export function useDrawingPoleForm() {
     
     sessionStorage.setItem(`${projectType}_drawing_pole_completed`, "true");
     
+    // Check if opening was used in general
+    const isOpeningUsed = general?.additionalComponents?.opening === true;
+    if (isOpeningUsed) return "GO_OPENING";
+
     // Check if coupling was used in general
     const isCouplingUsed = sessionStorage.getItem(`${projectType}_drawing_coupling_confirmed`) === "true";
     return isCouplingUsed ? "GO_COUPLING" : "GO_SURFACE";
   };
+
+  const [general] = useProjectStorage(projectType, "drawing_general", {});
+  const isBaseplate = general?.additionalComponents?.baseplate === true;
 
   return {
     projectType,
@@ -70,5 +76,6 @@ export function useDrawingPoleForm() {
     handleUpdate,
     handleReset,
     handleNext,
+    isBaseplate,
   };
 }

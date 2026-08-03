@@ -20,11 +20,14 @@ export default function DrawingPolePage() {
     handleUpdate,
     handleReset,
     handleNext,
+    isBaseplate,
   } = useDrawingPoleForm();
 
   const onNextStep = async () => {
     const result = await handleNext();
-    if (result === "GO_COUPLING") {
+    if (result === "GO_OPENING") {
+      navigate(`/calculation/${projectType}/${draftId}/drawing/opening`);
+    } else if (result === "GO_COUPLING") {
       navigate(`/calculation/${projectType}/${draftId}/drawing/coupling`);
     } else if (result === "GO_SURFACE") {
       navigate(`/calculation/${projectType}/${draftId}/drawing/surface`);
@@ -41,7 +44,7 @@ export default function DrawingPolePage() {
         <div className="flex-1 rounded-t-2xl hp:rounded-t-xl bg-gray-50 border border-gray-250">
           <HeaderCalculationPage />
 
-          <div className="mx-6 2040:mx-[250px] pt-0 pb-8 hp:mx-2">
+          <div className="w-full max-w-[1440px] mx-auto pt-0 pb-8 px-6 hp:px-2">
             <div
               className={`bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] px-4 py-3 md:p-4 flex items-center justify-between cursor-pointer mt-6 transition-all duration-500 ease-in-out
                 ${isExpanded ? "rounded-t-2xl hp:rounded-t-xl" : "rounded-2xl hp:rounded-xl"}`}
@@ -78,6 +81,7 @@ export default function DrawingPolePage() {
                 onNext={onNextStep}
                 errors={errors}
                 onToast={setToast}
+                isBaseplate={isBaseplate}
               />
             </div>
           </div>

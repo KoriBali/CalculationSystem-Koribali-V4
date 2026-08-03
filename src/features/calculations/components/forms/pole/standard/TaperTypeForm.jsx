@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { RotateCcw, Box, ChevronRight } from "lucide-react";
 import {
   POLE_STANDARD_OPTIONS,
@@ -49,7 +50,12 @@ const EMPTY_POLE_STANDARD = {
   height: "",
 };
 
-export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset = false }) {
+export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset = false, isBaseplate = true }) {
+  useEffect(() => {
+    if (!isBaseplate && taperPoleStandard.poleType && taperPoleStandard.groundPosition !== "underGL") {
+      onUpdate({ groundPosition: "underGL", height: "" });
+    }
+  }, [isBaseplate, taperPoleStandard.poleType, taperPoleStandard.groundPosition, onUpdate]);
   const currentHeightOptions =
     HEIGHT_OPTIONS_BY_STANDARD[taperPoleStandard.poleType] ??
     EMPTY_HEIGHT_OPTIONS;
@@ -63,6 +69,10 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
 
   const isGroundDisabled = !taperPoleStandard.poleType;
   const showDiagram = !!currentImage;
+
+  const activeGroundOptions = isBaseplate
+    ? GROUND_POSITION_OPTIONS
+    : [{ id: "underGL", label: "Embedment" }];
 
   return (
     <div className="bg-white px-4 md:px-6 pb-6 rounded-b-2xl hp:rounded-b-xl">
@@ -90,7 +100,7 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
                   onClick={() =>
                     onUpdate({
                       poleType: option.id,
-                      groundPosition: "",
+                      groundPosition: !isBaseplate ? "underGL" : "",
                       height: "",
                     })
                   }
@@ -118,7 +128,7 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
 
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
               <div className="flex items-center gap-2">
-                {GROUND_POSITION_OPTIONS.map((option) => {
+                {activeGroundOptions.map((option) => {
                   const isActive =
                     taperPoleStandard.groundPosition === option.id;
 

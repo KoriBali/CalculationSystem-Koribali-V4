@@ -13,6 +13,12 @@ const getDefaultGeneral = () => ({
   approvedByName: "",
   openingDirection: "",
   lightingCompanyName: "",
+  poleType: "",
+  additionalComponents: {
+    opening: false,
+    baseplate: false,
+    foundation: false,
+  },
   useCoupling: null,
 });
 

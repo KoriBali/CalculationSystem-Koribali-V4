@@ -216,16 +216,16 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
             </div>
 
             {/* Interactive Diagram Area */}
-            <div className="relative mt-4 mb-4 mx-auto w-full max-w-4xl overflow-hidden z-0">
+            <div className="relative mt-4 mb-2 mx-auto w-full max-w-4xl overflow-hidden z-0">
               {/* The Vertical Pole Background */}
-              <div className="absolute left-[40%] sm:left-[45%] md:left-[50%] top-8 bottom-16 w-6 md:w-8 bg-gradient-to-r from-[#d0d7e2] via-[#e2e8f0] to-[#b8c2d1] border-x border-t border-[#94a3b8] z-0 rounded-t shadow-inner transform -translate-x-1/2" />
+              <div className="absolute left-[40%] sm:left-[45%] md:left-[50%] top-8 bottom-4 w-6 md:w-8 bg-gradient-to-r from-[#d0d7e2] via-[#e2e8f0] to-[#b8c2d1] border-x border-t border-[#94a3b8] z-0 rounded-t shadow-inner transform -translate-x-1/2" />
 
               {/* GL Blocker (Hides infinite vertical lines below GL) */}
-              <div className="absolute left-0 bottom-0 right-0 h-16 bg-white z-20" />
+              <div className="absolute left-0 bottom-0 right-0 h-4 bg-white z-20" />
 
               {/* Ground Level Line */}
-              <div className="absolute left-0 bottom-16 right-0 h-1.5 bg-[#0d3b66] z-30 opacity-90" />
-              <div className="absolute left-[40%] sm:left-[45%] md:left-[50%] ml-8 bottom-[70px] text-base md:text-lg font-black text-[#0d3b66] tracking-wider bg-white/80 backdrop-blur-sm px-2 py-0.5 rounded z-30">
+              <div className="absolute left-0 bottom-4 right-0 h-1.5 bg-[#0d3b66] z-30 opacity-90" />
+              <div className="absolute left-[40%] sm:left-[45%] md:left-[50%] ml-8 bottom-[22px] text-base md:text-lg font-black text-[#0d3b66] tracking-wider bg-white/80 backdrop-blur-sm px-2 py-0.5 rounded z-30">
                 GL
               </div>
 
@@ -328,6 +328,10 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
                           <button 
                             type="button"
                             onClick={() => {
+                              if (!location) {
+                                setErrors(prev => ({ ...prev, location: "*Please select Location of Project first" }));
+                                return;
+                              }
                               const existingCase = couplings[i]?.caseDetails;
                               if (existingCase) {
                                 setModalState({ isOpen: true, index: i, step: "form", selectedCaseId: existingCase.caseId });
