@@ -84,18 +84,20 @@ export const ToastModal = ({
               </>
             ) : (
               <>
-                <div className="flex items-center gap-3 mb-4 sm:mb-6">
-                  <div className="flex-shrink-0 flex items-center justify-center border w-9 h-9 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-yellow-50 text-yellow-500 border-yellow-300">
-                    <AlertCircle className="w-5 h-5 sm:w-7 sm:h-7" />
+                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-3 sm:gap-4 mb-4 sm:mb-6 text-center sm:text-left">
+                  <div className="flex-shrink-0 flex items-center justify-center border w-12 h-12 sm:w-12 sm:h-12 rounded-xl bg-yellow-50 text-yellow-500 border-yellow-300 mx-auto sm:mx-0">
+                    <AlertCircle className="w-6 h-6 sm:w-7 sm:h-7" />
                   </div>
-                  <p className="text-gray-700 font-semibold leading-snug whitespace-nowrap text-sm sm:text-base">
-                    {toast.message}
-                  </p>
+                  <div className="flex flex-col justify-center min-h-[48px]">
+                    <p className="text-gray-700 font-semibold leading-snug text-sm sm:text-base">
+                      {toast.message}
+                    </p>
+                  </div>
                 </div>
-                <div className="flex justify-center">
+                <div className="flex justify-center sm:justify-end mt-2">
                   <button
                     onClick={onClose}
-                    className="px-4 py-2 sm:px-6 sm:py-3 rounded-md sm:rounded-lg border text-xs sm:text-sm font-semibold transition-all shadow-sm active:scale-95 bg-blue-50 border-blue-500 text-blue-700 hover:bg-blue-100"
+                    className="w-full sm:w-auto px-6 py-2.5 sm:px-8 sm:py-2.5 rounded-lg border text-sm font-semibold transition-all shadow-sm active:scale-95 bg-blue-50 border-blue-500 text-blue-700 hover:bg-blue-100"
                   >
                     OK
                   </button>

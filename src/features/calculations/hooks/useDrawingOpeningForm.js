@@ -11,7 +11,7 @@ const DrawingOpeningSchema = Yup.object().shape({
     .positive("Height must be positive"),
   direction: Yup.string()
     .required("Opening direction is required")
-    .oneOf(["left", "right", "top", "bottom"], "Invalid direction"),
+    .oneOf(["left", "front", "right", "back"], "Invalid direction"),
   type: Yup.string()
     .required("Opening type is required")
     .oneOf(["box", "r"], "Invalid type"),
@@ -70,6 +70,13 @@ export function useDrawingOpeningForm() {
     
     sessionStorage.setItem(`${projectType}_drawing_opening_completed`, "true");
     
+    // Check if baseplate is enabled
+    const rawGeneral = sessionStorage.getItem(`${projectType}_drawing_general`);
+    const general = rawGeneral ? JSON.parse(rawGeneral) : null;
+    const isBaseplateEnabled = general?.additionalComponents?.baseplate === true;
+    
+    if (isBaseplateEnabled) return "GO_BASEPLATE";
+
     // Check if coupling was used in general
     const isCouplingUsed = sessionStorage.getItem(`${projectType}_drawing_coupling_confirmed`) === "true";
     return isCouplingUsed ? "GO_COUPLING" : "GO_SURFACE";

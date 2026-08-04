@@ -59,6 +59,9 @@ export function useDrawingPoleForm() {
     const isOpeningUsed = general?.additionalComponents?.opening === true;
     if (isOpeningUsed) return "GO_OPENING";
 
+    const isBaseplateEnabled = general?.additionalComponents?.baseplate === true;
+    if (isBaseplateEnabled) return "GO_BASEPLATE";
+
     // Check if coupling was used in general
     const isCouplingUsed = sessionStorage.getItem(`${projectType}_drawing_coupling_confirmed`) === "true";
     return isCouplingUsed ? "GO_COUPLING" : "GO_SURFACE";

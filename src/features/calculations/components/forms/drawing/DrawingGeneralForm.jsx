@@ -103,7 +103,7 @@ const SectionCard = ({ children }) => (
   </div>
 );
 
-export function DrawingGeneralForm({ general, onUpdate, onReset, onNext, errors }) {
+export function DrawingGeneralForm({ general, onUpdate, onReset, onNext, errors, projectMode }) {
   return (
     <div className="bg-white rounded-b-2xl hp:rounded-b-xl shadow-sm border border-gray-200">
       <div className="p-4 md:p-6 shadow-sm space-y-4 md:space-y-6">
@@ -223,88 +223,94 @@ export function DrawingGeneralForm({ general, onUpdate, onReset, onNext, errors 
           </SectionCard>
         </div>
 
-        {/* ── Select Pole Type ── */}
-        <div>
-          <SectionTitle>Select Pole Type</SectionTitle>
-          <SectionCard>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <CardOption
-                label="Lighting Pole Standard"
-                icon={FileText}
-                value="Lighting Pole Standard"
-                current={general.poleType}
-                onChange={(val) => {
-                  onUpdate({ 
-                    poleType: val,
-                    additionalComponents: {
-                      ...(general.additionalComponents || {}),
-                      opening: true,
-                      foundation: false
-                    }
-                  });
-                }}
-              />
-              <CardOption
-                label="Custom Pole"
-                icon={Settings2}
-                value="Custom Pole"
-                current={general.poleType}
-                onChange={(val) => onUpdate({ poleType: val })}
-              />
+        {projectMode === "drawing" && (
+          <>
+            {/* ── Select Pole Type ── */}
+            <div>
+              <SectionTitle>Select Pole Type</SectionTitle>
+              <SectionCard>
+                <div className="relative pb-2">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <CardOption
+                      label="Lighting Pole Standard"
+                      icon={FileText}
+                      value="Lighting Pole Standard"
+                      current={general.poleType}
+                      onChange={(val) => {
+                        onUpdate({ 
+                          poleType: val,
+                          additionalComponents: {
+                            ...(general.additionalComponents || {}),
+                            opening: true,
+                            foundation: false
+                          }
+                        });
+                      }}
+                    />
+                    <CardOption
+                      label="Custom Pole"
+                      icon={Settings2}
+                      value="Custom Pole"
+                      current={general.poleType}
+                      onChange={(val) => onUpdate({ poleType: val })}
+                    />
+                  </div>
+                  <ErrorStyle show={errors.poleType} text={errors.poleType} />
+                </div>
+              </SectionCard>
             </div>
-            <ErrorStyle show={errors.poleType} text={errors.poleType} />
-          </SectionCard>
-        </div>
 
-        {/* ── Additional Component ── */}
-        <div>
-          <SectionTitle>Additional Component</SectionTitle>
-          <SectionCard>
-            <div className="grid xl:grid-cols-3 gap-6">
-              <ToggleCard
-                label="Opening"
-                icon={<DoorOpen size={16} />}
-                enabled={general.additionalComponents?.opening || false}
-                disabled={general.poleType === "Lighting Pole Standard"}
-                onToggle={() =>
-                  onUpdate({
-                    additionalComponents: {
-                      ...(general.additionalComponents || {}),
-                      opening: !(general.additionalComponents?.opening || false),
-                    },
-                  })
-                }
-              />
-              <ToggleCard
-                label="Baseplate"
-                icon={<BaseplateIcon size={18} />}
-                enabled={general.additionalComponents?.baseplate || false}
-                onToggle={() =>
-                  onUpdate({
-                    additionalComponents: {
-                      ...(general.additionalComponents || {}),
-                      baseplate: !(general.additionalComponents?.baseplate || false),
-                    },
-                  })
-                }
-              />
-              <ToggleCard
-                label="Foundation"
-                icon={<Layers size={16} />}
-                enabled={general.additionalComponents?.foundation || false}
-                disabled={general.poleType === "Lighting Pole Standard"}
-                onToggle={() =>
-                  onUpdate({
-                    additionalComponents: {
-                      ...(general.additionalComponents || {}),
-                      foundation: !(general.additionalComponents?.foundation || false),
-                    },
-                  })
-                }
-              />
+            {/* ── Additional Component ── */}
+            <div>
+              <SectionTitle>Additional Component</SectionTitle>
+              <SectionCard>
+                <div className="grid xl:grid-cols-3 gap-6">
+                  <ToggleCard
+                    label="Opening"
+                    icon={<DoorOpen size={16} />}
+                    enabled={general.additionalComponents?.opening || false}
+                    disabled={general.poleType === "Lighting Pole Standard"}
+                    onToggle={() =>
+                      onUpdate({
+                        additionalComponents: {
+                          ...(general.additionalComponents || {}),
+                          opening: !(general.additionalComponents?.opening || false),
+                        },
+                      })
+                    }
+                  />
+                  <ToggleCard
+                    label="Baseplate"
+                    icon={<BaseplateIcon size={18} />}
+                    enabled={general.additionalComponents?.baseplate || false}
+                    onToggle={() =>
+                      onUpdate({
+                        additionalComponents: {
+                          ...(general.additionalComponents || {}),
+                          baseplate: !(general.additionalComponents?.baseplate || false),
+                        },
+                      })
+                    }
+                  />
+                  <ToggleCard
+                    label="Foundation"
+                    icon={<Layers size={16} />}
+                    enabled={general.additionalComponents?.foundation || false}
+                    disabled={general.poleType === "Lighting Pole Standard"}
+                    onToggle={() =>
+                      onUpdate({
+                        additionalComponents: {
+                          ...(general.additionalComponents || {}),
+                          foundation: !(general.additionalComponents?.foundation || false),
+                        },
+                      })
+                    }
+                  />
+                </div>
+              </SectionCard>
             </div>
-          </SectionCard>
-        </div>
+          </>
+        )}
 
         {/* ── Coupling Configuration ── */}
         <div>

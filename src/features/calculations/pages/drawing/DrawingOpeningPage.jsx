@@ -24,7 +24,9 @@ export default function DrawingOpeningPage() {
 
   const onNextStep = async () => {
     const result = await handleNext();
-    if (result === "GO_COUPLING") {
+    if (result === "GO_BASEPLATE") {
+      navigate(`/calculation/${projectType}/${draftId}/drawing/baseplate`);
+    } else if (result === "GO_COUPLING") {
       navigate(`/calculation/${projectType}/${draftId}/drawing/coupling`);
     } else if (result === "GO_SURFACE") {
       navigate(`/calculation/${projectType}/${draftId}/drawing/surface`);

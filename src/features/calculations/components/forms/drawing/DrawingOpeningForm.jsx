@@ -48,7 +48,7 @@ export function DrawingOpeningForm({ opening, onUpdate, onReset, onNext, errors 
               
               {/* Left Side: Opening Direction */}
               <div className="relative mb-[10px] sm:mb-[20px] w-[100px] sm:w-[120px] xl:w-[140px]">
-                <label className="block text-[10px] md:text-xs xl:text-sm text-gray-700 mb-1 font-medium whitespace-nowrap">
+                <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2 font-medium whitespace-nowrap">
                   Opening Direction
                 </label>
                 <div className="relative">
@@ -59,9 +59,9 @@ export function DrawingOpeningForm({ opening, onUpdate, onReset, onNext, errors 
                   >
                     <option value="" disabled>Select</option>
                     <option value="left">Left</option>
+                    <option value="front">Front</option>
                     <option value="right">Right</option>
-                    <option value="top">Top</option>
-                    <option value="bottom">Bottom</option>
+                    <option value="back">Back</option>
                   </select>
                   <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
                     <ChevronRight className="w-3 h-3 text-gray-400 rotate-90" />
@@ -81,7 +81,7 @@ export function DrawingOpeningForm({ opening, onUpdate, onReset, onNext, errors 
 
               {/* Right Side: Opening Length (Height) */}
               <div className="relative mt-[80px] sm:mt-[150px] w-[100px] sm:w-[120px] xl:w-[140px]">
-                <label className="block text-[10px] md:text-xs xl:text-sm text-gray-700 mb-1 font-medium whitespace-nowrap">
+                <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2 font-medium whitespace-nowrap">
                   Opening Length
                 </label>
                 <div className="relative">

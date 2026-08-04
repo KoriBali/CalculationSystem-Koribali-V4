@@ -5,12 +5,14 @@ import { ChevronUp, ChevronDown } from "lucide-react";
 import { HeaderCalculationPage } from "../../components/layout/HeaderCalculationPage";
 import { DrawingGeneralForm } from "../../components/forms/drawing/DrawingGeneralForm";
 import { ToastModal } from "../../components/modals/ToastModal";
+import { CustomPoleModal } from "../../components/modals/CustomPoleModal";
 import { useDrawingGeneralForm } from "../../hooks/useDrawingGeneralForm";
 
 export default function DrawingGeneralPage() {
   const { type: projectType, draftId } = useParams();
   const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(true);
+  const [isCustomPoleModalOpen, setIsCustomPoleModalOpen] = useState(false);
 
   const {
     localGeneral,
@@ -20,9 +22,15 @@ export default function DrawingGeneralPage() {
     handleUpdate,
     handleReset,
     handleNext,
+    projectMode,
   } = useDrawingGeneralForm();
 
   const onNextStep = async () => {
+    if (localGeneral.poleType === "Custom Pole") {
+      setIsCustomPoleModalOpen(true);
+      return;
+    }
+
     const result = await handleNext();
     if (result === "GO_POLE") {
       navigate(`/calculation/${projectType}/${draftId}/drawing/pole`);
@@ -79,12 +87,14 @@ export default function DrawingGeneralPage() {
                 onReset={handleReset}
                 onNext={onNextStep}
                 errors={errors}
+                projectMode={projectMode}
               />
             </div>
           </div>
         </div>
 
         <ToastModal toast={toast} onClose={() => setToast(null)} />
+        <CustomPoleModal isOpen={isCustomPoleModalOpen} onClose={() => setIsCustomPoleModalOpen(false)} />
       </div>
     </>
   );

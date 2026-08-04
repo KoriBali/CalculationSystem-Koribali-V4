@@ -9,7 +9,11 @@ export const DrawingGeneralSchema = yup.object({
   approvedByName: yup.string().required("Required field"),
   openingDirection: yup.string(),
   lightingCompanyName: yup.string().required("Required field"),
-  poleType: yup.string().required("Please select pole type"),
+  poleType: yup.string().when("$projectMode", {
+    is: "drawing",
+    then: (schema) => schema.required("Please select pole type"),
+    otherwise: (schema) => schema.notRequired(),
+  }),
   additionalComponents: yup.object().shape({
     opening: yup.boolean(),
     baseplate: yup.boolean(),

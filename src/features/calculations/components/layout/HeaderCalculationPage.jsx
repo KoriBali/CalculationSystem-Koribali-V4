@@ -136,6 +136,9 @@ export function HeaderCalculationPage() {
   const general = rawGeneral ? JSON.parse(rawGeneral) : null;
   const isOpeningEnabled = general?.additionalComponents?.opening === true;
   const isOpeningCompleted = sessionStorage.getItem(`${type}_drawing_opening_completed`) === "true";
+  
+  const isBaseplateEnabled = general?.additionalComponents?.baseplate === true;
+  const isBaseplateCompleted = sessionStorage.getItem(`${type}_drawing_baseplate_completed`) === "true";
 
   const drawingNavItems = [
     {
@@ -164,13 +167,23 @@ export function HeaderCalculationPage() {
           },
         ]
       : []),
+    ...(isDrawingCompleted && requirePole && isBaseplateEnabled
+      ? [
+          {
+            label: "Baseplate",
+            path: `/calculation/${type}/${draftId}/drawing/baseplate`,
+            icon: BaseplateIcon,
+            disabled: !isPoleCompleted || (isOpeningEnabled && !isOpeningCompleted),
+          },
+        ]
+      : []),
     ...(isDrawingCompleted && isCouplingUsed
       ? [
           {
             label: "Coupling",
             path: `/calculation/${type}/${draftId}/drawing/coupling`,
             icon: Link,
-            disabled: !isPoleCompleted || (isOpeningEnabled && !isOpeningCompleted),
+            disabled: !isPoleCompleted || (isOpeningEnabled && !isOpeningCompleted) || (isBaseplateEnabled && !isBaseplateCompleted),
           },
         ]
       : []),
@@ -180,7 +193,7 @@ export function HeaderCalculationPage() {
             label: "Surface",
             path: `/calculation/${type}/${draftId}/drawing/surface`,
             icon: PaintBucket,
-            disabled: !isPoleCompleted || (isOpeningEnabled && !isOpeningCompleted) || (isCouplingUsed && !isCouplingCompleted),
+            disabled: !isPoleCompleted || (isOpeningEnabled && !isOpeningCompleted) || (isBaseplateEnabled && !isBaseplateCompleted) || (isCouplingUsed && !isCouplingCompleted),
           },
         ]
       : []),
