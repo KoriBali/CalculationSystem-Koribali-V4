@@ -113,7 +113,7 @@ export default function FoundationFormView() {
           {/* PERBAIKAN: Menggunakan HeaderCalculationPage sesuai import */}
           <HeaderCalculationPage />
 
-          <div className="mx-6 2040:mx-[250px] pt-0 pb-8 hp:mx-2">
+          <div className="w-full max-w-[1440px] mx-auto pt-0 pb-24 sm:pb-8 px-2">
             {/* ================= FOUNDATION TYPE SECTION ================= */}
             <div
               className={`bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] px-4 py-3 md:p-4 flex items-center justify-between cursor-pointer mt-6 transition-all duration-500 ease-in-out ${

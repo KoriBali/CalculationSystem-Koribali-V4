@@ -45,7 +45,7 @@ const CardOption = ({ label, icon: Icon, current, value, onChange }) => {
       <div className="flex items-center gap-3">
         {Icon && (
           <div
-            className={`p-2 rounded-lg hp:rounded-md transition-colors ${isActive ? "bg-blue-100 text-blue-600" : "bg-slate-100 text-slate-500 group-hover:bg-slate-200 group-hover:text-slate-600"}`}
+            className={`p-1.5 rounded-lg hp:rounded-md transition-colors ${isActive ? "bg-blue-100 text-blue-600" : "bg-slate-100 text-slate-500 group-hover:bg-slate-200 group-hover:text-slate-600"}`}
           >
             <Icon size={16} />
           </div>

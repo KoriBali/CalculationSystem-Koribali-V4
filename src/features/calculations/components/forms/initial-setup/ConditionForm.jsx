@@ -186,7 +186,7 @@ export function ConditionForm({
                       type="button"
                       title={option.desc}
                       onClick={() => onUpdate({ poleType: option.id })}
-                      className={`group w-full text-left relative overflow-hidden rounded-lg hp:rounded-md border-2 p-3 md:p-5 transition-all duration-300 cursor-pointer active:scale-[0.98]
+                      className={`group w-full text-left relative overflow-hidden rounded-lg hp:rounded-md border-2 px-3 xl:px-4 py-2 lg:py-3 transition-all duration-300 cursor-pointer active:scale-[0.98]
                         ${
                           isActive
                             ? "border-blue-500 bg-blue-50 shadow-sm ring-1 ring-blue-50"
@@ -196,7 +196,7 @@ export function ConditionForm({
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <div
-                            className={`p-2 rounded-lg hp:rounded-md transition-colors ${isActive ? "bg-blue-100 text-blue-600" : "bg-slate-200 text-slate-500 group-hover:bg-slate-300 group-hover:text-slate-600"}`}
+                            className={`p-1.5 rounded-lg hp:rounded-md transition-colors ${isActive ? "bg-blue-100 text-blue-600" : "bg-slate-200 text-slate-500 group-hover:bg-slate-300 group-hover:text-slate-600"}`}
                           >
                             <Icon size={16} />
                           </div>
@@ -208,9 +208,9 @@ export function ConditionForm({
                         </div>
                         <div className="shrink-0 ml-2">
                           {isActive ? (
-                            <CheckCircle className="w-5 h-5 text-blue-500" />
+                            <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-blue-500" />
                           ) : (
-                            <Circle className="w-5 h-5 text-slate-300 group-hover:text-slate-400" />
+                            <Circle className="w-4 h-4 md:w-5 md:h-5 text-slate-300 group-hover:text-slate-400" />
                           )}
                         </div>
                       </div>
@@ -288,7 +288,7 @@ export function ConditionForm({
             className="flex justify-center items-center gap-2 px-5 py-2.5 md:px-6 
             rounded-lg hp:rounded-md font-medium bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white text-xs md:text-sm hover:brightness-110 shadow-sm transition-all"
           >
-            Next Step
+            Save & Continue
             <ChevronRight className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
           </button>
         </div>
@@ -304,7 +304,7 @@ function ToggleCard({ label, icon, enabled, onToggle }) {
   return (
     <div
       onClick={onToggle}
-      className={`cursor-pointer relative overflow-hidden rounded-lg hp:rounded-md border-2 p-3 md:p-5 transition-all duration-300
+      className={`cursor-pointer relative overflow-hidden rounded-lg hp:rounded-md border-2 px-3 xl:px-4 py-2 lg:py-3 transition-all duration-300
         ${
           enabled
             ? "border-blue-500 bg-white shadow-sm ring-1 ring-blue-50"
@@ -315,7 +315,7 @@ function ToggleCard({ label, icon, enabled, onToggle }) {
         <div className="flex items-center gap-3">
           {/* Icon */}
           <div
-            className={`p-2 rounded-lg hp:rounded-md ${enabled ? "bg-blue-100 text-blue-600" : "bg-slate-200 text-slate-500"}`}
+            className={`p-1.5 rounded-lg hp:rounded-md ${enabled ? "bg-blue-100 text-blue-600" : "bg-slate-200 text-slate-500"}`}
           >
             {icon}
           </div>

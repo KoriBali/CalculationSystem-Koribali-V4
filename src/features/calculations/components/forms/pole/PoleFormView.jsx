@@ -143,10 +143,18 @@ export default function PoleFormView() {
         <meta name="calculation" content="Calculation System CV. KORI BALI" />
       </Helmet>
 
+      {/* MODALS */}
+      <ConfirmReduceModal
+        open={poleForm.confirmReducePole}
+        onClose={poleForm.cancelReduce}
+        onConfirm={poleForm.confirmReduce}
+        itemName="step poles"
+      />
+
       <div className="flex-1 rounded-t-2xl hp:rounded-xl bg-gray-50 border border-gray-250">
         <HeaderCalculationPage />
 
-        <div className="mx-6 2040:mx-[250px] pt-1 pb-8 hp:mx-2">
+        <div className="w-full max-w-[1440px] mx-auto pt-0 pb-24 sm:pb-8 px-2">
           {/* ── Pole Specifications ── */}
           <div
             className={`bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] px-4 py-3 md:p-4 flex items-center justify-between cursor-pointer mt-6 transition-all duration-500 ease-in-out
@@ -237,190 +245,272 @@ export default function PoleFormView() {
                     />
                   </div>
 
-                  {/* Pole tabs */}
-                  <div className="px-6 pt-6 hp:p-4">
-                    <div className="flex items-center justify-between mb-6 xl:mb-4 hp:items-start hp:flex-col hp:gap-6 hp:mb-6">
-                      <h3 className="text-[#0d3b66] flex items-center gap-2 text-xs md:text-sm font-medium hp:text-xs hp:gap-1">
-                        <div className="w-1 h-5 bg-[#3399cc] rounded-full hp:h-4" />
-                        <span className="font-semibold">
-                          Configure up to 6 Step Poles
-                        </span>
-                        <span className="font-medium hp:hidden">
-                          {" "}
-                          with detailed specifications
-                        </span>
-                      </h3>
-                      <button
-                        onClick={poleForm.addPole}
-                        disabled={poleForm.poles.length >= 6}
-                        className={`flex justify-center items-center gap-2 p-2.5 sm:px-4 sm:py-2 md:px-5 lg:py-2.5 rounded-lg hp:rounded-md font-medium shadow-sm text-sm hp:text-xs hp:px-4 hp:self-center transition-all
-                        ${
-                          poleForm.poles.length >= 6
-                            ? "bg-gray-300 text-black opacity-40"
-                            : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:scale-105"
-                        }`}
-                      >
-                        <Plus className="w-3.5 sm:w-4 lg:w-4.5 h-3.5 sm:h-4 lg:h-4.5" />
-                        Add Step
-                      </button>
+                  {/* Pole Header */}
+                  <div className="px-6 pt-6 pb-3 hp:px-4 hp:pt-4 hp:pb-2">
+                    <div className="flex items-center justify-between mb-1">
+                      <div>
+                        <h3 className="text-[#0d3b66] flex items-center gap-2 text-xs md:text-sm font-medium hp:text-xs hp:gap-1">
+                          <div className="w-1 h-5 bg-[#3399cc] rounded-full hp:h-4" />
+                          <span className="font-semibold">
+                            Configure up to 6 Step Poles
+                          </span>
+                          <span className="font-medium hp:hidden">
+                            {" "}
+                            with detailed specifications
+                          </span>
+                        </h3>
+                      </div>
                     </div>
-
-                    <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-1 xl:gap-2 overflow-x-auto whitespace-nowrap scroll-smooth scrollbar-hide">
-                      {poleForm.poles.map((pole, index) => {
-                        const isActive = poleForm.activeTab === pole.id;
-                        return (
-                          <button
-                            key={pole.id}
-                            onClick={() => poleForm.setActiveTab(pole.id)}
-                            className={`flex items-center gap-2 px-5 xl:px-6 py-2 rounded-lg border-[1.5px] text-sm 
-                              font-medium transition-all
-                              hp:px-3 hp:py-1.5 hp:text-xs hp:rounded-md
-                              ${
-                                isActive
-                                  ? "border-blue-500 bg-blue-50 text-blue-700"
-                                  : "border-gray-200 bg-gray-50 text-gray-500 hover:bg-gray-100 hover:border-gray-300"
-                              }`}
-                          >
-                            <span
-                              className={`w-2 h-2 rounded-full flex-shrink-0 transition-colors
-                                ${isActive ? "bg-blue-500" : "bg-gray-300"}`}
-                            />
-                            <span className="hp:hidden">Step {index + 1}</span>
-                            <span className="hidden hp:inline">
-                              {index + 1}
-                            </span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                    <div className="mt-5 border-t border-gray-200" />
                   </div>
 
-                  {/* Active pole input */}
-                  {poleForm.activePole && (
-                    <div className="p-6 hp:px-4 hp:pt-0 hp:pb-4">
-                      <div className="space-y-6 hp:space-y-4">
-                        <div className="flex items-center justify-between mb-6 pb-6 border-b border-gray-200 hp:mb-4 hp:pb-4">
-                          <div className="flex items-center gap-3 hp:gap-2">
-                            <div>
-                              <h4 className="text-[#0d3b66] text-sm font-semibold hp:text-xs">
-                                Step Pole {poleForm.activeIndex + 1}
-                                {poleForm.activePole.name &&
-                                  ` : ${poleForm.activePole.name}`}
-                              </h4>
-                              <p className="text-xs text-gray-500 hp:text-[10px]">
-                                {poleForm.activePole.type} Type
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="flex gap-2 sm:gap-3 justify-end items-center">
-                            {/* Copy & Paste */}
-                            <div className="flex items-center gap-1.5 sm:gap-2 mr-1 sm:mr-2">
-                              <button
-                                onClick={() =>
-                                  poleForm.copyPole(poleForm.activePole)
-                                }
-                                title="Copy this Pole Spec"
-                                className="flex justify-center items-center w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-md sm:rounded-lg border bg-blue-50 text-blue-600 hover:bg-blue-100 transition"
-                              >
-                                <Copy className="w-3.5 sm:w-4 lg:w-4.5 h-3.5 sm:h-4 lg:h-4.5" />
-                              </button>
-                              <button
-                                onClick={() =>
-                                  poleForm.pastePole(poleForm.activePole.id)
-                                }
-                                disabled={!poleForm.poleClipboard}
-                                title={
-                                  poleForm.poleClipboard
-                                    ? "Paste copied Pole Spec"
-                                    : "No copied Pole Spec"
-                                }
-                                className={`flex justify-center items-center w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-md sm:rounded-lg border transition ${
-                                  poleForm.poleClipboard
-                                    ? "bg-green-50 text-green-600 hover:bg-green-100"
-                                    : "bg-gray-200 text-gray-400 cursor-not-allowed"
-                                }`}
-                              >
-                                <ClipboardPaste className="w-3.5 sm:w-4 lg:w-4.5 h-3.5 sm:h-4 lg:h-4.5" />
-                              </button>
-                            </div>
-
-                            {/* Divider */}
-                            <div className="hidden sm:block h-6 sm:h-8 w-px bg-gray-300 opacity-70" />
-
-                            {/* Reset */}
-                            <button
-                              onClick={poleForm.resetActivePole}
-                              className="flex justify-center items-center gap-2 p-2.5 sm:px-4 sm:py-2 md:px-5 lg:py-2.5 rounded-lg hp:rounded-md font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] 
-                              text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm transition-colors"
-                            >
-                              <RotateCcw className="w-3.5 sm:w-4 lg:w-4.5 h-3.5 sm:h-4 lg:h-4.5" />
-                              <span className="hidden sm:block text-sm">
-                                Reset
-                              </span>
-                            </button>
-
-                            {poleForm.poles.length > 1 && (
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  poleForm.setConfirmDelete?.(
-                                    poleForm.activePole.id,
-                                  );
-                                }}
-                                className="flex justify-center items-center gap-2 p-2.5 sm:px-4 sm:py-2 md:px-5 lg:py-2.5 rounded-lg hp:rounded-md font-medium bg-red-50 hover:bg-red-100
-                                text-red-600 ring-1 ring-inset ring-red-200 hover:ring-red-300 shadow-sm transition-all"
-                              >
-                                <Trash2 className="w-3.5 sm:w-4 lg:w-4.5 h-3.5 sm:h-4 lg:h-4.5" />
-                                <span className="hidden sm:block text-sm">
-                                  Delete Step
-                                </span>
-                              </button>
-                            )}
-                          </div>
+                  {/* INPUT CONTROL SECTION */}
+                  <div className="border-b border-gray-200">
+                    <div
+                      className="
+                        flex items-center justify-start
+                        px-6 pt-3 pb-6
+                        hp:flex-col
+                        hp:items-stretch
+                        hp:gap-3
+                        hp:px-3
+                        hp:pt-2
+                        hp:pb-4
+                      "
+                    >
+                      {/* INPUT + ACTION BUTTON */}
+                      <div
+                        className="
+                          flex items-center gap-3
+                          hp:flex-row
+                          hp:items-center
+                          hp:gap-2
+                          hp:w-full
+                        "
+                      >
+                        {/* Current object count display */}
+                        <div
+                          className="
+                            flex items-center gap-2 px-5 py-2 lg:py-2.5 text-sm rounded-md sm:rounded-lg
+                            bg-slate-50 border border-slate-200 text-slate-700 font-medium
+                            whitespace-nowrap
+                            hp:px-3
+                            hp:py-2
+                            hp:text-xs
+                            hp:justify-center
+                            hp:flex-shrink-0
+                          "
+                        >
+                          <span className="text-[#0d3b66] font-semibold">
+                            {poleForm.poles.length}
+                          </span>
+                          <span className="text-slate-400">/</span>
+                          <span className="text-slate-600">6 Poles</span>
                         </div>
 
-                        <PoleForm
-                          pole={poleForm.activePole}
-                          onUpdate={(updates) =>
-                            poleForm.updatePole(poleForm.activeTab, updates)
-                          }
-                          errors={poleForm.poleErrors[poleForm.activeTab] || {}}
+                        {/* Input for number of object to add */}
+                        <input
+                          type="number"
+                          min={1}
+                          max={6}
+                          placeholder="Input Pole Number"
+                          value={poleForm.poleCountInput}
+                          onChange={(e) => poleForm.setPoleCountInput(e.target.value)}
+                          onWheel={(e) => e.target.blur()}
+                          className="
+                            w-[180px] px-3.5 py-2 lg:py-2.5 text-center text-sm rounded-md sm:rounded-lg outline-none
+                            transition-all border border-slate-300 bg-white
+                            focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]
+                            hp:flex-1
+                            hp:min-w-0
+                            hp:w-auto
+                            hp:px-2
+                            hp:py-2
+                            hp:text-xs
+                          "
                         />
-                      </div>
 
-                      <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-200 hp:mt-5 hp:pt-4">
+                        {/* Confirm add object button */}
                         <button
-                          onClick={poleForm.goToPrev}
-                          disabled={poleForm.isBackDisabled}
-                          className={`flex justify-center items-center gap-2 text-sm px-3.5 py-2.5 sm:px-4 sm:py-2 md:px-5 lg:py-2.5 rounded-lg hp:rounded-md ring-1 ring-inset font-medium transition-colors
+                          onClick={poleForm.handleAddPoleBulk}
+                          disabled={
+                            !poleForm.poleCountInput ||
+                            isNaN(poleForm.poleCountInput) ||
+                            Number(poleForm.poleCountInput) <= 0 ||
+                            Number(poleForm.poleCountInput) > 6 ||
+                            Number(poleForm.poleCountInput) === poleForm.poles.length
+                          }
+                          className={`
+                            flex items-center gap-2 px-7 py-2 lg:py-2.5 text-sm font-medium rounded-md sm:rounded-lg
+                            transition-all border whitespace-nowrap
+                            hp:px-4
+                            hp:py-2
+                            hp:text-xs
+                            hp:gap-1.5
+                            hp:flex-shrink-0
                             ${
-                              poleForm.isBackDisabled
-                                ? "bg-gray-100 text-gray-400 ring-gray-200 cursor-not-allowed"
-                                : "bg-[#eef2f6] text-[#0d3b66] ring-[#d0d7e2] hover:bg-[#e2e8f0] hover:ring-[#b8c2d1]"
-                            }`}
+                              !poleForm.poleCountInput ||
+                              isNaN(poleForm.poleCountInput) ||
+                              Number(poleForm.poleCountInput) <= 0 ||
+                              Number(poleForm.poleCountInput) > 6 ||
+                              Number(poleForm.poleCountInput) === poleForm.poles.length
+                                ? "bg-gray-50 border-gray-300 text-gray-600 opacity-40 cursor-not-allowed"
+                                : "bg-blue-50 border-blue-500 text-blue-700 hover:bg-blue-100"
+                            }
+                          `}
                         >
-                          <ChevronLeft className="w-3.5 sm:w-4 lg:w-4.5 h-3.5 sm:h-4 lg:h-4.5" />
-                          <span className="hp:hidden">Back</span>
-                        </button>
-
-                        <button
-                          onClick={poleForm.goToNext}
-                          disabled={poleForm.isNextDisabled}
-                          className={`flex justify-center items-center gap-2 text-sm px-3.5 py-2.5 sm:px-4 sm:py-2 md:px-5 lg:py-2.5 rounded-lg hp:rounded-md font-medium transition-all
-                            ${
-                              poleForm.isNextDisabled
-                                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                                : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110"
-                            }`}
-                        >
-                          <span className="hp:hidden">Next Step</span>
-                          <ChevronRight className="w-3.5 sm:w-4 lg:w-4.5 h-3.5 sm:h-4 lg:h-4.5" />
+                          {!poleForm.poleCountInput ||
+                          isNaN(poleForm.poleCountInput) ||
+                          Number(poleForm.poleCountInput) <= 0 ||
+                          Number(poleForm.poleCountInput) > 6 ||
+                          Number(poleForm.poleCountInput) === poleForm.poles.length ? (
+                            <Circle className="w-4 h-4 text-gray-400 hp:w-3.5 hp:h-3.5" />
+                          ) : (
+                            <CheckCircle className="w-4 h-4 text-blue-500 hp:w-3.5 hp:h-3.5" />
+                          )}
+                          OK
                         </button>
                       </div>
                     </div>
-                  )}
+                  </div>
+
+                  {/* List of Pole Forms */}
+                  {poleForm.poles.map((pole, index) => {
+                    const isLast = index === poleForm.poles.length - 1;
+                    const hasMultiple = poleForm.poles.length > 1;
+
+                    return (
+                      <div
+                        key={pole.id}
+                        className={`hover:bg-blue-50/50 p-6 
+                        ${hasMultiple && !isLast ? "border-b border-gray-200" : ""} hp:px-4 hp:pb-6 hp:pt-4`}
+                      >
+                        <div className="space-y-6 hp:space-y-4">
+                          <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-200 hp:flex-col hp:items-start hp:gap-3">
+                            <div className="flex items-center gap-3 hp:gap-2">
+                              {/* Index badge */}
+                              <div
+                                className="
+                                  w-9 h-9 lg:w-10 lg:h-10 rounded-md sm:rounded-lg flex-shrink-0
+                                  bg-gradient-to-br from-[#0d3b66] to-[#3399cc]
+                                  flex items-center justify-center
+                                  text-white text-sm font-medium
+                                  hp:w-[34px] hp:h-[34px]
+                                "
+                              >
+                                {index + 1}
+                              </div>
+                              <div className="min-w-0">
+                                <h4 className="text-[#0d3b66] text-sm font-semibold hp:text-xs truncate">
+                                  Step Pole {index + 1}
+                                  {pole.name && ` : ${pole.name}`}
+                                </h4>
+                                <p className="text-xs text-gray-500 hp:text-[10px]">
+                                  {pole.type} Type
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="flex gap-2 sm:gap-3 justify-end items-center">
+                              {/* Copy & Paste */}
+                              <div className="flex items-center gap-1.5 sm:gap-2 mr-1 sm:mr-2">
+                                <button
+                                  onClick={() => poleForm.copyPole(pole)}
+                                  title="Copy this Pole Spec"
+                                  className="flex justify-center items-center w-9 h-9 lg:w-10 lg:h-10 rounded-md sm:rounded-lg border bg-blue-50 text-blue-600 hover:bg-blue-100 transition"
+                                >
+                                  <Copy className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+                                </button>
+                                <button
+                                  onClick={() => poleForm.pastePole(pole.id)}
+                                  disabled={!poleForm.poleClipboard}
+                                  title={
+                                    poleForm.poleClipboard
+                                      ? "Paste copied Pole Spec"
+                                      : "No copied Pole Spec"
+                                  }
+                                  className={`flex justify-center items-center w-9 h-9 lg:w-10 lg:h-10 rounded-md sm:rounded-lg border transition ${
+                                    poleForm.poleClipboard
+                                      ? "bg-green-50 text-green-600 hover:bg-green-100"
+                                      : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                                  }`}
+                                >
+                                  <ClipboardPaste className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+                                </button>
+                              </div>
+
+                              {/* Divider */}
+                              <div className="h-8 w-px bg-gray-300 opacity-70" />
+
+                              {/* Reset */}
+                              <button
+                                onClick={() => poleForm.resetActivePole(pole.id)}
+                                className="flex justify-center items-center gap-2 px-4 py-2 md:px-5 lg:py-2.5 rounded-lg hp:rounded-md font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] 
+                                text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm transition-colors"
+                              >
+                                <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+                                <span className="text-sm">
+                                  Reset
+                                </span>
+                              </button>
+
+                              {poleForm.poles.length > 1 && (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    poleForm.setConfirmDelete?.(pole.id);
+                                  }}
+                                  className="flex justify-center items-center gap-2 px-4 py-2 md:px-5 lg:py-2.5 rounded-lg hp:rounded-md font-medium bg-red-50 hover:bg-red-100
+                                  text-red-600 ring-1 ring-inset ring-red-200 hover:ring-red-300 shadow-sm transition-all"
+                                >
+                                  <Trash2 className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+                                  <span className="text-sm">
+                                    Delete Step
+                                  </span>
+                                </button>
+                              )}
+                            </div>
+                          </div>
+
+                          <PoleForm
+                            pole={pole}
+                            onUpdate={(updates) =>
+                              poleForm.updatePole(pole.id, updates)
+                            }
+                            errors={poleForm.poleErrors[pole.id] || {}}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                  
+                  {/* Divider */}
+                  <div className="border-t border-gray-200" />
+
+                  {/* Add Step Button */}
+                  <div className="flex justify-center items-center p-6 hp:p-4">
+                    <button
+                      onClick={poleForm.addPole}
+                      disabled={poleForm.poles.length >= 6}
+                      className={`
+                        w-full py-2 lg:py-2.5 font-medium text-sm rounded-md sm:rounded-lg
+                        flex items-center justify-center gap-2
+                        transition-all duration-200
+            
+                        ${
+                          poleForm.poles.length >= 6
+                            ? "border-2 border-dashed border-gray-300 text-gray-400 cursor-not-allowed opacity-50"
+                            : "border-2 border-dashed border-[#3399cc] text-[#3399cc] bg-transparent hover:bg-[#3399cc] hover:text-white"
+                        }
+            
+                        hp:text-xs
+                      `}
+                    >
+                      <Plus className="w-3.5 sm:w-4 lg:w-4.5 h-3.5 sm:h-4 lg:h-4.5" />
+                      Add Step
+                    </button>
+                  </div>
+
+
                 </>
               )}
             </div>

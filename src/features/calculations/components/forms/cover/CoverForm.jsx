@@ -58,7 +58,7 @@ export function CoverForm({
               ? "Go to Drawing"
               : projectMode === "calculation"
               ? "Go to Calculation"
-              : "Next Step"}
+              : "Save & Continue"}
             <ChevronRight className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
           </button>
         </div>

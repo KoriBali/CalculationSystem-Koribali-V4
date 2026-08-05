@@ -37,7 +37,7 @@ const SectionCard = ({ children }) => (
 );
 
 // Reusable number input with unit suffix
-const UnitInput = ({ value, onChange, unit, hasError, ...props }) => (
+const UnitInput = ({ value, onChange, unit, hasError, className, ...props }) => (
   <div className="relative">
     <input
       type="number"
@@ -45,7 +45,7 @@ const UnitInput = ({ value, onChange, unit, hasError, ...props }) => (
       value={value}
       onChange={onChange}
       onWheel={(e) => e.target.blur()}
-      className={inputStyle(hasError)}
+      className={className || inputStyle(hasError)}
       {...props}
     />
     <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
@@ -56,254 +56,199 @@ const UnitInput = ({ value, onChange, unit, hasError, ...props }) => (
 
 // ─── COMPONENT ───────────────────────────────────────────────────────────────
 
-export function PoleForm({
-  pole, // object — current pole field values
-  onUpdate, // fn — called on any field change
-  errors, // object — validation errors per field
-}) {
+export function PoleForm({ pole, onUpdate, errors }) {
+  const isStraight = pole.type === "Straight";
+
   return (
-    <div className="space-y-4 md:space-y-6">
-      {/* ── Basic Information ── */}
-      <div>
-        <SectionTitle>Basic Information</SectionTitle>
-        <SectionCard>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-4">
-            {/* Pole Name */}
-            <div className="relative">
-              <label className="block text-gray-700 text-xs md:text-sm mb-1 md:mb-2">
-                Pole Name
-              </label>
-              <input
-                type="text"
-                value={pole.name}
-                onChange={(e) => onUpdate({ name: e.target.value })}
-                placeholder="e.g., 支柱-1"
-                className={inputStyle(errors.name)}
-              />
-              <ErrorStyle show={errors.name} text={errors.name} />
-            </div>
+    <div>
+      <div
+        className="
+          grid grid-cols-5 gap-x-3 gap-y-6
+          xl:flex xl:flex-row xl:flex-nowrap xl:items-start xl:gap-x-2 2xl:gap-x-3
+          hp:grid hp:grid-cols-2 hp:gap-3 hp:gap-y-6
+        "
+      >
+        {/* Pole Name */}
+        <div className="relative col-span-2 xl:flex-[2] min-w-0 hp:w-full hp:col-span-2">
+          <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
+            Pole Name
+          </label>
+          <input
+            type="text"
+            value={pole.name}
+            onChange={(e) => onUpdate({ name: e.target.value })}
+            placeholder="e.g., 支柱-1"
+            className={`${inputStyle(errors.name)} px-3 2xl:px-4`}
+          />
+          <ErrorStyle show={errors.name} text={errors.name} />
+        </div>
 
-            {/* Material Type */}
-            <div className="relative">
-              <label className="block text-gray-700 text-xs md:text-sm mb-1 md:mb-2">
-                Material Type
-              </label>
-              <div className="relative">
-                <select
-                  value={pole.material}
-                  onChange={(e) => onUpdate({ material: e.target.value })}
-                  className={`${inputStyle(errors.material)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] appearance-none`}
-                >
-                  <option value="STK400">STK400</option>
-                  <option value="STK490">STK490</option>
-                  <option value="STK500">STK500</option>
-                  <option value="STK540">STK540</option>
-                  <option value="STKR400">STKR400</option>
-                </select>
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                  <ChevronRight className="w-4 h-4 text-gray-400 rotate-90" />
-                </div>
-              </div>
-              <ErrorStyle show={errors.material} text={errors.material} />
-            </div>
-
-            {/* Pole Type — determines which dimension fields are shown */}
-            <div className="relative">
-              <label className="block text-gray-700 text-xs md:text-sm mb-1 md:mb-2">
-                Pole Type
-              </label>
-              <div className="relative">
-                <select
-                  value={pole.type}
-                  onChange={(e) => {
-                    const newType = e.target.value;
-                    if (newType === "Straight") {
-                      // Sync upper → lower saat switch ke Straight
-                      onUpdate({
-                        type: newType,
-                        upperDiameter: pole.lowerDiameter,
-                        upperThickness: pole.lowerThickness,
-                      });
-                    } else {
-                      onUpdate({ type: newType });
-                    }
-                  }}
-                  className="w-full min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] pl-3 md:pl-4 pr-8 py-2 md:py-2.5 border border-gray-300 rounded-lg hp:rounded-md text-xs md:text-sm focus:ring-1 focus:ring-[#3399cc] focus:border-[#3399cc] outline-none transition-all bg-white appearance-none"
-                >
-                  <option value="Straight">Straight</option>
-                  <option value="Taper">Taper</option>
-                </select>
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                  <ChevronRight className="w-4 h-4 text-gray-400 rotate-90" />
-                </div>
-              </div>
+        {/* Material Type */}
+        <div className="relative xl:w-[130px] xl:flex-none min-w-0 hp:w-full">
+          <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
+            Material
+          </label>
+          <div className="relative">
+            <select
+              value={pole.material}
+              onChange={(e) => onUpdate({ material: e.target.value })}
+              className={`${inputStyle(errors.material)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] pl-3 2xl:pl-4 pr-8 appearance-none`}
+            >
+              <option value="STK400">STK400</option>
+              <option value="STK490">STK490</option>
+              <option value="STK500">STK500</option>
+              <option value="STK540">STK540</option>
+              <option value="STKR400">STKR400</option>
+            </select>
+            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+              <ChevronRight className="w-4 h-4 text-gray-400 rotate-90" />
             </div>
           </div>
-        </SectionCard>
-      </div>
+          <ErrorStyle show={errors.material} text={errors.material} />
+        </div>
 
-      {/* ── Dimensions & Specifications ── */}
-      <div>
-        <SectionTitle>Dimensions & Specifications</SectionTitle>
-        <SectionCard>
-          {/* Straight — single diameter & thickness */}
-          {pole.type === "Straight" ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-5">
-              {/* Diameter */}
-              <div className="relative">
-                <label className="block text-gray-700 text-xs md:text-sm mb-1 md:mb-2">
-                  Diameter Pole
-                </label>
-                <UnitInput
-                  value={pole.lowerDiameter}
-                  onChange={(e) =>
-                    onUpdate({
-                      lowerDiameter: e.target.value,
-                      upperDiameter: e.target.value, // Straight = same top & bottom
-                    })
-                  }
-                  unit="mm"
-                  hasError={errors.lowerDiameter || errors.upperDiameter}
-                />
-                <ErrorStyle
-                  show={errors.lowerDiameter || errors.upperDiameter}
-                  text={errors.lowerDiameter || errors.upperDiameter}
-                />
-              </div>
-
-              {/* Thickness */}
-              <div className="relative">
-                <label className="block text-gray-700 text-xs md:text-sm mb-1 md:mb-2">
-                  Thickness Pole
-                </label>
-                <UnitInput
-                  value={pole.lowerThickness}
-                  onChange={(e) =>
-                    onUpdate({
-                      lowerThickness: e.target.value,
-                      upperThickness: e.target.value, // Straight = same top & bottom
-                    })
-                  }
-                  unit="mm"
-                  hasError={errors.lowerThickness || errors.upperThickness}
-                />
-                <ErrorStyle
-                  show={errors.lowerThickness || errors.upperThickness}
-                  text={errors.lowerThickness || errors.upperThickness}
-                />
-              </div>
-            </div>
-          ) : (
-            /* Taper — separate lower & upper for diameter and thickness */
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-              {/* Lower Diameter */}
-              <div className="relative">
-                <label className="block text-gray-700 text-xs md:text-sm mb-1 md:mb-2">
-                  Lower Diameter
-                </label>
-                <UnitInput
-                  value={pole.lowerDiameter}
-                  onChange={(e) => onUpdate({ lowerDiameter: e.target.value })}
-                  unit="mm"
-                  hasError={errors.lowerDiameter}
-                />
-                <ErrorStyle
-                  show={errors.lowerDiameter}
-                  text={errors.lowerDiameter}
-                />
-              </div>
-
-              {/* Upper Diameter */}
-              <div className="relative">
-                <label className="block text-gray-700 text-xs md:text-sm mb-1 md:mb-2">
-                  Upper Diameter
-                </label>
-                <UnitInput
-                  value={pole.upperDiameter}
-                  onChange={(e) => onUpdate({ upperDiameter: e.target.value })}
-                  unit="mm"
-                  hasError={errors.upperDiameter}
-                />
-                <ErrorStyle
-                  show={errors.upperDiameter}
-                  text={errors.upperDiameter}
-                />
-              </div>
-
-              {/* Lower Thickness */}
-              <div className="relative">
-                <label className="block text-gray-700 text-xs md:text-sm mb-1 md:mb-2">
-                  Lower Thickness
-                </label>
-                <UnitInput
-                  value={pole.lowerThickness}
-                  onChange={(e) => onUpdate({ lowerThickness: e.target.value })}
-                  unit="mm"
-                  hasError={errors.lowerThickness}
-                />
-                <ErrorStyle
-                  show={errors.lowerThickness}
-                  text={errors.lowerThickness}
-                />
-              </div>
-
-              {/* Upper Thickness */}
-              <div className="relative">
-                <label className="block text-gray-700 text-xs md:text-sm mb-1 md:mb-2">
-                  Upper Thickness
-                </label>
-                <UnitInput
-                  value={pole.upperThickness}
-                  onChange={(e) => onUpdate({ upperThickness: e.target.value })}
-                  unit="mm"
-                  hasError={errors.upperThickness}
-                />
-                <ErrorStyle
-                  show={errors.upperThickness}
-                  text={errors.upperThickness}
-                />
-              </div>
-            </div>
-          )}
-        </SectionCard>
-      </div>
-
-      {/* ── Additional Parameters ── */}
-      <div>
-        <SectionTitle>Additional Parameters</SectionTitle>
-        <SectionCard>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-5 md:gap-4">
-            {/* Height */}
-            <div className="relative">
-              <label className="block text-gray-700 text-xs md:text-sm mb-1 md:mb-2">
-                Height (Z/H)
-              </label>
-              <UnitInput
-                value={pole.zHeight}
-                onChange={(e) => onUpdate({ zHeight: e.target.value })}
-                unit="mm"
-                hasError={errors.zHeight}
-              />
-              <ErrorStyle show={errors.zHeight} text={errors.zHeight} />
-            </div>
-
-            {/* Quantity */}
-            <div className="relative">
-              <label className="block text-gray-700 text-xs md:text-sm mb-1 md:mb-2">
-                Quantity
-              </label>
-              <UnitInput
-                value={pole.quantity}
-                onChange={(e) => onUpdate({ quantity: e.target.value })}
-                unit="pcs"
-                hasError={errors.quantity}
-                min="1"
-                placeholder="1"
-              />
-              <ErrorStyle show={errors.quantity} text={errors.quantity} />
+        {/* Pole Type */}
+        <div className="relative xl:w-[130px] xl:flex-none min-w-0 hp:w-full">
+          <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
+            Type
+          </label>
+          <div className="relative">
+            <select
+              value={pole.type}
+              onChange={(e) => {
+                const newType = e.target.value;
+                if (newType === "Straight") {
+                  onUpdate({
+                    type: newType,
+                    upperDiameter: pole.lowerDiameter,
+                    upperThickness: pole.lowerThickness,
+                  });
+                } else {
+                  onUpdate({ type: newType });
+                }
+              }}
+              className={`${inputStyle(false)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] pl-3 2xl:pl-4 pr-8 appearance-none`}
+            >
+              <option value="Straight">Straight</option>
+              <option value="Taper">Taper</option>
+            </select>
+            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+              <ChevronRight className="w-4 h-4 text-gray-400 rotate-90" />
             </div>
           </div>
-        </SectionCard>
+        </div>
+
+        {/* Diameter (Lower / Straight) */}
+        <div className="relative xl:flex-[1.2] min-w-0 hp:w-full">
+          <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
+            {isStraight ? "Diameter" : "Lower Diameter"}
+          </label>
+          <UnitInput
+            value={pole.lowerDiameter}
+            onChange={(e) =>
+              onUpdate({
+                lowerDiameter: e.target.value,
+                ...(isStraight && { upperDiameter: e.target.value }),
+              })
+            }
+            unit="mm"
+            hasError={errors.lowerDiameter || (isStraight && errors.upperDiameter)}
+            className={`${inputStyle(errors.lowerDiameter || (isStraight && errors.upperDiameter))} pl-3 2xl:pl-4 pr-7`}
+          />
+          <ErrorStyle
+            show={errors.lowerDiameter || (isStraight && errors.upperDiameter)}
+            text={errors.lowerDiameter || (isStraight && errors.upperDiameter)}
+          />
+        </div>
+
+        {/* Upper Diameter (Taper only) */}
+        {!isStraight && (
+          <div className="relative xl:flex-[1.2] min-w-0 hp:w-full">
+            <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
+              Upper Diameter
+            </label>
+            <UnitInput
+              value={pole.upperDiameter}
+              onChange={(e) => onUpdate({ upperDiameter: e.target.value })}
+              unit="mm"
+              hasError={errors.upperDiameter}
+              className={`${inputStyle(errors.upperDiameter)} pl-3 2xl:pl-4 pr-7`}
+            />
+            <ErrorStyle show={errors.upperDiameter} text={errors.upperDiameter} />
+          </div>
+        )}
+
+        {/* Thickness (Lower / Straight) */}
+        <div className="relative xl:flex-[1.2] min-w-0 hp:w-full">
+          <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
+            {isStraight ? "Thickness" : "Lower Thickness"}
+          </label>
+          <UnitInput
+            value={pole.lowerThickness}
+            onChange={(e) =>
+              onUpdate({
+                lowerThickness: e.target.value,
+                ...(isStraight && { upperThickness: e.target.value }),
+              })
+            }
+            unit="mm"
+            hasError={errors.lowerThickness || (isStraight && errors.upperThickness)}
+            className={`${inputStyle(errors.lowerThickness || (isStraight && errors.upperThickness))} pl-3 2xl:pl-4 pr-7`}
+          />
+          <ErrorStyle
+            show={errors.lowerThickness || (isStraight && errors.upperThickness)}
+            text={errors.lowerThickness || (isStraight && errors.upperThickness)}
+          />
+        </div>
+
+        {/* Upper Thickness (Taper only) */}
+        {!isStraight && (
+          <div className="relative xl:flex-[1.2] min-w-0 hp:w-full">
+            <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
+              Upper Thickness
+            </label>
+            <UnitInput
+              value={pole.upperThickness}
+              onChange={(e) => onUpdate({ upperThickness: e.target.value })}
+              unit="mm"
+              hasError={errors.upperThickness}
+              className={`${inputStyle(errors.upperThickness)} pl-3 2xl:pl-4 pr-7`}
+            />
+            <ErrorStyle show={errors.upperThickness} text={errors.upperThickness} />
+          </div>
+        )}
+
+        {/* Height */}
+        <div className="relative xl:flex-[1.2] min-w-0 hp:w-full">
+          <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
+            Height (Z/H)
+          </label>
+          <UnitInput
+            value={pole.zHeight}
+            onChange={(e) => onUpdate({ zHeight: e.target.value })}
+            unit="mm"
+            hasError={errors.zHeight}
+            className={`${inputStyle(errors.zHeight)} pl-3 2xl:pl-4 pr-7`}
+          />
+          <ErrorStyle show={errors.zHeight} text={errors.zHeight} />
+        </div>
+
+        {/* Quantity */}
+        <div className="relative xl:flex-[0.8] min-w-0 hp:w-full">
+          <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
+            Quantity
+          </label>
+          <UnitInput
+            value={pole.quantity}
+            onChange={(e) => onUpdate({ quantity: e.target.value })}
+            unit="pcs"
+            hasError={errors.quantity}
+            min="1"
+            placeholder="1"
+            className={`${inputStyle(errors.quantity)} pl-3 2xl:pl-4 pr-7`}
+          />
+          <ErrorStyle show={errors.quantity} text={errors.quantity} />
+        </div>
       </div>
     </div>
   );

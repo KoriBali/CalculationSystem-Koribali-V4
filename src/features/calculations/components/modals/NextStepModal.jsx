@@ -25,7 +25,7 @@ export const NextStepModal = ({
         {/* Header */}
         <div className="bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] px-8 py-5 sm:px-10 sm:py-6">
           <h2 className="text-white font-bold text-base sm:text-lg">
-            Select Next Step
+            Select Save & Continue
           </h2>
         </div>
 

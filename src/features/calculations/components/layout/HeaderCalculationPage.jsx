@@ -128,7 +128,7 @@ export function HeaderCalculationPage() {
   const requirePole = workflow.projectMode === "drawing";
   const isPoleCompleted = !requirePole || isPoleCompletedRaw;
   
-  // Only show coupling tab if the user explicitly clicked Next Step with coupling enabled
+  // Only show coupling tab if the user explicitly clicked Save & Continue with coupling enabled
   const isCouplingUsed = sessionStorage.getItem(`${type}_drawing_coupling_confirmed`) === "true";
   const isCouplingCompleted = sessionStorage.getItem(`${type}_drawing_coupling_completed`) === "true";
 

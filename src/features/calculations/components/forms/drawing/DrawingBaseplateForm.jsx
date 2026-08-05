@@ -30,7 +30,7 @@ export function DrawingBaseplateForm({ baseplate, onUpdate, onReset, onNext, err
             <div className="relative">
               <select
                 value={baseplate.baseplateType || ""}
-                onChange={(e) => onUpdate({ baseplateType: e.target.value, bpWidthEW: "" })}
+                onChange={(e) => onUpdate({ baseplateType: e.target.value })}
                 className={`${inputStyle(errors.baseplateType)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] cursor-pointer appearance-none`}
               >
                 <option value="" disabled>Select Baseplate Type</option>
@@ -121,7 +121,7 @@ export function DrawingBaseplateForm({ baseplate, onUpdate, onReset, onNext, err
             className="flex justify-center items-center gap-2 px-5 py-2.5 md:px-6 
             rounded-lg hp:rounded-md font-medium bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white text-xs md:text-sm hover:brightness-110 shadow-sm transition-all"
           >
-            Next Step
+            Save & Continue
             <ChevronRight className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
           </button>
         </div>

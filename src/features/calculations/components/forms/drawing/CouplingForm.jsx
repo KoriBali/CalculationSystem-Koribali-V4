@@ -391,7 +391,7 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
             className="flex justify-center items-center gap-2 px-6 py-2.5 
             rounded-lg font-medium bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white text-sm hover:brightness-110 shadow-sm transition-all"
           >
-            Next Step
+            Save & Continue
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>

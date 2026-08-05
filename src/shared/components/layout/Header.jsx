@@ -13,7 +13,7 @@ export function Header({
   return (
     <header className="sticky top-0 z-40 h-16 bg-white/80 backdrop-blur-md border-b border-slate-200 flex items-center px-4 lg:px-8 justify-between">
       <div className="flex items-center gap-2">
-        {/*mobile only */}
+        {/* mobile only */}
         {isMobile && (
           <button
             onClick={onOpenMobileSidebar}

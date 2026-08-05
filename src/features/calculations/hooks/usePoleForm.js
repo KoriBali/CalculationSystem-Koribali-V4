@@ -28,6 +28,8 @@ export function usePoleForm(projectType) {
   const [activeTab, setActiveTab] = useState("1");
   const [poleClipboard, setPoleClipboard] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
+  const [confirmReducePole, setConfirmReducePole] = useState(null);
+  const [poleCountInput, setPoleCountInput] = useState("");
 
   // Persists max pole ID to prevent conflicts after reload
   const poleIdRef = useRef(1);
@@ -54,6 +56,55 @@ export function usePoleForm(projectType) {
 
   // Adds a new pole (max 6)
   const addPole = () => Utils.addPole(poles, setPoles, setActiveTab, poleIdRef);
+
+  // Bulk adds poles based on input
+  const handleAddPoleBulk = () => {
+    const num = Number(poleCountInput);
+    if (!num || isNaN(num) || num <= 0) return;
+    
+    // minimum 1, max 6
+    const safeTarget = Math.min(Math.max(1, num), 6);
+    const currentCount = poles.length;
+    
+    if (safeTarget === currentCount) return;
+
+    if (safeTarget > currentCount) {
+      const toAdd = safeTarget - currentCount;
+      setPoles((prev) => {
+        const newPoles = [...prev];
+        let nextId = poleIdRef.current;
+        for (let i = 0; i < toAdd; i++) {
+          newPoles.push({
+            ...DEFAULT_POLE,
+            id: String(nextId),
+          });
+          nextId++;
+        }
+        poleIdRef.current = nextId;
+        return newPoles;
+      });
+      setPoleCountInput("");
+    } else {
+      // reduce
+      setConfirmReducePole({
+        from: currentCount,
+        to: safeTarget,
+      });
+    }
+  };
+
+  // Confirms reduce — slices Pole list to target count
+  const confirmReduce = () => {
+    setPoles((prev) => prev.slice(0, confirmReducePole.to));
+    setConfirmReducePole(null);
+    setPoleCountInput("");
+  };
+
+  // Cancels reduce — restores input value to current Pole count
+  const cancelReduce = () => {
+    setPoleCountInput(poles.length.toString());
+    setConfirmReducePole(null);
+  };
 
   // Removes a pole by ID
   const removePole = (id) =>
@@ -92,14 +143,14 @@ export function usePoleForm(projectType) {
   };
 
   // Resets the active pole's fields to empty
-  const resetActivePole = () => {
+  const resetActivePole = (id = activeTab) => {
     // 1. Reset nilai inputannya
-    Utils.resetCurrentPole(setPoles, poles, activeTab);
+    Utils.resetCurrentPole(setPoles, poles, id);
 
     // 2. Hapus semua error khusus untuk pole yang sedang aktif ini
     setPoleErrors((prev) => {
       const clearedErrors = { ...prev };
-      delete clearedErrors[activeTab]; // Langsung hapus error berdasarkan ID tab-nya
+      delete clearedErrors[id]; // Langsung hapus error berdasarkan ID tab-nya
       return clearedErrors;
     });
   };
@@ -137,5 +188,11 @@ export function usePoleForm(projectType) {
     resetActivePole,
     goToNext,
     goToPrev,
+    poleCountInput,
+    setPoleCountInput,
+    handleAddPoleBulk,
+    confirmReducePole,
+    confirmReduce,
+    cancelReduce,
   };
 }
