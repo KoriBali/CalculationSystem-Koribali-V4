@@ -72,13 +72,17 @@ export function HeaderCalculationPage() {
     return hasPole && hasOpening && hasBaseplate && hasFoundation;
   };
 
+  const rawCondition = sessionStorage.getItem(`${type}_condition`);
+  const condition = rawCondition ? JSON.parse(rawCondition) : null;
+  const isInvalidCustomBoth = workflow.projectMode === "both" && condition?.poleType === "custom";
+
   const navItems = [
     {
       label: "Initial",
       path: `/calculation/${type}/${draftId}/initial`,
       icon: LayoutDashboard,
     },
-    ...(config?.pole
+    ...(config?.pole && !isInvalidCustomBoth
       ? [
           {
             label: "Pole",
@@ -87,7 +91,7 @@ export function HeaderCalculationPage() {
           },
         ]
       : []),
-    ...(config?.opening
+    ...(config?.opening && !isInvalidCustomBoth
       ? [
           {
             label: "Opening",
@@ -96,7 +100,7 @@ export function HeaderCalculationPage() {
           },
         ]
       : []),
-    ...(config?.baseplate
+    ...(config?.baseplate && !isInvalidCustomBoth
       ? [
           {
             label: "Baseplate",
@@ -105,7 +109,7 @@ export function HeaderCalculationPage() {
           },
         ]
       : []),
-    ...(config?.foundation
+    ...(config?.foundation && !isInvalidCustomBoth
       ? [
           {
             label: "Foundation",

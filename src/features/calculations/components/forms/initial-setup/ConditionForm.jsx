@@ -66,6 +66,7 @@ const EMPTY_CONDITION = {
  */
 export function ConditionForm({
   projectType,
+  projectMode,
   condition,
   onUpdate,
   onFinish,
@@ -185,7 +186,17 @@ export function ConditionForm({
                       key={option.id}
                       type="button"
                       title={option.desc}
-                      onClick={() => onUpdate({ poleType: option.id })}
+                      onClick={() => {
+                        if (projectMode === "both" && option.id === "standard") {
+                          onUpdate({ 
+                            poleType: option.id,
+                            openingEnabled: true,
+                            foundationEnabled: false
+                          });
+                        } else {
+                          onUpdate({ poleType: option.id });
+                        }
+                      }}
                       className={`group w-full text-left relative overflow-hidden rounded-lg hp:rounded-md border-2 px-3 xl:px-4 py-2 lg:py-3 transition-all duration-300 cursor-pointer active:scale-[0.98]
                         ${
                           isActive
@@ -237,6 +248,7 @@ export function ConditionForm({
                 label="Opening Part"
                 icon={<DoorOpen size={16} />}
                 enabled={condition.openingEnabled}
+                disabled={projectMode === "both" && condition.poleType === "standard"}
                 onToggle={() =>
                   onUpdate({ openingEnabled: !condition.openingEnabled })
                 }
@@ -257,6 +269,7 @@ export function ConditionForm({
                 label="Foundation"
                 icon={<Layers size={16} />}
                 enabled={condition.foundationEnabled}
+                disabled={projectMode === "both" && condition.poleType === "standard"}
                 onToggle={() =>
                   onUpdate({ foundationEnabled: !condition.foundationEnabled })
                 }
@@ -300,14 +313,18 @@ export function ConditionForm({
 // ─── SUB-COMPONENT ───────────────────────────────────────────────────────────
 
 // Reusable toggle card for additional components (Opening, Baseplate, Foundation)
-function ToggleCard({ label, icon, enabled, onToggle }) {
+function ToggleCard({ label, icon, enabled, onToggle, disabled = false }) {
   return (
     <div
-      onClick={onToggle}
-      className={`cursor-pointer relative overflow-hidden rounded-lg hp:rounded-md border-2 px-3 xl:px-4 py-2 lg:py-3 transition-all duration-300
+      onClick={disabled ? undefined : onToggle}
+      className={`relative overflow-hidden rounded-lg hp:rounded-md border-2 px-3 xl:px-4 py-2 lg:py-3 transition-all duration-300
+        ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}
+        ${disabled && !enabled ? 'bg-slate-100 opacity-60' : ''}
         ${
           enabled
             ? "border-blue-500 bg-white shadow-sm ring-1 ring-blue-50"
+            : disabled
+            ? "border-slate-100"
             : "border-slate-100 bg-slate-50/50 hover:border-slate-300 hover:bg-slate-50"
         }`}
     >
@@ -329,11 +346,12 @@ function ToggleCard({ label, icon, enabled, onToggle }) {
 
         {/* Toggle switch */}
         <button
+          disabled={disabled}
           onClick={(e) => {
             e.stopPropagation();
-            onToggle();
+            if (!disabled) onToggle();
           }}
-          className={`relative inline-flex h-5 w-10 md:h-6 md:w-11 items-center rounded-full ${enabled ? "bg-blue-500" : "bg-slate-300"}`}
+          className={`relative inline-flex h-5 w-10 md:h-6 md:w-11 items-center rounded-full ${enabled ? "bg-blue-500" : "bg-slate-300"} ${disabled ? 'cursor-not-allowed' : ''}`}
         >
           <span
             className={`inline-block h-2.5 w-2.5 md:h-4 md:w-4 transform rounded-full bg-white transition ${enabled ? "translate-x-6" : "translate-x-1"}`}

@@ -8,11 +8,14 @@ import { ConfirmDisableModal } from "../components/modals/ConfirmDisableModal";
 import { ToastModal } from "../components/modals/ToastModal";
 import { useConditionForm } from "../hooks/useConditionFrom";
 import { useWorkflowMode } from "../hooks/useWorkflowMode";
+import { CustomPoleModal } from "../components/modals/CustomPoleModal";
 
 export default function InitialInputPage() {
   const { type: projectType } = useParams();
   const [isConditionExpanded, setIsConditionExpanded] = useState(true);
+  const [isCustomPoleModalOpen, setIsCustomPoleModalOpen] = useState(false);
   const workflowForm = useWorkflowMode(projectType);
+  const projectMode = workflowForm.workflowData.projectMode;
 
   const {
     localCondition,
@@ -29,6 +32,14 @@ export default function InitialInputPage() {
     handleNext,
     proceed,
   } = useConditionForm();
+
+  const onNextStep = () => {
+    if (projectMode === "both" && localCondition.poleType === "custom") {
+      setIsCustomPoleModalOpen(true);
+      return;
+    }
+    handleNext();
+  };
 
   return (
     <>
@@ -72,9 +83,10 @@ export default function InitialInputPage() {
             >
               <ConditionForm
                 projectType={projectType}
+                projectMode={projectMode}
                 condition={localCondition}
                 onUpdate={handleUpdate}
-                onFinish={handleNext}
+                onFinish={onNextStep}
                 errors={errors}
               />
             </div>
@@ -96,6 +108,8 @@ export default function InitialInputPage() {
 
         {/* Toast — shown on validation error */}
         <ToastModal toast={toast} onClose={() => setToast(null)} />
+
+        <CustomPoleModal isOpen={isCustomPoleModalOpen} onClose={() => setIsCustomPoleModalOpen(false)} />
       </div>
     </>
   );

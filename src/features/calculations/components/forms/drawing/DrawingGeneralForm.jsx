@@ -7,12 +7,14 @@ const ToggleCard = ({ label, icon, enabled, onToggle, disabled = false }) => {
       onClick={disabled ? undefined : onToggle}
       className={`relative overflow-hidden rounded-lg border px-3 xl:px-4 py-2 lg:py-3 transition-all duration-300
         ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}
+        ${disabled && !enabled ? 'bg-slate-100 opacity-60' : ''}
         ${
           enabled
             ? "border-blue-500 bg-white shadow-sm ring-1 ring-blue-50"
-            : "border-slate-200 bg-slate-50/50"
+            : disabled
+            ? "border-slate-200"
+            : "border-slate-200 bg-slate-50/50 hover:border-slate-300 hover:bg-slate-50"
         }
-        ${!disabled && !enabled ? "hover:border-slate-300 hover:bg-slate-50" : ""}
       `}
     >
       <div className="flex items-center justify-between">
