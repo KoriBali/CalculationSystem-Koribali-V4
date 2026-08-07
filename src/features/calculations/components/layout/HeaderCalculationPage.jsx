@@ -144,6 +144,10 @@ export function HeaderCalculationPage() {
   const isBaseplateEnabled = general?.additionalComponents?.baseplate === true;
   const isBaseplateCompleted = sessionStorage.getItem(`${type}_drawing_baseplate_completed`) === "true";
 
+  // In "both" mode, drawing opening/baseplate tabs don't exist — treat them as completed
+  const isDrawingOpeningRequired = requirePole && isOpeningEnabled;
+  const isDrawingBaseplateRequired = requirePole && isBaseplateEnabled;
+
   const drawingNavItems = [
     {
       label: "General",
@@ -187,7 +191,9 @@ export function HeaderCalculationPage() {
             label: "Coupling",
             path: `/calculation/${type}/${draftId}/drawing/coupling`,
             icon: Link,
-            disabled: !isPoleCompleted || (isOpeningEnabled && !isOpeningCompleted) || (isBaseplateEnabled && !isBaseplateCompleted),
+            disabled: !isPoleCompleted
+              || (isDrawingOpeningRequired && !isOpeningCompleted)
+              || (isDrawingBaseplateRequired && !isBaseplateCompleted),
           },
         ]
       : []),
@@ -197,7 +203,10 @@ export function HeaderCalculationPage() {
             label: "Surface",
             path: `/calculation/${type}/${draftId}/drawing/surface`,
             icon: PaintBucket,
-            disabled: !isPoleCompleted || (isOpeningEnabled && !isOpeningCompleted) || (isBaseplateEnabled && !isBaseplateCompleted) || (isCouplingUsed && !isCouplingCompleted),
+            disabled: !isPoleCompleted
+              || (isDrawingOpeningRequired && !isOpeningCompleted)
+              || (isDrawingBaseplateRequired && !isBaseplateCompleted)
+              || (isCouplingUsed && !isCouplingCompleted),
           },
         ]
       : []),
