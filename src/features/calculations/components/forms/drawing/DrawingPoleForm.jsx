@@ -78,7 +78,7 @@ export function DrawingPoleForm({ pole, onUpdate, onReset, onNext, errors, onToa
                 isBaseplate={isBaseplate}
               />
             </div>
-            {(errors["taperPoleStandard.poleType"] || errors["taperPoleStandard.groundPosition"] || errors["taperPoleStandard.height"]) && (
+            {(errors["taperPoleStandard.poleType"] || errors["taperPoleStandard.groundPosition"] || errors["taperPoleStandard.height"] || errors["taperPoleStandard.embedmentLength"]) && (
               <ErrorStyle show={true} text="Please complete the Pole Standard Configuration" />
             )}
           </div>

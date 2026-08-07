@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet";
 import { useParams, useNavigate } from "react-router-dom";
 import {
@@ -54,7 +54,7 @@ export default function PoleFormView() {
 
   
   const navigate = useNavigate();
-// Read condition from sessionStorage
+  // Read condition from sessionStorage
   const condition = (() => {
     try {
       return JSON.parse(
@@ -64,6 +64,18 @@ export default function PoleFormView() {
       return {};
     }
   })();
+
+  const workflow = (() => {
+    try {
+      return JSON.parse(
+        sessionStorage.getItem(`${projectType}_workflow`) || "{}",
+      );
+    } catch {
+      return {};
+    }
+  })();
+
+  const isCalculationAndDrawing = workflow.projectMode === "both";
 
   // ── UI-only accordion state — lives in page, not in hooks ──
   const [isExpandedPole, setIsExpandedPole] = useState(true);
@@ -93,6 +105,16 @@ export default function PoleFormView() {
   });
 
   const report = useReport(projectType);
+
+  // Automatically select taper pole in calculation & drawing mode
+  useEffect(() => {
+    if (projectType === "lighting-pole" && condition.poleType === "standard" && isCalculationAndDrawing) {
+      if (poleStandardForm.poleTypeStandard.type !== "taper") {
+        poleStandardForm.updatePoleTypeStandard({ type: "taper" });
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectType, condition.poleType, isCalculationAndDrawing, poleStandardForm.poleTypeStandard.type]);
 
   // Opens cover modal if last step, otherwise navigates to next
   const handleFinish = () => {
@@ -204,17 +226,23 @@ export default function PoleFormView() {
                 condition.poleType === "standard" && (
                   <>
                     <div className="pt-6 hp:pt-4" />
-                    <PoleTypeSelector
-                      poleTypeStandard={poleStandardForm.poleTypeStandard}
-                      onUpdate={poleStandardForm.updatePoleTypeStandard}
-                    />
-                    {poleStandardForm.poleTypeStandard.type === "taper" && (
+                    
+                    {!isCalculationAndDrawing && (
+                      <PoleTypeSelector
+                        poleTypeStandard={poleStandardForm.poleTypeStandard}
+                        onUpdate={poleStandardForm.updatePoleTypeStandard}
+                      />
+                    )}
+
+                    {(isCalculationAndDrawing || poleStandardForm.poleTypeStandard.type === "taper") && (
                       <TaperPoleStandardForm
                         taperPoleStandard={poleStandardForm.taperPoleStandard}
                         onUpdate={poleStandardForm.updateTaperPoleStandard}
+                        isBaseplate={condition.baseplateEnabled}
                       />
                     )}
-                    {poleStandardForm.poleTypeStandard.type === "straight" && (
+
+                    {!isCalculationAndDrawing && poleStandardForm.poleTypeStandard.type === "straight" && (
                       <StraightPoleStandardForm
                         straightPoleStandard={
                           poleStandardForm.straightPoleStandard

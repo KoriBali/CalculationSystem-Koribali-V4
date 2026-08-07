@@ -190,8 +190,7 @@ export function ConditionForm({
                         if (projectMode === "both" && option.id === "standard") {
                           onUpdate({ 
                             poleType: option.id,
-                            openingEnabled: true,
-                            foundationEnabled: false
+                            openingEnabled: true
                           });
                         } else {
                           onUpdate({ poleType: option.id });
@@ -269,7 +268,6 @@ export function ConditionForm({
                 label="Foundation"
                 icon={<Layers size={16} />}
                 enabled={condition.foundationEnabled}
-                disabled={projectMode === "both" && condition.poleType === "standard"}
                 onToggle={() =>
                   onUpdate({ foundationEnabled: !condition.foundationEnabled })
                 }

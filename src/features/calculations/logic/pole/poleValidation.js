@@ -39,6 +39,12 @@ const resolveData = ({
     if (!selectedPole)
       return { error: "Standard taper pole data not found.", ...empty };
 
+    if (!condition.baseplateEnabled && taperPoleStandard.groundPosition === "underGL") {
+      if (!taperPoleStandard.embedmentLength) {
+        return { error: "Please complete the embedment length.", ...empty };
+      }
+    }
+
     return {
       poles: selectedPole.poles || [],
       directObjects: selectedPole.directObjects || [],

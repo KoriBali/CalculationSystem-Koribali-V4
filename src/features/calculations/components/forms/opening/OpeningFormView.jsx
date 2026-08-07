@@ -200,6 +200,7 @@ export default function OpeningFormView() {
                   onNext={handleNextStep}
                   isCalculated={opening.isCalculated}
                   buttonLabel={opening.buttonLabel}
+                  isCalculationAndDrawing={opening.isCalculationAndDrawing}
                 />
               )}
 
@@ -213,6 +214,7 @@ export default function OpeningFormView() {
                   onNext={handleNextStep}
                   isCalculated={opening.isCalculated}
                   buttonLabel={opening.buttonLabel}
+                  isCalculationAndDrawing={opening.isCalculationAndDrawing}
                 />
               )}
             </div>

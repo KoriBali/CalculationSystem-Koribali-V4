@@ -47,8 +47,18 @@ export function useDrawingPoleForm() {
       localPole
     );
 
-    if (!isValid) {
-      setErrors(validationErrors);
+    let finalIsValid = isValid;
+    let finalErrors = { ...validationErrors };
+
+    if (!isBaseplate && localPole.taperPoleStandard?.groundPosition === "underGL") {
+      if (!localPole.taperPoleStandard?.embedmentLength) {
+        finalIsValid = false;
+        finalErrors["taperPoleStandard.embedmentLength"] = "Required field";
+      }
+    }
+
+    if (!finalIsValid) {
+      setErrors(finalErrors);
       setToast({ message: "Please correct the errors in Pole Input." });
       return null;
     }

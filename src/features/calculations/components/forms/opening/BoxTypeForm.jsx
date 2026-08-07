@@ -30,6 +30,7 @@ export function BoxTypeForm({
   onNext,
   isCalculated,
   buttonLabel,
+  isCalculationAndDrawing = false,
 }) {
   const handleReset = () => {
     onUpdate({
@@ -38,6 +39,7 @@ export function BoxTypeForm({
       boxHeight: "",
       opSurfaceHeight: "",
       opLength: "",
+      openingDirection: "",
     });
   };
 
@@ -187,6 +189,34 @@ export function BoxTypeForm({
 
       {/* Divider line */}
       <div className="border-t mx-4 md:mx-6 border-gray-200"></div>
+
+      {/* ── Opening Direction (only in Calculation & Drawing mode) ── */}
+      {isCalculationAndDrawing && (
+        <div className="px-4 md:px-6 pt-5 pb-2">
+          <div className="relative max-w-xs">
+            <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2 font-medium">
+              Opening Direction
+            </label>
+            <div className="relative">
+              <select
+                value={boxType.openingDirection || ""}
+                onChange={(e) => onUpdate({ openingDirection: e.target.value })}
+                className={`${inputStyle(errors.openingDirection)} w-full appearance-none pr-8 min-h-[34px] sm:min-h-[38px] lg:min-h-[42px]`}
+              >
+                <option value="" disabled>Select Direction</option>
+                <option value="left">Left</option>
+                <option value="front">Front</option>
+                <option value="right">Right</option>
+                <option value="back">Back</option>
+              </select>
+              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <ChevronRight className="w-4 h-4 text-gray-400 rotate-90" />
+              </div>
+            </div>
+            <ErrorStyle show={errors.openingDirection} text={errors.openingDirection} />
+          </div>
+        </div>
+      )}
 
       {/* ================= FOOTER SECTION: ACTIONS ================= */}
       <div className="flex justify-between items-center pt-6 px-4 md:px-6 pb-6 xl:pb-6 hp:gap-2">

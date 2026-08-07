@@ -243,8 +243,7 @@ export function DrawingGeneralForm({ general, onUpdate, onReset, onNext, errors,
                           poleType: val,
                           additionalComponents: {
                             ...(general.additionalComponents || {}),
-                            opening: true,
-                            foundation: false
+                            opening: true
                           }
                         });
                       }}
@@ -298,7 +297,6 @@ export function DrawingGeneralForm({ general, onUpdate, onReset, onNext, errors,
                     label="Foundation"
                     icon={<Layers size={16} />}
                     enabled={general.additionalComponents?.foundation || false}
-                    disabled={general.poleType === "Lighting Pole Standard"}
                     onToggle={() =>
                       onUpdate({
                         additionalComponents: {

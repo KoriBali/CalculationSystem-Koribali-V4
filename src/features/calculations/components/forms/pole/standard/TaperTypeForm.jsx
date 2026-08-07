@@ -62,8 +62,10 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
 
   const currentImage =
     taperPoleStandard.poleType && taperPoleStandard.groundPosition
-      ? (DIAGRAM_IMAGE_MAP[taperPoleStandard.poleType]?.[
-          taperPoleStandard.groundPosition
+      ? (!isBaseplate && taperPoleStandard.groundPosition === "underGL"
+        ? `/images/${taperPoleStandard.poleType}-Type-Embed.svg`
+        : DIAGRAM_IMAGE_MAP[taperPoleStandard.poleType]?.[
+        taperPoleStandard.groundPosition
         ] ?? null)
       : null;
 
@@ -105,11 +107,10 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
                     })
                   }
                   className={`w-full rounded-lg hp:rounded-md border px-4 py-2 lg:py-2.5 text-xs md:text-sm font-medium transition-all text-left
-                  ${
-                    isActive
+                  ${isActive
                       ? "border-blue-500 bg-blue-50 text-blue-600 shadow-sm"
                       : "border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50"
-                  }`}
+                    }`}
                 >
                   {option.label}
                 </button>
@@ -145,13 +146,12 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
                       flex items-center gap-2
                       rounded-lg hp:rounded-md border px-4 py-2 lg:py-2.5 text-xs md:text-sm font-medium
                       transition-all duration-150 select-none
-                      ${
-                        isGroundDisabled
+                      ${isGroundDisabled
                           ? "bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed opacity-60"
                           : isActive
                             ? "border-blue-500 bg-blue-50 text-blue-600 shadow-sm cursor-pointer"
                             : "border-slate-200 text-slate-700 cursor-pointer hover:border-slate-300 hover:bg-slate-100"
-                      }
+                        }
                     `}
                     >
                       {/* Radio circle */}
@@ -159,13 +159,12 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
                         className={`
                         w-3.5 h-3.5 rounded-full border-2 flex-shrink-0
                         flex items-center justify-center transition-colors
-                        ${
-                          isGroundDisabled
+                        ${isGroundDisabled
                             ? "border-slate-300"
                             : isActive
                               ? "border-blue-500"
                               : "border-slate-400"
-                        }
+                          }
                       `}
                       >
                         {isActive && !isGroundDisabled && (
@@ -195,14 +194,14 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
             className={`
           relative flex items-center justify-center overflow-hidden
           transition-colors duration-300
-          py-8
+          py-8 h-[450px] sm:h-[550px] md:h-[650px] lg:h-[750px] xl:h-[750px]
           ${showDiagram ? "bg-slate-50" : "bg-white"}
         `}
           >
             {showDiagram ? (
-              <div className="flex items-center justify-center gap-2 sm:gap-4 xl:gap-6 w-full px-4 sm:px-8">
+              <div className="flex items-center justify-center gap-2 sm:gap-4 xl:gap-6 w-full px-4 sm:px-8 h-full">
                 {/* Kiri: Height input */}
-                <div className="xl:flex-shrink-0 w-[250px] xl:w-[200px]">
+                <div className="xl:flex-shrink-0 w-[150px] xl:w-[140px]">
                   <div>
                     <span className="block text-gray-600 text-xs md:text-sm font-medium mb-2">
                       Height
@@ -232,14 +231,36 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
                 </div>
 
                 {/* Kanan: Diagram image — gambar yang tentukan tinggi container */}
-                <div className="xl:flex-shrink-0 flex items-center">
+                <div className="xl:flex-shrink-0 flex items-center h-full">
                   <img
                     key={currentImage}
                     src={currentImage}
                     alt={`${taperPoleStandard.poleType} diagram`}
-                    className="w-auto max-h-[860px] xl:max-h-[560px] object-contain transition-opacity duration-300"
+                    className="w-auto h-full max-h-full object-contain transition-opacity duration-300"
                   />
                 </div>
+
+                {/* Kanan Gambar: Embedment Input */}
+                {!isBaseplate && taperPoleStandard.groundPosition === "underGL" && (
+                  <div className="self-end pb-0 mb-0 -translate-y-3 xl:-translate-y-3 xl:flex-shrink-0 w-[110px] sm:w-[130px]">
+                    <span className="block text-gray-600 text-xs md:text-sm font-medium mb-2">
+                      Embedment Length
+                    </span>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        min="0"
+                        value={taperPoleStandard.embedmentLength || ""}
+                        onChange={(e) => onUpdate({ embedmentLength: e.target.value })}
+                        onWheel={(e) => e.target.blur()}
+                        className="w-full px-2 py-1.5 md:py-2 lg:py-2.5 border border-gray-300 rounded-lg hp:rounded-md text-xs md:text-sm focus:border-[#1D4ED8] outline-none transition-all pr-8 md:pr-10 min-h-[34px] sm:min-h-[38px] lg:min-h-[42px]"
+                      />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs md:text-sm pointer-events-none">
+                        mm
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center gap-3 text-center px-8 py-10">

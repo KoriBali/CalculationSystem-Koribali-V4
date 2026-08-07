@@ -59,6 +59,7 @@ export function useOpeningForm() {
     boxHeight: "",
     opSurfaceHeight: "",
     opLength: "",
+    openingDirection: "",
   });
 
   // R type dimension inputs
@@ -66,6 +67,7 @@ export function useOpeningForm() {
     opWidth: "",
     opSurfaceHeight: "",
     opLength: "",
+    openingDirection: "",
   });
 
   // Calculated result — persisted so result survives reload
@@ -101,6 +103,8 @@ export function useOpeningForm() {
     "opening",
     workflow.withReport
   );
+
+  const isCalculationAndDrawing = workflow.projectMode === "both";
 
   // ── Helpers ──
 
@@ -210,6 +214,7 @@ export function useOpeningForm() {
 
     typeLabelMap: TYPE_LABEL_MAP,
     buttonLabel,
+    isCalculationAndDrawing,
 
     setToast,
     setIsOpeningExpanded,

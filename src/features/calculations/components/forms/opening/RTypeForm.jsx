@@ -29,12 +29,14 @@ export function RTypeForm({
   onNext,
   isCalculated,
   buttonLabel,
+  isCalculationAndDrawing = false,
 }) {
   const handleReset = () => {
     onUpdate({
       opWidth: "",
       opSurfaceHeight: "",
       opLength: "",
+      openingDirection: "",
     });
   };
 
@@ -136,6 +138,38 @@ export function RTypeForm({
 
       {/* Divider line */}
       <div className="border-t mx-4 md:mx-6 border-gray-200"></div>
+
+      {/* ── Opening Direction (only in Calculation & Drawing mode) ── */}
+      {isCalculationAndDrawing && (
+        <div className="px-4 md:px-6 pt-5 pb-2">
+          <div className="relative max-w-xs">
+            <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2 font-medium">
+              Opening Direction
+            </label>
+            <div className="relative">
+              <select
+                value={rType.openingDirection || ""}
+                onChange={(e) => onUpdate({ openingDirection: e.target.value })}
+                className={`w-full px-2 sm:px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border appearance-none pr-8 min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] ${
+                  errors.openingDirection
+                    ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
+                    : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
+                }`}
+              >
+                <option value="" disabled>Select Direction</option>
+                <option value="left">Left</option>
+                <option value="front">Front</option>
+                <option value="right">Right</option>
+                <option value="back">Back</option>
+              </select>
+              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <ChevronRight className="w-4 h-4 text-gray-400 rotate-90" />
+              </div>
+            </div>
+            <ErrorStyle show={errors.openingDirection} text={errors.openingDirection} />
+          </div>
+        </div>
+      )}
 
       {/* ================= FOOTER SECTION: ACTIONS ================= */}
       <div className="flex justify-between items-center pt-6 px-4 md:px-6 pb-6 xl:pb-6 hp:gap-2">
