@@ -77,30 +77,63 @@ export function RTypeForm({
 
           {/* ================= BOTTOM SECTION ================= */}
           <div className="flex flex-row gap-1 sm:ml-[21px] 2xl:ml-0 justify-center items-center px-4 md:px-6">
-            {/* 1. Opening Surface Height Input */}
-            <div className="relative mb-[10px] sm:mb-[20px] w-[100px] sm:w-[120px] xl:w-[140px]">
-              <label className="block text-xs md:text-sm text-gray-700 mb-1">
-                Opening Surface Height
-              </label>
+            {/* Left Side Inputs Container */}
+            <div className="flex flex-col gap-4 sm:gap-6 mb-[10px] sm:mb-[20px] w-[100px] sm:w-[120px] xl:w-[140px]">
+              {/* 1. Opening Surface Height Input */}
               <div className="relative">
-                <input
-                  type="number"
-                  min={0}
-                  value={rType.opSurfaceHeight}
-                  onChange={(e) =>
-                    onUpdate({ opSurfaceHeight: e.target.value })
-                  }
-                  onWheel={(e) => e.target.blur()}
-                  className={`${inputStyle(errors.opSurfaceHeight)} pr-6 sm:pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
+                <label className="block text-xs md:text-sm text-gray-700 mb-1">
+                  Opening Surface Height
+                </label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    min={0}
+                    value={rType.opSurfaceHeight}
+                    onChange={(e) =>
+                      onUpdate({ opSurfaceHeight: e.target.value })
+                    }
+                    onWheel={(e) => e.target.blur()}
+                    className={`${inputStyle(errors.opSurfaceHeight)} pr-6 sm:pr-9 xl:pr-9 w-full`}
+                  />
+                  <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
+                    mm
+                  </span>
+                </div>
+                <ErrorStyle
+                  show={errors.opSurfaceHeight}
+                  text={errors.opSurfaceHeight}
                 />
-                <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
-                  mm
-                </span>
               </div>
-              <ErrorStyle
-                show={errors.opSurfaceHeight}
-                text={errors.opSurfaceHeight}
-              />
+
+              {/* Opening Direction (only in Calculation & Drawing mode) */}
+              {isCalculationAndDrawing && (
+                <div className="relative">
+                  <label className="block text-xs md:text-sm text-gray-700 mb-1 whitespace-nowrap">
+                    Opening Direction
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={rType.openingDirection || ""}
+                      onChange={(e) => onUpdate({ openingDirection: e.target.value })}
+                      className={`w-full px-2 sm:px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border appearance-none pr-8 min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] ${
+                        errors.openingDirection
+                          ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
+                          : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
+                      }`}
+                    >
+                      <option value="" disabled>Select</option>
+                      <option value="left">Left</option>
+                      <option value="front">Front</option>
+                      <option value="right">Right</option>
+                      <option value="back">Back</option>
+                    </select>
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                      <ChevronRight className="w-3 h-3 md:w-4 md:h-4 text-gray-400 rotate-90" />
+                    </div>
+                  </div>
+                  <ErrorStyle show={errors.openingDirection} text={errors.openingDirection} />
+                </div>
+              )}
             </div>
 
             {/* 2. Diagram: Side View */}
@@ -136,40 +169,9 @@ export function RTypeForm({
         </div>
       </div>
 
+
       {/* Divider line */}
       <div className="border-t mx-4 md:mx-6 border-gray-200"></div>
-
-      {/* ── Opening Direction (only in Calculation & Drawing mode) ── */}
-      {isCalculationAndDrawing && (
-        <div className="px-4 md:px-6 pt-5 pb-2">
-          <div className="relative max-w-xs">
-            <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2 font-medium">
-              Opening Direction
-            </label>
-            <div className="relative">
-              <select
-                value={rType.openingDirection || ""}
-                onChange={(e) => onUpdate({ openingDirection: e.target.value })}
-                className={`w-full px-2 sm:px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border appearance-none pr-8 min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] ${
-                  errors.openingDirection
-                    ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
-                    : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
-                }`}
-              >
-                <option value="" disabled>Select Direction</option>
-                <option value="left">Left</option>
-                <option value="front">Front</option>
-                <option value="right">Right</option>
-                <option value="back">Back</option>
-              </select>
-              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                <ChevronRight className="w-4 h-4 text-gray-400 rotate-90" />
-              </div>
-            </div>
-            <ErrorStyle show={errors.openingDirection} text={errors.openingDirection} />
-          </div>
-        </div>
-      )}
 
       {/* ================= FOOTER SECTION: ACTIONS ================= */}
       <div className="flex justify-between items-center pt-6 px-4 md:px-6 pb-6 xl:pb-6 hp:gap-2">

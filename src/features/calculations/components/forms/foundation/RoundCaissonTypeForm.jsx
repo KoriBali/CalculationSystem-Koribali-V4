@@ -29,6 +29,7 @@ export function RoundCaissonTypeForm({
   onNext,
   isCalculated,
   buttonLabel,
+  isDrawingMode = false,
 }) {
   const handleReset = () => {
     onUpdate({
@@ -262,27 +263,29 @@ export function RoundCaissonTypeForm({
         </button>
 
         {/* Calculate button */}
-        <button
-          onClick={onCalculate}
-          className="flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-4 hp:py-2 md:px-6 
-              rounded-lg hp:rounded-md font-medium bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white text-sm hover:brightness-110 shadow-sm transition-all"
-        >
-          <Calculator className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-          <span className="hp:text-[11px] whitespace-nowrap">
-            Calculate Result
-          </span>
-        </button>
+        {!isDrawingMode && (
+          <button
+            onClick={onCalculate}
+            className="flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-4 hp:py-2 md:px-6 
+                rounded-lg hp:rounded-md font-medium bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white text-sm hover:brightness-110 shadow-sm transition-all"
+          >
+            <Calculator className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+            <span className="hp:text-[11px] whitespace-nowrap">
+              Calculate Result
+            </span>
+          </button>
+        )}
 
         <div className="flex items-center gap-3 hp:gap-0">
           {/* Next step button */}
           <button
             onClick={onNext}
-            disabled={!isCalculated}
+            disabled={!isDrawingMode && !isCalculated}
             title={buttonLabel}
             className={`flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-3 hp:py-2 md:px-6 
               rounded-lg hp:rounded-md font-medium transition-all text-sm
               ${
-                !isCalculated
+                (!isDrawingMode && !isCalculated)
                   ? "bg-gray-100 text-gray-400 ring-1 ring-inset ring-gray-200 cursor-not-allowed shadow-none"
                   : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
               }`}

@@ -22,12 +22,13 @@ export const ToastModal = ({
     <AnimatePresence>
       {toast && (
         <div className="fixed z-[60] flex inset-0 items-center justify-center px-4">
-          {/* Blurred backdrop */}
+          {/* Blurred backdrop — click anywhere to close */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+            onClick={onClose}
+            className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm cursor-pointer"
           />
 
           {/* Modal Card */}

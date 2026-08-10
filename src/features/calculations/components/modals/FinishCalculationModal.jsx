@@ -13,23 +13,23 @@ export function FinishCalculationModal({ open, onClose, onSaveDraft, onSaveDatab
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm px-4">
       <div className="relative w-full max-w-md sm:max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] px-8 py-5 sm:px-10 sm:py-6">
+        <div className="bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] px-5 py-4 sm:px-8 sm:py-5">
           <h2 className="text-white font-bold text-base sm:text-lg">
             Finish Calculation
           </h2>
         </div>
 
         {/* Content */}
-        <div className="p-8 space-y-4 sm:space-y-4">
-          <p className="text-slate-600 text-sm sm:text-base mb-2">
+        <div className="p-5 sm:p-8 space-y-3 sm:space-y-4">
+          <p className="text-slate-600 text-sm sm:text-base mb-1 sm:mb-2">
             Calculation completed. What would you like to do next?
           </p>
 
           <button
             onClick={onGenerateReport}
-            className="w-full flex items-center gap-4 p-4 rounded-xl border border-slate-200 bg-white hover:border-blue-500 hover:bg-blue-50/50 transition-all text-left group cursor-pointer"
+            className="w-full flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl border border-slate-200 bg-white hover:border-blue-500 hover:bg-blue-50/50 transition-all text-left group cursor-pointer"
           >
-            <div className="flex-shrink-0 w-9 h-9 sm:w-10 sm:h-10 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-500 group-hover:text-white transition-colors duration-300">
+            <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-500 group-hover:text-white transition-colors duration-300">
               {isDrawingMode ? (
                 <FileEdit className="w-4 h-4 sm:w-5 sm:h-5" />
               ) : (
@@ -50,13 +50,13 @@ export function FinishCalculationModal({ open, onClose, onSaveDraft, onSaveDatab
           <button
             onClick={projectComplete ? onSaveDatabase : undefined}
             disabled={!projectComplete}
-            className={`w-full flex items-center gap-4 p-4 rounded-xl border transition-all text-left group
+            className={`w-full flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl border transition-all text-left group
               ${projectComplete 
                 ? "border-slate-200 bg-white hover:border-blue-500 hover:bg-blue-50/50 cursor-pointer" 
                 : "border-slate-100 bg-slate-50 cursor-not-allowed opacity-80"
               }`}
           >
-            <div className={`flex-shrink-0 w-9 h-9 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center transition-colors duration-300
+            <div className={`flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center transition-colors duration-300
               ${projectComplete 
                 ? "bg-blue-50 text-blue-600 group-hover:bg-blue-500 group-hover:text-white" 
                 : "bg-slate-200 text-slate-400"
@@ -79,9 +79,9 @@ export function FinishCalculationModal({ open, onClose, onSaveDraft, onSaveDatab
 
           <button
             onClick={onSaveDraft}
-            className="w-full flex items-center gap-4 p-4 rounded-xl border border-slate-200 bg-white hover:border-blue-500 hover:bg-blue-50/50 transition-all text-left group cursor-pointer"
+            className="w-full flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl border border-slate-200 bg-white hover:border-blue-500 hover:bg-blue-50/50 transition-all text-left group cursor-pointer"
           >
-            <div className="flex-shrink-0 w-9 h-9 sm:w-10 sm:h-10 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-500 group-hover:text-white transition-colors duration-300">
+            <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-500 group-hover:text-white transition-colors duration-300">
               <FileEdit className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div className="flex-1">
@@ -97,10 +97,10 @@ export function FinishCalculationModal({ open, onClose, onSaveDraft, onSaveDatab
         </div>
 
         {/* Footer */}
-        <div className="bg-slate-50 px-8 py-5 sm:px-10 border-t border-slate-100 flex justify-center">
+        <div className="bg-slate-50 px-5 py-4 sm:px-8 sm:py-5 border-t border-slate-100 flex justify-center">
           <button
             onClick={onClose}
-            className="px-10 py-2.5 rounded-xl font-semibold text-sm text-slate-600 border border-slate-300 hover:bg-slate-200 hover:text-slate-800 transition-colors cursor-pointer"
+            className="px-8 sm:px-10 py-2 sm:py-2.5 rounded-xl font-semibold text-sm text-slate-600 border border-slate-300 hover:bg-slate-200 hover:text-slate-800 transition-colors cursor-pointer"
           >
             Close
           </button>

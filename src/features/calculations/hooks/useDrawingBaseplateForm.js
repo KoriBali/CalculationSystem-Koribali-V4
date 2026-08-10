@@ -56,6 +56,22 @@ export function useDrawingBaseplateForm() {
     
     sessionStorage.setItem(`${projectType}_drawing_baseplate_completed`, "true");
     
+    // Check if foundation was used in general
+    const generalDataStr = sessionStorage.getItem(`${projectType}_drawing_general`);
+    let isFoundationUsed = false;
+    if (generalDataStr) {
+      try {
+        const generalData = JSON.parse(generalDataStr);
+        isFoundationUsed = generalData?.additionalComponents?.foundation === true;
+      } catch (e) {
+        console.error("Failed to parse drawing general data", e);
+      }
+    }
+
+    if (isFoundationUsed) {
+      return "GO_FOUNDATION";
+    }
+
     // Check if coupling was used in general
     const isCouplingUsed = sessionStorage.getItem(`${projectType}_drawing_coupling_confirmed`) === "true";
     return isCouplingUsed ? "GO_COUPLING" : "GO_SURFACE";

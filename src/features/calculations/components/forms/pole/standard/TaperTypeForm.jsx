@@ -242,7 +242,7 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
 
                 {/* Kanan Gambar: Embedment Input */}
                 {!isBaseplate && taperPoleStandard.groundPosition === "underGL" && (
-                  <div className="self-end pb-0 mb-0 -translate-y-3 xl:-translate-y-3 xl:flex-shrink-0 w-[110px] sm:w-[130px]">
+                  <div className="self-end pb-0 mb-0 -translate-y-3 xl:-translate-y-0.5 xl:flex-shrink-0 w-[110px] sm:w-[130px]">
                     <span className="block text-gray-600 text-xs md:text-sm font-medium mb-2">
                       Embedment Length
                     </span>

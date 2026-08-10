@@ -17,6 +17,7 @@ import DrawingPolePage from "../features/calculations/pages/drawing/DrawingPoleP
 import DrawingOpeningPage from "../features/calculations/pages/drawing/DrawingOpeningPage";
 import DrawingCouplingPage from "../features/calculations/pages/drawing/DrawingCouplingPage";
 import DrawingBaseplatePage from "../features/calculations/pages/drawing/DrawingBaseplatePage";
+import DrawingFoundationPage from "../features/calculations/pages/drawing/DrawingFoundationPage";
 import DrawingSurfacePage from "../features/calculations/pages/drawing/DrawingSurfacePage";
 import ReportPage from "../features/report/pages/ReportPage";
 import ProjectDatabasePage from "../features/database/pages/ProjectDatabasePage";
@@ -60,6 +61,7 @@ export default function AppRoutes() {
                     <Route path="drawing/pole" element={<DrawingPolePage />} />
                     <Route path="drawing/opening" element={<DrawingOpeningPage />} />
                     <Route path="drawing/baseplate" element={<DrawingBaseplatePage />} />
+                    <Route path="drawing/foundation" element={<DrawingFoundationPage />} />
                     <Route path="drawing/coupling" element={<DrawingCouplingPage />} />
                     <Route path="drawing/surface" element={<DrawingSurfacePage />} />
                     <Route path="pole" element={<PoleFormPage />} />

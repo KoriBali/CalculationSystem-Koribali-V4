@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   ArrowLeft,
   LayoutDashboard,
@@ -8,6 +8,7 @@ import {
   Save,
   ChevronDown,
   ChevronRight,
+  ChevronLeft,
   FileEdit,
   Link,
   PaintBucket,
@@ -37,6 +38,53 @@ export function HeaderCalculationPage() {
   const [showDraftModal, setShowDraftModal] = useState(false);
   const [confirmResetAll, setConfirmResetAll] = useState(false);
   const [toast, setToast] = useState(null);
+
+  const scrollRef = useRef(null);
+  const [showLeftScroll, setShowLeftScroll] = useState(false);
+  const [showRightScroll, setShowRightScroll] = useState(false);
+  const [isScrollable, setIsScrollable] = useState(false);
+
+  const handleScroll = () => {
+    if (scrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+      setIsScrollable(scrollWidth > clientWidth);
+      setShowLeftScroll(scrollLeft > 0);
+      setShowRightScroll(scrollLeft < scrollWidth - clientWidth - 1);
+    }
+  };
+
+  useEffect(() => {
+    // Small delay to allow DOM to render and calculate widths properly
+    const timer = setTimeout(() => {
+      handleScroll();
+      
+      // Auto-scroll to active tab so it's not hidden
+      if (scrollRef.current) {
+        const activeTab = scrollRef.current.querySelector('[data-active="true"]');
+        if (activeTab) {
+          const container = scrollRef.current;
+          const scrollLeft = activeTab.offsetLeft - container.offsetWidth / 2 + activeTab.offsetWidth / 2;
+          container.scrollTo({ left: scrollLeft, behavior: 'smooth' });
+        }
+      }
+    }, 100);
+
+    window.addEventListener("resize", handleScroll);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("resize", handleScroll);
+    };
+  }, [location.pathname]);
+
+  const scrollTabs = (direction) => {
+    if (scrollRef.current) {
+      const scrollAmount = scrollRef.current.clientWidth; // Paginate by container width
+      scrollRef.current.scrollBy({
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth",
+      });
+    }
+  };
 
   const rawWorkflow = sessionStorage.getItem(`${type}_workflow`);
   const workflow = rawWorkflow ? JSON.parse(rawWorkflow) : {};
@@ -144,9 +192,13 @@ export function HeaderCalculationPage() {
   const isBaseplateEnabled = general?.additionalComponents?.baseplate === true;
   const isBaseplateCompleted = sessionStorage.getItem(`${type}_drawing_baseplate_completed`) === "true";
 
+  const isFoundationEnabled = general?.additionalComponents?.foundation === true;
+  const isFoundationCompleted = sessionStorage.getItem(`${type}_drawing_foundation_completed`) === "true";
+
   // In "both" mode, drawing opening/baseplate tabs don't exist — treat them as completed
   const isDrawingOpeningRequired = requirePole && isOpeningEnabled;
   const isDrawingBaseplateRequired = requirePole && isBaseplateEnabled;
+  const isDrawingFoundationRequired = requirePole && isFoundationEnabled;
 
   const drawingNavItems = [
     {
@@ -185,6 +237,18 @@ export function HeaderCalculationPage() {
           },
         ]
       : []),
+    ...(isDrawingCompleted && requirePole && isFoundationEnabled
+      ? [
+          {
+            label: "Foundation",
+            path: `/calculation/${type}/${draftId}/drawing/foundation`,
+            icon: Layers,
+            disabled: !isPoleCompleted 
+              || (isOpeningEnabled && !isOpeningCompleted) 
+              || (isBaseplateEnabled && !isBaseplateCompleted),
+          },
+        ]
+      : []),
     ...(isDrawingCompleted && isCouplingUsed
       ? [
           {
@@ -193,7 +257,8 @@ export function HeaderCalculationPage() {
             icon: Link,
             disabled: !isPoleCompleted
               || (isDrawingOpeningRequired && !isOpeningCompleted)
-              || (isDrawingBaseplateRequired && !isBaseplateCompleted),
+              || (isDrawingBaseplateRequired && !isBaseplateCompleted)
+              || (isDrawingFoundationRequired && !isFoundationCompleted),
           },
         ]
       : []),
@@ -206,6 +271,7 @@ export function HeaderCalculationPage() {
             disabled: !isPoleCompleted
               || (isDrawingOpeningRequired && !isOpeningCompleted)
               || (isDrawingBaseplateRequired && !isBaseplateCompleted)
+              || (isDrawingFoundationRequired && !isFoundationCompleted)
               || (isCouplingUsed && !isCouplingCompleted),
           },
         ]
@@ -213,6 +279,8 @@ export function HeaderCalculationPage() {
   ];
 
   const currentNavItems = isDrawingPage ? drawingNavItems : navItems;
+  const totalTabs = currentNavItems.length;
+  const isManyTabs = totalTabs > 5;
 
   const handleBackClick = () => {
     if (isProjectIdentityPage) {
@@ -372,43 +440,75 @@ export function HeaderCalculationPage() {
       {/* ── Step navigation (Bottom Bar on Mobile, Sticky on Desktop) ── */}
       {!isProjectIdentityPage && (
         <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-200 px-2 py-1.5 [@media(max-width:639px)_and_(max-height:600px)]:hidden sm:static sm:pb-2 sm:border-t-0 sm:border-b sm:px-4 sm:py-3 md:px-6 2xl:px-8 shadow-[0_-4px_10px_-1px_rgba(0,0,0,0.1)] sm:shadow-none">
-          <div className="flex items-center justify-around sm:justify-start gap-1 sm:gap-2 md:gap-3 overflow-x-auto overflow-y-hidden whitespace-nowrap scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {currentNavItems.map((item) => {
-              const isActive = location.pathname === item.path;
-              const Icon = item.icon;
+          <div className="relative flex items-center w-full gap-2 group">
+            {/* Scroll Left Button */}
+            {isScrollable && (
+              <button
+                onClick={() => scrollTabs("left")}
+                className={`flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 shrink-0 bg-white border border-slate-200 rounded-full text-slate-500 hover:text-[#0d3b66] hover:bg-slate-50 hover:border-slate-300 transition-all ${
+                  !showLeftScroll ? "opacity-0 pointer-events-none" : "opacity-100"
+                }`}
+              >
+                <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
+              </button>
+            )}
 
-              return (
-                <button
-                  key={item.path}
-                  type="button"
-                  onClick={() => !item.disabled && navigate(item.path)}
-                  disabled={item.disabled}
-                  className={`flex flex-col sm:flex-row items-center justify-center gap-1 
-                    sm:gap-1.5 md:gap-2 shrink-0 px-1 py-1 sm:px-3 
-                    sm:py-2 md:px-5 rounded-lg sm:rounded-full text-[10px] sm:text-xs md:text-sm font-medium transition-all flex-1 sm:flex-none
-                  ${
-                    item.disabled
-                      ? "text-slate-300 sm:bg-slate-50 sm:text-slate-400 cursor-not-allowed opacity-60"
-                      : isActive
-                        ? "text-[#0d3b66] sm:bg-[#0d3b66] sm:text-white sm:shadow-md cursor-default"
-                        : "text-slate-500 sm:bg-slate-100 sm:text-slate-600 sm:hover:bg-slate-200 cursor-pointer"
-                  }`}
-                >
-                  <Icon
-                    className={`w-5 h-5 sm:w-4 sm:h-4 shrink-0 transition-colors ${
+            <div 
+              ref={scrollRef}
+              onScroll={handleScroll}
+              className="flex items-center justify-start sm:gap-2 md:gap-3 w-full overflow-x-auto overflow-y-hidden whitespace-nowrap scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden py-1 sm:py-0 snap-x snap-mandatory"
+            >
+              {currentNavItems.map((item) => {
+                const isActive = location.pathname === item.path;
+                const Icon = item.icon;
+
+                return (
+                  <button
+                    key={item.path}
+                    type="button"
+                    data-active={isActive}
+                    onClick={() => !item.disabled && navigate(item.path)}
+                    disabled={item.disabled}
+                    className={`snap-start group flex flex-col sm:flex-row items-center justify-center 
+                      sm:gap-1.5 md:gap-2 sm:flex-none sm:min-w-0 sm:w-auto sm:shrink-0 px-1 py-1 sm:px-3 
+                      sm:py-2 md:px-5 rounded-lg sm:rounded-full text-[10px] sm:text-xs md:text-sm font-medium transition duration-200
+                      ${isManyTabs ? 'flex-none w-1/4' : 'flex-1 min-w-[20%]'}
+                    ${
                       item.disabled
-                        ? "text-slate-300 sm:text-slate-400"
+                        ? "text-slate-300 sm:bg-slate-50 sm:text-slate-400 cursor-not-allowed opacity-60"
                         : isActive
-                          ? "text-[#0d3b66] sm:text-white"
-                          : "text-slate-400 sm:text-slate-500"
+                          ? "text-[#0d3b66] sm:bg-[#0d3b66] sm:text-white sm:shadow-md cursor-default scale-100"
+                          : "text-slate-500 sm:bg-slate-100 sm:text-slate-600 sm:hover:bg-slate-200 cursor-pointer active:scale-95"
                     }`}
-                  />
-                  <span className="truncate w-full text-center">
-                    {item.label}
-                  </span>
-                </button>
-              );
-            })}
+                  >
+                    <Icon
+                      className={`w-5 h-5 sm:w-4 sm:h-4 shrink-0 transition-all duration-200 ${
+                        item.disabled
+                          ? "text-slate-300 sm:text-slate-400"
+                          : isActive
+                            ? "text-[#0d3b66] sm:text-white"
+                            : "text-slate-400 sm:text-slate-500 group-hover:scale-110"
+                      }`}
+                    />
+                    <span className="truncate w-full text-center">
+                      {item.label}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Scroll Right Button */}
+            {isScrollable && (
+              <button
+                onClick={() => scrollTabs("right")}
+                className={`flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 shrink-0 bg-white border border-slate-200 rounded-full text-slate-500 hover:text-[#0d3b66] hover:bg-slate-50 hover:border-slate-300 transition-all ${
+                  !showRightScroll ? "opacity-0 pointer-events-none" : "opacity-100"
+                }`}
+              >
+                <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
+              </button>
+            )}
           </div>
         </div>
       )}
