@@ -54,24 +54,31 @@ export function HeaderCalculationPage() {
   };
 
   useEffect(() => {
-    // Small delay to allow DOM to render and calculate widths properly
-    const timer = setTimeout(() => {
-      handleScroll();
-      
-      // Auto-scroll to active tab so it's not hidden
-      if (scrollRef.current) {
-        const activeTab = scrollRef.current.querySelector('[data-active="true"]');
-        if (activeTab) {
-          const container = scrollRef.current;
-          const scrollLeft = activeTab.offsetLeft - container.offsetWidth / 2 + activeTab.offsetWidth / 2;
-          container.scrollTo({ left: scrollLeft, behavior: 'smooth' });
+    handleScroll();
+    
+    // Auto-scroll to active tab so it's not hidden
+    if (scrollRef.current) {
+      const activeTab = scrollRef.current.querySelector('[data-active="true"]');
+      if (activeTab) {
+        const container = scrollRef.current;
+        const containerRect = container.getBoundingClientRect();
+        const tabRect = activeTab.getBoundingClientRect();
+        
+        // Check if tab is fully visible, accounting for the space the scroll buttons might take
+        const leftPadding = showLeftScroll ? 40 : 0;
+        const rightPadding = showRightScroll ? 40 : 0;
+        const isFullyVisible = (tabRect.left >= containerRect.left + leftPadding) && (tabRect.right <= containerRect.right - rightPadding);
+        
+        if (!isFullyVisible) {
+          // Calculate exact center position
+          const targetScroll = container.scrollLeft + (tabRect.left - containerRect.left) - (containerRect.width / 2) + (tabRect.width / 2);
+          container.scrollTo({ left: targetScroll, behavior: 'smooth' });
         }
       }
-    }, 100);
+    }
 
     window.addEventListener("resize", handleScroll);
     return () => {
-      clearTimeout(timer);
       window.removeEventListener("resize", handleScroll);
     };
   }, [location.pathname]);
@@ -440,24 +447,25 @@ export function HeaderCalculationPage() {
       {/* ── Step navigation (Bottom Bar on Mobile, Sticky on Desktop) ── */}
       {!isProjectIdentityPage && (
         <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-200 px-2 py-1.5 [@media(max-width:639px)_and_(max-height:600px)]:hidden sm:static sm:pb-2 sm:border-t-0 sm:border-b sm:px-4 sm:py-3 md:px-6 2xl:px-8 shadow-[0_-4px_10px_-1px_rgba(0,0,0,0.1)] sm:shadow-none">
-          <div className="relative flex items-center w-full gap-2 group">
-            {/* Scroll Left Button */}
-            {isScrollable && (
+          <div className="relative flex items-center w-full group overflow-hidden">
+            {/* Scroll Left Button (Absolute) */}
+            <div className={`absolute left-0 top-0 bottom-0 z-10 flex items-center bg-gradient-to-r from-white via-white to-transparent sm:from-[#f8fafc] sm:via-[#f8fafc] pr-6 pl-1 sm:pl-2 transition-opacity duration-300 pointer-events-none ${showLeftScroll ? "opacity-100" : "opacity-0"}`}>
               <button
                 onClick={() => scrollTabs("left")}
-                className={`flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 shrink-0 bg-white border border-slate-200 rounded-full text-slate-500 hover:text-[#0d3b66] hover:bg-slate-50 hover:border-slate-300 transition-all ${
-                  !showLeftScroll ? "opacity-0 pointer-events-none" : "opacity-100"
-                }`}
+                className="pointer-events-auto flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 shrink-0 bg-white border border-slate-200 shadow-sm rounded-full text-slate-500 hover:text-[#0d3b66] hover:bg-slate-50 transition-all"
               >
                 <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
               </button>
-            )}
+            </div>
 
             <div 
               ref={scrollRef}
               onScroll={handleScroll}
-              className="flex items-center justify-start sm:gap-2 md:gap-3 w-full overflow-x-auto overflow-y-hidden whitespace-nowrap scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden py-1 sm:py-0 snap-x snap-mandatory"
+              className="flex items-center justify-start sm:gap-2 md:gap-3 w-full overflow-x-auto overflow-y-hidden whitespace-nowrap scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden py-1 sm:py-0"
             >
+              {/* Spacer to allow scrolling past the absolute left button */}
+              <div className="shrink-0 w-2 sm:w-4" aria-hidden="true" />
+              
               {currentNavItems.map((item) => {
                 const isActive = location.pathname === item.path;
                 const Icon = item.icon;
@@ -469,46 +477,47 @@ export function HeaderCalculationPage() {
                     data-active={isActive}
                     onClick={() => !item.disabled && navigate(item.path)}
                     disabled={item.disabled}
-                    className={`snap-start group flex flex-col sm:flex-row items-center justify-center 
-                      sm:gap-1.5 md:gap-2 sm:flex-none sm:min-w-0 sm:w-auto sm:shrink-0 px-1 py-1 sm:px-3 
-                      sm:py-2 md:px-5 rounded-lg sm:rounded-full text-[10px] sm:text-xs md:text-sm font-medium transition duration-200
-                      ${isManyTabs ? 'flex-none w-1/4' : 'flex-1 min-w-[20%]'}
+                    className={`group flex flex-col sm:flex-row items-center justify-center 
+                      sm:gap-1.5 md:gap-2 sm:flex-none sm:min-w-0 sm:w-auto sm:shrink-0 px-2 py-1.5 sm:px-3 
+                      sm:py-2 md:px-5 rounded-lg sm:rounded-full text-[10px] sm:text-xs md:text-sm font-medium transition-colors duration-200
+                      ${isManyTabs ? 'flex-none w-auto px-4' : 'flex-1 min-w-[20%]'}
                     ${
                       item.disabled
                         ? "text-slate-300 sm:bg-slate-50 sm:text-slate-400 cursor-not-allowed opacity-60"
                         : isActive
-                          ? "text-[#0d3b66] sm:bg-[#0d3b66] sm:text-white sm:shadow-md cursor-default scale-100"
-                          : "text-slate-500 sm:bg-slate-100 sm:text-slate-600 sm:hover:bg-slate-200 cursor-pointer active:scale-95"
+                          ? "text-[#0d3b66] sm:bg-[#0d3b66] sm:text-white sm:shadow-md cursor-default"
+                          : "text-slate-500 sm:bg-slate-100 sm:text-slate-600 sm:hover:bg-slate-200 cursor-pointer"
                     }`}
                   >
                     <Icon
-                      className={`w-5 h-5 sm:w-4 sm:h-4 shrink-0 transition-all duration-200 ${
+                      className={`w-5 h-5 sm:w-4 sm:h-4 shrink-0 transition-colors duration-200 ${
                         item.disabled
                           ? "text-slate-300 sm:text-slate-400"
                           : isActive
                             ? "text-[#0d3b66] sm:text-white"
-                            : "text-slate-400 sm:text-slate-500 group-hover:scale-110"
+                            : "text-slate-400 sm:text-slate-500 group-hover:text-slate-600"
                       }`}
                     />
-                    <span className="truncate w-full text-center">
+                    <span className="whitespace-nowrap text-center">
                       {item.label}
                     </span>
                   </button>
                 );
               })}
+              
+              {/* Spacer to allow scrolling past the absolute right button */}
+              <div className="shrink-0 w-6 sm:w-8" aria-hidden="true" />
             </div>
 
-            {/* Scroll Right Button */}
-            {isScrollable && (
+            {/* Scroll Right Button (Absolute) */}
+            <div className={`absolute right-0 top-0 bottom-0 z-10 flex items-center bg-gradient-to-l from-white via-white to-transparent sm:from-[#f8fafc] sm:via-[#f8fafc] pl-6 pr-1 sm:pr-2 transition-opacity duration-300 pointer-events-none ${showRightScroll ? "opacity-100" : "opacity-0"}`}>
               <button
                 onClick={() => scrollTabs("right")}
-                className={`flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 shrink-0 bg-white border border-slate-200 rounded-full text-slate-500 hover:text-[#0d3b66] hover:bg-slate-50 hover:border-slate-300 transition-all ${
-                  !showRightScroll ? "opacity-0 pointer-events-none" : "opacity-100"
-                }`}
+                className="pointer-events-auto flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 shrink-0 bg-white border border-slate-200 shadow-sm rounded-full text-slate-500 hover:text-[#0d3b66] hover:bg-slate-50 transition-all"
               >
                 <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
               </button>
-            )}
+            </div>
           </div>
         </div>
       )}

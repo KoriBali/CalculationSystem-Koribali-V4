@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Helmet } from "react-helmet";
 import { useParams, useNavigate } from "react-router-dom";
 import { ChevronUp, ChevronDown } from "lucide-react";
@@ -6,11 +6,11 @@ import { HeaderCalculationPage } from "../../components/layout/HeaderCalculation
 import { DrawingGeneralForm } from "../../components/forms/drawing/DrawingGeneralForm";
 import { ToastModal } from "../../components/modals/ToastModal";
 import { CustomPoleModal } from "../../components/modals/CustomPoleModal";
+import { ConfirmDisableModal } from "../../components/modals/ConfirmDisableModal";
 import { useDrawingGeneralForm } from "../../hooks/useDrawingGeneralForm";
 
 export default function DrawingGeneralPage() {
   const { type: projectType, draftId } = useParams();
-  const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(true);
   const [isCustomPoleModalOpen, setIsCustomPoleModalOpen] = useState(false);
 
@@ -18,11 +18,16 @@ export default function DrawingGeneralPage() {
     localGeneral,
     errors,
     toast,
+    confirmDisable,
     setToast,
+    setConfirmDisable,
+    setLocalGeneral,
     handleUpdate,
     handleReset,
     handleNext,
+    proceed,
     projectMode,
+    getCommitted, // read-only snapshot for cancel revert
   } = useDrawingGeneralForm();
 
   const onNextStep = async () => {
@@ -30,15 +35,7 @@ export default function DrawingGeneralPage() {
       setIsCustomPoleModalOpen(true);
       return;
     }
-
-    const result = await handleNext();
-    if (result === "GO_POLE") {
-      navigate(`/calculation/${projectType}/${draftId}/drawing/pole`);
-    } else if (result === "GO_COUPLING") {
-      navigate(`/calculation/${projectType}/${draftId}/drawing/coupling`);
-    } else if (result === "GO_SURFACE") {
-      navigate(`/calculation/${projectType}/${draftId}/drawing/surface`);
-    }
+    await handleNext();
   };
 
   return (
@@ -95,6 +92,20 @@ export default function DrawingGeneralPage() {
 
         <ToastModal toast={toast} onClose={() => setToast(null)} />
         <CustomPoleModal isOpen={isCustomPoleModalOpen} onClose={() => setIsCustomPoleModalOpen(false)} />
+
+        {/* Confirmation modal — shown when user disables an active component or coupling */}
+        <ConfirmDisableModal
+          data={confirmDisable}
+          onClose={() => {
+            // Cancel: revert local state back to last committed snapshot
+            setConfirmDisable(null);
+            setLocalGeneral(getCommitted());
+          }}
+          onConfirm={() => {
+            setConfirmDisable(null);
+            proceed();
+          }}
+        />
       </div>
     </>
   );

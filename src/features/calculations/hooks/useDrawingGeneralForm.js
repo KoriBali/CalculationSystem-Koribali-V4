@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { validateWithYup } from "../utils/validation";
 import { DrawingGeneralSchema } from "../schemas/drawing/DrawingGeneralSchema";
@@ -22,11 +22,29 @@ const getDefaultGeneral = () => ({
   useCoupling: null,
 });
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Reads the committed general from sessionStorage (the last saved version).
+// Returns null if nothing was committed yet.
+const readCommittedGeneral = (projectType) => {
+  const raw = sessionStorage.getItem(`${projectType}_drawing_general`);
+  if (!raw) return null;
+  try { return JSON.parse(raw); } catch { return null; }
+};
+
+// Writes to sessionStorage directly (synchronous) so the header re-renders
+// with the correct data immediately after navigation.
+const writeCommittedGeneral = (projectType, data) => {
+  sessionStorage.setItem(`${projectType}_drawing_general`, JSON.stringify(data));
+};
+// ─────────────────────────────────────────────────────────────────────────────
+
 export function useDrawingGeneralForm() {
   const { type: projectType, draftId } = useParams();
   const navigate = useNavigate();
 
-  const [general, setGeneral] = useProjectStorage(
+  // We still use useProjectStorage so that saving to drafts / clearing session works.
+  // But we do NOT rely on its auto-write effect for the real-time header sync.
+  const [, setGeneral] = useProjectStorage(
     projectType,
     "drawing_general",
     getDefaultGeneral()
@@ -36,15 +54,35 @@ export function useDrawingGeneralForm() {
   const workflow = workflowRaw ? JSON.parse(workflowRaw) : {};
   const projectMode = workflow.projectMode || "calculation";
 
-  const [localGeneral, setLocalGeneral] = useState(general);
+  // `committedGeneral` = what's actually saved in sessionStorage right now
+  const committedRef = useRef(
+    readCommittedGeneral(projectType) ?? getDefaultGeneral()
+  );
+
+  // `localGeneral` = live UI draft — NOT persisted until Save passes
+  const [localGeneral, setLocalGeneral] = useState(committedRef.current);
+
   const [errors, setErrors] = useState({});
   const [toast, setToast] = useState(null);
+  // Array of human-readable items to warn about, or null
+  const [confirmDisable, setConfirmDisable] = useState(null);
 
+  // Update local draft only — does NOT touch sessionStorage
   const handleUpdate = (updates) => {
-    const newGeneral = { ...localGeneral, ...updates };
-    setLocalGeneral(newGeneral);
-    setGeneral(newGeneral); // Sync to sessionStorage immediately
-    
+    setLocalGeneral((prev) => {
+      if (updates.additionalComponents) {
+        return {
+          ...prev,
+          ...updates,
+          additionalComponents: {
+            ...(prev.additionalComponents || {}),
+            ...updates.additionalComponents,
+          },
+        };
+      }
+      return { ...prev, ...updates };
+    });
+
     setErrors((prev) => {
       const cleared = { ...prev };
       Object.keys(updates).forEach((key) => delete cleared[key]);
@@ -52,11 +90,68 @@ export function useDrawingGeneralForm() {
     });
   };
 
-  const handleReset = () => {
-    const emptyGeneral = getDefaultGeneral();
-    setLocalGeneral(emptyGeneral);
-    setGeneral(emptyGeneral);
-    setErrors({});
+  // Returns list of human-readable items that need a warning before disabling
+  const getWarningItems = (prev, next) => {
+    const items = [];
+
+    const componentMap = { opening: "Opening", baseplate: "Baseplate", foundation: "Foundation" };
+    Object.entries(componentMap).forEach(([key, label]) => {
+      const wasOn = prev?.additionalComponents?.[key] === true;
+      const isOff = next?.additionalComponents?.[key] !== true;
+      if (wasOn && isOff) items.push(label);
+    });
+
+    if (prev?.useCoupling === true && next?.useCoupling !== true) {
+      items.push("Coupling");
+    }
+
+    return items;
+  };
+
+  // Commit local state to sessionStorage synchronously, then navigate
+  const proceed = () => {
+    const prev = committedRef.current;
+
+    // Cleanup sessionStorage for any disabled additional components
+    const componentMap = { opening: "opening", baseplate: "baseplate", foundation: "foundation" };
+    Object.entries(componentMap).forEach(([key, storageKey]) => {
+      const wasOn = prev?.additionalComponents?.[key] === true;
+      const isOff = localGeneral?.additionalComponents?.[key] !== true;
+      if (wasOn && isOff) {
+        sessionStorage.removeItem(`${projectType}_drawing_${storageKey}_completed`);
+        sessionStorage.removeItem(`${projectType}_drawing_${storageKey}`);
+      }
+    });
+
+    // Cleanup coupling data if coupling was disabled
+    if (prev?.useCoupling === true && localGeneral?.useCoupling !== true) {
+      sessionStorage.removeItem(`${projectType}_drawing_coupling_confirmed`);
+      sessionStorage.removeItem(`${projectType}_drawing_coupling_completed`);
+      sessionStorage.removeItem(`${projectType}_drawing_coupling`);
+    }
+
+    // Write everything to sessionStorage synchronously so header re-renders correctly
+    writeCommittedGeneral(projectType, localGeneral);
+    setGeneral(localGeneral); // keep useProjectStorage in sync (for draft saving)
+    committedRef.current = localGeneral;
+
+    sessionStorage.setItem(`${projectType}_drawing_completed`, "true");
+    sessionStorage.setItem(
+      `${projectType}_drawing_coupling_confirmed`,
+      String(localGeneral.useCoupling)
+    );
+
+    // Navigate — header will re-render on new page with correct sessionStorage data
+    if (workflow.projectMode === "drawing") {
+      navigate(`/calculation/${projectType}/${draftId}/drawing/pole`);
+      return;
+    }
+
+    if (localGeneral.useCoupling) {
+      navigate(`/calculation/${projectType}/${draftId}/drawing/coupling`);
+    } else {
+      navigate(`/calculation/${projectType}/${draftId}/drawing/surface`);
+    }
   };
 
   const handleNext = async () => {
@@ -69,31 +164,42 @@ export function useDrawingGeneralForm() {
     if (!isValid) {
       setErrors(validationErrors);
       setToast({ message: "Please correct the errors in General Input." });
-      return null;
+      return;
     }
-    
-    // Set drawing completed to show other tabs
-    sessionStorage.setItem(`${projectType}_drawing_completed`, "true");
-    
-    // Explicitly save the user's coupling choice here so the navigation header only updates after "Next Step"
-    sessionStorage.setItem(`${projectType}_drawing_coupling_confirmed`, String(localGeneral.useCoupling));
-    
-    if (workflow.projectMode === "drawing") {
-      return "GO_POLE";
+
+    const warnings = getWarningItems(committedRef.current, localGeneral);
+    if (warnings.length > 0) {
+      setConfirmDisable(warnings);
+      return;
     }
-    
-    return localGeneral.useCoupling ? "GO_COUPLING" : "GO_SURFACE";
+
+    proceed();
   };
+
+  const handleReset = () => {
+    // Reset local UI only — does NOT touch sessionStorage
+    const empty = getDefaultGeneral();
+    setLocalGeneral(empty);
+    setErrors({});
+  };
+
+  // Expose the committed snapshot so the page can revert on modal cancel
+  const getCommitted = () => committedRef.current;
 
   return {
     projectType,
     localGeneral,
     errors,
     toast,
+    confirmDisable,
     setToast,
+    setConfirmDisable,
+    setLocalGeneral,
     handleUpdate,
     handleReset,
     handleNext,
+    proceed,
     projectMode,
+    getCommitted,
   };
 }
