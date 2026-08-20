@@ -21,13 +21,13 @@ import { useState } from "react";
 export default function OpeningFormView() {
   const { type: projectType, draftId } = useParams();
 
-  
+
   const navigate = useNavigate();
   const [showFinishModal, setShowFinishModal] = useState(false);
   const [showDbModal, setShowDbModal] = useState(false);
   const [showCoverModal, setShowCoverModal] = useState(false);
 
-// ── Hooks ──
+  // ── Hooks ──
   const opening = useOpeningForm();
   const { makeReport } = useReport(projectType);
 
@@ -91,7 +91,7 @@ export default function OpeningFormView() {
             >
               <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg hp:rounded-md border border-white/20 hp:px-3 hp:py-[8px]">
                 <h2 className="text-white text-xs md:text-sm font-semibold md:font-bold">
-                  Opening Part Type
+                  Opening Type
                 </h2>
               </div>
               <div
@@ -253,12 +253,12 @@ export default function OpeningFormView() {
         toast={opening.toast}
         onClose={() => opening.setToast(null)}
       />
-      <CoverFormModal 
-        open={showCoverModal} 
-        onClose={() => setShowCoverModal(false)} 
-        projectType={projectType} 
-        draftId={draftId} 
-        onConfirm={handleConfirmCover} 
+      <CoverFormModal
+        open={showCoverModal}
+        onClose={() => setShowCoverModal(false)}
+        projectType={projectType}
+        draftId={draftId}
+        onConfirm={handleConfirmCover}
       />
     </>
   );

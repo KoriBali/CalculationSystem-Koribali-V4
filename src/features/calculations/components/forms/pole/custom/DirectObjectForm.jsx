@@ -8,6 +8,7 @@ import {
   Circle,
   ChevronRight,
 } from "lucide-react";
+import { useMasterData } from "../../../../hooks/useMasterData";
 
 /**
  * HELPER COMPONENTS & FUNCTIONS
@@ -47,6 +48,8 @@ export function DirectObjectForm({
   resetCurrentDo,
   handleAddDo,
 }) {
+  const { objectTypeOptions, loading: objectTypesLoading } = useMasterData();
+
   // Convert input to number for validation
   const doValueNumber = Number(doCountInput);
 
@@ -357,6 +360,7 @@ export function DirectObjectForm({
                     Object Name
                   </label>
                   <input
+                    id={`do-${directObject.idDo}-name`}
                     type="text"
                     value={directObject.name}
                     onChange={(e) =>
@@ -375,14 +379,23 @@ export function DirectObjectForm({
                   </label>
                   <div className="relative">
                     <select
+                      id={`do-${directObject.idDo}-type`}
                       value={directObject.type}
                       onChange={(e) =>
                         onUpdate(directObject.idDo, { type: e.target.value })
                       }
+                      disabled={objectTypesLoading}
                       className={`${inputStyle(doError.type)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] pl-3 2xl:pl-4 pr-8 appearance-none`}
                     >
-                      <option value="omni">Omni</option>
-                      <option value="directional">Directional</option>
+                      {objectTypesLoading ? (
+                        <option value="">Loading...</option>
+                      ) : (
+                        objectTypeOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))
+                      )}
                     </select>
                     <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                       <ChevronRight className="w-4 h-4 text-gray-400 rotate-90" />
@@ -398,6 +411,7 @@ export function DirectObjectForm({
                   </label>
                   <div className="relative">
                     <input
+                      id={`do-${directObject.idDo}-frontArea`}
                       type="number"
                       min={0}
                       value={directObject.frontArea}
@@ -427,6 +441,7 @@ export function DirectObjectForm({
                     </label>
                     <div className="relative">
                       <input
+                        id={`do-${directObject.idDo}-sideArea`}
                         type="number"
                         min={0}
                         value={directObject.sideArea}
@@ -456,6 +471,7 @@ export function DirectObjectForm({
                   </label>
                   <div className="relative">
                     <input
+                      id={`do-${directObject.idDo}-weight`}
                       type="number"
                       min={0}
                       value={directObject.weight}
@@ -479,6 +495,7 @@ export function DirectObjectForm({
                   </label>
                   <div className="relative">
                     <input
+                      id={`do-${directObject.idDo}-zHeight`}
                       type="number"
                       min={0}
                       value={directObject.zHeight}
@@ -501,6 +518,7 @@ export function DirectObjectForm({
                     nnC
                   </label>
                   <input
+                    id={`do-${directObject.idDo}-nnC`}
                     type="number"
                     min={0}
                     value={directObject.nnC}
@@ -520,6 +538,7 @@ export function DirectObjectForm({
                   </label>
                   <div className="relative">
                     <input
+                      id={`do-${directObject.idDo}-quantity`}
                       type="number"
                       min={0}
                       value={directObject.quantity}
@@ -546,6 +565,7 @@ export function DirectObjectForm({
                     </label>
                     <div className="relative">
                       <input
+                        id={`do-${directObject.idDo}-fixAngle`}
                         type="number"
                         value={directObject.fixAngle}
                         onChange={(e) =>

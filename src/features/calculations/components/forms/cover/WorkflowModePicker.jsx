@@ -48,37 +48,35 @@ function RadioCard({ label, icon, selected, onSelect }) {
     <button
       type="button"
       onClick={onSelect}
-      className={`group w-full text-left relative overflow-hidden rounded-lg hp:rounded-md border-2 px-3 xl:px-4 py-2 lg:py-3 transition-all duration-300 cursor-pointer active:scale-[0.98]
+      className={`group w-full flex items-center justify-between px-3 xl:px-4 py-2 lg:py-3 relative overflow-hidden rounded-lg border transition-all duration-300 cursor-pointer active:scale-[0.98]
         ${
           selected
             ? "border-blue-500 bg-blue-50 shadow-sm ring-1 ring-blue-50"
-            : "border-slate-100 bg-slate-50/50 hover:border-slate-300 hover:bg-slate-50 hover:shadow-sm"
+            : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
         }`}
     >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          {/* Icon */}
-          <div
-            className={`p-1.5 rounded-lg hp:rounded-md transition-colors ${selected ? "bg-blue-100 text-blue-600" : "bg-slate-200 text-slate-500 group-hover:bg-slate-300 group-hover:text-slate-600"}`}
-          >
-            {icon}
-          </div>
-          {/* Label */}
-          <p
-            className={`text-[12px] md:text-sm font-medium ${selected ? "text-slate-900" : "text-slate-500 group-hover:text-slate-700"}`}
-          >
-            {label}
-          </p>
+      <div className="flex items-center gap-3">
+        {/* Icon */}
+        <div
+          className={`p-1.5 rounded-md ${selected ? "bg-blue-100 text-blue-600" : "bg-slate-100 text-slate-500"}`}
+        >
+          {icon}
         </div>
+        {/* Label */}
+        <p
+          className={`text-[12px] md:text-sm font-medium ${selected ? "text-slate-900" : "text-slate-700"}`}
+        >
+          {label}
+        </p>
+      </div>
 
-        {/* Radio Indicator */}
-        <div className="shrink-0 ml-2">
-          {selected ? (
-            <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-blue-500" />
-          ) : (
-            <Circle className="w-4 h-4 md:w-5 md:h-5 text-slate-300 group-hover:text-slate-400" />
-          )}
-        </div>
+      {/* Radio Indicator */}
+      <div className="shrink-0 ml-2 flex items-center">
+        {selected ? (
+          <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-blue-500" />
+        ) : (
+          <Circle className="w-4 h-4 md:w-5 md:h-5 text-slate-300 group-hover:text-slate-400" />
+        )}
       </div>
     </button>
   );

@@ -1,11 +1,7 @@
 import { RotateCcw, ChevronRight } from "lucide-react";
-import {
-  STEPPED_POLE_OPTIONS,
-  COMBINATION_GROUPS,
-  COMBINATIONS,
-  GROUND_POSITION_OPTIONS,
-} from "../../../../constants/straightPoleStandardOptions";
+import { GROUND_POSITION_OPTIONS } from "../../../../constants/straightPoleStandardOptions";
 import { getThicknessOptions } from "../../../../logic/pole/standard/straightPoleLogic";
+import { usePoleStandardData } from "../../../../hooks/usePoleStandardData";
 
 // === IMAGES ===
 const onGlImg = "/images/on-gl.svg";
@@ -80,9 +76,18 @@ export function StraightPoleStandardForm({
   errors,
   condition,
 }) {
+  const {
+    steppedPoleOptions,
+    combinationGroups,
+    combinations,
+    tplMap,
+    loading: poleStandardLoading,
+  } = usePoleStandardData();
+
   // Derive thickness options from selected combination
   const { upper: upperOptions, lower: lowerOptions } = getThicknessOptions(
     straightPoleStandard.combination,
+    tplMap,
   );
 
   // Diagram image changes based on selected ground position
@@ -96,10 +101,15 @@ export function StraightPoleStandardForm({
     <div className="bg-white px-4 md:px-6 pb-6 rounded-b-2xl hp:rounded-b-xl">
       {/* ── Select Pole Standard ── */}
       <div className="mb-6">
-        <SectionTitle>Select Pole Standard</SectionTitle>
+        <SectionTitle>Pole Standard Type</SectionTitle>
         <div className="border border-slate-200 rounded-xl hp:rounded-lg p-4 sm:p-6 bg-white shadow-sm">
+          {poleStandardLoading && steppedPoleOptions.length === 0 && (
+            <p className="text-xs sm:text-sm text-slate-400 mb-3">
+              Loading pole standard options...
+            </p>
+          )}
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {STEPPED_POLE_OPTIONS.map((option) => {
+            {steppedPoleOptions.map((option) => {
               const isActive = straightPoleStandard.poleType === option.id;
 
               return (
@@ -136,7 +146,7 @@ export function StraightPoleStandardForm({
                     Select Lower Pole Diameter (mm)
                   </h4>
                   <div className="grid grid-cols-3 gap-3">
-                    {COMBINATION_GROUPS.map((group) => {
+                    {combinationGroups.map((group) => {
                       const isActive =
                         straightPoleStandard.combinationGroup === group;
 
@@ -185,9 +195,9 @@ export function StraightPoleStandardForm({
                         <option value="" disabled>
                           Select Combination
                         </option>
-                        {COMBINATIONS[
+                        {(combinations[
                           straightPoleStandard.combinationGroup
-                        ].map((c) => (
+                        ] || []).map((c) => (
                           <option key={c} value={c}>
                             {c}
                           </option>

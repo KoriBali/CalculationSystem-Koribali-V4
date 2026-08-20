@@ -25,16 +25,29 @@ export function Header({
 
         {/* Animated page title => transitions on route change */}
         <AnimatePresence mode="wait">
-          <motion.h1
-            key={currentTitle}
+          <motion.div
+            key={typeof currentTitle === 'string' ? currentTitle : `${currentTitle.global}-${currentTitle.stage}`}
             initial={{ opacity: 0, y: 5 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -5 }}
             transition={{ duration: 0.2 }}
-            className="text-[14px] tracking-wide font-bold text-slate-800 uppercase md:text-base md:tracking-wider"
+            className="flex flex-col justify-center"
           >
-            {currentTitle}
-          </motion.h1>
+            {typeof currentTitle === 'string' ? (
+              <h1 className="text-[14px] tracking-wide font-bold text-slate-800 uppercase md:text-base md:tracking-wider">
+                {currentTitle}
+              </h1>
+            ) : (
+              <>
+                <h2 className="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-widest leading-none mb-0.5">
+                  {currentTitle.global}
+                </h2>
+                <h1 className="text-[14px] md:text-base font-bold text-[#0d3b66] tracking-wide leading-tight">
+                  {currentTitle.stage}
+                </h1>
+              </>
+            )}
+          </motion.div>
         </AnimatePresence>
       </div>
 

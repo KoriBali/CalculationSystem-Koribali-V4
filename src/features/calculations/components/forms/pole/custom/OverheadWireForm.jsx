@@ -362,6 +362,7 @@ export function OverheadWireForm({
                     OHW Name
                   </label>
                   <input
+                        id={`ohw-${overheadWire.idOhw}-name`}
                     type="text"
                     value={overheadWire.name}
                     onChange={(e) =>
@@ -380,6 +381,7 @@ export function OverheadWireForm({
                   </label>
                   <div className="relative">
                     <input
+                        id={`ohw-${overheadWire.idOhw}-weight`}
                       type="number"
                       min={0}
                       value={overheadWire.weight}
@@ -405,6 +407,7 @@ export function OverheadWireForm({
                   </label>
                   <div className="relative">
                     <input
+                      id={`ohw-${overheadWire.idOhw}-diameter`}
                       type="number"
                       min={0}
                       value={overheadWire.diameter}
@@ -433,6 +436,7 @@ export function OverheadWireForm({
                   </label>
                   <div className="relative">
                     <input
+                        id={`ohw-${overheadWire.idOhw}-zHeight`}
                       type="number"
                       min={0}
                       value={overheadWire.zHeight}
@@ -458,6 +462,7 @@ export function OverheadWireForm({
                   </label>
                   <div className="relative">
                     <input
+                      id={`ohw-${overheadWire.idOhw}-span`}
                       type="number"
                       min={0}
                       value={overheadWire.span}
@@ -486,6 +491,7 @@ export function OverheadWireForm({
                   </label>
                   <div className="relative">
                     <input
+                      id={`ohw-${overheadWire.idOhw}-saggingRatio`}
                       type="number"
                       min={0}
                       value={overheadWire.saggingRatio}
@@ -513,6 +519,7 @@ export function OverheadWireForm({
                     nnC
                   </label>
                   <input
+                    id={`ohw-${overheadWire.idOhw}-nnC`}
                     type="number"
                     min={0}
                     value={overheadWire.nnC}
@@ -534,6 +541,7 @@ export function OverheadWireForm({
                   </label>
                   <div className="relative">
                     <input
+                      id={`ohw-${overheadWire.idOhw}-fixAngle`}
                       type="number"
                       value={overheadWire.fixAngle}
                       onChange={(e) =>
@@ -561,6 +569,7 @@ export function OverheadWireForm({
                   </label>
                   <div className="relative">
                     <input
+                      id={`ohw-${overheadWire.idOhw}-verticalAngle`}
                       type="number"
                       value={overheadWire.verticalAngle}
                       onChange={(e) =>

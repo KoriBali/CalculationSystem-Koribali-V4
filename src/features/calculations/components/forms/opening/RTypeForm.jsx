@@ -60,6 +60,7 @@ export function RTypeForm({
               </label>
               <div className="relative w-fit">
                 <input
+                  id="opWidth"
                   type="number"
                   min={0}
                   value={rType.opWidth}
@@ -86,6 +87,7 @@ export function RTypeForm({
                 </label>
                 <div className="relative">
                   <input
+                    id="opSurfaceHeight"
                     type="number"
                     min={0}
                     value={rType.opSurfaceHeight}
@@ -113,6 +115,7 @@ export function RTypeForm({
                   </label>
                   <div className="relative">
                     <select
+                      id="openingDirection"
                       value={rType.openingDirection || ""}
                       onChange={(e) => onUpdate({ openingDirection: e.target.value })}
                       className={`w-full px-2 sm:px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border appearance-none pr-8 min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] ${
@@ -152,6 +155,7 @@ export function RTypeForm({
               </label>
               <div className="relative">
                 <input
+                  id="opLength"
                   type="number"
                   min={0}
                   value={rType.opLength}
@@ -210,7 +214,9 @@ export function RTypeForm({
               ${
                 !isCalculated
                   ? "bg-gray-100 text-gray-400 ring-1 ring-inset ring-gray-200 cursor-not-allowed shadow-none"
-                  : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
+                  : buttonLabel === "Next Input"
+                    ? "bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm"
+                    : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
               }`}
           >
             <span className="hp:hidden">{buttonLabel}</span>

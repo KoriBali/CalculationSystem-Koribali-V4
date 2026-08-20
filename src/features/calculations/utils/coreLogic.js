@@ -44,6 +44,16 @@ export const DATA_KEYS = [
   "drawing",
   "drawing_completed",
   "drawing_general",
+  "drawing_pole",
+  "drawing_pole_completed",
+  "drawing_opening",
+  "drawing_opening_completed",
+  "drawing_baseplate",
+  "drawing_baseplate_completed",
+  "drawing_foundation_type",
+  "drawing_square_caisson",
+  "drawing_round_caisson",
+  "drawing_foundation_completed",
   "drawing_coupling_location",
   "drawing_coupling_count",
   "drawing_coupling_data",
@@ -202,11 +212,11 @@ export const deserializeWorkingSession = (projectType, draftData) => {
 export const saveWorkingSessionToDraft = (projectType, draftId, defaultTitle = "Untitled") => {
   const data = serializeWorkingSession(projectType);
   
-  // Extract title/subtitle from identity data if available — falls back to
-  // the legacy combined `cover` blob for drafts saved before the
-  // identity/workflow/cover split.
+  // Extract title/subtitle/details from identity data if available
   let title = defaultTitle;
-  let subtitle = "No request number";
+  let requestNo = "";
+  let companyName = "";
+  let projectNo = "";
 
   const tryExtract = (raw) => {
     if (!raw) return null;
@@ -214,7 +224,9 @@ export const saveWorkingSessionToDraft = (projectType, draftId, defaultTitle = "
       const obj = JSON.parse(raw);
       return {
         name: obj.projectName?.trim() || null,
-        number: obj.requestNo?.trim() || null,
+        requestNo: obj.requestNo?.trim() || null,
+        companyName: obj.companyName?.trim() || null,
+        projectNo: obj.projectNo?.trim() || null,
       };
     } catch {
       return null;
@@ -227,8 +239,14 @@ export const saveWorkingSessionToDraft = (projectType, draftId, defaultTitle = "
   if (fromIdentity?.name) title = fromIdentity.name;
   else if (fromLegacyCover?.name) title = fromLegacyCover.name;
 
-  if (fromIdentity?.number) subtitle = fromIdentity.number;
-  else if (fromLegacyCover?.number) subtitle = fromLegacyCover.number;
+  if (fromIdentity?.requestNo) requestNo = fromIdentity.requestNo;
+  else if (fromLegacyCover?.requestNo) requestNo = fromLegacyCover.requestNo;
+  
+  if (fromIdentity?.companyName) companyName = fromIdentity.companyName;
+  else if (fromLegacyCover?.companyName) companyName = fromLegacyCover.companyName;
+
+  if (fromIdentity?.projectNo) projectNo = fromIdentity.projectNo;
+  else if (fromLegacyCover?.projectNo) projectNo = fromLegacyCover.projectNo;
 
   // Save the draft data payload
   sessionStorage.setItem(`${projectType}_draft_data_${draftId}`, JSON.stringify(data));
@@ -239,7 +257,9 @@ export const saveWorkingSessionToDraft = (projectType, draftId, defaultTitle = "
   const draftMeta = {
     id: draftId,
     title,
-    subtitle,
+    requestNo,
+    companyName,
+    projectNo,
     lastEdited: new Date().toISOString()
   };
 

@@ -33,6 +33,10 @@ export default function DrawingOpeningPage() {
     }
   };
 
+  const onBack = () => {
+    navigate(`/calculation/${projectType}/${draftId}/drawing/pole`);
+  };
+
   return (
     <>
       <div className="flex flex-col h-full">
@@ -77,6 +81,7 @@ export default function DrawingOpeningPage() {
                 opening={localOpening}
                 onUpdate={handleUpdate}
                 onReset={handleReset}
+                onBack={onBack}
                 onNext={onNextStep}
                 errors={errors}
               />

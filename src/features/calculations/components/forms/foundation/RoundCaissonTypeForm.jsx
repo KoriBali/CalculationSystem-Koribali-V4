@@ -1,4 +1,6 @@
-import { RotateCcw, ChevronRight, Calculator } from "lucide-react";
+import { RotateCcw, ChevronLeft, ChevronRight, Calculator } from "lucide-react";
+import { useState } from "react";
+import { ConfirmResetAllModal } from "../../modals/ConfirmResetAllModal";
 
 /**
  * HELPER COMPONENTS & FUNCTIONS
@@ -27,10 +29,13 @@ export function RoundCaissonTypeForm({
   errors,
   onCalculate,
   onNext,
+  onBack,
   isCalculated,
   buttonLabel,
   isDrawingMode = false,
 }) {
+  const [showResetModal, setShowResetModal] = useState(false);
+
   const handleReset = () => {
     onUpdate({
       foundationWidthX: "",
@@ -48,7 +53,7 @@ export function RoundCaissonTypeForm({
   };
 
   return (
-    <div className="bg-white rounded-b-xl md:rounded-b-2xl shadow-sm border border-gray-200">
+    <div className={`bg-white shadow-sm border border-gray-200 ${isDrawingMode ? 'rounded-xl hp:rounded-lg' : 'rounded-b-xl md:rounded-b-2xl'}`}>
       {/* ================= DIMENSION INPUT ================= */}
       <div className="px-6 md:px-8 pt-6 md:pt-8">
         <h3 className="text-[#0d3b66] flex items-center gap-2 text-xs md:text-sm font-medium">
@@ -75,6 +80,7 @@ export function RoundCaissonTypeForm({
                 </label>
                 <div className="relative w-fit">
                   <input
+                    id="foundationWidthX"
                     type="number"
                     min={0}
                     value={roundCaisson.foundationWidthX}
@@ -99,6 +105,7 @@ export function RoundCaissonTypeForm({
                 </label>
                 <div className="relative w-fit">
                   <input
+                    id="foundationWidthY"
                     type="number"
                     min={0}
                     value={roundCaisson.foundationWidthY}
@@ -139,6 +146,7 @@ export function RoundCaissonTypeForm({
                 </label>
                 <div className="relative w-fit">
                   <input
+                    id="embedmentDepth"
                     type="number"
                     min={0}
                     value={roundCaisson.embedmentDepth}
@@ -174,6 +182,7 @@ export function RoundCaissonTypeForm({
                 N Value
               </label>
               <input
+                id="nValue"
                 type="number"
                 min={0}
                 value={roundCaisson.nValue}
@@ -191,6 +200,7 @@ export function RoundCaissonTypeForm({
               </label>
               <div className="relative">
                 <input
+                  id="yValue"
                   type="number"
                   min={0}
                   value={roundCaisson.yValue}
@@ -212,6 +222,7 @@ export function RoundCaissonTypeForm({
               </label>
               <div className="relative">
                 <input
+                  id="ycValue"
                   type="number"
                   min={0}
                   value={roundCaisson.ycValue}
@@ -232,6 +243,7 @@ export function RoundCaissonTypeForm({
                 α
               </label>
               <input
+                id="alphaValue"
                 type="number"
                 min={0}
                 value={roundCaisson.alphaValue}
@@ -250,23 +262,37 @@ export function RoundCaissonTypeForm({
 
       {/* ================= FOOTER SECTION: ACTIONS ================= */}
       <div className="flex justify-between items-center pt-6 px-4 md:px-6 pb-6 xl:pb-6 hp:gap-2">
-        {/* Reset button */}
-        <button
-          onClick={handleReset}
-          title="Reset"
-          className="flex justify-center items-center gap-2 px-5 py-2.5 hp:px-3 hp:py-2 md:px-6
-            rounded-lg hp:rounded-md font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] text-xs sm:text-sm 
-            ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm transition-colors"
-        >
-          <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-          <span className="hp:hidden">Reset</span>
-        </button>
+        {isDrawingMode ? (
+          <button
+            onClick={onBack}
+            title="Back"
+            className="flex justify-center items-center gap-2 px-5 py-2.5 hp:px-3 hp:py-2 md:px-6
+              rounded-lg hp:rounded-md font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] text-xs sm:text-sm
+              ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm transition-colors"
+          >
+            <ChevronLeft className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+            <span className="hp:hidden">Back</span>
+          </button>
+        ) : (
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleReset}
+              title="Reset"
+              className="flex justify-center items-center gap-2 px-5 py-2.5 hp:px-3 hp:py-2 md:px-6
+                rounded-lg hp:rounded-md font-medium bg-white hover:bg-red-50 text-gray-500 hover:text-red-600 text-xs sm:text-sm
+                border border-gray-200 hover:border-red-200 shadow-sm transition-colors"
+            >
+              <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+              <span className="hp:hidden">Reset</span>
+            </button>
+          </div>
+        )}
 
         {/* Calculate button */}
         {!isDrawingMode && (
           <button
             onClick={onCalculate}
-            className="flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-4 hp:py-2 md:px-6 
+            className="flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-4 hp:py-2 md:px-6
                 rounded-lg hp:rounded-md font-medium bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white text-sm hover:brightness-110 shadow-sm transition-all"
           >
             <Calculator className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
@@ -276,18 +302,32 @@ export function RoundCaissonTypeForm({
           </button>
         )}
 
-        <div className="flex items-center gap-3 hp:gap-0">
+        <div className="flex items-center gap-2">
+          {isDrawingMode && (
+            <button
+              onClick={() => setShowResetModal(true)}
+              title="Reset"
+              className="flex justify-center items-center gap-2 px-5 py-2.5 hp:px-3 hp:py-2 md:px-6
+                rounded-lg hp:rounded-md font-medium bg-white hover:bg-red-50 text-red-400 text-xs sm:text-sm
+                border border-gray-200 hover:border-red-200 shadow-sm transition-colors"
+            >
+              <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+              <span className="hp:hidden">Reset</span>
+            </button>
+          )}
           {/* Next step button */}
           <button
             onClick={onNext}
             disabled={!isDrawingMode && !isCalculated}
             title={buttonLabel}
-            className={`flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-3 hp:py-2 md:px-6 
+            className={`flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-3 hp:py-2 md:px-6
               rounded-lg hp:rounded-md font-medium transition-all text-sm
               ${
                 (!isDrawingMode && !isCalculated)
                   ? "bg-gray-100 text-gray-400 ring-1 ring-inset ring-gray-200 cursor-not-allowed shadow-none"
-                  : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
+                  : buttonLabel === "Next Input"
+                    ? "bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm"
+                    : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
               }`}
           >
             <span className="hp:hidden">{buttonLabel}</span>
@@ -295,6 +335,16 @@ export function RoundCaissonTypeForm({
           </button>
         </div>
       </div>
+
+      {isDrawingMode && (
+        <ConfirmResetAllModal
+          open={showResetModal}
+          onClose={() => setShowResetModal(false)}
+          onReset={handleReset}
+          title="Reset all inputs on this section?"
+          description="This will clear all inputs entered in this section. This action cannot be undone."
+        />
+      )}
     </div>
   );
 }

@@ -40,7 +40,7 @@ export function OpeningResultTable({ data }) {
 
             <div>
               <h3 className="text-white font-semibold text-xs md:text-sm leading-tight">
-                Opening Part Evaluation
+                Opening Evaluation
               </h3>
             </div>
           </div>

@@ -1,4 +1,6 @@
-import { RotateCcw, ChevronRight, Box } from "lucide-react";
+import { ChevronLeft, ChevronRight, RotateCcw, Box } from "lucide-react";
+import { useState } from "react";
+import { ConfirmResetAllModal } from "../../modals/ConfirmResetAllModal";
 
 const ErrorStyle = ({ show, text }) =>
   show ? (
@@ -14,7 +16,9 @@ const inputStyle = (hasError) =>
     : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
   }`;
 
-export function DrawingOpeningForm({ opening, onUpdate, onReset, onNext, errors }) {
+export function DrawingOpeningForm({ opening, onUpdate, onReset, onBack, onNext, errors }) {
+  const [showResetModal, setShowResetModal] = useState(false);
+
   return (
     <div className="bg-white rounded-b-2xl hp:rounded-b-xl shadow-sm border border-gray-200">
       <div className="p-4 md:p-6 shadow-sm space-y-4 md:space-y-6">
@@ -22,9 +26,10 @@ export function DrawingOpeningForm({ opening, onUpdate, onReset, onNext, errors 
         {/* ── Opening Type Selection ── */}
         <div className="bg-white px-4 md:px-5 py-5 rounded-xl hp:rounded-lg border border-gray-200">
           <div className="relative">
-            <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2 font-medium">Opening Part Type</label>
+            <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2 font-medium">Opening Type</label>
             <div className="relative">
               <select
+                id="type"
                 value={opening.type || ""}
                 onChange={(e) => onUpdate({ type: e.target.value })}
                 className={`${inputStyle(errors.type)} lg:pl-3 xl:pl-4 pr-8 lg:pr-8 xl:pr-8 min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] appearance-none`}
@@ -45,7 +50,7 @@ export function DrawingOpeningForm({ opening, onUpdate, onReset, onNext, errors 
         {opening.type ? (
           <div className="bg-white px-4 md:px-5 py-8 md:py-12 rounded-xl hp:rounded-lg border border-gray-200 flex justify-center">
             <div className="flex flex-row gap-1 sm:ml-[21px] 2xl:ml-0 justify-center items-center px-2 md:px-6">
-              
+
               {/* Left Side: Opening Direction */}
               <div className="relative mb-[10px] sm:mb-[20px] w-[100px] sm:w-[120px] xl:w-[140px]">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2 font-medium whitespace-nowrap">
@@ -53,6 +58,7 @@ export function DrawingOpeningForm({ opening, onUpdate, onReset, onNext, errors 
                 </label>
                 <div className="relative">
                   <select
+                    id="direction"
                     value={opening.direction || ""}
                     onChange={(e) => onUpdate({ direction: e.target.value })}
                     className={`${inputStyle(errors.direction)} appearance-none pr-6 sm:pr-8`}
@@ -86,6 +92,7 @@ export function DrawingOpeningForm({ opening, onUpdate, onReset, onNext, errors 
                 </label>
                 <div className="relative">
                   <input
+                    id="height"
                     type="number"
                     min={0}
                     value={opening.height || ""}
@@ -121,25 +128,45 @@ export function DrawingOpeningForm({ opening, onUpdate, onReset, onNext, errors 
         {/* Footer */}
         <div className="flex justify-between items-center pt-4 md:pt-0">
           <button
-            onClick={onReset}
+            onClick={onBack}
             className="flex justify-center items-center gap-2 px-5 py-2.5 md:px-6
-            rounded-lg hp:rounded-md font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] text-xs sm:text-sm 
+            rounded-lg hp:rounded-md font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] text-xs sm:text-sm
             ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm transition-colors"
           >
-            <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-            Reset
+            <ChevronLeft className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+            Back
           </button>
 
-          <button
-            onClick={onNext}
-            className="flex justify-center items-center gap-2 px-5 py-2.5 md:px-6 
-            rounded-lg hp:rounded-md font-medium bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white text-xs md:text-sm hover:brightness-110 shadow-sm transition-all"
-          >
-            Save & Continue
-            <ChevronRight className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowResetModal(true)}
+              className="flex justify-center items-center gap-2 px-5 py-2.5 md:px-6
+              rounded-lg hp:rounded-md font-medium bg-white hover:bg-red-50 text-red-400 text-xs sm:text-sm
+              border border-gray-200 hover:border-red-200 shadow-sm transition-colors"
+            >
+              <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+              Reset
+            </button>
+
+            <button
+              onClick={onNext}
+              className="flex justify-center items-center gap-2 px-5 py-2.5 md:px-6
+              rounded-lg hp:rounded-md font-medium bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white text-xs md:text-sm hover:brightness-110 shadow-sm transition-all"
+            >
+              Save & Continue
+              <ChevronRight className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+            </button>
+          </div>
         </div>
       </div>
+
+      <ConfirmResetAllModal
+        open={showResetModal}
+        onClose={() => setShowResetModal(false)}
+        onReset={onReset}
+        title="Reset all inputs on this section?"
+        description="This will clear all inputs entered in this section. This action cannot be undone."
+      />
     </div>
   );
 }

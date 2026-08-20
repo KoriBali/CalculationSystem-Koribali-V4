@@ -1,4 +1,5 @@
 import { ChevronRight } from "lucide-react";
+import { useMasterData } from "../../../../hooks/useMasterData";
 
 /**
  * HELPER COMPONENTS & FUNCTIONS
@@ -25,6 +26,8 @@ const ErrorStyle = ({ show, text }) =>
  * MAIN COMPONENT
  */
 export function ArmForm({ arm, onUpdate, armError }) {
+  const { materialOptions, loading: materialsLoading } = useMasterData();
+
   return (
     <div>
       <div
@@ -40,6 +43,7 @@ export function ArmForm({ arm, onUpdate, armError }) {
             Arm Name
           </label>
           <input
+            id={`arm-${arm.idArm}-name`}
             type="text"
             value={arm.name}
             onChange={(e) => onUpdate({ name: e.target.value })}
@@ -56,17 +60,23 @@ export function ArmForm({ arm, onUpdate, armError }) {
           </label>
           <div className="relative">
             <select
+              id={`arm-${arm.idArm}-material`}
               value={arm.material}
               onChange={(e) => onUpdate({ material: e.target.value })}
+              disabled={materialsLoading}
               className={`
                 ${inputStyle(armError.material)}
                 min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] pl-3 2xl:pl-4 pr-8 appearance-none`}
             >
-              <option value="STK400">STK400</option>
-              <option value="STK490">STK490</option>
-              <option value="STK500">STK500</option>
-              <option value="STK540">STK540</option>
-              <option value="STKR400">STKR400</option>
+              {materialsLoading ? (
+                <option value="">Loading...</option>
+              ) : (
+                materialOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))
+              )}
             </select>
             <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
               <ChevronRight className="w-4 h-4 text-gray-400 rotate-90" />
@@ -82,6 +92,7 @@ export function ArmForm({ arm, onUpdate, armError }) {
           </label>
           <div className="relative">
             <input
+              id={`arm-${arm.idArm}-diameter`}
               type="number"
               min={0}
               value={arm.diameter}
@@ -107,6 +118,7 @@ export function ArmForm({ arm, onUpdate, armError }) {
           </label>
           <div className="relative">
             <input
+              id={`arm-${arm.idArm}-thickness`}
               type="number"
               min={0}
               value={arm.thickness}
@@ -132,6 +144,7 @@ export function ArmForm({ arm, onUpdate, armError }) {
           </label>
           <div className="relative">
             <input
+              id={`arm-${arm.idArm}-length`}
               type="number"
               min={0}
               value={arm.length}
@@ -157,6 +170,7 @@ export function ArmForm({ arm, onUpdate, armError }) {
           </label>
           <div className="relative">
             <input
+              id={`arm-${arm.idArm}-expLength`}
               type="number"
               min={0}
               value={arm.expLength}
@@ -182,6 +196,7 @@ export function ArmForm({ arm, onUpdate, armError }) {
           </label>
           <div className="relative">
             <input
+              id={`arm-${arm.idArm}-zHeight`}
               type="number"
               min={0}
               value={arm.zHeight}
@@ -207,6 +222,7 @@ export function ArmForm({ arm, onUpdate, armError }) {
           </label>
           <div className="relative">
             <input
+              id={`arm-${arm.idArm}-hDistance`}
               type="number"
               min={0}
               value={arm.hDistance}
@@ -232,6 +248,7 @@ export function ArmForm({ arm, onUpdate, armError }) {
           </label>
           <div className="relative">
             <input
+              id={`arm-${arm.idArm}-fixAngle`}
               type="number"
               value={arm.fixAngle}
               onChange={(e) =>
@@ -255,6 +272,7 @@ export function ArmForm({ arm, onUpdate, armError }) {
             nnC
           </label>
           <input
+            id={`arm-${arm.idArm}-nnC`}
             type="number"
             min={0}
             value={arm.nnC}
@@ -276,6 +294,7 @@ export function ArmForm({ arm, onUpdate, armError }) {
           </label>
           <div className="relative">
             <input
+              id={`arm-${arm.idArm}-quantity`}
               type="number"
               min={0}
               value={arm.quantity}

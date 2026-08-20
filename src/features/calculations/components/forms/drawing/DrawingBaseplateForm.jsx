@@ -1,4 +1,6 @@
-import { RotateCcw, ChevronRight, ChevronDown, Box } from "lucide-react";
+import { RotateCcw, ChevronLeft, ChevronRight, ChevronDown, Box } from "lucide-react";
+import { useState } from "react";
+import { ConfirmResetAllModal } from "../../modals/ConfirmResetAllModal";
 
 const inputStyle = (hasError) =>
   `w-full px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border
@@ -14,7 +16,9 @@ const ErrorStyle = ({ show, text }) =>
     </div>
   ) : null;
 
-export function DrawingBaseplateForm({ baseplate, onUpdate, onReset, onNext, errors }) {
+export function DrawingBaseplateForm({ baseplate, onUpdate, onReset, onBack, onNext, errors }) {
+  const [showResetModal, setShowResetModal] = useState(false);
+
   const handleChange = (field) => (e) => {
     onUpdate({ [field]: e.target.value });
   };
@@ -29,6 +33,7 @@ export function DrawingBaseplateForm({ baseplate, onUpdate, onReset, onNext, err
             <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">Baseplate Type</label>
             <div className="relative">
               <select
+                id="baseplateType"
                 value={baseplate.baseplateType || ""}
                 onChange={(e) => onUpdate({ baseplateType: e.target.value })}
                 className={`${inputStyle(errors.baseplateType)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] cursor-pointer appearance-none`}
@@ -71,6 +76,7 @@ export function DrawingBaseplateForm({ baseplate, onUpdate, onReset, onNext, err
                   </label>
                   <div className="relative w-fit mx-auto">
                     <input
+                      id="bpWidthEW"
                       type="number"
                       min={0}
                       value={baseplate.bpWidthEW || ""}
@@ -107,25 +113,45 @@ export function DrawingBaseplateForm({ baseplate, onUpdate, onReset, onNext, err
         {/* Footer */}
         <div className="flex justify-between items-center pt-4 md:pt-0">
           <button
-            onClick={onReset}
+            onClick={onBack}
             className="flex justify-center items-center gap-2 px-5 py-2.5 md:px-6
-            rounded-lg hp:rounded-md font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] text-xs sm:text-sm 
+            rounded-lg hp:rounded-md font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] text-xs sm:text-sm
             ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm transition-colors"
           >
-            <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-            Reset
+            <ChevronLeft className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+            Back
           </button>
 
-          <button
-            onClick={onNext}
-            className="flex justify-center items-center gap-2 px-5 py-2.5 md:px-6 
-            rounded-lg hp:rounded-md font-medium bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white text-xs md:text-sm hover:brightness-110 shadow-sm transition-all"
-          >
-            Save & Continue
-            <ChevronRight className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowResetModal(true)}
+              className="flex justify-center items-center gap-2 px-5 py-2.5 md:px-6
+              rounded-lg hp:rounded-md font-medium bg-white hover:bg-red-50 text-red-400 text-xs sm:text-sm
+              border border-gray-200 hover:border-red-200 shadow-sm transition-colors"
+            >
+              <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+              Reset
+            </button>
+
+            <button
+              onClick={onNext}
+              className="flex justify-center items-center gap-2 px-5 py-2.5 md:px-6
+              rounded-lg hp:rounded-md font-medium bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white text-xs md:text-sm hover:brightness-110 shadow-sm transition-all"
+            >
+              Save & Continue
+              <ChevronRight className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+            </button>
+          </div>
         </div>
       </div>
+
+      <ConfirmResetAllModal
+        open={showResetModal}
+        onClose={() => setShowResetModal(false)}
+        onReset={onReset}
+        title="Reset all inputs on this section?"
+        description="This will clear all inputs entered in this section. This action cannot be undone."
+      />
     </div>
   );
 }

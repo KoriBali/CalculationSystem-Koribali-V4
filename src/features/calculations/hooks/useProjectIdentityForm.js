@@ -40,11 +40,13 @@ export function useProjectIdentityForm(projectType) {
 
   const resetIdentity = () => updateIdentity(DEFAULT_IDENTITY);
 
-  // Validates identity fields against ProjectSetupSchema
+  // Validates identity fields against ProjectSetupSchema — returns the errors
+  // too so callers can report/focus the first invalid field without waiting
+  // on the (async) identityErrors state update.
   const validate = async () => {
     const result = await validateWithYup(ProjectSetupSchema, identity);
     setIdentityErrors(result.errors || {});
-    return result.isValid;
+    return result;
   };
 
   return {

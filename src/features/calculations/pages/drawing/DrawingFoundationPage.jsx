@@ -36,7 +36,6 @@ export default function DrawingFoundationPage() {
   const onNextStep = async () => {
     const result = await handleNext();
     if (result) {
-      // Navigate to coupling if used, otherwise surface
       const isCouplingUsed = sessionStorage.getItem(`${projectType}_drawing_coupling_confirmed`) === "true";
       if (isCouplingUsed) {
         navigate(`/calculation/${projectType}/${draftId}/drawing/coupling`);
@@ -44,6 +43,21 @@ export default function DrawingFoundationPage() {
         navigate(`/calculation/${projectType}/${draftId}/drawing/surface`);
       }
     }
+  };
+
+  const onBack = () => {
+    const general = JSON.parse(sessionStorage.getItem(`${projectType}_drawing_general`) || "{}");
+    if (general?.additionalComponents?.baseplate) {
+      navigate(`/calculation/${projectType}/${draftId}/drawing/baseplate`);
+    } else if (general?.additionalComponents?.opening) {
+      navigate(`/calculation/${projectType}/${draftId}/drawing/opening`);
+    } else {
+      navigate(`/calculation/${projectType}/${draftId}/drawing/pole`);
+    }
+  };
+
+  const onReset = () => {
+    handleFoundationTypeUpdate({ type: "" });
   };
 
   return (
@@ -93,8 +107,10 @@ export default function DrawingFoundationPage() {
                 onFoundationTypeUpdate={handleFoundationTypeUpdate}
                 onSquareCaissonUpdate={handleSquareCaissonUpdate}
                 onRoundCaissonUpdate={handleRoundCaissonUpdate}
+                onReset={onReset}
                 errors={errors}
                 onNext={onNextStep}
+                onBack={onBack}
               />
             </div>
           </div>

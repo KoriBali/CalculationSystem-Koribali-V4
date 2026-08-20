@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { FileText, RotateCcw, ChevronRight } from "lucide-react";
 import { useCoverForm } from "../../hooks/useCoverForm";
 import { useProjectIdentityForm } from "../../hooks/useProjectIdentityForm";
+import { useMasterData } from "../../hooks/useMasterData";
 import {
   inputStyle,
   ErrorStyle,
@@ -10,6 +11,12 @@ import {
 
 export function CoverFormModal({ open, onClose, projectType, onConfirm }) {
   const coverForm = useCoverForm(projectType);
+  const {
+    regionOptions,
+    authorOptions,
+    departmentOptions,
+    loading: masterDataLoading,
+  } = useMasterData();
 
   if (!open) return null;
 
@@ -153,14 +160,8 @@ export function CoverFormModal({ open, onClose, projectType, onConfirm }) {
                       value={coverData.region}
                       onChange={(val) => updateCover({ region: val })}
                       error={coverErrors.region}
-                      placeholder="-"
-                      options={[
-                        { value: "A", label: "Area A" },
-                        { value: "B", label: "Area B" },
-                        { value: "C", label: "Area C" },
-                        { value: "D", label: "Area D" },
-                        { value: "E", label: "Area E" },
-                      ]}
+                      placeholder={masterDataLoading ? "Loading..." : "-"}
+                      options={masterDataLoading ? [] : regionOptions}
                     />
                     {coverErrors.region && (
                       <div className="absolute -bottom-4 md:-bottom-5 flex justify-center w-full whitespace-nowrap text-[9px] md:text-[11px] text-red-500">
@@ -180,14 +181,8 @@ export function CoverFormModal({ open, onClose, projectType, onConfirm }) {
                       value={coverData.author}
                       onChange={(val) => updateCover({ author: val })}
                       error={coverErrors.author}
-                      placeholder="-"
-                      options={[
-                        { value: "V", label: "Author V" },
-                        { value: "W", label: "Author W" },
-                        { value: "X", label: "Author X" },
-                        { value: "Y", label: "Author Y" },
-                        { value: "Z", label: "Author Z" },
-                      ]}
+                      placeholder={masterDataLoading ? "Loading..." : "-"}
+                      options={masterDataLoading ? [] : authorOptions}
                     />
                     {coverErrors.author && (
                       <div className="absolute -bottom-4 md:-bottom-5 flex justify-center w-full whitespace-nowrap text-[9px] md:text-[11px] text-red-500">
@@ -209,14 +204,8 @@ export function CoverFormModal({ open, onClose, projectType, onConfirm }) {
                         updateCover({ departmentInCharge: val })
                       }
                       error={coverErrors.departmentInCharge}
-                      placeholder="-"
-                      options={[
-                        { value: "R", label: "Department R" },
-                        { value: "I", label: "Department I" },
-                        { value: "F", label: "Department F" },
-                        { value: "S", label: "Koribali" },
-                        { value: "T", label: "Department T" },
-                      ]}
+                      placeholder={masterDataLoading ? "Loading..." : "-"}
+                      options={masterDataLoading ? [] : departmentOptions}
                     />
                     {coverErrors.departmentInCharge && (
                       <div className="absolute -bottom-4 md:-bottom-5 flex justify-center w-full whitespace-nowrap text-[9px] md:text-[11px] text-red-500">

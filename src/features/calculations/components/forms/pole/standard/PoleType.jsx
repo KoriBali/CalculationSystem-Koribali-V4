@@ -1,8 +1,10 @@
+import { Triangle, RectangleVertical, CheckCircle, Circle } from "lucide-react";
+
 // ==== CONSTANTS ====
 // Available pole type options
 const POLE_TYPE_OPTIONS = [
-  { id: "taper", label: "Taper Pole" },
-  { id: "straight", label: "Straight Pole" },
+  { id: "taper", label: "Taper Pole", icon: Triangle },
+  { id: "straight", label: "Straight Pole", icon: RectangleVertical },
 ];
 
 // === HELPERS ===
@@ -24,6 +26,7 @@ export function PoleTypeSelector({ poleTypeStandard, onUpdate }) {
       <div className="border border-slate-200 rounded-xl hp:rounded-lg p-4 md:p-6 bg-white shadow-sm">
         <div className="grid grid-cols-2 gap-4 md:gap-6">
           {POLE_TYPE_OPTIONS.map((option) => {
+            const Icon = option.icon;
             const isActive = poleTypeStandard.type === option.id;
 
             return (
@@ -31,14 +34,32 @@ export function PoleTypeSelector({ poleTypeStandard, onUpdate }) {
                 key={option.id}
                 type="button"
                 onClick={() => onUpdate({ type: option.id })}
-                className={`rounded-lg hp:rounded-md border px-4 py-2 lg:py-2.5 text-xs md:text-sm font-medium transition-all
+                className={`group w-full flex items-center justify-between px-3 xl:px-4 py-2 lg:py-3 relative overflow-hidden rounded-lg border transition-all duration-300 cursor-pointer active:scale-[0.98]
                   ${
                     isActive
-                      ? "border-blue-500 bg-blue-50 text-blue-600 shadow-sm"
-                      : "border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50"
+                      ? "border-blue-500 bg-blue-50 shadow-sm ring-1 ring-blue-50"
+                      : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
                   }`}
               >
-                {option.label}
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`p-1.5 rounded-md ${isActive ? "bg-blue-100 text-blue-600" : "bg-slate-100 text-slate-500"}`}
+                  >
+                    <Icon size={16} />
+                  </div>
+                  <p
+                    className={`text-[12px] md:text-sm font-medium ${isActive ? "text-slate-900" : "text-slate-700"}`}
+                  >
+                    {option.label}
+                  </p>
+                </div>
+                <div className="shrink-0 ml-2 flex items-center">
+                  {isActive ? (
+                    <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-blue-500" />
+                  ) : (
+                    <Circle className="w-4 h-4 md:w-5 md:h-5 text-slate-300 group-hover:text-slate-400" />
+                  )}
+                </div>
               </button>
             );
           })}

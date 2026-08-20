@@ -446,7 +446,7 @@ export function HeaderCalculationPage() {
 
       {/* ── Step navigation (Bottom Bar on Mobile, Sticky on Desktop) ── */}
       {!isProjectIdentityPage && (
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-200 px-2 py-1.5 [@media(max-width:639px)_and_(max-height:600px)]:hidden sm:static sm:pb-2 sm:border-t-0 sm:border-b sm:px-4 sm:py-3 md:px-6 2xl:px-8 shadow-[0_-4px_10px_-1px_rgba(0,0,0,0.1)] sm:shadow-none">
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-200 px-3 py-1.5 [@media(max-width:639px)_and_(max-height:600px)]:hidden sm:static sm:pb-2 sm:border-t-0 sm:border-b sm:px-4 sm:py-3 md:px-6 2xl:px-8 shadow-[0_-4px_10px_-1px_rgba(0,0,0,0.1)] sm:shadow-none">
           <div className="relative flex items-center w-full group overflow-hidden">
             {/* Scroll Left Button (Absolute) */}
             <div className={`absolute left-0 top-0 bottom-0 z-10 flex items-center bg-gradient-to-r from-white via-white to-transparent sm:from-[#f8fafc] sm:via-[#f8fafc] pr-6 pl-1 sm:pl-2 transition-opacity duration-300 pointer-events-none ${showLeftScroll ? "opacity-100" : "opacity-0"}`}>
@@ -463,9 +463,6 @@ export function HeaderCalculationPage() {
               onScroll={handleScroll}
               className="flex items-center justify-start sm:gap-2 md:gap-3 w-full overflow-x-auto overflow-y-hidden whitespace-nowrap scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden py-1 sm:py-0"
             >
-              {/* Spacer to allow scrolling past the absolute left button */}
-              <div className="shrink-0 w-2 sm:w-4" aria-hidden="true" />
-              
               {currentNavItems.map((item) => {
                 const isActive = location.pathname === item.path;
                 const Icon = item.icon;
@@ -504,9 +501,6 @@ export function HeaderCalculationPage() {
                   </button>
                 );
               })}
-              
-              {/* Spacer to allow scrolling past the absolute right button */}
-              <div className="shrink-0 w-6 sm:w-8" aria-hidden="true" />
             </div>
 
             {/* Scroll Right Button (Absolute) */}

@@ -3,6 +3,14 @@ import { useNavigate, useParams } from "react-router-dom";
 import { validateWithYup } from "../utils/validation";
 import { DrawingPoleSchema } from "../schemas/drawing/DrawingPoleSchema";
 import { useProjectStorage } from "./useProjectStorage";
+import { scrollToFirstError, firstErrorMessage } from "../utils/scrollToError";
+
+const FIELD_LABELS = {
+  "taperPoleStandard.poleType": "Pole Standard",
+  "taperPoleStandard.groundPosition": "Ground Position",
+  "taperPoleStandard.height": "Height",
+  "taperPoleStandard.embedmentLength": "Embedment Length",
+};
 
 const getDefaultPole = () => ({
   taperPoleStandard: { poleType: "", groundPosition: "", height: "" },
@@ -59,7 +67,8 @@ export function useDrawingPoleForm() {
 
     if (!finalIsValid) {
       setErrors(finalErrors);
-      setToast({ message: "Please correct the errors in Pole Input." });
+      setToast({ message: firstErrorMessage(finalErrors, FIELD_LABELS) });
+      scrollToFirstError(finalErrors);
       return null;
     }
     

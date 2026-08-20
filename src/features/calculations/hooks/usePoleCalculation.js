@@ -7,6 +7,7 @@ import {
   validatePoleReport,
 } from "../logic/pole/poleValidation";
 import { executePoleCalculation } from "../logic/pole/poleCalculation";
+import { scrollToFirstError, scrollToFirstNestedError } from "../utils/scrollToError";
 import * as Utils from "../utils";
 
 // Orchestrates pole calculation — validates, calls API, maps errors back to UI
@@ -179,6 +180,21 @@ export function usePoleCalculation({
     if (!validation.isValid) {
       mapErrors(validation);
       showToast(validation.message);
+      
+      if (validation.poleStandardErrors && Object.keys(validation.poleStandardErrors).length > 0) {
+        scrollToFirstError(validation.poleStandardErrors);
+      } else if (validation.poleConfigErrors && Object.keys(validation.poleConfigErrors).length > 0) {
+        scrollToFirstError(validation.poleConfigErrors);
+      } else if (validation.polesErrors && Object.keys(validation.polesErrors).length > 0) {
+        scrollToFirstNestedError(validation.polesErrors, "pole-");
+      } else if (validation.directObjectsErrors && Object.keys(validation.directObjectsErrors).length > 0) {
+        scrollToFirstNestedError(validation.directObjectsErrors, "do-");
+      } else if (validation.overheadWiresErrors && Object.keys(validation.overheadWiresErrors).length > 0) {
+        scrollToFirstNestedError(validation.overheadWiresErrors, "ohw-");
+      } else if (validation.armsErrors && Object.keys(validation.armsErrors).length > 0) {
+        scrollToFirstNestedError(validation.armsErrors, "arm-");
+      }
+      
       return;
     }
 

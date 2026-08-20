@@ -2,9 +2,11 @@ import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useProjectStorage } from "../../../hooks/useProjectStorage";
 import { validateWithYup } from "../../../utils/validation";
+import { scrollToFirstError, firstErrorMessage } from "../../../utils/scrollToError";
 import { CouplingSchema } from "../../../schemas/drawing/CouplingSchema";
 import { CouplingTypeModal } from "../../modals/CouplingTypeModal";
 import { CouplingCaseFormModal } from "../../modals/CouplingCaseFormModal";
+import { ConfirmResetAllModal } from "../../modals/ConfirmResetAllModal";
 import {
   RotateCcw,
   ChevronRight,
@@ -77,6 +79,7 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
   ]);
   const [errors, setErrors] = useState({});
   const [modalState, setModalState] = useState({ isOpen: false, index: null, step: "grid", selectedCaseId: null });
+  const [showResetModal, setShowResetModal] = useState(false);
 
   const handleReset = () => {
     setLocation("");
@@ -96,7 +99,8 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
 
     if (!isValid) {
       setErrors(validationErrors);
-      if (onError) onError("Please correct the errors in Coupling Configuration.");
+      if (onError) onError(firstErrorMessage(validationErrors) || "Please correct the errors in Coupling Configuration.");
+      scrollToFirstError(validationErrors);
       return;
     }
 
@@ -143,7 +147,7 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
       `}</style>
       <div className="p-4 md:p-6 space-y-6 md:space-y-8">
         {/* --- Input Location of Project --- */}
-        <div className="relative">
+        <div id="location" className="relative">
           <SectionTitle>Input Location of Project</SectionTitle>
           <SectionCard>
             <div className="flex flex-col sm:flex-row gap-4">
@@ -188,7 +192,9 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
 
         {/* --- Coupling Input --- */}
         <div>
-          <SectionTitle>Coupling Input</SectionTitle>
+          <div className="flex items-center justify-between mb-4">
+            <SectionTitle>Coupling Input</SectionTitle>
+          </div>
           <SectionCard>
             <div className="mb-8">
               <label className="block text-xs md:text-sm text-gray-700 mb-2 md:mb-3">
@@ -255,6 +261,7 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
                               H{i + 1} (mm)
                             </label>
                             <input
+                              id={`couplings[${i}].height`}
                               type="number"
                               placeholder="0"
                               className={`w-full min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border ${errors[`couplings[${i}].height`]
@@ -325,7 +332,8 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
                           </span>
                         </label>
                         <div className="flex flex-col items-end relative">
-                          <button 
+                          <button
+                            id={`couplings[${i}].caseDetails`}
                             type="button"
                             onClick={() => {
                               if (!location) {
@@ -377,25 +385,45 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
         {/* Footer */}
         <div className="flex justify-between items-center pt-2 mt-4">
           <button
-            onClick={handleReset}
+            onClick={onBack}
             className="flex justify-center items-center gap-2 px-5 py-2.5
-            rounded-lg font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] text-sm 
+            rounded-lg font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] text-sm
             ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm transition-colors"
           >
-            <RotateCcw className="w-4 h-4" />
-            Reset
+            <ChevronLeft className="w-4 h-4" />
+            Back
           </button>
 
-          <button
-            onClick={handleNext}
-            className="flex justify-center items-center gap-2 px-6 py-2.5 
-            rounded-lg font-medium bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white text-sm hover:brightness-110 shadow-sm transition-all"
-          >
-            Save & Continue
-            <ChevronRight className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowResetModal(true)}
+              className="flex justify-center items-center gap-2 px-5 py-2.5
+              rounded-lg font-medium bg-white hover:bg-red-50 text-red-400 text-sm
+              border border-gray-200 hover:border-red-200 shadow-sm transition-colors"
+            >
+              <RotateCcw className="w-4 h-4" />
+              Reset
+            </button>
+
+            <button
+              onClick={handleNext}
+              className="flex justify-center items-center gap-2 px-6 py-2.5
+              rounded-lg font-medium bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white text-sm hover:brightness-110 shadow-sm transition-all"
+            >
+              Save & Continue
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </div>
+
+      <ConfirmResetAllModal
+        open={showResetModal}
+        onClose={() => setShowResetModal(false)}
+        onReset={handleReset}
+        title="Reset all inputs on this section?"
+        description="This will clear all inputs entered in this section. This action cannot be undone."
+      />
       <CouplingTypeModal
         isOpen={modalState.isOpen && modalState.step === "grid"}
         onClose={() => setModalState({ ...modalState, isOpen: false })}

@@ -8,6 +8,7 @@ import {
   Circle,
   ChevronRight,
 } from "lucide-react";
+import { useMasterData } from "../../../../hooks/useMasterData";
 
 /**
  * HELPER COMPONENTS & FUNCTIONS
@@ -47,6 +48,8 @@ export function ArmObjectForm({
   resetCurrentAo,
   handleAddAo,
 }) {
+  const { objectTypeOptions, loading: objectTypesLoading } = useMasterData();
+
   // Convert input to number for validation
   const aoValueNumber = Number(aoCountInput);
 
@@ -384,10 +387,18 @@ export function ArmObjectForm({
                       onChange={(e) =>
                         onUpdate(armObject.idAo, { type: e.target.value })
                       }
+                      disabled={objectTypesLoading}
                       className={`${inputStyle(aoError.type)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] pl-3 2xl:pl-4 pr-8 appearance-none`}
                     >
-                      <option value="omni">Omni</option>
-                      <option value="directional">Directional</option>
+                      {objectTypesLoading ? (
+                        <option value="">Loading...</option>
+                      ) : (
+                        objectTypeOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))
+                      )}
                     </select>
                     <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                       <ChevronRight className="w-4 h-4 text-gray-400 rotate-90" />

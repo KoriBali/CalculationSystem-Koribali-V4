@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useProjectStorage } from "./useProjectStorage";
 import { DrawingFoundationSchema } from "../schemas/drawing/DrawingFoundationSchema";
 import { validateWithYup } from "../utils/validation";
+import { scrollToFirstError, firstErrorMessage } from "../utils/scrollToError";
 
 import * as Utils from "../utils";
 
@@ -112,7 +113,17 @@ export function useDrawingFoundationForm() {
       setSquareCaissonErrors(sqErrors);
       setRoundCaissonErrors(rdErrors);
 
-      showToast("Please correct the errors in Foundation Input.");
+      // Fields render in this order: foundation type selector, then whichever
+      // caisson sub-form is active — match that order when picking what to
+      // report/scroll to first.
+      const activeCaissonErrors =
+        foundationType.type === "round-caisson" ? rdErrors : sqErrors;
+      const firstErrors = validationErrors["foundationType.type"]
+        ? { type: validationErrors["foundationType.type"] }
+        : activeCaissonErrors;
+
+      showToast(firstErrorMessage(firstErrors) || "Please correct the errors in Foundation Input.");
+      scrollToFirstError(firstErrors);
       return null;
     }
 

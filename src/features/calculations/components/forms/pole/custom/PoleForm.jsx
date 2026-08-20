@@ -1,4 +1,5 @@
 import { ChevronRight } from "lucide-react";
+import { useMasterData } from "../../../../hooks/useMasterData";
 
 /**
  * HELPER COMPONENTS & FUNCTIONS
@@ -58,6 +59,7 @@ const UnitInput = ({ value, onChange, unit, hasError, className, ...props }) => 
 
 export function PoleForm({ pole, onUpdate, errors }) {
   const isStraight = pole.type === "Straight";
+  const { materialOptions, loading: materialsLoading } = useMasterData();
 
   return (
     <div>
@@ -74,6 +76,7 @@ export function PoleForm({ pole, onUpdate, errors }) {
             Pole Name
           </label>
           <input
+            id={`pole-${pole.idPole}-name`}
             type="text"
             value={pole.name}
             onChange={(e) => onUpdate({ name: e.target.value })}
@@ -90,15 +93,21 @@ export function PoleForm({ pole, onUpdate, errors }) {
           </label>
           <div className="relative">
             <select
+                id={`pole-${pole.idPole}-material`}
               value={pole.material}
               onChange={(e) => onUpdate({ material: e.target.value })}
+              disabled={materialsLoading}
               className={`${inputStyle(errors.material)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] pl-3 2xl:pl-4 pr-8 appearance-none`}
             >
-              <option value="STK400">STK400</option>
-              <option value="STK490">STK490</option>
-              <option value="STK500">STK500</option>
-              <option value="STK540">STK540</option>
-              <option value="STKR400">STKR400</option>
+              {materialsLoading ? (
+                <option value="">Loading...</option>
+              ) : (
+                materialOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))
+              )}
             </select>
             <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
               <ChevronRight className="w-4 h-4 text-gray-400 rotate-90" />
@@ -114,6 +123,7 @@ export function PoleForm({ pole, onUpdate, errors }) {
           </label>
           <div className="relative">
             <select
+              id={`pole-${pole.idPole}-type`}
               value={pole.type}
               onChange={(e) => {
                 const newType = e.target.value;
@@ -144,6 +154,7 @@ export function PoleForm({ pole, onUpdate, errors }) {
             {isStraight ? "Diameter" : "Lower Diameter"}
           </label>
           <UnitInput
+            id={`pole-${pole.idPole}-lowerDiameter`}
             value={pole.lowerDiameter}
             onChange={(e) =>
               onUpdate({
@@ -168,6 +179,7 @@ export function PoleForm({ pole, onUpdate, errors }) {
               Upper Diameter
             </label>
             <UnitInput
+              id={`pole-${pole.idPole}-upperDiameter`}
               value={pole.upperDiameter}
               onChange={(e) => onUpdate({ upperDiameter: e.target.value })}
               unit="mm"
@@ -184,6 +196,7 @@ export function PoleForm({ pole, onUpdate, errors }) {
             {isStraight ? "Thickness" : "Lower Thickness"}
           </label>
           <UnitInput
+            id={`pole-${pole.idPole}-lowerThickness`}
             value={pole.lowerThickness}
             onChange={(e) =>
               onUpdate({
@@ -208,6 +221,7 @@ export function PoleForm({ pole, onUpdate, errors }) {
               Upper Thickness
             </label>
             <UnitInput
+              id={`pole-${pole.idPole}-upperThickness`}
               value={pole.upperThickness}
               onChange={(e) => onUpdate({ upperThickness: e.target.value })}
               unit="mm"
@@ -224,6 +238,7 @@ export function PoleForm({ pole, onUpdate, errors }) {
             Height (Z/H)
           </label>
           <UnitInput
+            id={`pole-${pole.idPole}-zHeight`}
             value={pole.zHeight}
             onChange={(e) => onUpdate({ zHeight: e.target.value })}
             unit="mm"
@@ -239,6 +254,7 @@ export function PoleForm({ pole, onUpdate, errors }) {
             Quantity
           </label>
           <UnitInput
+            id={`pole-${pole.idPole}-quantity`}
             value={pole.quantity}
             onChange={(e) => onUpdate({ quantity: e.target.value })}
             unit="pcs"

@@ -3,6 +3,17 @@ import { useNavigate, useParams } from "react-router-dom";
 import { validateWithYup } from "../utils/validation";
 import { SurfaceSchema } from "../schemas/drawing/SurfaceSchema";
 import { useProjectStorage } from "./useProjectStorage";
+import { scrollToFirstError, firstErrorMessage } from "../utils/scrollToError";
+
+const FIELD_LABELS = {
+  surfaceTreatmentType: "Pole Surface Treatment Option",
+  platingType: "Plating Type",
+  specificPlatingTypeCode: "Specific Plating Type Code",
+  paintingType: "Painting Type",
+  colorName: "Color Name",
+  munsellValue: "Munsell Value",
+  colorCode: "Color Code",
+};
 
 const getDefaultSurface = () => ({
   surfaceTreatmentType: "Plating Only",
@@ -31,7 +42,7 @@ export function useSurfaceForm() {
   const handleUpdate = (updates) => {
     const newSurface = { ...localSurface, ...updates };
     setLocalSurface(newSurface);
-    setSurface(newSurface); // Sync to sessionStorage immediately so "Save Draft" works
+    setSurface(newSurface);
 
     setErrors((prev) => {
       const cleared = { ...prev };
@@ -43,7 +54,7 @@ export function useSurfaceForm() {
   const handleReset = () => {
     const emptySurface = getDefaultSurface();
     setLocalSurface(emptySurface);
-    setSurface(emptySurface); // Reset sessionStorage as well
+    setSurface(emptySurface);
     setErrors({});
   };
 
@@ -55,9 +66,13 @@ export function useSurfaceForm() {
 
     if (!isValid) {
       setErrors(validationErrors);
-      setToast({ message: "Please correct the errors in Surface Input." });
+      setToast({ message: firstErrorMessage(validationErrors, FIELD_LABELS) });
+      scrollToFirstError(validationErrors);
       return;
     }
+    
+    setSurface(localSurface);
+    sessionStorage.setItem(`${projectType}_drawing_completed`, "true");
     
     // Allow the view to handle the next step (e.g. Finish Modal)
     return "OPEN_FINISH";

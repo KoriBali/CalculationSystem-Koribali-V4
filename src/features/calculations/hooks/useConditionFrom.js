@@ -9,8 +9,16 @@ import {
   cleanupDisabledComponents,
 } from "../logic/initial-setup/conditionLogic";
 import { useProjectStorage } from "./useProjectStorage";
+import { scrollToFirstError, firstErrorMessage } from "../utils/scrollToError";
 
 // ─── CONSTANTS ───────────────────────────────────────────────────────────────
+
+const FIELD_LABELS = {
+  designStandard: "Design Standard",
+  designWindSpeed: "Design Wind Speed",
+  designAirDensity: "Air Density",
+  poleType: "Pole Type",
+};
 
 const getDefaultCondition = (projectType) => ({
   designStandard: "",
@@ -61,7 +69,8 @@ export function useConditionForm() {
 
     if (!validation.isValid) {
       setErrors(validation.errors); // Yup langsung set error yang benar
-      setToast({ message: validation.message });
+      setToast({ message: firstErrorMessage(validation.errors, FIELD_LABELS) || validation.message });
+      scrollToFirstError(validation.errors);
       return;
     }
 

@@ -1,5 +1,3 @@
-import { TPL_MAP } from "../../../constants/straightPoleStandardOptions";
-
 // Returns upper pole thickness options based on upper pole height
 export function getUpperThicknessOptions(height) {
   if (height === 10) return [2.3, 3.2];
@@ -12,14 +10,16 @@ export function getUpperThicknessOptions(height) {
   return [];
 }
 
-// Derives upper and lower thickness options from selected combination (e.g. "40-10")
-export function getThicknessOptions(combination) {
+// Derives upper and lower thickness options from selected combination (e.g. "40-10").
+// tplMap is keyed by the lower pole diameter code (e.g. "40") -> thickness list,
+// sourced from /api/master/pole-standards (see usePoleStandardData).
+export function getThicknessOptions(combination, tplMap) {
   if (!combination) return { upper: [], lower: [] };
 
   const [diameter, height] = combination.split("-").map(Number);
 
   return {
     upper: getUpperThicknessOptions(height),
-    lower: TPL_MAP[diameter] || [],
+    lower: (tplMap && tplMap[diameter]) || [],
   };
 }

@@ -5,6 +5,7 @@ import { useProjectStorage } from "./useProjectStorage";
 import { validateOpening } from "../logic/opening/openingValidation";
 import { executeOpeningCalculation } from "../logic/opening/openingCalculation";
 import * as Utils from "../utils";
+import { scrollToFirstError, firstErrorMessage } from "../utils/scrollToError";
 
 // ─── CONSTANTS ───────────────────────────────────────────────────────────────
 
@@ -162,7 +163,11 @@ export function useOpeningForm() {
       setOpeningTypeErrors(validation.typeErrors || {});
       setBoxTypeErrors(validation.boxErrors || {});
       setRTypeErrors(validation.rErrors || {});
-      showToast(validation.message);
+
+      const firstErrors =
+        validation.typeErrors || validation.boxErrors || validation.rErrors || {};
+      showToast(firstErrorMessage(firstErrors) || validation.message);
+      scrollToFirstError(firstErrors);
       return;
     }
 

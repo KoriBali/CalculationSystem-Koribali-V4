@@ -34,12 +34,13 @@ export function OpeningType({ openingType, onUpdate, errors }) {
         <div className="relative">
           <div className="relative">
             <select
+              id="type"
               value={openingType.type}
               onChange={(e) => onUpdate({ type: e.target.value })}
               className={`${inputStyle(errors.type)} lg:pl-3 xl:pl-4 pr-8 lg:pr-8 xl:pr-8 min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] appearance-none`}
             >
               <option value="" disabled>
-                Select Opening Part Type
+                Select Opening Type
               </option>
 
               <option value="box">Box Type</option>

@@ -966,8 +966,16 @@ export default function PoleFormView() {
 
           {/* ── Calculate / Finish footer ── */}
           <div className="flex items-center justify-between p-5 mt-12 mb-20 bg-gradient-to-b from-white to-slate-50 rounded-2xl hp:rounded-xl border border-gray-200 shadow-sm hp:gap-2">
-            {/* Left spacer to keep the Calculate button centered on mobile (matching the Reset button space in BoxTypeForm) */}
-            <div className="w-[120px] hp:w-[36px] flex-shrink-0" />
+            {/* Back => returns to Initial Input step */}
+            <button
+              onClick={() => navigate(`/calculation/${projectType}/${draftId}/initial`)}
+              className="flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-3 hp:py-2 md:px-6
+              rounded-lg hp:rounded-md font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] text-sm
+              ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm transition-colors flex-shrink-0"
+            >
+              <ChevronLeft className="w-4 md:w-5 h-4 md:h-5 hp:w-4 hp:h-4" />
+              <span className="hp:hidden">Back</span>
+            </button>
 
             <button
               onClick={calculation.calculate}
@@ -990,7 +998,9 @@ export default function PoleFormView() {
                 ${
                   !calculation.isCalculated
                     ? "bg-gray-100 text-gray-400 ring-1 ring-inset ring-gray-200 cursor-not-allowed shadow-none"
-                    : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
+                    : calculation.buttonLabel === "Next Input"
+                      ? "bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm"
+                      : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
                 }`}
               >
                 <span className="hp:hidden">{calculation.buttonLabel}</span>

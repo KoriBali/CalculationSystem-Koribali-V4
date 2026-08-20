@@ -36,6 +36,10 @@ export default function DrawingPolePage() {
     }
   };
 
+  const onBack = () => {
+    navigate(`/calculation/${projectType}/${draftId}/drawing/general`);
+  };
+
   return (
     <>
       <div className="flex flex-col h-full">
@@ -80,6 +84,7 @@ export default function DrawingPolePage() {
                 pole={localPole}
                 onUpdate={handleUpdate}
                 onReset={handleReset}
+                onBack={onBack}
                 onNext={onNextStep}
                 errors={errors}
                 onToast={setToast}

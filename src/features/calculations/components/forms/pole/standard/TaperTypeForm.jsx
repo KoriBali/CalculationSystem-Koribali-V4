@@ -1,10 +1,10 @@
 import { useEffect } from "react";
 import { RotateCcw, Box, ChevronRight } from "lucide-react";
 import {
-  POLE_STANDARD_OPTIONS,
   HEIGHT_OPTIONS_BY_STANDARD,
   GROUND_POSITION_OPTIONS,
 } from "../../../../constants/taperPoleStandradOptions";
+import { usePoleStandardData } from "../../../../hooks/usePoleStandardData";
 
 // === IMAGES (12 cases: 6 pole types × 2 ground positions) ===
 const DIAGRAM_IMAGE_MAP = {
@@ -34,6 +34,29 @@ const DIAGRAM_IMAGE_MAP = {
   },
 };
 
+// Embedment variant (used when !isBaseplate) for each pole type
+const EMBED_IMAGE_MAP = Object.fromEntries(
+  Object.keys(DIAGRAM_IMAGE_MAP).map((type) => [type, `/images/${type}-Type-Embed.svg`])
+);
+
+const ALL_DIAGRAM_IMAGES = [
+  ...Object.values(DIAGRAM_IMAGE_MAP).flatMap((byGround) => Object.values(byGround)),
+  ...Object.values(EMBED_IMAGE_MAP),
+];
+
+// Module-level so the 18 SVGs are only ever fetched once per browser session,
+// even if this form mounts/unmounts multiple times while navigating.
+const preloadedDiagrams = new Set();
+
+const preloadDiagrams = (urls) => {
+  urls.forEach((src) => {
+    if (preloadedDiagrams.has(src)) return;
+    preloadedDiagrams.add(src);
+    const img = new Image();
+    img.src = src;
+  });
+};
+
 // === HELPERS ===
 const SectionTitle = ({ children }) => (
   <h3 className="text-[#0d3b66] mb-4 flex items-center gap-2 text-xs md:text-sm font-medium hp:text-xs hp:gap-1">
@@ -51,11 +74,22 @@ const EMPTY_POLE_STANDARD = {
 };
 
 export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset = false, isBaseplate = true }) {
+  const { poleStandardOptions } = usePoleStandardData();
+
   useEffect(() => {
     if (!isBaseplate && taperPoleStandard.poleType && taperPoleStandard.groundPosition !== "underGL") {
       onUpdate({ groundPosition: "underGL", height: "" });
     }
   }, [isBaseplate, taperPoleStandard.poleType, taperPoleStandard.groundPosition, onUpdate]);
+
+  // Warm the browser cache with every pole diagram in the background so
+  // switching pole type / ground position later never shows a blank flash.
+  useEffect(() => {
+    const idle = window.requestIdleCallback || ((cb) => setTimeout(cb, 200));
+    const cancelIdle = window.cancelIdleCallback || clearTimeout;
+    const id = idle(() => preloadDiagrams(ALL_DIAGRAM_IMAGES));
+    return () => cancelIdle(id);
+  }, []);
   const currentHeightOptions =
     HEIGHT_OPTIONS_BY_STANDARD[taperPoleStandard.poleType] ??
     EMPTY_HEIGHT_OPTIONS;
@@ -63,7 +97,7 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
   const currentImage =
     taperPoleStandard.poleType && taperPoleStandard.groundPosition
       ? (!isBaseplate && taperPoleStandard.groundPosition === "underGL"
-        ? `/images/${taperPoleStandard.poleType}-Type-Embed.svg`
+        ? EMBED_IMAGE_MAP[taperPoleStandard.poleType]
         : DIAGRAM_IMAGE_MAP[taperPoleStandard.poleType]?.[
         taperPoleStandard.groundPosition
         ] ?? null)
@@ -80,20 +114,20 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
     <div className="bg-white px-4 md:px-6 pb-6 rounded-b-2xl hp:rounded-b-xl">
       {/* ── Section title ── */}
       <div className="mb-4">
-        <SectionTitle>Pole Standard Configuration</SectionTitle>
+        <SectionTitle>Pole Configuration</SectionTitle>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-4 hp:gap-3">
         {/* ── LEFT: Pole Type ── */}
-        <div className="border border-slate-200 rounded-xl hp:rounded-lg bg-white shadow-sm overflow-hidden flex flex-col">
+        <div id="taperPoleStandard.poleType" className="border border-slate-200 rounded-xl hp:rounded-lg bg-white shadow-sm overflow-hidden flex flex-col">
           <div className="px-4 py-3 border-b border-slate-100 bg-slate-50 flex-shrink-0">
             <p className="text-xs md:text-sm font-medium text-slate-500">
-              Select Pole Standard
+              Pole Standard Type
             </p>
           </div>
 
           <div className="p-4 grid grid-cols-2 gap-4 flex-1 md:flex md:flex-col">
-            {POLE_STANDARD_OPTIONS.map((option) => {
+            {poleStandardOptions.map((option) => {
               const isActive = taperPoleStandard.poleType === option.id;
               return (
                 <button
@@ -122,7 +156,7 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
         {/* ── RIGHT: Ground Position + Diagram ── */}
         <div className="border border-slate-200 rounded-xl hp:rounded-lg bg-white shadow-sm overflow-hidden flex flex-col">
           {/* ── Ground position header ── */}
-          <div className="px-4 py-3 border-b border-slate-100 bg-slate-50 flex flex-col xl:flex-row items-start xl:items-center gap-3 xl:gap-4 flex-shrink-0">
+          <div id="taperPoleStandard.groundPosition" className="px-4 py-3 border-b border-slate-100 bg-slate-50 flex flex-col xl:flex-row items-start xl:items-center gap-3 xl:gap-4 flex-shrink-0">
             <p className="text-xs md:text-sm font-medium text-slate-500 flex-shrink-0">
               Ground Position
             </p>
@@ -208,6 +242,7 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
                     </span>
                     <div className="relative">
                       <select
+                        id="taperPoleStandard.height"
                         value={taperPoleStandard.height}
                         onChange={(e) => onUpdate({ height: e.target.value })}
                         className="w-full px-1 md:px-3 py-2 lg:py-2.5 border border-gray-300 rounded-lg hp:rounded-md text-xs md:text-sm min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] focus:border-[#1D4ED8] outline-none transition-all bg-white appearance-none"
@@ -248,6 +283,7 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
                     </span>
                     <div className="relative">
                       <input
+                        id="taperPoleStandard.embedmentLength"
                         type="number"
                         min="0"
                         value={taperPoleStandard.embedmentLength || ""}
@@ -274,7 +310,7 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
                 </p>
                 <p className="text-xs md:text-sm text-slate-400 leading-relaxed max-w-[300px]">
                   {isGroundDisabled
-                    ? "Select a pole standard, then choose a ground position to unlock the diagram and height input."
+                    ? "Select a standard type to continue. Ground position and pole dimensions will become available."
                     : "Choose a ground position to view the diagram and fill in the height of structure."}
                 </p>
               </div>

@@ -11,15 +11,9 @@ import { resetScrollDirection } from "../../../hooks/useScrollDirection";
 
 // ─── HELPERS ────────────────────────────────────────────────────────────────
 
-// Formats sessionStorage projectType into a readable title (e.g. "lighting-pole" → "Lighting Pole Type")
 function formatProjectType(type) {
   if (!type) return null;
-  return (
-    type
-      .split("-")
-      .map((w) => w[0].toUpperCase() + w.slice(1))
-      .join(" ") + " Type"
-  );
+  return type.split("-").join(" ");
 }
 
 // ─── COMPONENT ───────────────────────────────────────────────────────────────
@@ -41,12 +35,14 @@ export default function Layout() {
   const projectType = sessionStorage.getItem("projectType");
   const formattedProjectType = formatProjectType(projectType);
   const isCalculationRoot = location.pathname === "/calculation";
-  let currentTitle = "Page Not Found";
+  
+  let currentTitle;
   if (isCalculationRoot) {
     currentTitle = MENU_ITEMS.find((item) => item.path === "/calculation")?.name ?? "Calculation";
   } else if (location.pathname.startsWith("/calculation") && formattedProjectType) {
+    let stage = "";
     if (location.pathname.includes("/drawing")) {
-      currentTitle = `${formattedProjectType} - Drawing`;
+      stage = "Drawing";
     } else if (
       location.pathname.includes("/initial") ||
       location.pathname.includes("/pole") ||
@@ -54,10 +50,20 @@ export default function Layout() {
       location.pathname.includes("/baseplate") ||
       location.pathname.includes("/foundation")
     ) {
-      currentTitle = `${formattedProjectType} - Calculation`;
+      stage = "Calculation";
+    } else if (
+      location.pathname.includes("/report") || 
+      location.pathname.includes("/result")
+    ) {
+      stage = "Report Preview";
     } else {
-      currentTitle = formattedProjectType;
+      // Check if we're on the drafts list page (/calculation/:type) vs inside a draft
+      const pathParts = location.pathname.replace(/\/$/, "").split("/");
+      // /calculation/:type has 3 parts: ["", "calculation", ":type"]
+      const isDraftsList = pathParts.length === 3;
+      stage = isDraftsList ? "Drafts" : "Project Setup";
     }
+    currentTitle = { global: formattedProjectType, stage };
   } else {
     currentTitle = MENU_ITEMS.find((item) => location.pathname.startsWith(item.path))?.name ?? "Page Not Found";
   }

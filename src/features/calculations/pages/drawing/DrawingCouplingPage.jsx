@@ -13,7 +13,16 @@ export default function DrawingCouplingPage() {
   const [toast, setToast] = useState(null);
 
   const handleBack = () => {
-    navigate(`/calculation/${projectType}/${draftId}/drawing/general`);
+    const general = JSON.parse(sessionStorage.getItem(`${projectType}_drawing_general`) || "{}");
+    if (general?.additionalComponents?.foundation) {
+      navigate(`/calculation/${projectType}/${draftId}/drawing/foundation`);
+    } else if (general?.additionalComponents?.baseplate) {
+      navigate(`/calculation/${projectType}/${draftId}/drawing/baseplate`);
+    } else if (general?.additionalComponents?.opening) {
+      navigate(`/calculation/${projectType}/${draftId}/drawing/opening`);
+    } else {
+      navigate(`/calculation/${projectType}/${draftId}/drawing/pole`);
+    }
   };
 
   const handleNext = () => {

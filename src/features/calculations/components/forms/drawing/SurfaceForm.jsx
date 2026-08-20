@@ -1,4 +1,6 @@
-import { RotateCcw, ChevronRight, CheckCircle, Circle, Sparkles, PaintBucket } from "lucide-react";
+import { RotateCcw, ChevronLeft, ChevronRight, CheckCircle, Circle, Sparkles, PaintBucket } from "lucide-react";
+import { useState } from "react";
+import { ConfirmResetAllModal } from "../../modals/ConfirmResetAllModal";
 
 /**
  * HELPER COMPONENTS & FUNCTIONS
@@ -67,7 +69,9 @@ const CardOption = ({ label, icon: Icon, current, value, onChange }) => {
   );
 };
 
-export function SurfaceForm({ surface, onUpdate, onReset, onFinish, errors }) {
+export function SurfaceForm({ surface, onUpdate, onReset, onBack, onFinish, errors }) {
+  const [showResetModal, setShowResetModal] = useState(false);
+
   const handleSurfaceTreatmentChange = (val) => {
     const updates = { surfaceTreatmentType: val };
     if (val === "Plating Only") {
@@ -114,12 +118,14 @@ export function SurfaceForm({ surface, onUpdate, onReset, onFinish, errors }) {
 
         {/* ── Surface Treatment ── */}
         <div>
-          <SectionTitle>Surface Treatment of Pole</SectionTitle>
+          <div className="flex items-center justify-between mb-4">
+            <SectionTitle>Surface Treatment of Pole</SectionTitle>
+          </div>
           <SectionCard>
             <div className="space-y-6 md:space-y-8">
 
               {/* 1. Selection */}
-              <div>
+              <div id="surfaceTreatmentType">
                 <label className="block text-xs md:text-sm font-medium text-gray-800 mb-3">
                   Pole Surface Treatment Option
                 </label>
@@ -151,6 +157,7 @@ export function SurfaceForm({ surface, onUpdate, onReset, onFinish, errors }) {
                   </label>
                   <div className="relative">
                     <select
+                      id="platingType"
                       value={surface.platingType || ""}
                       onChange={(e) => handlePlatingTypeChange(e.target.value)}
                       className={`${inputStyle(errors.platingType)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] cursor-pointer appearance-none`}
@@ -171,6 +178,7 @@ export function SurfaceForm({ surface, onUpdate, onReset, onFinish, errors }) {
                     Specific Plating Type Code
                   </label>
                   <input
+                    id="specificPlatingTypeCode"
                     type="text"
                     placeholder="ex: HDZT63, HZTD, etc"
                     value={surface.specificPlatingTypeCode || ""}
@@ -196,6 +204,7 @@ export function SurfaceForm({ surface, onUpdate, onReset, onFinish, errors }) {
                         </label>
                         <div className="relative">
                           <select
+                            id="paintingType"
                             value={surface.paintingType || ""}
                             onChange={(e) => handlePaintingTypeChange(e.target.value)}
                             className={`${inputStyle(errors.paintingType)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] cursor-pointer appearance-none`}
@@ -224,6 +233,7 @@ export function SurfaceForm({ surface, onUpdate, onReset, onFinish, errors }) {
                           <div className="relative pb-1">
                             <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">Color Name</label>
                             <input
+                              id="colorName"
                               type="text"
                               value={surface.colorName || ""}
                               onChange={(e) => onUpdate({ colorName: e.target.value })}
@@ -234,6 +244,7 @@ export function SurfaceForm({ surface, onUpdate, onReset, onFinish, errors }) {
                           <div className="relative pb-1">
                             <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">Munsell value</label>
                             <input
+                              id="munsellValue"
                               type="text"
                               value={surface.munsellValue || ""}
                               onChange={(e) => onUpdate({ munsellValue: e.target.value })}
@@ -244,6 +255,7 @@ export function SurfaceForm({ surface, onUpdate, onReset, onFinish, errors }) {
                           <div className="relative pb-1">
                             <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">Color code</label>
                             <input
+                              id="colorCode"
                               type="text"
                               value={surface.colorCode || ""}
                               onChange={(e) => onUpdate({ colorCode: e.target.value })}
@@ -281,25 +293,45 @@ export function SurfaceForm({ surface, onUpdate, onReset, onFinish, errors }) {
         {/* Footer */}
         <div className="flex justify-between items-center pt-4 md:pt-0">
           <button
-            onClick={onReset}
+            onClick={onBack}
             className="flex justify-center items-center gap-2 px-5 py-2.5 md:px-6
-            rounded-lg hp:rounded-md font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] text-xs sm:text-sm 
+            rounded-lg hp:rounded-md font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] text-xs sm:text-sm
             ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm transition-colors"
           >
-            <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-            Reset
+            <ChevronLeft className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+            Back
           </button>
 
-          <button
-            onClick={onFinish}
-            className="flex justify-center items-center gap-2 px-5 py-2.5 md:px-6 
-            rounded-lg hp:rounded-md font-medium bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white text-xs md:text-sm hover:brightness-110 shadow-sm transition-all"
-          >
-            Finish
-            <ChevronRight className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowResetModal(true)}
+              className="flex justify-center items-center gap-2 px-5 py-2.5 md:px-6
+              rounded-lg hp:rounded-md font-medium bg-white hover:bg-red-50 text-red-400 text-xs sm:text-sm
+              border border-gray-200 hover:border-red-200 shadow-sm transition-colors"
+            >
+              <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+              Reset
+            </button>
+
+            <button
+              onClick={onFinish}
+              className="flex justify-center items-center gap-2 px-5 py-2.5 md:px-6
+              rounded-lg hp:rounded-md font-medium bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white text-xs md:text-sm hover:brightness-110 shadow-sm transition-all"
+            >
+              Finish
+              <ChevronRight className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+            </button>
+          </div>
         </div>
       </div>
+
+      <ConfirmResetAllModal
+        open={showResetModal}
+        onClose={() => setShowResetModal(false)}
+        onReset={onReset}
+        title="Reset all inputs on this section?"
+        description="This will clear all inputs entered in this section. This action cannot be undone."
+      />
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Helmet } from "react-helmet";
-import { ArrowLeft, FileText, FileEdit, Plus, Trash2, Edit3 } from "lucide-react";
+import { ArrowLeft, FileText, FileEdit, Plus, Trash2, Edit3, Hash, Building2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { getDraftsIndex, deleteDraft, handleSessionTransition } from "../utils/coreLogic";
 import { ConfirmDeleteModal } from "../components/modals/ConfirmDeleteModal";
@@ -110,7 +110,7 @@ export default function DraftsDashboardPage() {
               {formattedType} Drafts
             </h1>
             <p className="text-slate-500 mt-1 text-sm">
-              Manage your recent calculations or start a new one (Limit: {drafts.length}/6).
+              Manage your recent calculations or start a new one ({drafts.length}/6 drafts used).
             </p>
           </div>
 
@@ -152,7 +152,7 @@ export default function DraftsDashboardPage() {
               variants={containerVariants}
               initial="hidden"
               animate="visible"
-              className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6"
+              className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6"
             >
               {drafts.map((draft) => (
                 <motion.div
@@ -174,13 +174,36 @@ export default function DraftsDashboardPage() {
                     <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#f0f4f8] to-[#e6eef5] text-[#2b6cb0] flex items-center justify-center shrink-0 border border-white shadow-sm">
                       <FileEdit className="w-5.5 h-5.5" strokeWidth={1.75} />
                     </div>
-                    <div className="pr-8 w-full mt-0.5">
-                      <h3 className="text-slate-900 font-bold text-[15px] leading-tight mb-0.5 group-hover:text-[#0d3b66] transition-colors line-clamp-1">
-                        {draft.title || "Untitled"}
+                    <div className="pr-4 w-full mt-0.5 mb-5">
+                      <h3 className="text-slate-900 font-bold text-base leading-tight mb-3 group-hover:text-[#0d3b66] transition-colors line-clamp-1">
+                        {draft.title || "Untitled Project"}
                       </h3>
-                      <p className="text-slate-500 text-[13px] line-clamp-1">
-                        {draft.subtitle || "No request number"}
-                      </p>
+                      
+                      <div className="grid grid-cols-1 gap-2.5">
+                        <div className="flex items-center gap-2 text-[13px] text-slate-600">
+                           <div className="flex items-center gap-1.5 w-[90px] text-slate-400">
+                             <FileText className="w-3.5 h-3.5" />
+                             <span>Req No</span>
+                           </div>
+                           <span className="font-medium text-slate-800 truncate">{draft.requestNo || draft.subtitle || "-"}</span>
+                        </div>
+
+                        <div className="flex items-center gap-2 text-[13px] text-slate-600">
+                           <div className="flex items-center gap-1.5 w-[90px] text-slate-400">
+                             <Hash className="w-3.5 h-3.5" />
+                             <span>Project No</span>
+                           </div>
+                           <span className="font-medium text-slate-800 truncate">{draft.projectNo || "-"}</span>
+                        </div>
+
+                        <div className="flex items-center gap-2 text-[13px] text-slate-600">
+                           <div className="flex items-center gap-1.5 w-[90px] text-slate-400">
+                             <Building2 className="w-3.5 h-3.5" />
+                             <span>Company</span>
+                           </div>
+                           <span className="font-medium text-slate-800 truncate">{draft.companyName || "-"}</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
 

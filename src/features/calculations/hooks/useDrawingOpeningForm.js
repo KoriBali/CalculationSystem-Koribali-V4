@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useProjectStorage } from "./useProjectStorage";
 import * as Yup from "yup";
 import { validateWithYup } from "../utils/validation";
+import { scrollToFirstError, firstErrorMessage } from "../utils/scrollToError";
 
 const DrawingOpeningSchema = Yup.object().shape({
   height: Yup.number()
@@ -64,7 +65,8 @@ export function useDrawingOpeningForm() {
 
     if (!isValid) {
       setErrors(validationErrors);
-      setToast({ message: "Please correct the errors in Opening Input." });
+      setToast({ message: firstErrorMessage(validationErrors) });
+      scrollToFirstError(validationErrors);
       return null;
     }
     

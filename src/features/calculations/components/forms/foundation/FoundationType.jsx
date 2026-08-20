@@ -33,6 +33,7 @@ export function FoundationType({ foundationType, onUpdate, errors }) {
         <div className="relative">
           <div className="relative">
             <select
+              id="type"
               value={foundationType.type}
               onChange={(e) => onUpdate({ type: e.target.value })}
               className={`${inputStyle(errors.type)} lg:pl-3 xl:pl-4 pr-8 lg:pr-8 xl:pr-8 min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] appearance-none`}

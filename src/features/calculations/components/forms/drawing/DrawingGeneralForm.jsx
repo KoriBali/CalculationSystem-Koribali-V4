@@ -1,5 +1,6 @@
 import { RotateCcw, ChevronRight, CheckCircle, Circle, FileText, Settings2, Link, XCircle, DoorOpen, Layers } from "lucide-react";
 import { BaseplateIcon } from "../../../../../assets/icon";
+import { useMasterData } from "../../../hooks/useMasterData";
 
 const ToggleCard = ({ label, icon, enabled, onToggle, disabled = false }) => {
   return (
@@ -8,10 +9,9 @@ const ToggleCard = ({ label, icon, enabled, onToggle, disabled = false }) => {
       className={`relative overflow-hidden rounded-lg border px-3 xl:px-4 py-2 lg:py-3 transition-all duration-300
         ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}
         ${disabled && !enabled ? 'bg-slate-100 opacity-60' : ''}
-        ${
-          enabled
-            ? "border-blue-500 bg-white shadow-sm ring-1 ring-blue-50"
-            : disabled
+        ${enabled
+          ? "border-blue-500 bg-white shadow-sm ring-1 ring-blue-50"
+          : disabled
             ? "border-slate-200"
             : "border-slate-200 bg-slate-50/50 hover:border-slate-300 hover:bg-slate-50"
         }
@@ -47,7 +47,7 @@ const ToggleCard = ({ label, icon, enabled, onToggle, disabled = false }) => {
   );
 };
 
-const CardOption = ({ label, icon: Icon, current, value, onChange }) => {
+const CardOption = ({ label, desc, icon: Icon, current, value, onChange }) => {
   const isActive = current === value;
   return (
     <button
@@ -63,9 +63,16 @@ const CardOption = ({ label, icon: Icon, current, value, onChange }) => {
         <div className={`p-1.5 rounded-md ${isActive ? "bg-blue-100 text-blue-600" : "bg-slate-100 text-slate-500"}`}>
           <Icon className="w-4 h-4 md:w-4.5 md:h-4.5" />
         </div>
-        <p className={`text-[12px] md:text-sm font-medium ${isActive ? "text-slate-900" : "text-slate-700"}`}>
-          {label}
-        </p>
+        <div className="flex flex-col items-start">
+          <p className={`text-[12px] md:text-sm font-medium ${isActive ? "text-slate-900" : "text-slate-700"}`}>
+            {label}
+          </p>
+          {desc && (
+            <p className={`text-[11px] md:text-xs mt-0.5 ${isActive ? "text-slate-500" : "text-slate-400"}`}>
+              {desc}
+            </p>
+          )}
+        </div>
       </div>
       <div className="shrink-0 ml-2 flex items-center">
         {isActive ? (
@@ -106,6 +113,8 @@ const SectionCard = ({ children }) => (
 );
 
 export function DrawingGeneralForm({ general, onUpdate, onReset, onNext, errors, projectMode }) {
+  const { lightingCompanyOptions, loading: lightingCompaniesLoading } = useMasterData();
+
   return (
     <div className="bg-white rounded-b-2xl hp:rounded-b-xl shadow-sm border border-gray-200">
       <div className="p-4 md:p-6 shadow-sm space-y-4 md:space-y-6">
@@ -118,6 +127,7 @@ export function DrawingGeneralForm({ general, onUpdate, onReset, onNext, errors,
               <div className="relative pb-1">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">Drawing Type</label>
                 <input
+                  id="drawingType"
                   type="text"
                   value={general.drawingType || ""}
                   onChange={(e) => onUpdate({ drawingType: e.target.value })}
@@ -129,6 +139,7 @@ export function DrawingGeneralForm({ general, onUpdate, onReset, onNext, errors,
               <div className="relative pb-1">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">Drawing Number</label>
                 <input
+                  id="drawingNumber"
                   type="text"
                   value={general.drawingNumber || ""}
                   onChange={(e) => onUpdate({ drawingNumber: e.target.value })}
@@ -140,6 +151,7 @@ export function DrawingGeneralForm({ general, onUpdate, onReset, onNext, errors,
               <div className="relative pb-1">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">Part Number</label>
                 <input
+                  id="partNumber"
                   type="text"
                   value={general.partNumber || ""}
                   onChange={(e) => onUpdate({ partNumber: e.target.value })}
@@ -152,14 +164,20 @@ export function DrawingGeneralForm({ general, onUpdate, onReset, onNext, errors,
                 <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">Lighting Company Name</label>
                 <div className="relative">
                   <select
+                    id="lightingCompanyName"
                     value={general.lightingCompanyName || ""}
                     onChange={(e) => onUpdate({ lightingCompanyName: e.target.value })}
+                    disabled={lightingCompaniesLoading}
                     className={`${inputStyle(errors.lightingCompanyName)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] cursor-pointer appearance-none`}
                   >
-                    <option value="" disabled>Select Lighting Company</option>
-                    <option value="Koito (LEV-1761A22)">Koito (LEV-1761A22)</option>
-                    <option value="Iwasaki (E77257SAJ9)">Iwasaki (E77257SAJ9)</option>
-                    <option value="Panasonic (NYR30031LF9)">Panasonic (NYR30031LF9)</option>
+                    <option value="" disabled>
+                      {lightingCompaniesLoading ? "Loading..." : "Select Lighting Company"}
+                    </option>
+                    {lightingCompanyOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
                   </select>
                   <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                     <ChevronRight className="w-4 h-4 text-gray-400 rotate-90" />
@@ -192,6 +210,7 @@ export function DrawingGeneralForm({ general, onUpdate, onReset, onNext, errors,
               <div className="relative pb-1">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">Designer Name</label>
                 <input
+                  id="designerName"
                   type="text"
                   value={general.designerName || ""}
                   onChange={(e) => onUpdate({ designerName: e.target.value })}
@@ -203,6 +222,7 @@ export function DrawingGeneralForm({ general, onUpdate, onReset, onNext, errors,
               <div className="relative pb-1">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">Checked By Name</label>
                 <input
+                  id="checkedByName"
                   type="text"
                   value={general.checkedByName || ""}
                   onChange={(e) => onUpdate({ checkedByName: e.target.value })}
@@ -214,6 +234,7 @@ export function DrawingGeneralForm({ general, onUpdate, onReset, onNext, errors,
               <div className="relative pb-1">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">Approved By Name</label>
                 <input
+                  id="approvedByName"
                   type="text"
                   value={general.approvedByName || ""}
                   onChange={(e) => onUpdate({ approvedByName: e.target.value })}
@@ -229,17 +250,18 @@ export function DrawingGeneralForm({ general, onUpdate, onReset, onNext, errors,
           <>
             {/* ── Select Pole Type ── */}
             <div>
-              <SectionTitle>Select Pole Type</SectionTitle>
+              <SectionTitle>Pole Type</SectionTitle>
               <SectionCard>
-                <div className="relative pb-2">
+                <div id="poleType" className="relative pb-2">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <CardOption
-                      label="Lighting Pole Standard"
+                      label="Standard Pole"
+                      desc="Use predefined pole specifications."
                       icon={FileText}
-                      value="Lighting Pole Standard"
+                      value="Standard Pole"
                       current={general.poleType}
                       onChange={(val) => {
-                        onUpdate({ 
+                        onUpdate({
                           poleType: val,
                           additionalComponents: {
                             ...(general.additionalComponents || {}),
@@ -250,6 +272,7 @@ export function DrawingGeneralForm({ general, onUpdate, onReset, onNext, errors,
                     />
                     <CardOption
                       label="Custom Pole"
+                      desc="Define your own pole specifications."
                       icon={Settings2}
                       value="Custom Pole"
                       current={general.poleType}
@@ -263,14 +286,14 @@ export function DrawingGeneralForm({ general, onUpdate, onReset, onNext, errors,
 
             {/* ── Additional Component ── */}
             <div>
-              <SectionTitle>Additional Component</SectionTitle>
+              <SectionTitle>Additional Components</SectionTitle>
               <SectionCard>
                 <div className="grid xl:grid-cols-3 gap-6">
                   <ToggleCard
                     label="Opening"
                     icon={<DoorOpen size={16} />}
                     enabled={general.additionalComponents?.opening || false}
-                    disabled={general.poleType === "Lighting Pole Standard"}
+                    disabled={general.poleType === "Standard Pole"}
                     onToggle={() =>
                       onUpdate({
                         additionalComponents: {
@@ -316,7 +339,7 @@ export function DrawingGeneralForm({ general, onUpdate, onReset, onNext, errors,
         <div>
           <SectionTitle>Coupling Usage</SectionTitle>
           <SectionCard>
-            <div className="relative pb-2">
+            <div id="useCoupling" className="relative pb-2">
               <label className="block text-xs md:text-sm font-medium text-gray-800 mb-3">
                 Do you want to use coupling?
               </label>

@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useProjectStorage } from "./useProjectStorage";
 import { DrawingBaseplateSchema } from "../schemas/drawing/DrawingBaseplateSchema";
 import { validateWithYup } from "../utils/validation";
+import { scrollToFirstError, firstErrorMessage } from "../utils/scrollToError";
 
 const getDefaultBaseplate = () => ({
   baseplateType: "",
@@ -50,7 +51,8 @@ export function useDrawingBaseplateForm() {
 
     if (!isValid) {
       setErrors(validationErrors);
-      setToast({ message: "Please correct the errors in Baseplate Input." });
+      setToast({ message: firstErrorMessage(validationErrors) });
+      scrollToFirstError(validationErrors);
       return null;
     }
     

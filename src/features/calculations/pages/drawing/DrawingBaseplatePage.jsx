@@ -33,6 +33,15 @@ export default function DrawingBaseplatePage() {
     }
   };
 
+  const onBack = () => {
+    const general = JSON.parse(sessionStorage.getItem(`${projectType}_drawing_general`) || "{}");
+    if (general?.additionalComponents?.opening) {
+      navigate(`/calculation/${projectType}/${draftId}/drawing/opening`);
+    } else {
+      navigate(`/calculation/${projectType}/${draftId}/drawing/pole`);
+    }
+  };
+
   return (
     <>
       <div className="flex flex-col h-full">
@@ -77,6 +86,7 @@ export default function DrawingBaseplatePage() {
                 baseplate={localBaseplate}
                 onUpdate={handleUpdate}
                 onReset={handleReset}
+                onBack={onBack}
                 onNext={onNextStep}
                 errors={errors}
               />

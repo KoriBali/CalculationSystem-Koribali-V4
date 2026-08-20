@@ -1,5 +1,7 @@
-import { RotateCcw, ChevronRight, FileText, Settings2, CheckCircle, Circle } from "lucide-react";
+import { RotateCcw, ChevronLeft, ChevronRight, FileText, Settings2, CheckCircle, Circle } from "lucide-react";
+import { useState } from "react";
 import { TaperPoleStandardForm } from "../pole/standard/TaperTypeForm";
+import { ConfirmResetAllModal } from "../../modals/ConfirmResetAllModal";
 
 const ErrorStyle = ({ show, text }) =>
   show ? (
@@ -59,7 +61,9 @@ const CardOption = ({ label, current, value, onChange, icon: Icon }) => {
   );
 };
 
-export function DrawingPoleForm({ pole, onUpdate, onReset, onNext, errors, onToast, isBaseplate }) {
+export function DrawingPoleForm({ pole, onUpdate, onReset, onBack, onNext, errors, onToast, isBaseplate }) {
+  const [showResetModal, setShowResetModal] = useState(false);
+
   return (
     <div className="bg-white rounded-b-2xl hp:rounded-b-xl shadow-sm border border-gray-200">
       <div className="p-4 md:p-6 shadow-sm space-y-4 md:space-y-6">
@@ -79,7 +83,7 @@ export function DrawingPoleForm({ pole, onUpdate, onReset, onNext, errors, onToa
               />
             </div>
             {(errors["taperPoleStandard.poleType"] || errors["taperPoleStandard.groundPosition"] || errors["taperPoleStandard.height"] || errors["taperPoleStandard.embedmentLength"]) && (
-              <ErrorStyle show={true} text="Please complete the Pole Standard Configuration" />
+              <ErrorStyle show={true} text="Please complete the Pole Configuration" />
             )}
           </div>
 
@@ -89,25 +93,45 @@ export function DrawingPoleForm({ pole, onUpdate, onReset, onNext, errors, onToa
         {/* Footer */}
         <div className="flex justify-between items-center pt-4 md:pt-0">
           <button
-            onClick={onReset}
+            onClick={onBack}
             className="flex justify-center items-center gap-2 px-5 py-2.5 md:px-6
-            rounded-lg hp:rounded-md font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] text-xs sm:text-sm 
+            rounded-lg hp:rounded-md font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] text-xs sm:text-sm
             ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm transition-colors"
           >
-            <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-            Reset
+            <ChevronLeft className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+            Back
           </button>
 
-          <button
-            onClick={onNext}
-            className="flex justify-center items-center gap-2 px-5 py-2.5 md:px-6 
-            rounded-lg hp:rounded-md font-medium bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white text-xs md:text-sm hover:brightness-110 shadow-sm transition-all"
-          >
-            Save & Continue
-            <ChevronRight className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowResetModal(true)}
+              className="flex justify-center items-center gap-2 px-5 py-2.5 md:px-6
+              rounded-lg hp:rounded-md font-medium bg-white hover:bg-red-50 text-red-400 text-xs sm:text-sm
+              border border-gray-200 hover:border-red-200 shadow-sm transition-colors"
+            >
+              <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+              Reset
+            </button>
+
+            <button
+              onClick={onNext}
+              className="flex justify-center items-center gap-2 px-5 py-2.5 md:px-6
+              rounded-lg hp:rounded-md font-medium bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white text-xs md:text-sm hover:brightness-110 shadow-sm transition-all"
+            >
+              Save & Continue
+              <ChevronRight className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+            </button>
+          </div>
         </div>
       </div>
+
+      <ConfirmResetAllModal
+        open={showResetModal}
+        onClose={() => setShowResetModal(false)}
+        onReset={onReset}
+        title="Reset all inputs on this section?"
+        description="This will clear all inputs entered in this section. This action cannot be undone."
+      />
     </div>
   );
 }

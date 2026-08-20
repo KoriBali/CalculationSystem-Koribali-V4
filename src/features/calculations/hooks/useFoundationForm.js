@@ -4,6 +4,7 @@ import { useProjectStorage } from "./useProjectStorage";
 
 import { validateFoundation } from "../logic/foundation/foundationValidation";
 import { executeFoundationCalculation } from "../logic/foundation/foundationCalculation";
+import { scrollToFirstError, firstErrorMessage } from "../utils/scrollToError";
 
 import * as Utils from "../utils";
 
@@ -174,7 +175,11 @@ export function useFoundationForm() {
       setFoundationTypeErrors(validation.typeErrors || {});
       setSquareCaissonErrors(validation.squareCaissonErrors || {});
       setRoundCaissonErrors(validation.roundCaissonErrors || {});
-      showToast(validation.message);
+
+      const firstErrors =
+        validation.typeErrors || validation.squareCaissonErrors || validation.roundCaissonErrors || {};
+      showToast(firstErrorMessage(firstErrors) || validation.message);
+      scrollToFirstError(firstErrors);
       return;
     }
 

@@ -6,6 +6,8 @@ export const ConfirmResetAllModal = ({
   open, // boolean => controls visibility
   onClose, // fn => called when user cancels
   onReset, // fn => called when user confirms the reset
+  title = "Reset All Data?",
+  description = "This will remove all form inputs and calculation results. This action cannot be undone.",
 }) => {
   // Don't render if modal is closed
   if (!open) return null;
@@ -23,13 +25,12 @@ export const ConfirmResetAllModal = ({
 
         {/* Title */}
         <h2 className="text-center font-bold text-sm sm:text-base text-gray-900 mb-1 sm:mb-2">
-          Reset All Data?
+          {title}
         </h2>
 
         {/* Description => warns this will clear everything and is irreversible */}
         <p className="text-center text-gray-600 text-xs sm:text-sm mb-4 sm:mb-6 leading-relaxed">
-          This will remove all form inputs and calculation results. This action
-          cannot be undone.
+          {description}
         </p>
 
         {/* Actions */}

@@ -4,6 +4,7 @@ import { useProjectStorage } from "./useProjectStorage";
 
 import { validateBaseplate } from "../logic/baseplate/baseplateValidation";
 import { executeBaseplateCalculation } from "../logic/baseplate/baseplateCalculation";
+import { scrollToFirstError, firstErrorMessage } from "../utils/scrollToError";
 
 import * as Utils from "../utils";
 
@@ -182,7 +183,11 @@ export function useBaseplateForm() {
       setBaseplateTypeErrors(validation.typeErrors || {});
       setFourRibTypeErrors(validation.fourRibTypeErrors || {});
       setEightRibTypeErrors(validation.eightRibTypeErrors || {});
-      showToast(validation.message);
+      
+      const firstErrors =
+        validation.typeErrors || validation.fourRibTypeErrors || validation.eightRibTypeErrors || {};
+      showToast(firstErrorMessage(firstErrors) || validation.message);
+      scrollToFirstError(firstErrors);
       return;
     }
 

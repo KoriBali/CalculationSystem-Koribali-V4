@@ -19,9 +19,14 @@ export default function ProjectIdentityPage() {
   const [showNextStepModal, setShowNextStepModal] = useState(false);
 
   const handleFinishCover = async () => {
-    const isValid = await identityForm.validate();
+    const { isValid, errors } = await identityForm.validate();
     if (!isValid) {
-      setToast({ message: "Please fill all required project information fields.", type: "error" });
+      const firstErrorField = Object.keys(errors)[0];
+      setToast({ message: errors[firstErrorField], type: "error" });
+
+      const fieldEl = document.getElementById(firstErrorField);
+      fieldEl?.scrollIntoView({ behavior: "smooth", block: "center" });
+      fieldEl?.focus({ preventScroll: true });
       return;
     }
 

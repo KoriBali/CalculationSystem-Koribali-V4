@@ -20,6 +20,7 @@ export function ProjectIdentityFields({ identityData, onUpdate, errors }) {
           <div className="relative">
             <Label>Request Number</Label>
             <input
+              id="requestNo"
               type="text"
               value={identityData.requestNo || ""}
               onChange={(e) => onUpdate({ requestNo: e.target.value })}
@@ -33,6 +34,7 @@ export function ProjectIdentityFields({ identityData, onUpdate, errors }) {
           <div className="relative">
             <Label>Company Name</Label>
             <input
+              id="companyName"
               type="text"
               value={identityData.companyName || ""}
               onChange={(e) => onUpdate({ companyName: e.target.value })}
@@ -50,6 +52,7 @@ export function ProjectIdentityFields({ identityData, onUpdate, errors }) {
             <Label>Request Type</Label>
             <div className="relative">
               <select
+                id="requestType"
                 value={identityData.requestType || ""}
                 onChange={(e) => onUpdate({ requestType: e.target.value })}
                 className={`${inputStyle(errors?.requestType)} appearance-none`}
@@ -76,6 +79,7 @@ export function ProjectIdentityFields({ identityData, onUpdate, errors }) {
           <div className="relative">
             <Label>Project Number</Label>
             <input
+              id="projectNo"
               type="text"
               value={identityData.projectNo || ""}
               onChange={(e) => onUpdate({ projectNo: e.target.value })}
@@ -89,6 +93,7 @@ export function ProjectIdentityFields({ identityData, onUpdate, errors }) {
           <div className="relative">
             <Label>Requested Due Date</Label>
             <input
+              id="requestedDueDate"
               type="date"
               value={identityData.requestedDueDate || ""}
               onChange={(e) => onUpdate({ requestedDueDate: e.target.value })}
@@ -104,6 +109,7 @@ export function ProjectIdentityFields({ identityData, onUpdate, errors }) {
           <div className="relative">
             <Label>Project Name</Label>
             <input
+              id="projectName"
               type="text"
               value={identityData.projectName || ""}
               onChange={(e) => onUpdate({ projectName: e.target.value })}

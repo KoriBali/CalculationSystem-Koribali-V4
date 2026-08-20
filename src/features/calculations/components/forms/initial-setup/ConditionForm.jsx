@@ -7,9 +7,11 @@ import {
   Layers,
   FileText,
 } from "lucide-react";
+import { useState } from "react";
 import { BaseplateIcon } from "../../../../../assets/icon";
 import { designStandardOptions } from "../../../constants/designStandards";
 import { poleTypeOptions } from "../../../constants/poleTypeOptions";
+import { ConfirmResetAllModal } from "../../modals/ConfirmResetAllModal";
 
 /**
  * HELPER COMPONENTS & FUNCTIONS
@@ -18,10 +20,9 @@ import { poleTypeOptions } from "../../../constants/poleTypeOptions";
 // Returns input className based on validation state
 const inputStyle = (hasError) =>
   `w-full px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border
-  ${
-    hasError
-      ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
-      : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
+  ${hasError
+    ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
+    : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
   }`;
 
 // Renders a red error message below an invalid field
@@ -72,6 +73,9 @@ export function ConditionForm({
   onFinish,
   errors,
 }) {
+  // State for reset confirmation modal
+  const [showResetModal, setShowResetModal] = useState(false);
+
   // Resets all fields back to empty
   const handleReset = () => onUpdate(EMPTY_CONDITION);
 
@@ -80,7 +84,7 @@ export function ConditionForm({
       <div className="p-4 md:p-6 shadow-sm space-y-4 md:space-y-6">
         {/* ── Standard and Condition ── */}
         <div>
-          <SectionTitle>Standard and Condition</SectionTitle>
+          <SectionTitle>Design Parameters</SectionTitle>
           <SectionCard>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-6 md:gap-y-8">
               {/* Design Standard */}
@@ -90,6 +94,7 @@ export function ConditionForm({
                 </label>
                 <div className="relative">
                   <select
+                    id="designStandard"
                     value={condition.designStandard}
                     onChange={(e) => onUpdate({ designStandard: e.target.value })}
                     className={`${inputStyle(errors.designStandard)} lg:px-2 xl:px-4 min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] appearance-none`}
@@ -120,6 +125,7 @@ export function ConditionForm({
                 </label>
                 <div className="relative">
                   <input
+                    id="designWindSpeed"
                     type="number"
                     inputMode="decimal"
                     min={0}
@@ -147,6 +153,7 @@ export function ConditionForm({
                 </label>
                 <div className="relative">
                   <input
+                    id="designAirDensity"
                     type="number"
                     inputMode="decimal"
                     min={0}
@@ -173,8 +180,8 @@ export function ConditionForm({
 
         {/* ── Select Pole Type (lighting-pole only) ── */}
         {projectType === "lighting-pole" && (
-          <div>
-            <SectionTitle>Select Pole Type</SectionTitle>
+          <div id="poleType">
+            <SectionTitle>Pole Type</SectionTitle>
             <SectionCard>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {poleTypeOptions.map((option) => {
@@ -188,7 +195,7 @@ export function ConditionForm({
                       title={option.desc}
                       onClick={() => {
                         if (projectMode === "both" && option.id === "standard") {
-                          onUpdate({ 
+                          onUpdate({
                             poleType: option.id,
                             openingEnabled: true
                           });
@@ -196,33 +203,35 @@ export function ConditionForm({
                           onUpdate({ poleType: option.id });
                         }
                       }}
-                      className={`group w-full text-left relative overflow-hidden rounded-lg hp:rounded-md border-2 px-3 xl:px-4 py-2 lg:py-3 transition-all duration-300 cursor-pointer active:scale-[0.98]
-                        ${
-                          isActive
-                            ? "border-blue-500 bg-blue-50 shadow-sm ring-1 ring-blue-50"
-                            : "border-slate-100 bg-slate-50/50 hover:border-slate-300 hover:bg-slate-50 hover:shadow-sm"
+                      className={`group w-full flex items-center justify-between px-3 xl:px-4 py-2 lg:py-3 relative overflow-hidden rounded-lg border transition-all duration-300 cursor-pointer active:scale-[0.98]
+                        ${isActive
+                          ? "border-blue-500 bg-blue-50 shadow-sm ring-1 ring-blue-50"
+                          : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
                         }`}
                     >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={`p-1.5 rounded-lg hp:rounded-md transition-colors ${isActive ? "bg-blue-100 text-blue-600" : "bg-slate-200 text-slate-500 group-hover:bg-slate-300 group-hover:text-slate-600"}`}
-                          >
-                            <Icon size={16} />
-                          </div>
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`p-1.5 rounded-md ${isActive ? "bg-blue-100 text-blue-600" : "bg-slate-100 text-slate-500"}`}
+                        >
+                          <Icon size={16} />
+                        </div>
+                        <div className="flex flex-col items-start">
                           <p
-                            className={`text-[12px] md:text-sm font-medium ${isActive ? "text-slate-900" : "text-slate-500 group-hover:text-slate-700"}`}
+                            className={`text-[12px] md:text-sm font-medium ${isActive ? "text-slate-900" : "text-slate-700"}`}
                           >
                             {option.title}
                           </p>
+                          <p className={`text-[11px] md:text-xs mt-0.5 ${isActive ? "text-slate-500" : "text-slate-400"}`}>
+                            {option.desc}
+                          </p>
                         </div>
-                        <div className="shrink-0 ml-2">
-                          {isActive ? (
-                            <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-blue-500" />
-                          ) : (
-                            <Circle className="w-4 h-4 md:w-5 md:h-5 text-slate-300 group-hover:text-slate-400" />
-                          )}
-                        </div>
+                      </div>
+                      <div className="shrink-0 ml-2 flex items-center">
+                        {isActive ? (
+                          <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-blue-500" />
+                        ) : (
+                          <Circle className="w-4 h-4 md:w-5 md:h-5 text-slate-300 group-hover:text-slate-400" />
+                        )}
                       </div>
                     </button>
                   );
@@ -239,12 +248,12 @@ export function ConditionForm({
 
         {/* ── Additional Component (toggles) ── */}
         <div>
-          <SectionTitle>Additional Component</SectionTitle>
+          <SectionTitle>Additional Components</SectionTitle>
           <SectionCard>
             <div className="grid xl:grid-cols-3 gap-6">
-              {/* Opening Part */}
+              {/* Opening */}
               <ToggleCard
-                label="Opening Part"
+                label="Opening"
                 icon={<DoorOpen size={16} />}
                 enabled={condition.openingEnabled}
                 disabled={projectMode === "both" && condition.poleType === "standard"}
@@ -284,7 +293,7 @@ export function ConditionForm({
         <div className="flex justify-between items-center pt-4 md:pt-0">
           {/* Reset => clears all fields */}
           <button
-            onClick={handleReset}
+            onClick={() => setShowResetModal(true)}
             className="flex justify-center items-center gap-2 px-5 py-2.5 md:px-6
             rounded-lg hp:rounded-md font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] text-xs sm:text-sm 
             ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm transition-colors"
@@ -304,6 +313,12 @@ export function ConditionForm({
           </button>
         </div>
       </div>
+
+      <ConfirmResetAllModal
+        open={showResetModal}
+        onClose={() => setShowResetModal(false)}
+        onReset={handleReset}
+      />
     </div>
   );
 }
@@ -315,22 +330,21 @@ function ToggleCard({ label, icon, enabled, onToggle, disabled = false }) {
   return (
     <div
       onClick={disabled ? undefined : onToggle}
-      className={`relative overflow-hidden rounded-lg hp:rounded-md border-2 px-3 xl:px-4 py-2 lg:py-3 transition-all duration-300
+      className={`relative overflow-hidden rounded-lg border px-3 xl:px-4 py-2 lg:py-3 transition-all duration-300
         ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}
         ${disabled && !enabled ? 'bg-slate-100 opacity-60' : ''}
-        ${
-          enabled
-            ? "border-blue-500 bg-white shadow-sm ring-1 ring-blue-50"
-            : disabled
-            ? "border-slate-100"
-            : "border-slate-100 bg-slate-50/50 hover:border-slate-300 hover:bg-slate-50"
+        ${enabled
+          ? "border-blue-500 bg-white shadow-sm ring-1 ring-blue-50"
+          : disabled
+            ? "border-slate-200"
+            : "border-slate-200 bg-slate-50/50 hover:border-slate-300 hover:bg-slate-50"
         }`}
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           {/* Icon */}
           <div
-            className={`p-1.5 rounded-lg hp:rounded-md ${enabled ? "bg-blue-100 text-blue-600" : "bg-slate-200 text-slate-500"}`}
+            className={`p-1.5 rounded-md ${enabled ? "bg-blue-100 text-blue-600" : "bg-slate-100 text-slate-500"}`}
           >
             {icon}
           </div>
