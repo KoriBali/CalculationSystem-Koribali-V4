@@ -52,12 +52,52 @@ function deriveTaperOptions(taperEntries) {
   }));
 }
 
+// The API returns a flat list of heights per taper standard with no ground
+// position field — e.g. Type-I (IS): [8, 10, 12, 8.3, 10.3, 12.3]. Ground
+// position isn't master data (it's a local UI concept), but the pairing IS
+// derivable: every standard we've seen follows underGL = onGL + 0.3.
+// id is String(height) — specStandardPole.json's taper.*.underGL keys were
+// renamed to match this exact format (e.g. "8U" -> "8.3").
+function deriveHeightOptions(taperEntries) {
+  const result = {};
+
+  taperEntries.forEach((entry) => {
+    const shortCode = extractShortCode(entry.name);
+    const heights = entry.poleStandardHeights.map((h) => h.height);
+    const heightSet = new Set(heights.map((h) => Math.round(h * 10)));
+
+    const onGL = [];
+    const underGL = [];
+
+    heights.forEach((h) => {
+      const hasUnderGLPair = heightSet.has(Math.round((h + 0.3) * 10));
+      const isUnderGLPair = heightSet.has(Math.round((h - 0.3) * 10));
+
+      if (hasUnderGLPair) {
+        onGL.push(h);
+      } else if (isUnderGLPair) {
+        underGL.push(h);
+      }
+      // Heights with no +0.3/-0.3 counterpart are skipped — we can't tell
+      // which ground position they belong to, and a wrong guess here would
+      // silently break the specStandardPole.json lookup.
+    });
+
+    const toOption = (h) => ({ id: String(h), label: `${h.toFixed(1)} m` });
+
+    result[shortCode] = {
+      onGL: onGL.sort((a, b) => a - b).map(toOption),
+      underGL: underGL.sort((a, b) => a - b).map(toOption),
+    };
+  });
+
+  return result;
+}
+
 // ─── HOOK ────────────────────────────────────────────────────────────────────
 
 // Loads pole standard master data (stepped pole diameters/combinations/
-// thicknesses, taper pole type labels) from /api/master/pole-standards.
-// Height options per taper standard are intentionally NOT derived here yet —
-// see useMasterData.js history / conversation for why.
+// thicknesses, taper pole type labels and heights) from /api/master/pole-standards.
 export function usePoleStandardData() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -101,6 +141,10 @@ export function usePoleStandardData() {
     () => deriveTaperOptions(taperEntries),
     [taperEntries],
   );
+  const heightOptionsByStandard = useMemo(
+    () => deriveHeightOptions(taperEntries),
+    [taperEntries],
+  );
 
   return {
     data,
@@ -112,5 +156,6 @@ export function usePoleStandardData() {
     combinations,
     tplMap,
     poleStandardOptions,
+    heightOptionsByStandard,
   };
 }

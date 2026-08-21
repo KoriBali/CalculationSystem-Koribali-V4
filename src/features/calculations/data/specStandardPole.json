@@ -735,7 +735,7 @@
         }
       },
       "underGL": {
-        "8U": {
+        "8.3": {
           "standardId": "IS8UB",
           "structuralDesign": {
             "lowestStep": "-300",
@@ -779,7 +779,7 @@
             }
           ]
         },
-        "10U": {
+        "10.3": {
           "standardId": "IS10UB",
           "structuralDesign": {
             "lowestStep": "-300",
@@ -823,7 +823,7 @@
             }
           ]
         },
-        "12U": {
+        "12.3": {
           "standardId": "IS12UB",
           "structuralDesign": {
             "lowestStep": "-300",
@@ -1459,7 +1459,6 @@
               "fixAngle": "0",
               "nnC": "0.7",
               "quantity": "1",
-
               "armObjects": [
                 {
                   "name": "灯具",
@@ -1508,7 +1507,6 @@
               "fixAngle": "0",
               "nnC": "0.7",
               "quantity": "1",
-
               "armObjects": [
                 {
                   "name": "灯具",
@@ -1557,7 +1555,6 @@
               "fixAngle": "0",
               "nnC": "0.7",
               "quantity": "1",
-
               "armObjects": [
                 {
                   "name": "灯具",
@@ -1576,7 +1573,7 @@
         }
       },
       "underGL": {
-        "8U": {
+        "8.3": {
           "standardId": "LS8UB",
           "structuralDesign": {
             "lowestStep": "-300",
@@ -1619,7 +1616,6 @@
               "fixAngle": "0",
               "nnC": "0.7",
               "quantity": "1",
-
               "armObjects": [
                 {
                   "name": "灯具",
@@ -1636,7 +1632,7 @@
             }
           ]
         },
-        "10U": {
+        "10.3": {
           "standardId": "LS10UB",
           "structuralDesign": {
             "lowestStep": "-300",
@@ -1679,7 +1675,6 @@
               "fixAngle": "0",
               "nnC": "0.7",
               "quantity": "1",
-
               "armObjects": [
                 {
                   "name": "灯具",
@@ -1696,7 +1691,7 @@
             }
           ]
         },
-        "12U": {
+        "12.3": {
           "standardId": "LS12UB",
           "structuralDesign": {
             "lowestStep": "-300",
@@ -1739,7 +1734,6 @@
               "fixAngle": "0",
               "nnC": "0.7",
               "quantity": "1",
-
               "armObjects": [
                 {
                   "name": "灯具",
@@ -1814,7 +1808,6 @@
               "fixAngle": "0",
               "nnC": "0.7",
               "quantity": "1",
-
               "armObjects": [
                 {
                   "name": "灯具",
@@ -1885,7 +1878,6 @@
               "fixAngle": "0",
               "nnC": "0.7",
               "quantity": "1",
-
               "armObjects": [
                 {
                   "name": "灯具",
@@ -1956,7 +1948,6 @@
               "fixAngle": "0",
               "nnC": "0.7",
               "quantity": "1",
-
               "armObjects": [
                 {
                   "name": "灯具",
@@ -2027,7 +2018,6 @@
               "fixAngle": "0",
               "nnC": "0.7",
               "quantity": "1",
-
               "armObjects": [
                 {
                   "name": "灯具",
@@ -2098,7 +2088,6 @@
               "fixAngle": "0",
               "nnC": "0.7",
               "quantity": "1",
-
               "armObjects": [
                 {
                   "name": "灯具",
@@ -2171,7 +2160,6 @@
               "fixAngle": "0",
               "nnC": "0.7",
               "quantity": "1",
-
               "armObjects": [
                 {
                   "name": "灯具",
@@ -2242,7 +2230,6 @@
               "fixAngle": "0",
               "nnC": "0.7",
               "quantity": "1",
-
               "armObjects": [
                 {
                   "name": "灯具",
@@ -2313,7 +2300,6 @@
               "fixAngle": "0",
               "nnC": "0.7",
               "quantity": "1",
-
               "armObjects": [
                 {
                   "name": "灯具",
@@ -2384,7 +2370,6 @@
               "fixAngle": "0",
               "nnC": "0.7",
               "quantity": "1",
-
               "armObjects": [
                 {
                   "name": "灯具",
@@ -2455,7 +2440,6 @@
               "fixAngle": "0",
               "nnC": "0.7",
               "quantity": "1",
-
               "armObjects": [
                 {
                   "name": "灯具",
@@ -2508,7 +2492,6 @@
               "fixAngle": "0",
               "nnC": "0.7",
               "quantity": "1",
-
               "armObjects": [
                 {
                   "name": "灯具",
@@ -2535,7 +2518,6 @@
               "fixAngle": "180",
               "nnC": "0.7",
               "quantity": "1",
-
               "armObjects": [
                 {
                   "name": "灯具",
@@ -2584,7 +2566,6 @@
               "fixAngle": "0",
               "nnC": "0.7",
               "quantity": "1",
-
               "armObjects": [
                 {
                   "name": "灯具",
@@ -2611,7 +2592,6 @@
               "fixAngle": "180",
               "nnC": "0.7",
               "quantity": "1",
-
               "armObjects": [
                 {
                   "name": "灯具",
@@ -2660,7 +2640,6 @@
               "fixAngle": "0",
               "nnC": "0.7",
               "quantity": "1",
-
               "armObjects": [
                 {
                   "name": "灯具",
@@ -2687,7 +2666,6 @@
               "fixAngle": "180",
               "nnC": "0.7",
               "quantity": "1",
-
               "armObjects": [
                 {
                   "name": "灯具",
@@ -2706,7 +2684,7 @@
         }
       },
       "underGL": {
-        "8U": {
+        "8.3": {
           "standardId": "TS8UB",
           "structuralDesign": {
             "lowestStep": "-300",
@@ -2749,7 +2727,6 @@
               "fixAngle": "0",
               "nnC": "0.7",
               "quantity": "1",
-
               "armObjects": [
                 {
                   "name": "灯具",
@@ -2776,7 +2753,6 @@
               "fixAngle": "180",
               "nnC": "0.7",
               "quantity": "1",
-
               "armObjects": [
                 {
                   "name": "灯具",
@@ -2793,7 +2769,7 @@
             }
           ]
         },
-        "10U": {
+        "10.3": {
           "standardId": "TS10UB",
           "structuralDesign": {
             "lowestStep": "-300",
@@ -2836,7 +2812,6 @@
               "fixAngle": "0",
               "nnC": "0.7",
               "quantity": "1",
-
               "armObjects": [
                 {
                   "name": "灯具",
@@ -2863,7 +2838,6 @@
               "fixAngle": "180",
               "nnC": "0.7",
               "quantity": "1",
-
               "armObjects": [
                 {
                   "name": "灯具",
@@ -2880,7 +2854,7 @@
             }
           ]
         },
-        "12U": {
+        "12.3": {
           "standardId": "TS12UB",
           "structuralDesign": {
             "lowestStep": "-300",
@@ -2923,7 +2897,6 @@
               "fixAngle": "0",
               "nnC": "0.7",
               "quantity": "1",
-
               "armObjects": [
                 {
                   "name": "灯具",
@@ -2950,7 +2923,6 @@
               "fixAngle": "180",
               "nnC": "0.7",
               "quantity": "1",
-
               "armObjects": [
                 {
                   "name": "灯具",
@@ -3025,7 +2997,6 @@
               "fixAngle": "0",
               "nnC": "0.7",
               "quantity": "1",
-
               "armObjects": [
                 {
                   "name": "灯具",
@@ -3052,7 +3023,6 @@
               "fixAngle": "180",
               "nnC": "0.7",
               "quantity": "1",
-
               "armObjects": [
                 {
                   "name": "灯具",
@@ -3123,7 +3093,6 @@
               "fixAngle": "0",
               "nnC": "0.7",
               "quantity": "1",
-
               "armObjects": [
                 {
                   "name": "灯具",
@@ -3150,7 +3119,6 @@
               "fixAngle": "180",
               "nnC": "0.7",
               "quantity": "1",
-
               "armObjects": [
                 {
                   "name": "灯具",
@@ -3221,7 +3189,6 @@
               "fixAngle": "0",
               "nnC": "0.7",
               "quantity": "1",
-
               "armObjects": [
                 {
                   "name": "灯具",
@@ -3248,7 +3215,6 @@
               "fixAngle": "180",
               "nnC": "0.7",
               "quantity": "1",
-
               "armObjects": [
                 {
                   "name": "灯具",
@@ -3267,7 +3233,7 @@
         }
       },
       "underGL": {
-        "8U": {
+        "8.3": {
           "standardId": "TA8UB",
           "structuralDesign": {
             "lowestStep": "-300",
@@ -3321,7 +3287,6 @@
               "fixAngle": "0",
               "nnC": "0.7",
               "quantity": "1",
-
               "armObjects": [
                 {
                   "name": "灯具",
@@ -3348,7 +3313,6 @@
               "fixAngle": "180",
               "nnC": "0.7",
               "quantity": "1",
-
               "armObjects": [
                 {
                   "name": "灯具",
@@ -3365,7 +3329,7 @@
             }
           ]
         },
-        "10U": {
+        "10.3": {
           "standardId": "TA10UB",
           "structuralDesign": {
             "lowestStep": "-300",
@@ -3419,7 +3383,6 @@
               "fixAngle": "0",
               "nnC": "0.7",
               "quantity": "1",
-
               "armObjects": [
                 {
                   "name": "灯具",
@@ -3446,7 +3409,6 @@
               "fixAngle": "180",
               "nnC": "0.7",
               "quantity": "1",
-
               "armObjects": [
                 {
                   "name": "灯具",
@@ -3463,7 +3425,7 @@
             }
           ]
         },
-        "12U": {
+        "12.3": {
           "standardId": "TA12UB",
           "structuralDesign": {
             "lowestStep": "-300",
@@ -3517,7 +3479,6 @@
               "fixAngle": "0",
               "nnC": "0.7",
               "quantity": "1",
-
               "armObjects": [
                 {
                   "name": "灯具",
@@ -3544,7 +3505,6 @@
               "fixAngle": "180",
               "nnC": "0.7",
               "quantity": "1",
-
               "armObjects": [
                 {
                   "name": "灯具",

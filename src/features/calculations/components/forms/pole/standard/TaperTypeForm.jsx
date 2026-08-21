@@ -1,9 +1,6 @@
 import { useEffect } from "react";
 import { RotateCcw, Box, ChevronRight } from "lucide-react";
-import {
-  HEIGHT_OPTIONS_BY_STANDARD,
-  GROUND_POSITION_OPTIONS,
-} from "../../../../constants/taperPoleStandradOptions";
+import { GROUND_POSITION_OPTIONS } from "../../../../constants/taperPoleStandradOptions";
 import { usePoleStandardData } from "../../../../hooks/usePoleStandardData";
 
 // === IMAGES (12 cases: 6 pole types × 2 ground positions) ===
@@ -74,7 +71,11 @@ const EMPTY_POLE_STANDARD = {
 };
 
 export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset = false, isBaseplate = true }) {
-  const { poleStandardOptions } = usePoleStandardData();
+  const {
+    poleStandardOptions,
+    heightOptionsByStandard,
+    loading: poleStandardLoading,
+  } = usePoleStandardData();
 
   useEffect(() => {
     if (!isBaseplate && taperPoleStandard.poleType && taperPoleStandard.groundPosition !== "underGL") {
@@ -91,7 +92,7 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
     return () => cancelIdle(id);
   }, []);
   const currentHeightOptions =
-    HEIGHT_OPTIONS_BY_STANDARD[taperPoleStandard.poleType] ??
+    heightOptionsByStandard[taperPoleStandard.poleType] ??
     EMPTY_HEIGHT_OPTIONS;
 
   const currentImage =
@@ -127,6 +128,11 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
           </div>
 
           <div className="p-4 grid grid-cols-2 gap-4 flex-1 md:flex md:flex-col">
+            {poleStandardLoading && poleStandardOptions.length === 0 && (
+              <p className="text-xs sm:text-sm text-slate-400">
+                Loading pole standard options...
+              </p>
+            )}
             {poleStandardOptions.map((option) => {
               const isActive = taperPoleStandard.poleType === option.id;
               return (
