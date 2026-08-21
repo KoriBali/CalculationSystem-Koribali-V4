@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { RotateCcw, Box, ChevronRight } from "lucide-react";
+import { useEffect, useState } from "react";
+import { RotateCcw, Box, ChevronRight, Loader2 } from "lucide-react";
 import { GROUND_POSITION_OPTIONS } from "../../../../constants/taperPoleStandradOptions";
 import { usePoleStandardData } from "../../../../hooks/usePoleStandardData";
 
@@ -45,11 +45,14 @@ const ALL_DIAGRAM_IMAGES = [
 // even if this form mounts/unmounts multiple times while navigating.
 const preloadedDiagrams = new Set();
 
+// fetchPriority "low" so this background warm-up never competes for
+// bandwidth with the diagram the user is actually waiting to see right now.
 const preloadDiagrams = (urls) => {
   urls.forEach((src) => {
     if (preloadedDiagrams.has(src)) return;
     preloadedDiagrams.add(src);
     const img = new Image();
+    img.fetchPriority = "low";
     img.src = src;
   });
 };
@@ -76,6 +79,10 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
     heightOptionsByStandard,
     loading: poleStandardLoading,
   } = usePoleStandardData();
+
+  // Tracks which diagram URLs have already finished loading, so re-selecting
+  // a pole type/ground position already shown once never re-shows a skeleton.
+  const [loadedImages, setLoadedImages] = useState(() => new Set());
 
   useEffect(() => {
     if (!isBaseplate && taperPoleStandard.poleType && taperPoleStandard.groundPosition !== "underGL") {
@@ -106,6 +113,7 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
 
   const isGroundDisabled = !taperPoleStandard.poleType;
   const showDiagram = !!currentImage;
+  const isImageLoaded = currentImage ? loadedImages.has(currentImage) : false;
 
   const activeGroundOptions = isBaseplate
     ? GROUND_POSITION_OPTIONS
@@ -272,12 +280,23 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
                 </div>
 
                 {/* Kanan: Diagram image — gambar yang tentukan tinggi container */}
-                <div className="xl:flex-shrink-0 flex items-center h-full">
+                <div className="xl:flex-shrink-0 relative flex items-center justify-center h-full min-w-[80px]">
+                  {!isImageLoaded && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-slate-400">
+                      <Loader2 className="w-6 h-6 animate-spin" />
+                      <span className="text-[11px] md:text-xs">Loading diagram...</span>
+                    </div>
+                  )}
                   <img
                     key={currentImage}
                     src={currentImage}
                     alt={`${taperPoleStandard.poleType} diagram`}
-                    className="w-auto h-full max-h-full object-contain transition-opacity duration-300"
+                    onLoad={() =>
+                      setLoadedImages((prev) => new Set(prev).add(currentImage))
+                    }
+                    className={`w-auto h-full max-h-full object-contain transition-opacity duration-300 ${
+                      isImageLoaded ? "opacity-100" : "opacity-0"
+                    }`}
                   />
                 </div>
 
