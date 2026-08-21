@@ -53,6 +53,7 @@ export default function FoundationFormView() {
     handleRoundCaissonUpdate,
     handleCalculate,
     handleFinish,
+    handleBack,
     setToast,
     showToast,
   } = useFoundationForm();
@@ -244,6 +245,7 @@ export default function FoundationFormView() {
                   onUpdate={handleSquareCaissonUpdate}
                   errors={squareCaissonErrors}
                   onCalculate={handleCalculate}
+                  onBack={handleBack}
                   onNext={handleNextStep} // PERBAIKAN: Gunakan handleNextStep agar sinkron dengan modal
                   isCalculated={isCalculated}
                   buttonLabel={buttonLabel}
@@ -257,6 +259,7 @@ export default function FoundationFormView() {
                   onUpdate={handleRoundCaissonUpdate}
                   errors={roundCaissonErrors}
                   onCalculate={handleCalculate}
+                  onBack={handleBack}
                   onNext={handleNextStep} // PERBAIKAN: Gunakan handleNextStep agar sinkron dengan modal
                   isCalculated={isCalculated}
                   buttonLabel={buttonLabel}

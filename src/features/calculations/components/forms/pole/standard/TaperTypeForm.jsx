@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { RotateCcw, Box, ChevronRight, Loader2 } from "lucide-react";
 import { GROUND_POSITION_OPTIONS } from "../../../../constants/taperPoleStandradOptions";
 import { usePoleStandardData } from "../../../../hooks/usePoleStandardData";
+import { ConfirmResetAllModal } from "../../../modals/ConfirmResetAllModal";
 
 // === IMAGES (12 cases: 6 pole types × 2 ground positions) ===
 const DIAGRAM_IMAGE_MAP = {
@@ -83,6 +84,8 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
   // Tracks which diagram URLs have already finished loading, so re-selecting
   // a pole type/ground position already shown once never re-shows a skeleton.
   const [loadedImages, setLoadedImages] = useState(() => new Set());
+
+  const [showResetModal, setShowResetModal] = useState(false);
 
   useEffect(() => {
     if (!isBaseplate && taperPoleStandard.poleType && taperPoleStandard.groundPosition !== "underGL") {
@@ -349,15 +352,23 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
         <div className="flex justify-between pt-5 border-t mt-6">
           <button
             type="button"
-            onClick={() => onUpdate(EMPTY_POLE_STANDARD)}
-            className="flex justify-center items-center text-sm gap-2 px-5 py-2.5 sm:py-2.5 lg:py-2.5 md:px-6 bg-[#eef2f6] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] rounded-lg hp:rounded-md 
-            hover:bg-[#e2e8f0] transition-colors font-medium hp:text-xs"
+            onClick={() => setShowResetModal(true)}
+            className="flex justify-center items-center text-sm gap-2 px-5 py-2.5 sm:py-2.5 lg:py-2.5 md:px-6 bg-white text-red-400 border border-gray-200 rounded-lg hp:rounded-md
+            hover:bg-red-50 hover:border-red-200 transition-colors font-medium hp:text-xs"
           >
             <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
             Reset
           </button>
         </div>
       )}
+
+      <ConfirmResetAllModal
+        open={showResetModal}
+        onClose={() => setShowResetModal(false)}
+        onReset={() => onUpdate(EMPTY_POLE_STANDARD)}
+        title="Reset all inputs on this section?"
+        description="This will clear all inputs entered in this section. This action cannot be undone."
+      />
     </div>
   );
 }

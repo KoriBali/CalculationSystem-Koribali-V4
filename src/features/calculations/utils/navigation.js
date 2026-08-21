@@ -16,14 +16,17 @@ export function getStepNavigation(condition, currentStep, withReport = false) {
 
   const currentIndex = steps.indexOf(currentStep);
   const isLast = currentIndex === steps.length - 1;
+  const isFirst = currentIndex === 0;
 
   const nextStep = !isLast ? steps[currentIndex + 1] : null;
+  const prevStep = !isFirst ? steps[currentIndex - 1] : null;
 
   return {
     steps,
     currentIndex,
     isLast,
     nextStep,
+    prevStep,
     buttonLabel: isLast ? (withReport ? "Generate Report" : "Save & Finish") : "Next Input",
   };
 }

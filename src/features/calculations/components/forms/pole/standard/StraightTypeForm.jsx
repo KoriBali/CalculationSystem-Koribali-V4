@@ -1,7 +1,9 @@
 import { RotateCcw, ChevronRight } from "lucide-react";
+import { useState } from "react";
 import { GROUND_POSITION_OPTIONS } from "../../../../constants/straightPoleStandardOptions";
 import { getThicknessOptions } from "../../../../logic/pole/standard/straightPoleLogic";
 import { usePoleStandardData } from "../../../../hooks/usePoleStandardData";
+import { ConfirmResetAllModal } from "../../../modals/ConfirmResetAllModal";
 
 // === IMAGES ===
 const onGlImg = "/images/on-gl.svg";
@@ -83,6 +85,8 @@ export function StraightPoleStandardForm({
     tplMap,
     loading: poleStandardLoading,
   } = usePoleStandardData();
+
+  const [showResetModal, setShowResetModal] = useState(false);
 
   // Derive thickness options from selected combination
   const { upper: upperOptions, lower: lowerOptions } = getThicknessOptions(
@@ -576,14 +580,22 @@ export function StraightPoleStandardForm({
       <div className="flex justify-between pt-6 border-t">
         <button
           type="button"
-          onClick={() => onUpdate(EMPTY_STEPPED_POLE)}
-          className="flex justify-center items-center text-sm gap-2 px-5 py-2.5 sm:py-2.5 lg:py-2.5 md:px-6 bg-[#eef2f6] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] rounded-lg hp:rounded-md 
-          hover:bg-[#e2e8f0] transition-colors font-medium hp:text-xs"
+          onClick={() => setShowResetModal(true)}
+          className="flex justify-center items-center text-sm gap-2 px-5 py-2.5 sm:py-2.5 lg:py-2.5 md:px-6 bg-white text-red-400 border border-gray-200 rounded-lg hp:rounded-md
+          hover:bg-red-50 hover:border-red-200 transition-colors font-medium hp:text-xs"
         >
           <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
           Reset
         </button>
       </div>
+
+      <ConfirmResetAllModal
+        open={showResetModal}
+        onClose={() => setShowResetModal(false)}
+        onReset={() => onUpdate(EMPTY_STEPPED_POLE)}
+        title="Reset all inputs on this section?"
+        description="This will clear all inputs entered in this section. This action cannot be undone."
+      />
     </div>
   );
 }

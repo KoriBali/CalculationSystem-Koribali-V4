@@ -977,18 +977,19 @@ export default function PoleFormView() {
               <span className="hp:hidden">Back</span>
             </button>
 
-            <button
-              onClick={calculation.calculate}
-              className="flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-4 hp:py-2 md:px-6 
-              rounded-lg hp:rounded-md font-medium bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white text-sm hover:brightness-110 shadow-sm transition-all"
-            >
-              <Calculator className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-              <span className="hp:text-[11px] whitespace-nowrap">
-                Calculate Result
-              </span>
-            </button>
-
             <div className="flex items-center gap-3 hp:gap-0">
+              <button
+                onClick={calculation.calculate}
+                className="flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-4 hp:py-2 md:px-6
+                rounded-lg hp:rounded-md font-medium text-sm transition-all
+                bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
+              >
+                <Calculator className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+                <span className="hp:text-[11px] whitespace-nowrap">
+                  Calculate Result
+                </span>
+              </button>
+
               <button
                 onClick={handleFinish}
                 disabled={!calculation.isCalculated}

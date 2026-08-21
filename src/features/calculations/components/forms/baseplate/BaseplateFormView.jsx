@@ -56,6 +56,7 @@ export default function BaseplateFormView() {
     handleEightRibTypeUpdate,
     handleCalculate,
     handleFinish,
+    handleBack,
     setToast,
     showToast,
   } = useBaseplateForm();
@@ -244,6 +245,7 @@ export default function BaseplateFormView() {
                   onUpdate={handleFourRibTypeUpdate}
                   errors={fourRibTypeErrors}
                   onCalculate={handleCalculate}
+                  onBack={handleBack}
                   onNext={handleNextStep} // PERBAIKAN: Gunakan handleNextStep untuk navigasi terpadu
                   isCalculated={isCalculated}
                   buttonLabel={buttonLabel}
@@ -257,6 +259,7 @@ export default function BaseplateFormView() {
                   onUpdate={handleEightRibTypeUpdate}
                   errors={eightRibTypeErrors}
                   onCalculate={handleCalculate}
+                  onBack={handleBack}
                   onNext={handleNextStep} // PERBAIKAN: Gunakan handleNextStep untuk navigasi terpadu
                   isCalculated={isCalculated}
                   buttonLabel={buttonLabel}

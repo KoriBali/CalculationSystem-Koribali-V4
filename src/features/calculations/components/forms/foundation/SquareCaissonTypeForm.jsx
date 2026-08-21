@@ -264,89 +264,76 @@ export function SquareCaissonTypeForm({
 
       {/* ================= FOOTER SECTION: ACTIONS ================= */}
       <div className="flex justify-between items-center pt-6 px-4 md:px-6 pb-6 xl:pb-6 hp:gap-2">
-        {isDrawingMode ? (
+        {/* Back => returns to the previous step */}
+        <button
+          onClick={onBack}
+          title="Back"
+          className="flex justify-center items-center gap-2 px-5 py-2.5 hp:px-3 hp:py-2 md:px-6
+            rounded-lg hp:rounded-md font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] text-xs sm:text-sm
+            ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm transition-colors"
+        >
+          <ChevronLeft className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+          <span className="hp:hidden">Back</span>
+        </button>
+
+        {/* Grouped form actions on the right: Reset, Calculate (calc mode), Next */}
+        <div className="flex items-center gap-4 hp:gap-2">
+          {/* Reset button to clear all inputs */}
           <button
-            onClick={onBack}
-            title="Back"
+            onClick={() => setShowResetModal(true)}
+            title="Reset"
             className="flex justify-center items-center gap-2 px-5 py-2.5 hp:px-3 hp:py-2 md:px-6
-              rounded-lg hp:rounded-md font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] text-xs sm:text-sm
-              ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm transition-colors"
+              rounded-lg hp:rounded-md font-medium bg-white hover:bg-red-50 text-red-400 text-xs sm:text-sm
+              border border-gray-200 hover:border-red-200 shadow-sm transition-colors"
           >
-            <ChevronLeft className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-            <span className="hp:hidden">Back</span>
+            <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+            <span className="hp:hidden">Reset</span>
           </button>
-        ) : (
-          <div className="flex items-center gap-2">
+
+          <div className="flex items-center gap-2 hp:gap-0">
+            {/* Calculate button */}
+            {!isDrawingMode && (
+              <button
+                onClick={onCalculate}
+                className="flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-4 hp:py-2 md:px-6
+                    rounded-lg hp:rounded-md font-medium text-sm transition-all
+                    bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
+              >
+                <Calculator className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+                <span className="hp:text-[11px] whitespace-nowrap">
+                  Calculate Result
+                </span>
+              </button>
+            )}
+            {/* Next step button */}
             <button
-              onClick={handleReset}
-              title="Reset"
-              className="flex justify-center items-center gap-2 px-5 py-2.5 hp:px-3 hp:py-2 md:px-6
-                rounded-lg hp:rounded-md font-medium bg-white hover:bg-red-50 text-gray-500 hover:text-red-600 text-xs sm:text-sm
-                border border-gray-200 hover:border-red-200 shadow-sm transition-colors"
+              onClick={onNext}
+              disabled={!isDrawingMode && !isCalculated}
+              title={buttonLabel}
+              className={`flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-3 hp:py-2 md:px-6
+                rounded-lg hp:rounded-md font-medium transition-all text-sm
+                ${
+                  (!isDrawingMode && !isCalculated)
+                    ? "bg-gray-100 text-gray-400 ring-1 ring-inset ring-gray-200 cursor-not-allowed shadow-none"
+                    : buttonLabel === "Next Input"
+                      ? "bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm"
+                      : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
+                }`}
             >
-              <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-              <span className="hp:hidden">Reset</span>
+              <span className="hp:hidden">{buttonLabel}</span>
+              <ChevronRight className="w-4 md:w-5 h-4 md:h-5 hp:w-4 hp:h-4" />
             </button>
           </div>
-        )}
-
-        {/* Calculate button */}
-        {!isDrawingMode && (
-          <button
-            onClick={onCalculate}
-            className="flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-4 hp:py-2 md:px-6
-                rounded-lg hp:rounded-md font-medium bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white text-sm hover:brightness-110 shadow-sm transition-all"
-          >
-            <Calculator className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-            <span className="hp:text-[11px] whitespace-nowrap">
-              Calculate Result
-            </span>
-          </button>
-        )}
-
-        <div className="flex items-center gap-2">
-          {isDrawingMode && (
-            <button
-              onClick={() => setShowResetModal(true)}
-              title="Reset"
-              className="flex justify-center items-center gap-2 px-5 py-2.5 hp:px-3 hp:py-2 md:px-6
-                rounded-lg hp:rounded-md font-medium bg-white hover:bg-red-50 text-red-400 text-xs sm:text-sm
-                border border-gray-200 hover:border-red-200 shadow-sm transition-colors"
-            >
-              <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-              <span className="hp:hidden">Reset</span>
-            </button>
-          )}
-          {/* Next step button */}
-          <button
-            onClick={onNext}
-            disabled={!isDrawingMode && !isCalculated}
-            title={buttonLabel}
-            className={`flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-3 hp:py-2 md:px-6
-              rounded-lg hp:rounded-md font-medium transition-all text-sm
-              ${
-                (!isDrawingMode && !isCalculated)
-                  ? "bg-gray-100 text-gray-400 ring-1 ring-inset ring-gray-200 cursor-not-allowed shadow-none"
-                  : buttonLabel === "Next Input"
-                    ? "bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm"
-                    : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
-              }`}
-          >
-            <span className="hp:hidden">{buttonLabel}</span>
-            <ChevronRight className="w-4 md:w-5 h-4 md:h-5 hp:w-4 hp:h-4" />
-          </button>
         </div>
       </div>
 
-      {isDrawingMode && (
-        <ConfirmResetAllModal
-          open={showResetModal}
-          onClose={() => setShowResetModal(false)}
-          onReset={handleReset}
-          title="Reset all inputs on this section?"
-          description="This will clear all inputs entered in this section. This action cannot be undone."
-        />
-      )}
+      <ConfirmResetAllModal
+        open={showResetModal}
+        onClose={() => setShowResetModal(false)}
+        onReset={handleReset}
+        title="Reset all inputs on this section?"
+        description="This will clear all inputs entered in this section. This action cannot be undone."
+      />
     </div>
   );
 }

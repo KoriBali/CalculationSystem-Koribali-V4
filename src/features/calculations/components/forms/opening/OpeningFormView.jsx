@@ -197,6 +197,7 @@ export default function OpeningFormView() {
                   onUpdate={opening.updateBoxType}
                   errors={opening.boxTypeErrors}
                   onCalculate={opening.calculate}
+                  onBack={opening.goBack}
                   onNext={handleNextStep}
                   isCalculated={opening.isCalculated}
                   buttonLabel={opening.buttonLabel}
@@ -211,6 +212,7 @@ export default function OpeningFormView() {
                   onUpdate={opening.updateRType}
                   errors={opening.rTypeErrors}
                   onCalculate={opening.calculate}
+                  onBack={opening.goBack}
                   onNext={handleNextStep}
                   isCalculated={opening.isCalculated}
                   buttonLabel={opening.buttonLabel}

@@ -99,7 +99,7 @@ export function useOpeningForm() {
   // ── Navigation ──
 
   // Determines button label, next step path, and whether this is the last step
-  const { buttonLabel, nextStep, isLast } = Utils.getStepNavigation(
+  const { buttonLabel, nextStep, prevStep, isLast } = Utils.getStepNavigation(
     condition,
     "opening",
     workflow.withReport
@@ -199,6 +199,11 @@ export function useOpeningForm() {
     navigate(`/calculation/${projectType}/${draftId}/${nextStep}`);
   };
 
+  // Navigates back to the previous step (always "pole" for opening)
+  const goBack = () => {
+    navigate(`/calculation/${projectType}/${draftId}/${prevStep}`);
+  };
+
   // ── Return ──
 
   return {
@@ -230,6 +235,7 @@ export function useOpeningForm() {
     updateRType,
     calculate,
     finish,
+    goBack,
     showToast,
   };
 }

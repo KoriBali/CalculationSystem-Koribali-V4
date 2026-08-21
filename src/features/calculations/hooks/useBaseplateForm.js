@@ -124,7 +124,7 @@ export function useBaseplateForm() {
   // ── Navigation ──
 
   // Determines button label, next step path, and whether this is the last step
-  const { buttonLabel, nextStep, isLast } = Utils.getStepNavigation(
+  const { buttonLabel, nextStep, prevStep, isLast } = Utils.getStepNavigation(
     condition,
     "baseplate",
     workflow.withReport
@@ -224,6 +224,11 @@ export function useBaseplateForm() {
     navigate(`/calculation/${projectType}/${draftId}/${nextStep}`);
   };
 
+  // Navigates back to the previous step (pole, or opening if enabled)
+  const handleBack = () => {
+    navigate(`/calculation/${projectType}/${draftId}/${prevStep}`);
+  };
+
   // Mapping for UI labels
   const typeLabelMap = {
     "4rib": "4 Rib Type",
@@ -258,6 +263,7 @@ export function useBaseplateForm() {
     handleEightRibTypeUpdate,
     handleCalculate,
     handleFinish,
+    handleBack,
     setToast,
     showToast,
   };

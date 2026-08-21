@@ -115,7 +115,7 @@ export function useFoundationForm() {
   };
 
   // Navigation helper for multi-step flow
-  const { buttonLabel, nextStep, isLast } = Utils.getStepNavigation(
+  const { buttonLabel, nextStep, prevStep, isLast } = Utils.getStepNavigation(
     condition,
     "foundation",
     workflow.withReport
@@ -222,6 +222,11 @@ export function useFoundationForm() {
     navigate(`/calculation/${projectType}/${draftId}/${nextStep}`);
   };
 
+  // Navigates back to the previous step (pole, opening, or baseplate — whichever is enabled)
+  const handleBack = () => {
+    navigate(`/calculation/${projectType}/${draftId}/${prevStep}`);
+  };
+
   // Mapping for UI labels
   const typeLabelMap = {
     "square-caisson": "Square Caisson Type",
@@ -256,6 +261,7 @@ export function useFoundationForm() {
     handleRoundCaissonUpdate,
     handleCalculate,
     handleFinish,
+    handleBack,
     setToast,
     showToast,
   };
