@@ -336,7 +336,7 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
                 <p className="text-xs md:text-sm text-slate-400 leading-relaxed max-w-[300px]">
                   {isGroundDisabled
                     ? "Select a standard type to continue. Ground position and pole dimensions will become available."
-                    : "Choose a ground position to view the diagram and fill in the height of structure."}
+                    : "Choose a ground position to view the pole diagram and fill in the height of structure."}
                 </p>
               </div>
             )}
