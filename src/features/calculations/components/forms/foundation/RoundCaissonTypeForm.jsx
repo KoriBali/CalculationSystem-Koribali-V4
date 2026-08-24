@@ -1,6 +1,8 @@
 import { RotateCcw, ChevronLeft, ChevronRight, Calculator } from "lucide-react";
+import { FieldErrorHint } from "../../../../../shared/components/FieldErrorHint";
 import { useState } from "react";
 import { ConfirmResetAllModal } from "../../modals/ConfirmResetAllModal";
+
 
 /**
  * HELPER COMPONENTS & FUNCTIONS
@@ -86,16 +88,14 @@ export function RoundCaissonTypeForm({
                     value={roundCaisson.foundationWidthX}
                     onChange={handleChange("foundationWidthX")}
                     onWheel={(e) => e.target.blur()}
+                    title={errors.foundationWidthX || undefined}
                     className={`${inputStyle(errors.foundationWidthX)} pr-6 sm:pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
                   />
+                  <FieldErrorHint message={errors.foundationWidthX} />
                   <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
                   </span>
                 </div>
-                <ErrorStyle
-                  show={errors.foundationWidthX}
-                  text={errors.foundationWidthX}
-                />
               </div>
 
               {/* Foundation Width — middle left */}
@@ -111,16 +111,14 @@ export function RoundCaissonTypeForm({
                     value={roundCaisson.foundationWidthY}
                     onChange={handleChange("foundationWidthY")}
                     onWheel={(e) => e.target.blur()}
+                    title={errors.foundationWidthY || undefined}
                     className={`${inputStyle(errors.foundationWidthY)} pr-6 sm:pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
                   />
+                  <FieldErrorHint message={errors.foundationWidthY} />
                   <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
                   </span>
                 </div>
-                <ErrorStyle
-                  show={errors.foundationWidthY}
-                  text={errors.foundationWidthY}
-                />
               </div>
             </div>
           </div>
@@ -152,16 +150,14 @@ export function RoundCaissonTypeForm({
                     value={roundCaisson.embedmentDepth}
                     onChange={handleChange("embedmentDepth")}
                     onWheel={(e) => e.target.blur()}
+                    title={errors.embedmentDepth || undefined}
                     className={`${inputStyle(errors.embedmentDepth)} pr-6 sm:pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
                   />
+                  <FieldErrorHint message={errors.embedmentDepth} />
                   <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
                   </span>
                 </div>
-                <ErrorStyle
-                  show={errors.embedmentDepth}
-                  text={errors.embedmentDepth}
-                />
               </div>
             </div>
           </div>

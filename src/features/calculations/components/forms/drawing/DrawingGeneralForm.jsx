@@ -113,7 +113,14 @@ const SectionCard = ({ children }) => (
 );
 
 export function DrawingGeneralForm({ general, onUpdate, onReset, onNext, errors, projectMode }) {
-  const { lightingCompanyOptions, loading: lightingCompaniesLoading } = useMasterData();
+  const {
+    lightingCompanyOptions,
+    loading: lightingCompaniesLoading,
+    error: lightingCompaniesError,
+    refetch: refetchLightingCompanies,
+  } = useMasterData();
+  const lightingCompaniesFailed =
+    lightingCompaniesError && lightingCompanyOptions.length === 0 && !lightingCompaniesLoading;
 
   return (
     <div className="bg-white rounded-b-2xl hp:rounded-b-xl shadow-sm border border-gray-200">
@@ -167,11 +174,15 @@ export function DrawingGeneralForm({ general, onUpdate, onReset, onNext, errors,
                     id="lightingCompanyName"
                     value={general.lightingCompanyName || ""}
                     onChange={(e) => onUpdate({ lightingCompanyName: e.target.value })}
-                    disabled={lightingCompaniesLoading}
-                    className={`${inputStyle(errors.lightingCompanyName)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] cursor-pointer appearance-none`}
+                    disabled={lightingCompaniesLoading || lightingCompaniesFailed}
+                    className={`${inputStyle(errors.lightingCompanyName || lightingCompaniesFailed)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] cursor-pointer appearance-none`}
                   >
                     <option value="" disabled>
-                      {lightingCompaniesLoading ? "Loading..." : "Select Lighting Company"}
+                      {lightingCompaniesLoading
+                        ? "Loading..."
+                        : lightingCompaniesFailed
+                          ? "Failed to load"
+                          : "Select Lighting Company"}
                     </option>
                     {lightingCompanyOptions.map((option) => (
                       <option key={option.value} value={option.value}>
@@ -183,7 +194,20 @@ export function DrawingGeneralForm({ general, onUpdate, onReset, onNext, errors,
                     <ChevronRight className="w-4 h-4 text-gray-400 rotate-90" />
                   </div>
                 </div>
-                <ErrorStyle show={errors.lightingCompanyName} text={errors.lightingCompanyName} />
+                {lightingCompaniesFailed ? (
+                  <div className="absolute left-0 -bottom-4 md:-bottom-5 flex items-center gap-1 text-[9px] md:text-[11px] text-red-500">
+                    <span>Failed to load.</span>
+                    <button
+                      type="button"
+                      onClick={refetchLightingCompanies}
+                      className="underline hover:text-red-600"
+                    >
+                      Retry
+                    </button>
+                  </div>
+                ) : (
+                  <ErrorStyle show={errors.lightingCompanyName} text={errors.lightingCompanyName} />
+                )}
               </div>
 
               {/* HIDDEN TEMPORARILY: Opening Direction

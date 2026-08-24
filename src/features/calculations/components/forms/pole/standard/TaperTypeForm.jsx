@@ -59,6 +59,12 @@ const preloadDiagrams = (urls) => {
 };
 
 // === HELPERS ===
+// Renders a red error message below an invalid field
+const ErrorStyle = ({ show, text }) =>
+  show ? (
+    <p className="mt-1.5 text-[11px] md:text-xs text-red-500">*{text}</p>
+  ) : null;
+
 const SectionTitle = ({ children }) => (
   <h3 className="text-[#0d3b66] mb-4 flex items-center gap-2 text-xs md:text-sm font-medium hp:text-xs hp:gap-1">
     <div className="w-1 h-5 bg-[#3399cc] rounded-full hp:h-4" />
@@ -74,11 +80,13 @@ const EMPTY_POLE_STANDARD = {
   height: "",
 };
 
-export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset = false, isBaseplate = true }) {
+export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset = false, isBaseplate = true, errors = {} }) {
   const {
     poleStandardOptions,
     heightOptionsByStandard,
     loading: poleStandardLoading,
+    error: poleStandardError,
+    refetch: refetchPoleStandard,
   } = usePoleStandardData();
 
   // Tracks which diagram URLs have already finished loading, so re-selecting
@@ -131,7 +139,12 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
 
       <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-4 hp:gap-3">
         {/* ── LEFT: Pole Type ── */}
-        <div id="taperPoleStandard.poleType" className="border border-slate-200 rounded-xl hp:rounded-lg bg-white shadow-sm overflow-hidden flex flex-col">
+        <div
+          id="taperPoleStandard.poleType"
+          className={`border rounded-xl hp:rounded-lg bg-white shadow-sm overflow-hidden flex flex-col ${
+            errors.poleType ? "border-red-300" : "border-slate-200"
+          }`}
+        >
           <div className="px-4 py-3 border-b border-slate-100 bg-slate-50 flex-shrink-0">
             <p className="text-xs md:text-sm font-medium text-slate-500">
               Pole Standard Type
@@ -143,6 +156,20 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
               <p className="text-xs sm:text-sm text-slate-400">
                 Loading pole standard options...
               </p>
+            )}
+            {!poleStandardLoading && poleStandardError && poleStandardOptions.length === 0 && (
+              <div className="col-span-2 md:col-span-1 flex items-center justify-between gap-3 px-3 py-2 rounded-lg bg-red-50 border border-red-200">
+                <p className="text-xs sm:text-sm text-red-600">
+                  Failed to load pole standard options.
+                </p>
+                <button
+                  type="button"
+                  onClick={refetchPoleStandard}
+                  className="text-xs sm:text-sm font-medium text-red-600 underline hover:text-red-700 shrink-0"
+                >
+                  Retry
+                </button>
+              </div>
             )}
             {poleStandardOptions.map((option) => {
               const isActive = taperPoleStandard.poleType === option.id;
@@ -168,10 +195,19 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
               );
             })}
           </div>
+          {errors.poleType && (
+            <div className="px-4 pb-3">
+              <ErrorStyle show={errors.poleType} text={errors.poleType} />
+            </div>
+          )}
         </div>
 
         {/* ── RIGHT: Ground Position + Diagram ── */}
-        <div className="border border-slate-200 rounded-xl hp:rounded-lg bg-white shadow-sm overflow-hidden flex flex-col">
+        <div
+          className={`border rounded-xl hp:rounded-lg bg-white shadow-sm overflow-hidden flex flex-col ${
+            errors.groundPosition ? "border-red-300" : "border-slate-200"
+          }`}
+        >
           {/* ── Ground position header ── */}
           <div id="taperPoleStandard.groundPosition" className="px-4 py-3 border-b border-slate-100 bg-slate-50 flex flex-col xl:flex-row items-start xl:items-center gap-3 xl:gap-4 flex-shrink-0">
             <p className="text-xs md:text-sm font-medium text-slate-500 flex-shrink-0">
@@ -233,6 +269,7 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
                   Select a pole standard first
                 </span>
               )}
+              <ErrorStyle show={errors.groundPosition} text={errors.groundPosition} />
             </div>
           </div>
 
@@ -262,7 +299,11 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
                         id="taperPoleStandard.height"
                         value={taperPoleStandard.height}
                         onChange={(e) => onUpdate({ height: e.target.value })}
-                        className="w-full px-1 md:px-3 py-2 lg:py-2.5 border border-gray-300 rounded-lg hp:rounded-md text-xs md:text-sm min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] focus:border-[#1D4ED8] outline-none transition-all bg-white appearance-none"
+                        className={`w-full px-1 md:px-3 py-2 lg:py-2.5 border rounded-lg hp:rounded-md text-xs md:text-sm min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] outline-none transition-all bg-white appearance-none ${
+                          errors.height
+                            ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
+                            : "border-gray-300 focus:border-[#1D4ED8]"
+                        }`}
                       >
                         <option value="" disabled>
                           Select Height
@@ -279,6 +320,7 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
                         <ChevronRight className="w-4 h-4 text-gray-400 rotate-90" />
                       </div>
                     </div>
+                    <ErrorStyle show={errors.height} text={errors.height} />
                   </div>
                 </div>
 
@@ -317,12 +359,17 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
                         value={taperPoleStandard.embedmentLength || ""}
                         onChange={(e) => onUpdate({ embedmentLength: e.target.value })}
                         onWheel={(e) => e.target.blur()}
-                        className="w-full px-2 py-1.5 md:py-2 lg:py-2.5 border border-gray-300 rounded-lg hp:rounded-md text-xs md:text-sm focus:border-[#1D4ED8] outline-none transition-all pr-8 md:pr-10 min-h-[34px] sm:min-h-[38px] lg:min-h-[42px]"
+                        className={`w-full px-2 py-1.5 md:py-2 lg:py-2.5 border rounded-lg hp:rounded-md text-xs md:text-sm outline-none transition-all pr-8 md:pr-10 min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] ${
+                          errors.embedmentLength
+                            ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
+                            : "border-gray-300 focus:border-[#1D4ED8]"
+                        }`}
                       />
                       <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs md:text-sm pointer-events-none">
                         mm
                       </span>
                     </div>
+                    <ErrorStyle show={errors.embedmentLength} text={errors.embedmentLength} />
                   </div>
                 )}
               </div>

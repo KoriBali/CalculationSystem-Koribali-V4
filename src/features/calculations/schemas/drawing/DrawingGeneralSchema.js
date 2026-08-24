@@ -1,17 +1,17 @@
 import * as yup from "yup";
 
 export const DrawingGeneralSchema = yup.object({
-  drawingType: yup.string().required("Required field"),
-  drawingNumber: yup.string().required("Required field"),
-  partNumber: yup.string().required("Required field"),
-  designerName: yup.string().required("Required field"),
-  checkedByName: yup.string().required("Required field"),
-  approvedByName: yup.string().required("Required field"),
+  drawingType: yup.string().required("Drawing Type is required"),
+  drawingNumber: yup.string().required("Drawing Number is required"),
+  partNumber: yup.string().required("Part Number is required"),
+  designerName: yup.string().required("Designer Name is required"),
+  checkedByName: yup.string().required("Checked By Name is required"),
+  approvedByName: yup.string().required("Approved By Name is required"),
   openingDirection: yup.string(),
-  lightingCompanyName: yup.string().required("Required field"),
+  lightingCompanyName: yup.string().required("Lighting Company Name is required"),
   poleType: yup.string().when("$projectMode", {
     is: "drawing",
-    then: (schema) => schema.required("Please select pole type"),
+    then: (schema) => schema.required("Please select a pole type"),
     otherwise: (schema) => schema.notRequired(),
   }),
   additionalComponents: yup.object().shape({
@@ -19,5 +19,5 @@ export const DrawingGeneralSchema = yup.object({
     baseplate: yup.boolean(),
     foundation: yup.boolean(),
   }),
-  useCoupling: yup.boolean().required("Required field"),
+  useCoupling: yup.boolean().required("Please select a coupling option"),
 });

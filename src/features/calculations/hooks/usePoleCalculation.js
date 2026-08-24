@@ -101,6 +101,7 @@ export function usePoleCalculation({
     armForm.setArmsErrors({});
     armForm.setAoErrors({});
     poleStandardForm.setStraightPoleErrors({});
+    poleStandardForm.setTaperPoleErrors({});
   };
 
   // ── Maps validation errors back to each sub-form's error state ──
@@ -114,6 +115,8 @@ export function usePoleCalculation({
     if (result.aoErrors) armForm.setAoErrors(result.aoErrors);
     if (result.straightPoleStandardErrors)
       poleStandardForm.setStraightPoleErrors(result.straightPoleStandardErrors);
+    if (result.taperPoleStandardErrors)
+      poleStandardForm.setTaperPoleErrors(result.taperPoleStandardErrors);
   };
 
   // ── Merge helpers ──
@@ -183,6 +186,10 @@ export function usePoleCalculation({
       
       if (validation.poleStandardErrors && Object.keys(validation.poleStandardErrors).length > 0) {
         scrollToFirstError(validation.poleStandardErrors);
+      } else if (validation.straightPoleStandardErrors && Object.keys(validation.straightPoleStandardErrors).length > 0) {
+        scrollToFirstError(validation.straightPoleStandardErrors);
+      } else if (validation.taperPoleStandardErrors && Object.keys(validation.taperPoleStandardErrors).length > 0) {
+        scrollToFirstError(validation.taperPoleStandardErrors, "taperPoleStandard.");
       } else if (validation.poleConfigErrors && Object.keys(validation.poleConfigErrors).length > 0) {
         scrollToFirstError(validation.poleConfigErrors);
       } else if (validation.polesErrors && Object.keys(validation.polesErrors).length > 0) {

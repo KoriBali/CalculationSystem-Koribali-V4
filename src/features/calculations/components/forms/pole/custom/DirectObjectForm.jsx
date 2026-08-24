@@ -48,7 +48,14 @@ export function DirectObjectForm({
   resetCurrentDo,
   handleAddDo,
 }) {
-  const { objectTypeOptions, loading: objectTypesLoading } = useMasterData();
+  const {
+    objectTypeOptions,
+    loading: objectTypesLoading,
+    error: objectTypesError,
+    refetch: refetchObjectTypes,
+  } = useMasterData();
+  const objectTypesFailed =
+    objectTypesError && objectTypeOptions.length === 0 && !objectTypesLoading;
 
   // Convert input to number for validation
   const doValueNumber = Number(doCountInput);
@@ -384,11 +391,13 @@ export function DirectObjectForm({
                       onChange={(e) =>
                         onUpdate(directObject.idDo, { type: e.target.value })
                       }
-                      disabled={objectTypesLoading}
-                      className={`${inputStyle(doError.type)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] pl-3 2xl:pl-4 pr-8 appearance-none`}
+                      disabled={objectTypesLoading || objectTypesFailed}
+                      className={`${inputStyle(doError.type || objectTypesFailed)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] pl-3 2xl:pl-4 pr-8 appearance-none`}
                     >
                       {objectTypesLoading ? (
                         <option value="">Loading...</option>
+                      ) : objectTypesFailed ? (
+                        <option value="">Failed to load</option>
                       ) : (
                         objectTypeOptions.map((option) => (
                           <option key={option.value} value={option.value}>
@@ -401,7 +410,20 @@ export function DirectObjectForm({
                       <ChevronRight className="w-4 h-4 text-gray-400 rotate-90" />
                     </div>
                   </div>
-                  <ErrorStyle show={doError.type} text={doError.type} />
+                  {objectTypesFailed ? (
+                    <div className="absolute left-0 -bottom-4 md:-bottom-5 flex items-center gap-1 text-[9px] md:text-[11px] text-red-500">
+                      <span>Failed to load.</span>
+                      <button
+                        type="button"
+                        onClick={refetchObjectTypes}
+                        className="underline hover:text-red-600"
+                      >
+                        Retry
+                      </button>
+                    </div>
+                  ) : (
+                    <ErrorStyle show={doError.type} text={doError.type} />
+                  )}
                 </div>
 
                 {/* Front Area Direct Object Input */}

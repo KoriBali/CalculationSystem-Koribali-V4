@@ -4,7 +4,14 @@ import { BoxTypeSchema } from "../../schemas/opening/BoxTypeSchema";
 import { RTypeSchema } from "../../schemas/opening/RTypeSchema";
 
 // Validate all opening inputs (type + specific detail)
-export async function validateOpening({ openingType, boxType, rType }) {
+// `isCalculationAndDrawing` — true when this project also produces a
+// drawing (projectMode "both"), so Opening Direction becomes required.
+export async function validateOpening({
+  openingType,
+  boxType,
+  rType,
+  isCalculationAndDrawing = false,
+}) {
   // Validate the main opening type first
   const { isValid: isTypeValid, errors: typeErrors } = await validateWithYup(
     OpeningTypeSchema,
@@ -22,7 +29,10 @@ export async function validateOpening({ openingType, boxType, rType }) {
 
   // Validate Box Type fields when selected type is "box"
   if (openingType.type === "box") {
-    const { isValid, errors } = await validateWithYup(BoxTypeSchema, boxType);
+    const { isValid, errors } = await validateWithYup(
+      BoxTypeSchema(isCalculationAndDrawing),
+      boxType,
+    );
 
     // Return early if Box Type validation fails
     if (!isValid) {
@@ -36,7 +46,10 @@ export async function validateOpening({ openingType, boxType, rType }) {
 
   // Validate R Type fields when selected type is "r"
   if (openingType.type === "r") {
-    const { isValid, errors } = await validateWithYup(RTypeSchema, rType);
+    const { isValid, errors } = await validateWithYup(
+      RTypeSchema(isCalculationAndDrawing),
+      rType,
+    );
 
     // Return early if R Type validation fails
     if (!isValid) {

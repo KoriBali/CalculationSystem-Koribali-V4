@@ -64,6 +64,13 @@ const CardOption = ({ label, current, value, onChange, icon: Icon }) => {
 export function DrawingPoleForm({ pole, onUpdate, onReset, onBack, onNext, errors, onToast, isBaseplate }) {
   const [showResetModal, setShowResetModal] = useState(false);
 
+  const taperErrors = {
+    poleType: errors["taperPoleStandard.poleType"],
+    groundPosition: errors["taperPoleStandard.groundPosition"],
+    height: errors["taperPoleStandard.height"],
+    embedmentLength: errors["taperPoleStandard.embedmentLength"],
+  };
+
   return (
     <div className="bg-white rounded-b-2xl hp:rounded-b-xl shadow-sm border border-gray-200">
       <div className="p-4 md:p-6 shadow-sm space-y-4 md:space-y-6">
@@ -80,11 +87,9 @@ export function DrawingPoleForm({ pole, onUpdate, onReset, onBack, onNext, error
                   })
                 }
                 isBaseplate={isBaseplate}
+                errors={taperErrors}
               />
             </div>
-            {(errors["taperPoleStandard.poleType"] || errors["taperPoleStandard.groundPosition"] || errors["taperPoleStandard.height"] || errors["taperPoleStandard.embedmentLength"]) && (
-              <ErrorStyle show={true} text="Please complete the Pole Configuration" />
-            )}
           </div>
 
         {/* Divider */}

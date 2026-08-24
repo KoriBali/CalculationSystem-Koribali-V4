@@ -1,4 +1,5 @@
 import { RotateCcw, ChevronRight, ChevronLeft, Calculator } from "lucide-react";
+import { FieldErrorHint } from "../../../../../shared/components/FieldErrorHint";
 import { useState } from "react";
 import { ConfirmResetAllModal } from "../../modals/ConfirmResetAllModal";
 
@@ -71,13 +72,14 @@ export function RTypeForm({
                   value={rType.opWidth}
                   onChange={(e) => onUpdate({ opWidth: e.target.value })}
                   onWheel={(e) => e.target.blur()}
+                  title={errors.opWidth || undefined}
                   className={`${inputStyle(errors.opWidth)} pr-6 sm:pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
                 />
+                <FieldErrorHint message={errors.opWidth} />
                 <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                   mm
                 </span>
               </div>
-              <ErrorStyle show={errors.opWidth} text={errors.opWidth} />
             </div>
           </div>
 
@@ -100,16 +102,14 @@ export function RTypeForm({
                       onUpdate({ opSurfaceHeight: e.target.value })
                     }
                     onWheel={(e) => e.target.blur()}
+                    title={errors.opSurfaceHeight || undefined}
                     className={`${inputStyle(errors.opSurfaceHeight)} pr-6 sm:pr-9 xl:pr-9 w-full`}
                   />
+                  <FieldErrorHint message={errors.opSurfaceHeight} />
                   <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
                   </span>
                 </div>
-                <ErrorStyle
-                  show={errors.opSurfaceHeight}
-                  text={errors.opSurfaceHeight}
-                />
               </div>
 
               {/* Opening Direction (only in Calculation & Drawing mode) */}
@@ -142,11 +142,8 @@ export function RTypeForm({
                     <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
                       <ChevronRight className="w-3 h-3 md:w-4 md:h-4 text-gray-400 rotate-90" />
                     </div>
+                    <FieldErrorHint message={errors.openingDirection} />
                   </div>
-                  <ErrorStyle
-                    show={errors.openingDirection}
-                    text={errors.openingDirection}
-                  />
                 </div>
               )}
             </div>
@@ -173,13 +170,14 @@ export function RTypeForm({
                   value={rType.opLength}
                   onChange={(e) => onUpdate({ opLength: e.target.value })}
                   onWheel={(e) => e.target.blur()}
+                  title={errors.opLength || undefined}
                   className={`${inputStyle(errors.opLength)} pr-6 sm:pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
                 />
+                <FieldErrorHint message={errors.opLength} />
                 <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                   mm
                 </span>
               </div>
-              <ErrorStyle show={errors.opLength} text={errors.opLength} />
             </div>
           </div>
         </div>

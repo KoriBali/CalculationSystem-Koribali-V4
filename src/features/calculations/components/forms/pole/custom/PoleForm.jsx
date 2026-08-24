@@ -59,7 +59,13 @@ const UnitInput = ({ value, onChange, unit, hasError, className, ...props }) => 
 
 export function PoleForm({ pole, onUpdate, errors }) {
   const isStraight = pole.type === "Straight";
-  const { materialOptions, loading: materialsLoading } = useMasterData();
+  const {
+    materialOptions,
+    loading: materialsLoading,
+    error: materialsError,
+    refetch: refetchMaterials,
+  } = useMasterData();
+  const materialsFailed = materialsError && materialOptions.length === 0 && !materialsLoading;
 
   return (
     <div>
@@ -96,11 +102,13 @@ export function PoleForm({ pole, onUpdate, errors }) {
                 id={`pole-${pole.idPole}-material`}
               value={pole.material}
               onChange={(e) => onUpdate({ material: e.target.value })}
-              disabled={materialsLoading}
-              className={`${inputStyle(errors.material)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] pl-3 2xl:pl-4 pr-8 appearance-none`}
+              disabled={materialsLoading || materialsFailed}
+              className={`${inputStyle(errors.material || materialsFailed)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] pl-3 2xl:pl-4 pr-8 appearance-none`}
             >
               {materialsLoading ? (
                 <option value="">Loading...</option>
+              ) : materialsFailed ? (
+                <option value="">Failed to load</option>
               ) : (
                 materialOptions.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -113,7 +121,20 @@ export function PoleForm({ pole, onUpdate, errors }) {
               <ChevronRight className="w-4 h-4 text-gray-400 rotate-90" />
             </div>
           </div>
-          <ErrorStyle show={errors.material} text={errors.material} />
+          {materialsFailed ? (
+            <div className="absolute left-0 -bottom-4 md:-bottom-5 flex items-center gap-1 text-[9px] md:text-[11px] text-red-500">
+              <span>Failed to load.</span>
+              <button
+                type="button"
+                onClick={refetchMaterials}
+                className="underline hover:text-red-600"
+              >
+                Retry
+              </button>
+            </div>
+          ) : (
+            <ErrorStyle show={errors.material} text={errors.material} />
+          )}
         </div>
 
         {/* Pole Type */}

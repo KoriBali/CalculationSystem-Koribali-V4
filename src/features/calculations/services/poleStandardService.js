@@ -53,7 +53,9 @@ async function fetchPoleStandards() {
 }
 
 // Returns cached pole standard data if available, otherwise fetches it from
-// /api/master/pole-standards and caches the result for the rest of the tab session.
+// /api/master/pole-standards and caches the result in sessionStorage for the
+// rest of the tab's lifetime (or until it expires per CACHE_TTL_MS, whichever
+// comes first). Cleared automatically when the tab is closed.
 export async function getPoleStandardData() {
   const cached = readCache();
   if (cached) return cached;

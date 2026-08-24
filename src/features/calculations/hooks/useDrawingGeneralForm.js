@@ -5,18 +5,6 @@ import { DrawingGeneralSchema } from "../schemas/drawing/DrawingGeneralSchema";
 import { useProjectStorage } from "./useProjectStorage";
 import { scrollToFirstError, firstErrorMessage } from "../utils/scrollToError";
 
-const FIELD_LABELS = {
-  drawingType: "Drawing Type",
-  drawingNumber: "Drawing Number",
-  partNumber: "Part Number",
-  designerName: "Designer Name",
-  checkedByName: "Checked By Name",
-  approvedByName: "Approved By Name",
-  lightingCompanyName: "Lighting Company Name",
-  poleType: "Pole Type",
-  useCoupling: "Coupling Usage",
-};
-
 const getDefaultGeneral = () => ({
   drawingType: "",
   drawingNumber: "",
@@ -176,7 +164,7 @@ export function useDrawingGeneralForm() {
 
     if (!isValid) {
       setErrors(validationErrors);
-      setToast({ message: firstErrorMessage(validationErrors, FIELD_LABELS) });
+      setToast({ message: firstErrorMessage(validationErrors) });
       scrollToFirstError(validationErrors);
       return;
     }

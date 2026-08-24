@@ -1,6 +1,7 @@
 import { RotateCcw, ChevronLeft, ChevronRight, ChevronDown, Box } from "lucide-react";
 import { useState } from "react";
 import { ConfirmResetAllModal } from "../../modals/ConfirmResetAllModal";
+import { FieldErrorHint } from "../../../../../shared/components/FieldErrorHint";
 
 const inputStyle = (hasError) =>
   `w-full px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border
@@ -87,8 +88,8 @@ export function DrawingBaseplateForm({ baseplate, onUpdate, onReset, onBack, onN
                     <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                       mm
                     </span>
+                    <FieldErrorHint message={errors.bpWidthEW} />
                   </div>
-                  <ErrorStyle show={errors.bpWidthEW} text={errors.bpWidthEW} />
                 </div>
               </div>
             </div>

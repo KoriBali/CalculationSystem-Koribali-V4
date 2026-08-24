@@ -1,4 +1,5 @@
 import { RotateCcw, ChevronRight, ChevronLeft, Calculator } from "lucide-react";
+import { FieldErrorHint } from "../../../../../shared/components/FieldErrorHint";
 import { useState } from "react";
 import { ConfirmResetAllModal } from "../../modals/ConfirmResetAllModal";
 
@@ -34,7 +35,6 @@ const InputField = ({
         </span>
       </div>
 
-      <ErrorStyle show={error} text={error} />
     </div>
   );
 };
@@ -117,13 +117,14 @@ export function EightRibTypeForm({
                   value={eightRibType.bpWidthEW}
                   onChange={handleChange("bpWidthEW")}
                   onWheel={(e) => e.target.blur()}
+                  title={errors.bpWidthEW || undefined}
                   className={`${inputStyle(errors.bpWidthEW)} pr-6 sm:pr-9 xl:pr-9 w-[90px] sm:w-[120px] xl:w-[140px]`}
                 />
+                <FieldErrorHint message={errors.bpWidthEW} />
                 <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                   mm
                 </span>
               </div>
-              <ErrorStyle show={errors.bpWidthEW} text={errors.bpWidthEW} />
             </div>
 
             {/* Anchor Pitch (EW) — below Baseplate Width (EW) */}
@@ -139,16 +140,14 @@ export function EightRibTypeForm({
                   value={eightRibType.anchorPitchEW}
                   onChange={handleChange("anchorPitchEW")}
                   onWheel={(e) => e.target.blur()}
+                  title={errors.anchorPitchEW || undefined}
                   className={`${inputStyle(errors.anchorPitchEW)} pr-6 sm:pr-9 xl:pr-9 w-[90px] sm:w-[120px] xl:w-[140px]`}
                 />
+                <FieldErrorHint message={errors.anchorPitchEW} />
                 <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                   mm
                 </span>
               </div>
-              <ErrorStyle
-                show={errors.anchorPitchEW}
-                text={errors.anchorPitchEW}
-              />
             </div>
 
             {/* Baseplate Width (NS) — middle left edge */}
@@ -164,13 +163,14 @@ export function EightRibTypeForm({
                   value={eightRibType.bpWidthNS}
                   onChange={handleChange("bpWidthNS")}
                   onWheel={(e) => e.target.blur()}
+                  title={errors.bpWidthNS || undefined}
                   className={`${inputStyle(errors.bpWidthNS)} pr-6 sm:pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
                 />
+                <FieldErrorHint message={errors.bpWidthNS} />
                 <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                   mm
                 </span>
               </div>
-              <ErrorStyle show={errors.bpWidthNS} text={errors.bpWidthNS} />
             </div>
 
             {/* Anchor Pitch (NS) — to the right of Baseplate Width (NS) */}
@@ -186,16 +186,14 @@ export function EightRibTypeForm({
                   value={eightRibType.anchorPitchNS}
                   onChange={handleChange("anchorPitchNS")}
                   onWheel={(e) => e.target.blur()}
+                  title={errors.anchorPitchNS || undefined}
                   className={`${inputStyle(errors.anchorPitchNS)} pr-6 sm:pr-9 xl:pr-9 w-[100px] sm:w-[120px] xl:w-[140px]`}
                 />
+                <FieldErrorHint message={errors.anchorPitchNS} />
                 <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                   mm
                 </span>
               </div>
-              <ErrorStyle
-                show={errors.anchorPitchNS}
-                text={errors.anchorPitchNS}
-              />
             </div>
 
             {/* Anchor Bolt Diameter + Number of Anchor Bolts side by side */}
@@ -212,13 +210,14 @@ export function EightRibTypeForm({
                     value={eightRibType.anchorDia}
                     onChange={handleChange("anchorDia")}
                     onWheel={(e) => e.target.blur()}
+                    title={errors.anchorDia || undefined}
                     className={`${inputStyle(errors.anchorDia)} pr-6 sm:pr-9 xl:pr-9 w-[90px] sm:w-[120px] xl:w-[140px]`}
                   />
+                  <FieldErrorHint message={errors.anchorDia} />
                   <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
                   </span>
                 </div>
-                <ErrorStyle show={errors.anchorDia} text={errors.anchorDia} />
               </div>
 
               <div className="hidden relative">
@@ -233,16 +232,14 @@ export function EightRibTypeForm({
                     value={eightRibType.anchorCount}
                     onChange={handleChange("anchorCount")}
                     onWheel={(e) => e.target.blur()}
+                    title={errors.anchorCount || undefined}
                     className={`${inputStyle(errors.anchorCount)} pr-6 sm:pr-9 xl:pr-9 w-[90px] sm:w-[120px] xl:w-[140px]`}
                   />
+                  <FieldErrorHint message={errors.anchorCount} />
                   <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     pcs
                   </span>
                 </div>
-                <ErrorStyle
-                  show={errors.anchorCount}
-                  text={errors.anchorCount}
-                />
               </div>
             </div>
 
@@ -259,13 +256,14 @@ export function EightRibTypeForm({
                   value={eightRibType.ribAngle}
                   onChange={handleChange("ribAngle")}
                   onWheel={(e) => e.target.blur()}
+                  title={errors.ribAngle || undefined}
                   className={`${inputStyle(errors.ribAngle)} pr-6 sm:pr-9 xl:pr-9 w-[90px] sm:w-[120px] xl:w-[140px]`}
                 />
+                <FieldErrorHint message={errors.ribAngle} />
                 <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                   deg
                 </span>
               </div>
-              <ErrorStyle show={errors.ribAngle} text={errors.ribAngle} />
             </div>
 
             {/* Number of Anchor Bolts on Tension Side — right aligned */}
@@ -281,16 +279,14 @@ export function EightRibTypeForm({
                   value={eightRibType.anchorCountTension}
                   onChange={handleChange("anchorCountTension")}
                   onWheel={(e) => e.target.blur()}
+                  title={errors.anchorCountTension || undefined}
                   className={`${inputStyle(errors.anchorCountTension)} pr-6 sm:pr-9 xl:pr-9 w-[90px] sm:w-[120px] xl:w-[140px]`}
                 />
+                <FieldErrorHint message={errors.anchorCountTension} />
                 <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                   pcs
                 </span>
               </div>
-              <ErrorStyle
-                show={errors.anchorCountTension}
-                text={errors.anchorCountTension}
-              />
             </div>
           </div>
         </div>
@@ -319,16 +315,14 @@ export function EightRibTypeForm({
                     value={eightRibType.bpThickness}
                     onChange={handleChange("bpThickness")}
                     onWheel={(e) => e.target.blur()}
+                    title={errors.bpThickness || undefined}
                     className={`${inputStyle(errors.bpThickness)} pr-6 sm:pr-9 xl:pr-9 w-[90px] sm:w-[120px] xl:w-[140px]`}
                   />
+                  <FieldErrorHint message={errors.bpThickness} />
                   <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
                   </span>
                 </div>
-                <ErrorStyle
-                  show={errors.bpThickness}
-                  text={errors.bpThickness}
-                />
               </div>
 
               {/* Rib Plate Height */}
@@ -344,13 +338,14 @@ export function EightRibTypeForm({
                     value={eightRibType.ribHeight}
                     onChange={handleChange("ribHeight")}
                     onWheel={(e) => e.target.blur()}
+                    title={errors.ribHeight || undefined}
                     className={`${inputStyle(errors.ribHeight)} pr-6 sm:pr-9 xl:pr-9 w-[90px] sm:w-[120px] xl:w-[140px]`}
                   />
+                  <FieldErrorHint message={errors.ribHeight} />
                   <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
                   </span>
                 </div>
-                <ErrorStyle show={errors.ribHeight} text={errors.ribHeight} />
               </div>
 
               {/* Weld Leg Length */}
@@ -366,13 +361,14 @@ export function EightRibTypeForm({
                     value={eightRibType.weldLeg}
                     onChange={handleChange("weldLeg")}
                     onWheel={(e) => e.target.blur()}
+                    title={errors.weldLeg || undefined}
                     className={`${inputStyle(errors.weldLeg)} pr-6 sm:pr-9 xl:pr-9 w-[90px] sm:w-[120px] xl:w-[140px]`}
                   />
+                  <FieldErrorHint message={errors.weldLeg} />
                   <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
                   </span>
                 </div>
-                <ErrorStyle show={errors.weldLeg} text={errors.weldLeg} />
               </div>
 
               {/* Rib Plate Scallop */}
@@ -388,13 +384,14 @@ export function EightRibTypeForm({
                     value={eightRibType.ribScallop}
                     onChange={handleChange("ribScallop")}
                     onWheel={(e) => e.target.blur()}
+                    title={errors.ribScallop || undefined}
                     className={`${inputStyle(errors.ribScallop)} pr-6 sm:pr-9 xl:pr-9 w-[90px] sm:w-[120px] xl:w-[140px]`}
                   />
+                  <FieldErrorHint message={errors.ribScallop} />
                   <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
                   </span>
                 </div>
-                <ErrorStyle show={errors.ribScallop} text={errors.ribScallop} />
               </div>
             </div>
           </div>
@@ -421,13 +418,14 @@ export function EightRibTypeForm({
                     value={eightRibType.ribLength}
                     onChange={handleChange("ribLength")}
                     onWheel={(e) => e.target.blur()}
+                    title={errors.ribLength || undefined}
                     className={`${inputStyle(errors.ribLength)} pr-6 sm:pr-9 xl:pr-9 w-[90px] sm:w-[120px] xl:w-[140px]`}
                   />
+                  <FieldErrorHint message={errors.ribLength} />
                   <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
                   </span>
                 </div>
-                <ErrorStyle show={errors.ribLength} text={errors.ribLength} />
               </div>
 
               {/* Rib Plate Thickness */}
@@ -443,16 +441,14 @@ export function EightRibTypeForm({
                     value={eightRibType.ribThickness}
                     onChange={handleChange("ribThickness")}
                     onWheel={(e) => e.target.blur()}
+                    title={errors.ribThickness || undefined}
                     className={`${inputStyle(errors.ribThickness)} pr-6 sm:pr-9 xl:pr-9 w-[90px] sm:w-[120px] xl:w-[140px]`}
                   />
+                  <FieldErrorHint message={errors.ribThickness} />
                   <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
                   </span>
                 </div>
-                <ErrorStyle
-                  show={errors.ribThickness}
-                  text={errors.ribThickness}
-                />
               </div>
             </div>
           </div>

@@ -41,6 +41,7 @@ export function usePoleStandardForm(projectType) {
   );
 
   const [straightPoleErrors, setStraightPoleErrors] = useState({});
+  const [taperPoleErrors, setTaperPoleErrors] = useState({});
 
   // Updates pole type selection — resets downstream fields on type change
   const updatePoleTypeStandard = (updates) =>
@@ -51,12 +52,23 @@ export function usePoleStandardForm(projectType) {
     );
 
   // Updates taper pole fields
-  const updateTaperPoleStandard = (updates) =>
+  const updateTaperPoleStandard = (updates) => {
     Utils.updateTaperPoleStandard(
       taperPoleStandard,
       updates,
       setTaperPoleStandard,
     );
+
+    // Clear errors for updated fields
+    setTaperPoleErrors((prev) => {
+      if (Object.keys(prev).length === 0) return prev;
+      const newErrors = { ...prev };
+      Object.keys(updates).forEach((key) => {
+        delete newErrors[key];
+      });
+      return newErrors;
+    });
+  };
 
   const updateStraightPoleStandard = (updates) => {
     let next = { ...updates };
@@ -88,9 +100,11 @@ export function usePoleStandardForm(projectType) {
     taperPoleStandard,
     straightPoleStandard,
     straightPoleErrors,
+    taperPoleErrors,
 
     // Setters
     setStraightPoleErrors,
+    setTaperPoleErrors,
 
     // Handlers
     updatePoleTypeStandard,

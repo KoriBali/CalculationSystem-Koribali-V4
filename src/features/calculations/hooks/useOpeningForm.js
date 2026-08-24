@@ -157,7 +157,12 @@ export function useOpeningForm() {
     setBoxTypeErrors({});
     setRTypeErrors({});
 
-    const validation = await validateOpening({ openingType, boxType, rType });
+    const validation = await validateOpening({
+      openingType,
+      boxType,
+      rType,
+      isCalculationAndDrawing,
+    });
 
     if (!validation.isValid) {
       setOpeningTypeErrors(validation.typeErrors || {});

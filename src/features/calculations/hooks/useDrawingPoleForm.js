@@ -5,13 +5,6 @@ import { DrawingPoleSchema } from "../schemas/drawing/DrawingPoleSchema";
 import { useProjectStorage } from "./useProjectStorage";
 import { scrollToFirstError, firstErrorMessage } from "../utils/scrollToError";
 
-const FIELD_LABELS = {
-  "taperPoleStandard.poleType": "Pole Standard",
-  "taperPoleStandard.groundPosition": "Ground Position",
-  "taperPoleStandard.height": "Height",
-  "taperPoleStandard.embedmentLength": "Embedment Length",
-};
-
 const getDefaultPole = () => ({
   taperPoleStandard: { poleType: "", groundPosition: "", height: "" },
 });
@@ -61,13 +54,13 @@ export function useDrawingPoleForm() {
     if (!isBaseplate && localPole.taperPoleStandard?.groundPosition === "underGL") {
       if (!localPole.taperPoleStandard?.embedmentLength) {
         finalIsValid = false;
-        finalErrors["taperPoleStandard.embedmentLength"] = "Required field";
+        finalErrors["taperPoleStandard.embedmentLength"] = "Embedment Length is required";
       }
     }
 
     if (!finalIsValid) {
       setErrors(finalErrors);
-      setToast({ message: firstErrorMessage(finalErrors, FIELD_LABELS) });
+      setToast({ message: firstErrorMessage(finalErrors) });
       scrollToFirstError(finalErrors);
       return null;
     }

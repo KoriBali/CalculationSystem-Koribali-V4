@@ -8,6 +8,7 @@ import { ArmSchema } from "../../schemas/pole/custom/ArmSchema";
 import { ArmObjectSchema } from "../../schemas/pole/custom/ArmObjectSchema";
 import { PoleTypeSchema } from "../../schemas/pole/standard/PoleTypeSchema";
 import { StraightTypeSchema } from "../../schemas/pole/standard/StraightTypeSchema";
+import { TaperTypeSchema } from "../../schemas/pole/standard/TaperTypeSchema";
 
 import STANDARD_POLE_DATA from "../../data/specStandardPole.json";
 
@@ -148,6 +149,22 @@ export async function validatePoleForm({
         straightPoleStandardErrors: errors,
         message:
           "Please correct the errors in Stepped Pole Type Specifications fields.",
+      };
+    }
+  }
+
+  // ── 3b. Taper Pole Standard (taper standard) ──
+  if (isStandard && !isStraight) {
+    const { isValid, errors } = await validateWithYup(
+      TaperTypeSchema(condition),
+      taperPoleStandard,
+    );
+
+    if (!isValid) {
+      return {
+        isValid: false,
+        taperPoleStandardErrors: errors,
+        message: "Please correct the errors in Taper Pole Type Specifications fields.",
       };
     }
   }

@@ -58,7 +58,9 @@ async function fetchBootstrap() {
 }
 
 // Returns cached master data if available, otherwise fetches it from
-// /api/master/bootstrap and caches the result for the rest of the tab session.
+// /api/master/bootstrap and caches the result in sessionStorage for the rest
+// of the tab's lifetime (or until it expires per CACHE_TTL_MS, whichever
+// comes first). Cleared automatically when the tab is closed.
 export async function getMasterData() {
   const cached = readCache();
   if (cached) return cached;

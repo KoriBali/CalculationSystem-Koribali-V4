@@ -26,7 +26,13 @@ const ErrorStyle = ({ show, text }) =>
  * MAIN COMPONENT
  */
 export function ArmForm({ arm, onUpdate, armError }) {
-  const { materialOptions, loading: materialsLoading } = useMasterData();
+  const {
+    materialOptions,
+    loading: materialsLoading,
+    error: materialsError,
+    refetch: refetchMaterials,
+  } = useMasterData();
+  const materialsFailed = materialsError && materialOptions.length === 0 && !materialsLoading;
 
   return (
     <div>
@@ -63,13 +69,15 @@ export function ArmForm({ arm, onUpdate, armError }) {
               id={`arm-${arm.idArm}-material`}
               value={arm.material}
               onChange={(e) => onUpdate({ material: e.target.value })}
-              disabled={materialsLoading}
+              disabled={materialsLoading || materialsFailed}
               className={`
-                ${inputStyle(armError.material)}
+                ${inputStyle(armError.material || materialsFailed)}
                 min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] pl-3 2xl:pl-4 pr-8 appearance-none`}
             >
               {materialsLoading ? (
                 <option value="">Loading...</option>
+              ) : materialsFailed ? (
+                <option value="">Failed to load</option>
               ) : (
                 materialOptions.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -82,7 +90,20 @@ export function ArmForm({ arm, onUpdate, armError }) {
               <ChevronRight className="w-4 h-4 text-gray-400 rotate-90" />
             </div>
           </div>
-          <ErrorStyle show={armError.material} text={armError.material} />
+          {materialsFailed ? (
+            <div className="absolute left-0 -bottom-4 md:-bottom-5 flex items-center gap-1 text-[9px] md:text-[11px] text-red-500">
+              <span>Failed to load.</span>
+              <button
+                type="button"
+                onClick={refetchMaterials}
+                className="underline hover:text-red-600"
+              >
+                Retry
+              </button>
+            </div>
+          ) : (
+            <ErrorStyle show={armError.material} text={armError.material} />
+          )}
         </div>
 
         {/* Diameter Arm Input */}

@@ -239,6 +239,7 @@ export default function PoleFormView() {
                         taperPoleStandard={poleStandardForm.taperPoleStandard}
                         onUpdate={poleStandardForm.updateTaperPoleStandard}
                         isBaseplate={condition.baseplateEnabled}
+                        errors={poleStandardForm.taperPoleErrors}
                       />
                     )}
 

@@ -1,14 +1,21 @@
 import * as yup from "yup";
 
-const numberField = yup
-  .number()
-  .transform((_, val) => (val === "" ? undefined : Number(val)))
-  .typeError("Must be a number")
-  .required("Required field")
-  .min(0, "Must be positive");
+const numberField = (label) =>
+  yup
+    .number()
+    .transform((_, val) => (val === "" ? undefined : Number(val)))
+    .typeError(`${label} must be a number`)
+    .required(`${label} is required`)
+    .min(0, `${label} must be positive`);
 
-export const RTypeSchema = yup.object({
-  opWidth: numberField,
-  opSurfaceHeight: numberField,
-  opLength: numberField,
-});
+// `requireDirection` — true when this project also produces a drawing
+// (projectMode "both"), since Opening Direction only feeds the drawing output.
+export const RTypeSchema = (requireDirection) =>
+  yup.object({
+    opWidth: numberField("Opening Width"),
+    opSurfaceHeight: numberField("Opening Surface Height"),
+    opLength: numberField("Opening Length"),
+    openingDirection: requireDirection
+      ? yup.string().required("Opening Direction is required")
+      : yup.string(),
+  });

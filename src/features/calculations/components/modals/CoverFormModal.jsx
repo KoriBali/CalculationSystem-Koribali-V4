@@ -16,7 +16,15 @@ export function CoverFormModal({ open, onClose, projectType, onConfirm }) {
     authorOptions,
     departmentOptions,
     loading: masterDataLoading,
+    error: masterDataError,
+    refetch: refetchMasterData,
   } = useMasterData();
+  const masterDataFailed =
+    masterDataError &&
+    !masterDataLoading &&
+    regionOptions.length === 0 &&
+    authorOptions.length === 0 &&
+    departmentOptions.length === 0;
 
   if (!open) return null;
 
@@ -149,6 +157,21 @@ export function CoverFormModal({ open, onClose, projectType, onConfirm }) {
                 <div className="h-px bg-slate-300 flex-1" />
               </div>
 
+              {masterDataFailed && (
+                <div className="flex items-center justify-between gap-3 mb-4 px-3 py-2 rounded-lg bg-red-50 border border-red-200">
+                  <p className="text-xs sm:text-sm text-red-600">
+                    Failed to load Region / Author / Department options.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={refetchMasterData}
+                    className="text-xs sm:text-sm font-medium text-red-600 underline hover:text-red-700 shrink-0"
+                  >
+                    Retry
+                  </button>
+                </div>
+              )}
+
               <div className="grid grid-cols-3 gap-4 border border-slate-200 p-5 rounded-xl bg-slate-50/50">
                 {/* Region */}
                 <div className="flex flex-col items-center gap-3">
@@ -160,7 +183,13 @@ export function CoverFormModal({ open, onClose, projectType, onConfirm }) {
                       value={coverData.region}
                       onChange={(val) => updateCover({ region: val })}
                       error={coverErrors.region}
-                      placeholder={masterDataLoading ? "Loading..." : "-"}
+                      placeholder={
+                        masterDataLoading
+                          ? "Loading..."
+                          : masterDataFailed
+                            ? "Failed to load"
+                            : "-"
+                      }
                       options={masterDataLoading ? [] : regionOptions}
                     />
                     {coverErrors.region && (
@@ -181,7 +210,13 @@ export function CoverFormModal({ open, onClose, projectType, onConfirm }) {
                       value={coverData.author}
                       onChange={(val) => updateCover({ author: val })}
                       error={coverErrors.author}
-                      placeholder={masterDataLoading ? "Loading..." : "-"}
+                      placeholder={
+                        masterDataLoading
+                          ? "Loading..."
+                          : masterDataFailed
+                            ? "Failed to load"
+                            : "-"
+                      }
                       options={masterDataLoading ? [] : authorOptions}
                     />
                     {coverErrors.author && (
@@ -204,7 +239,13 @@ export function CoverFormModal({ open, onClose, projectType, onConfirm }) {
                         updateCover({ departmentInCharge: val })
                       }
                       error={coverErrors.departmentInCharge}
-                      placeholder={masterDataLoading ? "Loading..." : "-"}
+                      placeholder={
+                        masterDataLoading
+                          ? "Loading..."
+                          : masterDataFailed
+                            ? "Failed to load"
+                            : "-"
+                      }
                       options={masterDataLoading ? [] : departmentOptions}
                     />
                     {coverErrors.departmentInCharge && (

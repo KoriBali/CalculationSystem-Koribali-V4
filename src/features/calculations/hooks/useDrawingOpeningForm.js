@@ -8,14 +8,10 @@ import { scrollToFirstError, firstErrorMessage } from "../utils/scrollToError";
 const DrawingOpeningSchema = Yup.object().shape({
   height: Yup.number()
     .transform((value) => (isNaN(value) ? undefined : value))
-    .required("Height is required")
-    .positive("Height must be positive"),
-  direction: Yup.string()
-    .required("Opening direction is required")
-    .oneOf(["left", "front", "right", "back"], "Invalid direction"),
-  type: Yup.string()
-    .required("Opening type is required")
-    .oneOf(["box", "r"], "Invalid type"),
+    .required("Opening Length is required")
+    .positive("Opening Length must be positive"),
+  direction: Yup.string().required("Opening Direction is required"),
+  type: Yup.string().required("Opening Type is required"),
 });
 
 const getDefaultOpening = () => ({

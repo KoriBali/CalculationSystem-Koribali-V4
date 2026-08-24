@@ -13,13 +13,6 @@ import { scrollToFirstError, firstErrorMessage } from "../utils/scrollToError";
 
 // ─── CONSTANTS ───────────────────────────────────────────────────────────────
 
-const FIELD_LABELS = {
-  designStandard: "Design Standard",
-  designWindSpeed: "Design Wind Speed",
-  designAirDensity: "Air Density",
-  poleType: "Pole Type",
-};
-
 const getDefaultCondition = (projectType) => ({
   designStandard: "",
   designWindSpeed: "",
@@ -69,7 +62,7 @@ export function useConditionForm() {
 
     if (!validation.isValid) {
       setErrors(validation.errors); // Yup langsung set error yang benar
-      setToast({ message: firstErrorMessage(validation.errors, FIELD_LABELS) || validation.message });
+      setToast({ message: firstErrorMessage(validation.errors) || validation.message });
       scrollToFirstError(validation.errors);
       return;
     }

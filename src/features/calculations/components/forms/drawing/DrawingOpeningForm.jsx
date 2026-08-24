@@ -1,6 +1,7 @@
 import { ChevronLeft, ChevronRight, RotateCcw, Box } from "lucide-react";
 import { useState } from "react";
 import { ConfirmResetAllModal } from "../../modals/ConfirmResetAllModal";
+import { FieldErrorHint } from "../../../../../shared/components/FieldErrorHint";
 
 const ErrorStyle = ({ show, text }) =>
   show ? (
@@ -72,8 +73,8 @@ export function DrawingOpeningForm({ opening, onUpdate, onReset, onBack, onNext,
                   <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
                     <ChevronRight className="w-3 h-3 text-gray-400 rotate-90" />
                   </div>
+                  <FieldErrorHint message={errors.direction} />
                 </div>
-                <ErrorStyle show={errors.direction} text={errors.direction} />
               </div>
 
               {/* Middle: Side View Diagram */}
@@ -103,8 +104,8 @@ export function DrawingOpeningForm({ opening, onUpdate, onReset, onBack, onNext,
                   <span className="absolute right-2 sm:right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                     mm
                   </span>
+                  <FieldErrorHint message={errors.height} />
                 </div>
-                <ErrorStyle show={errors.height} text={errors.height} />
               </div>
             </div>
           </div>

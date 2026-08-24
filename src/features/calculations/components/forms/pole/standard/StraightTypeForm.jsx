@@ -84,6 +84,8 @@ export function StraightPoleStandardForm({
     combinations,
     tplMap,
     loading: poleStandardLoading,
+    error: poleStandardError,
+    refetch: refetchPoleStandard,
   } = usePoleStandardData();
 
   const [showResetModal, setShowResetModal] = useState(false);
@@ -111,6 +113,20 @@ export function StraightPoleStandardForm({
             <p className="text-xs sm:text-sm text-slate-400 mb-3">
               Loading pole standard options...
             </p>
+          )}
+          {!poleStandardLoading && poleStandardError && steppedPoleOptions.length === 0 && (
+            <div className="flex items-center justify-between gap-3 mb-3 px-3 py-2 rounded-lg bg-red-50 border border-red-200">
+              <p className="text-xs sm:text-sm text-red-600">
+                Failed to load pole standard options.
+              </p>
+              <button
+                type="button"
+                onClick={refetchPoleStandard}
+                className="text-xs sm:text-sm font-medium text-red-600 underline hover:text-red-700 shrink-0"
+              >
+                Retry
+              </button>
+            </div>
           )}
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {steppedPoleOptions.map((option) => {
@@ -253,7 +269,7 @@ export function StraightPoleStandardForm({
                           </div>
                           <ErrorStyle
                             show={errors.upperThickness}
-                            text="Required field"
+                            text={errors.upperThickness}
                           />
                         </div>
                       ) : (
@@ -321,7 +337,7 @@ export function StraightPoleStandardForm({
                           </div>
                           <ErrorStyle
                             show={errors.lowerThickness}
-                            text="Required field"
+                            text={errors.lowerThickness}
                           />
                         </div>
                       ) : (
