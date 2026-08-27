@@ -32,15 +32,28 @@ const resolveData = ({
   const type = poleTypeStandard.type;
 
   if (type === "taper") {
+    const isEmbedment =
+      !condition.baseplateEnabled && taperPoleStandard.groundPosition === "underGL";
+
+    // In Embedment mode the height dropdown shows the plain onGL-style
+    // values (the +0.3m embedment allowance is entered separately via
+    // Embedment Length) — but specStandardPole.json's underGL entries are
+    // still keyed by the elongated height (e.g. "8.3"), since that's a
+    // physically longer pole with different structural data. Translate
+    // back to that key only for this lookup.
+    const heightKey = isEmbedment
+      ? (Number(taperPoleStandard.height) + 0.3).toFixed(1)
+      : taperPoleStandard.height;
+
     const selectedPole =
       STANDARD_POLE_DATA?.taper?.[taperPoleStandard.poleType]?.[
         taperPoleStandard.groundPosition
-      ]?.[taperPoleStandard.height];
+      ]?.[heightKey];
 
     if (!selectedPole)
       return { error: "Standard taper pole data not found.", ...empty };
 
-    if (!condition.baseplateEnabled && taperPoleStandard.groundPosition === "underGL") {
+    if (isEmbedment) {
       if (!taperPoleStandard.embedmentLength) {
         return { error: "Please complete the embedment length.", ...empty };
       }
