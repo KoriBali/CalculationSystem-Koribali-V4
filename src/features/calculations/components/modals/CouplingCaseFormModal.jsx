@@ -168,34 +168,34 @@ export function CouplingCaseFormModal({
 
   const handleSave = () => {
     const newErrors = {};
-    if (!formData.position) newErrors.position = "Required field";
-    if (!formData.size) newErrors.size = "Required field";
-    if (!formData.type) newErrors.type = "Required field";
-    if (formData.verticalAngle === "" || formData.verticalAngle === null) newErrors.verticalAngle = "Required field";
-    
+    if (!formData.position) newErrors.position = "Please select a coupling position";
+    if (!formData.size) newErrors.size = "Please select a coupling size";
+    if (!formData.type) newErrors.type = "Please select a coupling type";
+    if (formData.verticalAngle === "" || formData.verticalAngle === null) newErrors.verticalAngle = "Please enter the vertical angle";
+
     if (caseData.id === 4 || caseData.id === 6 || caseData.id === 7 || caseData.id === 8 || caseData.id === 9 || caseData.id === 10) {
-      if (!formData.cp2_position) newErrors.cp2_position = "Required field";
-      if (!formData.cp2_size) newErrors.cp2_size = "Required field";
-      if (!formData.cp2_type) newErrors.cp2_type = "Required field";
-      if (formData.cp2_verticalAngle === "" || formData.cp2_verticalAngle === null) newErrors.cp2_verticalAngle = "Required field";
+      if (!formData.cp2_position) newErrors.cp2_position = "Please select CP2's coupling position";
+      if (!formData.cp2_size) newErrors.cp2_size = "Please select CP2's coupling size";
+      if (!formData.cp2_type) newErrors.cp2_type = "Please select CP2's coupling type";
+      if (formData.cp2_verticalAngle === "" || formData.cp2_verticalAngle === null) newErrors.cp2_verticalAngle = "Please enter CP2's vertical angle";
     }
 
     if (caseData.id === 6 || caseData.id === 8) {
-      if (formData.cp2_distance === "" || formData.cp2_distance === null) newErrors.cp2_distance = "Required field";
+      if (formData.cp2_distance === "" || formData.cp2_distance === null) newErrors.cp2_distance = "Please enter CP2's distance (d)";
     }
 
     if (caseData.id === 7 || caseData.id === 9 || caseData.id === 10) {
-      if (formData.cp2_horizontalAngle === "" || formData.cp2_horizontalAngle === null) newErrors.cp2_horizontalAngle = "Required field";
+      if (formData.cp2_horizontalAngle === "" || formData.cp2_horizontalAngle === null) newErrors.cp2_horizontalAngle = "Please enter CP2's horizontal angle";
     }
 
     if ((caseData.id === 2 || caseData.id === 6) && (formData.distance === "" || formData.distance === null)) {
-      newErrors.distance = "Required field";
+      newErrors.distance = "Please enter the distance (d)";
     }
     if ((caseData.id === 3 || caseData.id === 7) && (formData.horizontalAngle === "" || formData.horizontalAngle === null)) {
-      newErrors.horizontalAngle = "Required field";
+      newErrors.horizontalAngle = "Please enter the horizontal angle (θ)";
     }
     if (caseData.id === 5) {
-      if (formData.horizontalAngle1 === "" || formData.horizontalAngle1 === null) newErrors.horizontalAngle1 = "Required field";
+      if (formData.horizontalAngle1 === "" || formData.horizontalAngle1 === null) newErrors.horizontalAngle1 = "Please enter the horizontal angle (θ1)";
     }
 
     // External Object selection validation is no longer needed since it's auto-filled based on verticalAngle

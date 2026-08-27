@@ -1,46 +1,56 @@
-// // utils/auth.js
-
-// export const setAuth = ({ token, user }) => {
-//   sessionStorage.setItem("access_token", token);
-
-//   sessionStorage.setItem("user_session", JSON.stringify(user));
-// };
-
-// export const clearAuth = () => {
-//   sessionStorage.removeItem("access_token");
-//   sessionStorage.removeItem("user_session");
-// };
-
-// export const getToken = () => {
-//   return sessionStorage.getItem("access_token");
-// };
-
-// export const getUser = () => {
-//   const user = sessionStorage.getItem("user_session");
-
-//   return user ? JSON.parse(user) : null;
-// };
 // utils/auth.js
+import Cookies from "js-cookie";
 
-const TOKEN_KEY = "auth_token";
+const ACCESS_TOKEN_KEY = "auth_access_token";
+const REFRESH_TOKEN_KEY = "auth_refresh_token";
 const USER_KEY = "auth_user";
 
-// Save login session
-export const setAuthSession = ({ token, user }) => {
-  sessionStorage.setItem(TOKEN_KEY, token);
+const REFRESH_TOKEN_EXPIRES_DAYS = 7; // matches BE's backup token lifetime
+
+const cookieOptions = {
+  secure: window.location.protocol === "https:",
+  sameSite: "strict",
+};
+
+// Save login session — access token is a session cookie (cleared on browser
+// close, since it's short-lived and kept fresh by the refresh flow anyway).
+// Refresh token persists for REFRESH_TOKEN_EXPIRES_DAYS.
+export const setAuthSession = ({ accessToken, refreshToken, user }) => {
+  Cookies.set(ACCESS_TOKEN_KEY, accessToken, cookieOptions);
+  Cookies.set(REFRESH_TOKEN_KEY, refreshToken, {
+    ...cookieOptions,
+    expires: REFRESH_TOKEN_EXPIRES_DAYS,
+  });
+  sessionStorage.setItem(USER_KEY, JSON.stringify(user));
+};
+
+// Update just the access (and optionally rotated refresh) token after a
+// successful /refresh call, without touching the stored user.
+export const setTokens = ({ accessToken, refreshToken }) => {
+  Cookies.set(ACCESS_TOKEN_KEY, accessToken, cookieOptions);
+  if (refreshToken) {
+    Cookies.set(REFRESH_TOKEN_KEY, refreshToken, {
+      ...cookieOptions,
+      expires: REFRESH_TOKEN_EXPIRES_DAYS,
+    });
+  }
+};
+
+// Update just the stored user profile (e.g. after a getMe() call).
+export const setUser = (user) => {
   sessionStorage.setItem(USER_KEY, JSON.stringify(user));
 };
 
 // Clear login session
 export const clearAuthSession = () => {
-  sessionStorage.removeItem(TOKEN_KEY);
+  Cookies.remove(ACCESS_TOKEN_KEY);
+  Cookies.remove(REFRESH_TOKEN_KEY);
   sessionStorage.removeItem(USER_KEY);
 };
 
-// Get auth token
-export const getToken = () => {
-  return sessionStorage.getItem(TOKEN_KEY);
-};
+export const getAccessToken = () => Cookies.get(ACCESS_TOKEN_KEY) || null;
+
+export const getRefreshToken = () => Cookies.get(REFRESH_TOKEN_KEY) || null;
 
 // Get logged in user
 export const getUser = () => {
@@ -49,7 +59,8 @@ export const getUser = () => {
   return user ? JSON.parse(user) : null;
 };
 
-// Check auth status
+// A refresh token present means there's a session worth trying to keep
+// alive, even if the access token has momentarily expired.
 export const isAuthenticated = () => {
-  return !!getToken();
+  return !!getRefreshToken();
 };

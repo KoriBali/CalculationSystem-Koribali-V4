@@ -113,6 +113,13 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
     heightOptionsByStandard[taperPoleStandard.poleType] ??
     EMPTY_HEIGHT_OPTIONS;
 
+  // In Embedment mode groundPosition is always forced to "underGL" (see
+  // effect above) — that's only used to pick the embedment diagram/field.
+  // The height list itself should stay the plain onGL values; the +0.3m
+  // embedment allowance is entered separately via Embedment Length, not
+  // baked into the dropdown.
+  const heightLookupKey = !isBaseplate ? "onGL" : taperPoleStandard.groundPosition;
+
   const currentImage =
     taperPoleStandard.poleType && taperPoleStandard.groundPosition
       ? (!isBaseplate && taperPoleStandard.groundPosition === "underGL"
@@ -308,9 +315,7 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
                         <option value="" disabled>
                           Select Height
                         </option>
-                        {currentHeightOptions[
-                          taperPoleStandard.groundPosition
-                        ]?.map((h) => (
+                        {currentHeightOptions[heightLookupKey]?.map((h) => (
                           <option key={h.id} value={h.id}>
                             {h.label}
                           </option>
