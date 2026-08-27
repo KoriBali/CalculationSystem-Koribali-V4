@@ -1,79 +1,33 @@
-// import api from "../config/api";
-
-// export const loginUser = async ({ email, password }) => {
-//   // Mencari user berdasarkan email dan password di json-server
-//   const response = await api.get(`/users`, {
-//     params: { email, password },
-//   });
-
-//   // json-server me-return array. Jika kosong, berarti login gagal.
-//   if (response.data.length === 0) {
-//     throw new Error("Invalid email or password");
-//   }
-
-//   const user = response.data[0];
-
-//   // Simulasi token (karena json-server asli tidak me-return JWT)
-//   const fakeToken = `fake-jwt-token-${btoa(user.email)}`;
-
-//   return {
-//     token: fakeToken,
-//     user: {
-//       id: user.id,
-//       name: user.name,
-//       email: user.email,
-//       role: user.role,
-//     },
-//   };
-// };
 // services/authService.js
-
-// import api from "../config/api";
-
-// // Login user from json-server
-// export const loginUser = async ({ email, password }) => {
-//   const response = await api.get("/users", {
-//     params: { email, password },
-//   });
-
-//   // Login failed
-//   if (response.data.length === 0) {
-//     throw new Error("Invalid email or password");
-//   }
-
-//   const user = response.data[0];
-
-//   // Fake token
-//   const fakeToken = `fake-jwt-token-${btoa(user.email)}`;
-
-//   return {
-//     token: fakeToken,
-//     user: {
-//       id: user.id,
-//       name: user.name,
-//       email: user.email,
-//     },
-//   };
-// };
-
 import api from "../config/api";
+import { getRefreshToken } from "../utils/auth";
 
+// Every gateway response is wrapped as { success, data, message }.
+// /login only returns the token pair — no user object — so the caller
+// must follow up with getMe() to populate the session's user profile.
 export const loginUser = async ({ email, password }) => {
-  // Temporary bypass — langsung generate token tanpa database
-  const fakeToken = `fake-jwt-token-${btoa(email)}`;
-  return {
-    token: fakeToken,
-    user: {
-      id: 1,
-      name: "Guest",
-      email,
-    },
-  };
+  const { data } = await api.post("/api/identity/login", {
+    usernameOrEmail: email,
+    password,
+  });
 
-  // ── Uncomment ini setelah database tersedia ──
-  // const response = await api.get("/users", { params: { email, password } });
-  // if (response.data.length === 0) throw new Error("Invalid email or password");
-  // const user = response.data[0];
-  // const fakeToken = `fake-jwt-token-${btoa(user.email)}`;
-  // return { token: fakeToken, user: { id: user.id, name: user.name, email: user.email } };
+  return {
+    accessToken: data.data.accessToken,
+    refreshToken: data.data.refreshToken,
+  };
+};
+
+export const logoutUser = async () => {
+  const refreshToken = getRefreshToken();
+  if (!refreshToken) return;
+
+  await api.post("/api/identity/logout", { refreshToken });
+};
+
+export const getMe = async () => {
+  const { data } = await api.get("/api/identity/me");
+  const me = data.data;
+
+  // Layout/ProfileDropdown expect `name`; the gateway returns `fullName`.
+  return { ...me, name: me.fullName };
 };

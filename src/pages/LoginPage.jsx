@@ -25,8 +25,8 @@ import {
 
 import { useNavigate } from "react-router-dom";
 
-import { loginUser } from "../services/authService";
-import { setAuthSession, isAuthenticated } from "../utils/auth";
+import { loginUser, getMe } from "../services/authService";
+import { setAuthSession, setUser, isAuthenticated } from "../utils/auth";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -85,9 +85,7 @@ export default function LoginPage() {
     },
 
     validationSchema: Yup.object({
-      email: Yup.string()
-        .email("Invalid email address")
-        .required("Email is required"),
+      email: Yup.string().required("Email or username is required"),
 
       password: Yup.string().required("Password is required"),
     }),
@@ -96,14 +94,19 @@ export default function LoginPage() {
       try {
         setLoginError("");
 
-        const authData = await loginUser(values);
+        const { accessToken, refreshToken } = await loginUser(values);
 
-        setAuthSession(authData);
+        // Set the tokens first so the /me request below can authenticate.
+        setAuthSession({ accessToken, refreshToken, user: null });
+        const user = await getMe();
+        setUser(user);
 
         navigate("/calculation");
       } catch (error) {
         setLoginError(
-          error.message || "Access denied. Please check your credentials.",
+          error.response?.data?.detail ||
+            error.message ||
+            "Access denied. Please check your credentials.",
         );
       } finally {
         setSubmitting(false);
@@ -249,7 +252,7 @@ export default function LoginPage() {
             <div className="flex flex-col gap-1">
               <div className="relative group">
                 <input
-                  type="email"
+                  type="text"
                   placeholder="Email or Username"
                   {...formik.getFieldProps("email")}
                   className={`w-full bg-transparent border text-sm py-4 px-6 outline-none rounded-full transition-all ${
@@ -332,7 +335,8 @@ export default function LoginPage() {
                 type="button"
                 onClick={() => {
                   setAuthSession({
-                    token: "guest-session-token",
+                    accessToken: "guest-session-token",
+                    refreshToken: "guest-session-token",
                     user: { name: "Guest User", email: "guest@koribali.com" },
                   });
                   navigate("/calculation");

@@ -1,8 +1,8 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Loader2 } from "lucide-react";
 
 // Confirmation modal shown before logging out
-export function LogoutModal({ open, onClose, onConfirm }) {
+export function LogoutModal({ open, onClose, onConfirm, loading = false }) {
   return (
     <AnimatePresence>
       {open && (
@@ -44,7 +44,8 @@ export function LogoutModal({ open, onClose, onConfirm }) {
                 {/* Cancel */}
                 <button
                   onClick={onClose}
-                  className="flex-1 py-2 sm:py-3 font-bold text-xs sm:text-sm bg-slate-100 text-slate-600 rounded-md sm:rounded-lg hover:bg-slate-200 transition-colors"
+                  disabled={loading}
+                  className="flex-1 py-2 sm:py-3 font-bold text-xs sm:text-sm bg-slate-100 text-slate-600 rounded-md sm:rounded-lg hover:bg-slate-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Cancel
                 </button>
@@ -52,9 +53,11 @@ export function LogoutModal({ open, onClose, onConfirm }) {
                 {/* Confirm logout */}
                 <button
                   onClick={onConfirm}
-                  className="flex-1 py-2 sm:py-3 font-bold text-xs sm:text-sm bg-red-500 text-white rounded-md sm:rounded-lg hover:bg-red-600 transition-colors"
+                  disabled={loading}
+                  className="flex-1 py-2 sm:py-3 font-bold text-xs sm:text-sm bg-red-500 text-white rounded-md sm:rounded-lg hover:bg-red-600 transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
-                  Logout
+                  {loading && <Loader2 size={14} className="animate-spin" />}
+                  {loading ? "Logging out..." : "Logout"}
                 </button>
               </div>
             </div>

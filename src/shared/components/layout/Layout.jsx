@@ -5,9 +5,11 @@ import { MobileSidebar, DesktopSidebar } from "./Sidebar";
 import { Header } from "./Header";
 import { LogoutModal } from "./LogoutModal";
 import { MENU_ITEMS } from "../../constants/layoutConstants";
-import { getUser, clearAuthSession } from "../../../utils/auth";
+import { getUser, setUser, isAuthenticated, clearAuthSession } from "../../../utils/auth";
+import { logoutUser, getMe } from "../../../services/authService";
 import { ScrollToTopButton } from "../ScrollToTopButton";
 import { resetScrollDirection } from "../../../hooks/useScrollDirection";
+import { getMasterData } from "../../../features/calculations/services/masterDataService";
 
 // ─── HELPERS ────────────────────────────────────────────────────────────────
 
@@ -29,6 +31,7 @@ export default function Layout() {
 
   // Modal + user state
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [userData, setUserData] = useState({ name: "User", email: "" });
 
   // Derive current page title from route + session
@@ -79,13 +82,43 @@ export default function Layout() {
     return path;
   };
 
-  // Load user session from sessionStorage on mount
+  // Load user session on mount. sessionStorage is scoped to a single tab —
+  // opening a new tab loses the cached profile even though the refresh
+  // token cookie (and therefore the session) is still valid. When that
+  // happens, re-fetch the profile from /me instead of showing a bare
+  // "User" placeholder.
   useEffect(() => {
-    const user = getUser();
+    const cachedUser = getUser();
 
-    if (user) {
-      setUserData(user);
+    if (cachedUser) {
+      setUserData(cachedUser);
+      return;
     }
+
+    if (isAuthenticated()) {
+      getMe()
+        .then((user) => {
+          setUser(user);
+          setUserData(user);
+        })
+        .catch(() => {
+          // Refresh token turned out to be invalid too — the axios
+          // interceptor already clears the session and redirects to
+          // /login on this failure, nothing more to do here.
+        });
+    }
+  }, []);
+
+  // Prefetch master data (materials, region codes, ...) as soon as any
+  // authenticated page mounts, instead of waiting for a calculation form to
+  // ask for it. getMasterData() already caches in sessionStorage and dedupes
+  // concurrent callers, so this just moves the ~3s gateway round-trip earlier
+  // — by the time a form needs it, it's likely already sitting in cache.
+  useEffect(() => {
+    getMasterData().catch(() => {
+      // Ignore here — useMasterData() surfaces the error to whichever form
+      // actually needs the data and lets the user retry from there.
+    });
   }, []);
 
   // Close mobile sidebar and reset scroll position on route change
@@ -110,19 +143,30 @@ export default function Layout() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Clears session data and redirects to login
-  const handleLogout = () => {
-    clearAuthSession();
-    sessionStorage.removeItem("projectType");
-
-    navigate("/login");
+  // Invalidates the session server-side, clears local session data, and
+  // redirects to login. Local session is cleared even if the API call
+  // fails, so a flaky network never traps the user in a logged-in state.
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await logoutUser();
+    } catch {
+      // ignore — server-side session will simply expire on its own
+    } finally {
+      clearAuthSession();
+      sessionStorage.removeItem("projectType");
+      navigate("/login");
+    }
   };
   return (
     <div className="flex min-h-screen bg-[#f8fafc] text-slate-900">
       {/* Logout confirmation modal */}
       <LogoutModal
         open={showLogoutModal}
-        onClose={() => setShowLogoutModal(false)}
+        loading={isLoggingOut}
+        onClose={() => {
+          if (!isLoggingOut) setShowLogoutModal(false);
+        }}
         onConfirm={handleLogout}
       />
 

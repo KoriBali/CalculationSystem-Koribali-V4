@@ -14,11 +14,11 @@
 
 // hooks/useAuth.js
 
-import { getToken, getUser, isAuthenticated } from "../utils/auth";
+import { getAccessToken, getUser, isAuthenticated } from "../utils/auth";
 
 export const useAuth = () => {
   return {
-    token: getToken(),
+    token: getAccessToken(),
     user: getUser(),
     isAuthenticated: isAuthenticated(),
   };
