@@ -38,7 +38,14 @@ const SectionCard = ({ children }) => (
 );
 
 // Reusable number input with unit suffix
-const UnitInput = ({ value, onChange, unit, hasError, className, ...props }) => (
+const UnitInput = ({
+  value,
+  onChange,
+  unit,
+  hasError,
+  className,
+  ...props
+}) => (
   <div className="relative">
     <input
       type="number"
@@ -65,7 +72,8 @@ export function PoleForm({ pole, onUpdate, errors }) {
     error: materialsError,
     refetch: refetchMaterials,
   } = useMasterData();
-  const materialsFailed = materialsError && materialOptions.length === 0 && !materialsLoading;
+  const materialsFailed =
+    materialsError && materialOptions.length === 0 && !materialsLoading;
 
   return (
     <div>
@@ -99,7 +107,7 @@ export function PoleForm({ pole, onUpdate, errors }) {
           </label>
           <div className="relative">
             <select
-                id={`pole-${pole.idPole}-material`}
+              id={`pole-${pole.idPole}-material`}
               value={pole.material}
               onChange={(e) => onUpdate({ material: e.target.value })}
               disabled={materialsLoading || materialsFailed}
@@ -184,7 +192,9 @@ export function PoleForm({ pole, onUpdate, errors }) {
               })
             }
             unit="mm"
-            hasError={errors.lowerDiameter || (isStraight && errors.upperDiameter)}
+            hasError={
+              errors.lowerDiameter || (isStraight && errors.upperDiameter)
+            }
             className={`${inputStyle(errors.lowerDiameter || (isStraight && errors.upperDiameter))} pl-3 2xl:pl-4 pr-7`}
           />
           <ErrorStyle
@@ -207,7 +217,10 @@ export function PoleForm({ pole, onUpdate, errors }) {
               hasError={errors.upperDiameter}
               className={`${inputStyle(errors.upperDiameter)} pl-3 2xl:pl-4 pr-7`}
             />
-            <ErrorStyle show={errors.upperDiameter} text={errors.upperDiameter} />
+            <ErrorStyle
+              show={errors.upperDiameter}
+              text={errors.upperDiameter}
+            />
           </div>
         )}
 
@@ -226,12 +239,18 @@ export function PoleForm({ pole, onUpdate, errors }) {
               })
             }
             unit="mm"
-            hasError={errors.lowerThickness || (isStraight && errors.upperThickness)}
+            hasError={
+              errors.lowerThickness || (isStraight && errors.upperThickness)
+            }
             className={`${inputStyle(errors.lowerThickness || (isStraight && errors.upperThickness))} pl-3 2xl:pl-4 pr-7`}
           />
           <ErrorStyle
-            show={errors.lowerThickness || (isStraight && errors.upperThickness)}
-            text={errors.lowerThickness || (isStraight && errors.upperThickness)}
+            show={
+              errors.lowerThickness || (isStraight && errors.upperThickness)
+            }
+            text={
+              errors.lowerThickness || (isStraight && errors.upperThickness)
+            }
           />
         </div>
 
@@ -249,14 +268,17 @@ export function PoleForm({ pole, onUpdate, errors }) {
               hasError={errors.upperThickness}
               className={`${inputStyle(errors.upperThickness)} pl-3 2xl:pl-4 pr-7`}
             />
-            <ErrorStyle show={errors.upperThickness} text={errors.upperThickness} />
+            <ErrorStyle
+              show={errors.upperThickness}
+              text={errors.upperThickness}
+            />
           </div>
         )}
 
         {/* Height */}
         <div className="relative xl:flex-[1.2] min-w-0 hp:w-full">
           <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-            Height (Z/H)
+            Height
           </label>
           <UnitInput
             id={`pole-${pole.idPole}-zHeight`}

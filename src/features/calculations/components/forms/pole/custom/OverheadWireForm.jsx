@@ -362,7 +362,7 @@ export function OverheadWireForm({
                     OHW Name
                   </label>
                   <input
-                        id={`ohw-${overheadWire.idOhw}-name`}
+                    id={`ohw-${overheadWire.idOhw}-name`}
                     type="text"
                     value={overheadWire.name}
                     onChange={(e) =>
@@ -381,7 +381,7 @@ export function OverheadWireForm({
                   </label>
                   <div className="relative">
                     <input
-                        id={`ohw-${overheadWire.idOhw}-weight`}
+                      id={`ohw-${overheadWire.idOhw}-weight`}
                       type="number"
                       min={0}
                       value={overheadWire.weight}
@@ -432,11 +432,11 @@ export function OverheadWireForm({
                 {/* Fix Height Overhead Wire Input */}
                 <div className="relative xl:flex-1 min-w-0 hp:w-full">
                   <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-                    Fix Height (Z)
+                    Height
                   </label>
                   <div className="relative">
                     <input
-                        id={`ohw-${overheadWire.idOhw}-zHeight`}
+                      id={`ohw-${overheadWire.idOhw}-zHeight`}
                       type="number"
                       min={0}
                       value={overheadWire.zHeight}

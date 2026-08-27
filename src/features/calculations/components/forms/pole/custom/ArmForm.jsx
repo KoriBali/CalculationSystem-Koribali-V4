@@ -32,7 +32,8 @@ export function ArmForm({ arm, onUpdate, armError }) {
     error: materialsError,
     refetch: refetchMaterials,
   } = useMasterData();
-  const materialsFailed = materialsError && materialOptions.length === 0 && !materialsLoading;
+  const materialsFailed =
+    materialsError && materialOptions.length === 0 && !materialsLoading;
 
   return (
     <div>
@@ -213,7 +214,7 @@ export function ArmForm({ arm, onUpdate, armError }) {
         {/* Height Arm Input */}
         <div className="relative 2xl:flex-1 min-w-0 hp:w-full">
           <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-            Z (Height)
+            Height
           </label>
           <div className="relative">
             <input

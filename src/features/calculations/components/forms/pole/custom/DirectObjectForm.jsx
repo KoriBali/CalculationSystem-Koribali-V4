@@ -510,10 +510,10 @@ export function DirectObjectForm({
                   <ErrorStyle show={doError.weight} text={doError.weight} />
                 </div>
 
-                {/* Z (Height) Direct Object Input */}
+                {/* Height Direct Object Input */}
                 <div className="relative xl:flex-1 min-w-0 hp:w-full">
                   <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-                    Z (Height)
+                    Height
                   </label>
                   <div className="relative">
                     <input
