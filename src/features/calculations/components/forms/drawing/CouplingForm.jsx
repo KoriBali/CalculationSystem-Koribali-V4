@@ -2,7 +2,10 @@ import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useProjectStorage } from "../../../hooks/useProjectStorage";
 import { validateWithYup } from "../../../utils/validation";
-import { scrollToFirstError, firstErrorMessage } from "../../../utils/scrollToError";
+import {
+  scrollToFirstError,
+  firstErrorMessage,
+} from "../../../utils/scrollToError";
 import { CouplingSchema } from "../../../schemas/drawing/CouplingSchema";
 import { CouplingTypeModal } from "../../modals/CouplingTypeModal";
 import { CouplingCaseFormModal } from "../../modals/CouplingCaseFormModal";
@@ -41,9 +44,10 @@ const CardOption = ({ label, current, value, onChange }) => {
       type="button"
       onClick={() => onChange(value)}
       className={`group w-full flex items-center justify-between px-3 xl:px-4 py-2 lg:py-2.5 min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] relative overflow-hidden rounded-lg hp:rounded-md border transition-all duration-300 cursor-pointer active:scale-[0.98]
-        ${isActive
-          ? "border-blue-500 bg-blue-50 shadow-sm ring-1 ring-blue-50"
-          : "border-slate-300 bg-white hover:border-slate-400 hover:bg-slate-50 hover:shadow-sm"
+        ${
+          isActive
+            ? "border-blue-500 bg-blue-50 shadow-sm ring-1 ring-blue-50"
+            : "border-slate-300 bg-white hover:border-slate-400 hover:bg-slate-50 hover:shadow-sm"
         }`}
     >
       <p
@@ -64,26 +68,44 @@ const CardOption = ({ label, current, value, onChange }) => {
 
 const inputStyle = (hasError) =>
   `w-full px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border
-  ${hasError
-    ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
-    : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
+  ${
+    hasError
+      ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
+      : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
   }`;
 
 export function CouplingForm({ onReset, onNext, onBack, onError }) {
   const { type: projectType } = useParams();
 
-  const [location, setLocation] = useProjectStorage(projectType || "default", "drawing_coupling_location", "");
-  const [couplingCount, setCouplingCount] = useProjectStorage(projectType || "default", "drawing_coupling_count", 1);
-  const [couplings, setCouplings] = useProjectStorage(projectType || "default", "drawing_coupling_data", [
-    { height: "", withHookband: false, caseDetails: null },
-  ]);
+  const [location, setLocation] = useProjectStorage(
+    projectType || "default",
+    "drawing_coupling_location",
+    "",
+  );
+  const [couplingCount, setCouplingCount] = useProjectStorage(
+    projectType || "default",
+    "drawing_coupling_count",
+    1,
+  );
+  const [couplings, setCouplings] = useProjectStorage(
+    projectType || "default",
+    "drawing_coupling_data",
+    [{ height: "", withHookband: false, caseDetails: null }],
+  );
   const [errors, setErrors] = useState({});
-  const [modalState, setModalState] = useState({ isOpen: false, index: null, step: "grid", selectedCaseId: null });
+  const [modalState, setModalState] = useState({
+    isOpen: false,
+    index: null,
+    step: "grid",
+    selectedCaseId: null,
+  });
   const [showResetModal, setShowResetModal] = useState(false);
 
   const handleReset = () => {
     setLocation("");
-    setCouplings((prev) => prev.map(() => ({ height: "", withHookband: false, caseDetails: null })));
+    setCouplings((prev) =>
+      prev.map(() => ({ height: "", withHookband: false, caseDetails: null })),
+    );
     setErrors({});
     if (onReset) onReset();
   };
@@ -99,7 +121,11 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
 
     if (!isValid) {
       setErrors(validationErrors);
-      if (onError) onError(firstErrorMessage(validationErrors) || "Please correct the errors in Coupling Configuration.");
+      if (onError)
+        onError(
+          firstErrorMessage(validationErrors) ||
+            "Please correct the errors in Coupling Configuration.",
+        );
       scrollToFirstError(validationErrors);
       return;
     }
@@ -238,12 +264,14 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
               <div className="flex flex-col gap-24 sm:gap-20 md:gap-16 xl:gap-20 relative z-10 pb-56 md:pb-72 pt-16 md:pt-20">
                 {[0, 1, 2].map((i) => {
                   const isVisible = i < couplingCount;
-                  const c = isVisible ? couplings[i] : { height: "", withHookband: false };
+                  const c = isVisible
+                    ? couplings[i]
+                    : { height: "", withHookband: false };
 
                   return (
                     <div
                       key={i}
-                      className={`flex items-center w-full group relative z-10 min-h-[40px] transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                      className={`flex items-center w-full group relative z-10 min-h-[40px] transition-opacity duration-300 ${isVisible ? "opacity-100" : "opacity-0 pointer-events-none"}`}
                     >
                       {/* Left Side: CAD Dimension Lines & Height Input */}
                       <div className="w-[40%] sm:w-[45%] md:w-[50%] pl-2 sm:pl-4 md:pl-8 flex relative h-full items-center">
@@ -258,16 +286,17 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
                           {/* Input Area (Absolutely positioned ABOVE the horizontal dimension line) */}
                           <div className="absolute bottom-[calc(50%+8px)] left-0 flex flex-col items-start w-[80px] sm:w-[100px] md:w-[120px]">
                             <label className="text-[10px] sm:text-xs md:text-sm text-gray-700 mb-1.5 ml-1">
-                              H{i + 1} (mm)
+                              Height {i + 1} (mm)
                             </label>
                             <input
                               id={`couplings[${i}].height`}
                               type="number"
                               placeholder="0"
-                              className={`w-full min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border ${errors[`couplings[${i}].height`]
+                              className={`w-full min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border ${
+                                errors[`couplings[${i}].height`]
                                   ? "border-red-500 bg-[#fff5f5] focus:ring-red-200"
                                   : "border-gray-300 bg-white focus:border-[#0d3b66] focus:ring-1 focus:ring-[#0d3b66]"
-                                }`}
+                              }`}
                               value={c.height}
                               onChange={(e) =>
                                 updateCoupling(i, "height", e.target.value)
@@ -337,35 +366,62 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
                             type="button"
                             onClick={() => {
                               if (!location) {
-                                setErrors(prev => ({ ...prev, location: "*Please select Location of Project first" }));
+                                const message =
+                                  "*Please select Location of Project first";
+                                setErrors((prev) => ({
+                                  ...prev,
+                                  location: message,
+                                }));
+                                // The inline message renders up in the
+                                // Location section, well above this button —
+                                // without a toast + scroll, clicking here
+                                // looks like the button does nothing.
+                                if (onError) onError(message);
+                                scrollToFirstError({ location: message });
                                 return;
                               }
                               const existingCase = couplings[i]?.caseDetails;
                               if (existingCase) {
-                                setModalState({ isOpen: true, index: i, step: "form", selectedCaseId: existingCase.caseId });
+                                setModalState({
+                                  isOpen: true,
+                                  index: i,
+                                  step: "form",
+                                  selectedCaseId: existingCase.caseId,
+                                });
                               } else {
-                                setModalState({ isOpen: true, index: i, step: "grid", selectedCaseId: null });
+                                setModalState({
+                                  isOpen: true,
+                                  index: i,
+                                  step: "grid",
+                                  selectedCaseId: null,
+                                });
                               }
                             }}
                             className={`group/btn flex items-center justify-start gap-1.5 sm:gap-3 pl-2 pr-4 sm:px-4 py-2 lg:py-2.5 min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] border shadow-sm rounded-lg text-[10px] sm:text-[11px] md:text-sm font-medium transition-all w-full xl:w-auto ${
                               errors[`couplings[${i}].caseDetails`]
                                 ? "bg-red-50 border-red-400 text-red-600 hover:bg-red-100 hover:border-red-500"
-                                : c.caseDetails 
-                                  ? "bg-emerald-50 border-emerald-400 text-emerald-700 hover:bg-emerald-100 hover:border-emerald-500" 
+                                : c.caseDetails
+                                  ? "bg-emerald-50 border-emerald-400 text-emerald-700 hover:bg-emerald-100 hover:border-emerald-500"
                                   : "bg-white border-slate-300 text-slate-700 hover:bg-slate-50 hover:border-slate-400"
                             }`}
                           >
                             {c.caseDetails ? (
-                              <CheckCircle className={`hidden sm:block w-3.5 h-3.5 md:w-4 md:h-4 shrink-0 transition-colors ${errors[`couplings[${i}].caseDetails`] ? "text-red-500" : "text-emerald-600"}`} />
+                              <CheckCircle
+                                className={`hidden sm:block w-3.5 h-3.5 md:w-4 md:h-4 shrink-0 transition-colors ${errors[`couplings[${i}].caseDetails`] ? "text-red-500" : "text-emerald-600"}`}
+                              />
                             ) : (
-                              <Settings2 className={`hidden sm:block w-3.5 h-3.5 md:w-4 md:h-4 shrink-0 transition-colors ${errors[`couplings[${i}].caseDetails`] ? "text-red-500" : "text-slate-500"}`} />
+                              <Settings2
+                                className={`hidden sm:block w-3.5 h-3.5 md:w-4 md:h-4 shrink-0 transition-colors ${errors[`couplings[${i}].caseDetails`] ? "text-red-500" : "text-slate-500"}`}
+                              />
                             )}
                             <span className="whitespace-nowrap">
-                              {c.caseDetails ? `Coupling H${i + 1} Configured` : `Input Coupling at H${i + 1}`}
+                              {c.caseDetails
+                                ? `Coupling Height ${i + 1} Configured`
+                                : `Input Coupling at Height ${i + 1}`}
                             </span>
                           </button>
                           {errors[`couplings[${i}].caseDetails`] && (
-                            <span className="absolute top-[105%] right-0 text-[9px] sm:text-[10px] text-red-500 whitespace-nowrap mt-0.5">
+                            <span className="absolute top-[105%] right-0 text-[9px] sm:text-[10px] md:text-xs text-red-500 whitespace-nowrap mt-0.5">
                               {errors[`couplings[${i}].caseDetails`]}
                             </span>
                           )}
@@ -429,28 +485,48 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
         onClose={() => setModalState({ ...modalState, isOpen: false })}
         couplingIndex={modalState.index}
         onSelect={(caseObj) => {
-          setModalState(prev => ({ ...prev, step: "form", selectedCaseId: caseObj.id }));
+          setModalState((prev) => ({
+            ...prev,
+            step: "form",
+            selectedCaseId: caseObj.id,
+          }));
         }}
       />
       <CouplingCaseFormModal
         isOpen={modalState.isOpen && modalState.step === "form"}
         onClose={() => setModalState({ ...modalState, isOpen: false })}
-        onChangeCase={() => setModalState(prev => ({ ...prev, step: "grid", selectedCaseId: null }))}
-        caseData={modalState.selectedCaseId ? {
-          id: modalState.selectedCaseId,
-          title: `Case ${modalState.selectedCaseId} of Coupling`,
-          image: `/images/CPdetail-Case${modalState.selectedCaseId}.svg`
-        } : null}
+        onChangeCase={() =>
+          setModalState((prev) => ({
+            ...prev,
+            step: "grid",
+            selectedCaseId: null,
+          }))
+        }
+        caseData={
+          modalState.selectedCaseId
+            ? {
+                id: modalState.selectedCaseId,
+                title: `Case ${modalState.selectedCaseId} of Coupling`,
+                image: `/images/CPdetail-Case${modalState.selectedCaseId}.svg`,
+              }
+            : null
+        }
         location={location}
         initialData={
-          modalState.index !== null && 
-          couplings[modalState.index]?.caseDetails?.caseId === modalState.selectedCaseId
+          modalState.index !== null &&
+          couplings[modalState.index]?.caseDetails?.caseId ===
+            modalState.selectedCaseId
             ? couplings[modalState.index].caseDetails
             : null
         }
         onSave={(details) => {
           updateCoupling(modalState.index, "caseDetails", details);
-          setModalState({ isOpen: false, index: null, step: "grid", selectedCaseId: null });
+          setModalState({
+            isOpen: false,
+            index: null,
+            step: "grid",
+            selectedCaseId: null,
+          });
         }}
       />
     </div>
