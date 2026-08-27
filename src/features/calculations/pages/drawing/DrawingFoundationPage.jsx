@@ -56,10 +56,6 @@ export default function DrawingFoundationPage() {
     }
   };
 
-  const onReset = () => {
-    handleFoundationTypeUpdate({ type: "" });
-  };
-
   return (
     <>
       <div className="flex flex-col h-full">
@@ -107,7 +103,6 @@ export default function DrawingFoundationPage() {
                 onFoundationTypeUpdate={handleFoundationTypeUpdate}
                 onSquareCaissonUpdate={handleSquareCaissonUpdate}
                 onRoundCaissonUpdate={handleRoundCaissonUpdate}
-                onReset={onReset}
                 errors={errors}
                 onNext={onNextStep}
                 onBack={onBack}

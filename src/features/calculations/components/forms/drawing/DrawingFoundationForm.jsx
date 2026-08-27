@@ -1,4 +1,4 @@
-import { Box, ChevronDown, RotateCcw } from "lucide-react";
+import { Box, ChevronDown } from "lucide-react";
 import { RoundCaissonTypeForm } from "../foundation/RoundCaissonTypeForm";
 import { SquareCaissonTypeForm } from "../foundation/SquareCaissonTypeForm";
 
@@ -23,7 +23,6 @@ export function DrawingFoundationForm({
   onFoundationTypeUpdate,
   onSquareCaissonUpdate,
   onRoundCaissonUpdate,
-  onReset,
   errors,
   onNext,
   onBack,
@@ -32,17 +31,7 @@ export function DrawingFoundationForm({
     <div className="flex flex-col h-full bg-white rounded-b-2xl hp:rounded-b-xl shadow-sm border border-gray-200 p-4 md:p-6 space-y-4 md:space-y-6">
       <div className="bg-white px-4 md:px-5 py-5 rounded-xl hp:rounded-lg border border-gray-200">
         <div className="relative pb-1">
-          <div className="flex items-center justify-between mb-1 md:mb-2">
-            <label className="block text-xs md:text-sm text-gray-700">Foundation Type</label>
-            <button
-              onClick={onReset}
-              title="Reset form"
-              className="flex items-center gap-1 text-[10px] md:text-xs text-gray-400 hover:text-red-500 transition-colors"
-            >
-              <RotateCcw className="w-3 h-3" />
-              Reset
-            </button>
-          </div>
+          <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">Foundation Type</label>
           <div className="relative">
             <select
               id="foundationType"
