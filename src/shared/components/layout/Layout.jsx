@@ -31,7 +31,6 @@ export default function Layout() {
 
   // Modal + user state
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [userData, setUserData] = useState({ name: "User", email: "" });
 
   // Derive current page title from route + session
@@ -146,27 +145,24 @@ export default function Layout() {
   // Invalidates the session server-side, clears local session data, and
   // redirects to login. Local session is cleared even if the API call
   // fails, so a flaky network never traps the user in a logged-in state.
-  const handleLogout = async () => {
-    setIsLoggingOut(true);
-    try {
-      await logoutUser();
-    } catch {
-      // ignore — server-side session will simply expire on its own
-    } finally {
-      clearAuthSession();
-      sessionStorage.removeItem("projectType");
-      navigate("/login");
-    }
+  const handleLogout = () => {
+    // Clear local session immediately and navigate — don't wait for the
+    // server-side invalidation call so the UI feels instant regardless of
+    // API latency. The refresh token expires on its own if the call fails.
+    clearAuthSession();
+    sessionStorage.removeItem("projectType");
+    navigate("/login");
+
+    // Fire-and-forget: invalidate token server-side in background.
+    logoutUser().catch(() => {});
   };
   return (
     <div className="flex min-h-screen bg-[#f8fafc] text-slate-900">
       {/* Logout confirmation modal */}
       <LogoutModal
         open={showLogoutModal}
-        loading={isLoggingOut}
-        onClose={() => {
-          if (!isLoggingOut) setShowLogoutModal(false);
-        }}
+        loading={false}
+        onClose={() => setShowLogoutModal(false)}
         onConfirm={handleLogout}
       />
 
@@ -176,6 +172,7 @@ export default function Layout() {
           isOpen={isMobileOpen}
           onClose={() => setIsMobileOpen(false)}
           getMenuPath={getMenuPath}
+          userRole={userData?.role}
         />
       )}
 
@@ -185,6 +182,7 @@ export default function Layout() {
           isCollapsed={isCollapsed}
           onToggleCollapse={() => setIsCollapsed(!isCollapsed)}
           getMenuPath={getMenuPath}
+          userRole={userData?.role}
         />
       )}
 

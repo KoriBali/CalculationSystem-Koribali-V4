@@ -23,6 +23,11 @@ import ReportPage from "../features/report/pages/ReportPage";
 import ProjectDatabasePage from "../features/database/pages/ProjectDatabasePage";
 import NotFoundPage from "../pages/NotFoundPage";
 
+// Admin Pages
+import SuperAdminDashboard from "../features/admin/pages/SuperAdminDashboard";
+import DepartmentManagement from "../features/admin/pages/DepartmentManagement";
+import UserManagement from "../features/admin/pages/UserManagement";
+
 // Detail Input Steps
 import PoleFormPage from "../features/calculations/pages/steps/PoleStep";
 import OpeningFormPage from "../features/calculations/pages/steps/OpeningStep";
@@ -33,6 +38,7 @@ import FoundationFormPage from "../features/calculations/pages/steps/FoundationS
 import TypeGuard from "../features/calculations/guards/TypeGuard";
 import SessionGuard from "../features/calculations/guards/SessionGuard";
 import DraftSessionGuard from "../features/calculations/guards/DraftSessionGuard";
+import RoleGuard from "../routes/RoleGuard";
 
 export default function AppRoutes() {
   return (
@@ -75,6 +81,14 @@ export default function AppRoutes() {
 
             <Route path="report" element={<ReportPage />} />
             <Route path="database" element={<ProjectDatabasePage />} />
+
+            {/* Super Admin Routes */}
+            <Route path="superadmin" element={<RoleGuard allowedRoles={['superadmin']} />}>
+              <Route path="dashboard" element={<SuperAdminDashboard />} />
+              <Route path="departments" element={<DepartmentManagement />} />
+              <Route path="users" element={<UserManagement />} />
+              <Route index element={<Navigate to="dashboard" replace />} />
+            </Route>
           </Route>
 
           {/* Global Redirects & 404 (Protected) */}

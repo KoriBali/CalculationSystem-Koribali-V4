@@ -30,7 +30,7 @@ export const refreshAccessToken = async () => {
     throw new Error("No refresh token available");
   }
 
-  const { data } = await axios.post(`${baseURL}/api/identity/refresh`, {
+  const { data } = await axios.post(`${baseURL}/api/auth/refresh`, {
     refreshToken,
   });
 
@@ -55,8 +55,9 @@ api.interceptors.response.use(
   async (error) => {
     const { response, config: originalRequest } = error;
 
-    const isAuthEndpoint = originalRequest?.url?.includes("/api/identity/refresh") ||
-      originalRequest?.url?.includes("/api/identity/login");
+    const isAuthEndpoint = originalRequest?.url?.includes("/api/auth/refresh") ||
+      originalRequest?.url?.includes("/api/auth/login") ||
+      originalRequest?.url?.includes("/api/auth/logout");
 
     if (response?.status !== 401 || isAuthEndpoint || originalRequest._retry) {
       return Promise.reject(error);

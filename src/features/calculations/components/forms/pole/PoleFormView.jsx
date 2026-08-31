@@ -102,6 +102,10 @@ export default function PoleFormView() {
     armForm,
     poleStandardForm,
     poleConfigForm,
+    expandPole: setIsExpandedPole,
+    expandDo: setIsExpandedDo,
+    expandOhw: setIsExpandedOhw,
+    expandArm: setIsExpandedArm,
   });
 
   const report = useReport(projectType);

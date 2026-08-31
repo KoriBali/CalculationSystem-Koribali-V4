@@ -6,7 +6,7 @@ import { getRefreshToken } from "../utils/auth";
 // /login only returns the token pair — no user object — so the caller
 // must follow up with getMe() to populate the session's user profile.
 export const loginUser = async ({ email, password }) => {
-  const { data } = await api.post("/api/identity/login", {
+  const { data } = await api.post("/api/auth/login", {
     usernameOrEmail: email,
     password,
   });
@@ -21,11 +21,11 @@ export const logoutUser = async () => {
   const refreshToken = getRefreshToken();
   if (!refreshToken) return;
 
-  await api.post("/api/identity/logout", { refreshToken });
+  await api.post("/api/auth/logout", { refreshToken });
 };
 
 export const getMe = async () => {
-  const { data } = await api.get("/api/identity/me");
+  const { data } = await api.get("/api/users/me");
   const me = data.data;
 
   // Layout/ProfileDropdown expect `name`; the gateway returns `fullName`.

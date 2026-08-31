@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { NavLink, useLocation } from "react-router-dom";
-import { Calculator, FileText, ChevronLeft, X, Database } from "lucide-react";
+import { Calculator, FileText, ChevronLeft, X, Database, LayoutDashboard, Building2, Users } from "lucide-react";
 import { MENU_ITEMS, SPRING_TRANSITION } from "../../constants/layoutConstants";
 
 // Reusable nav item => used in both mobile and desktop sidebar
@@ -83,7 +83,7 @@ function SidebarLogo({ isCollapsed, onClose }) {
 }
 
 // ─── MOBILE SIDEBAR ──────────────────────────────────────────────────────────
-export function MobileSidebar({ isOpen, onClose, getMenuPath }) {
+export function MobileSidebar({ isOpen, onClose, getMenuPath, userRole }) {
   const location = useLocation();
 
   return (
@@ -115,11 +115,14 @@ export function MobileSidebar({ isOpen, onClose, getMenuPath }) {
                   Main Menu
                 </p>
               </div>
-              {MENU_ITEMS.map((item) => {
+              {MENU_ITEMS.filter((item) => !item.roles || item.roles.includes(userRole || "drafter")).map((item) => {
                 const path = getMenuPath(item.path);
                 const isActive = location.pathname.startsWith(item.path);
                 
                 const IconMap = {
+                  LayoutDashboard,
+                  Building2,
+                  Users,
                   Calculator,
                   FileText,
                   Database
@@ -146,7 +149,7 @@ export function MobileSidebar({ isOpen, onClose, getMenuPath }) {
 }
 
 // ─── DESKTOP SIDEBAR ─────────────────────────────────────────────────────────
-export function DesktopSidebar({ isCollapsed, onToggleCollapse, getMenuPath }) {
+export function DesktopSidebar({ isCollapsed, onToggleCollapse, getMenuPath, userRole }) {
   const location = useLocation();
 
   return (
@@ -165,11 +168,14 @@ export function DesktopSidebar({ isCollapsed, onToggleCollapse, getMenuPath }) {
             </p>
           </div>
         )}
-        {MENU_ITEMS.map((item) => {
+        {MENU_ITEMS.filter((item) => !item.roles || item.roles.includes(userRole || "drafter")).map((item) => {
           const path = getMenuPath(item.path);
           const isActive = location.pathname.startsWith(item.path);
           
           const IconMap = {
+            LayoutDashboard,
+            Building2,
+            Users,
             Calculator,
             FileText,
             Database

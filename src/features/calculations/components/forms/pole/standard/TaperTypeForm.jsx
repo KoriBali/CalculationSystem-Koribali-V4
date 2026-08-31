@@ -148,9 +148,8 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
         {/* ── LEFT: Pole Type ── */}
         <div
           id="taperPoleStandard.poleType"
-          className={`border rounded-xl hp:rounded-lg bg-white shadow-sm overflow-hidden flex flex-col ${
-            errors.poleType ? "border-red-300" : "border-slate-200"
-          }`}
+          className={`border rounded-xl hp:rounded-lg bg-white shadow-sm overflow-hidden flex flex-col ${errors.poleType ? "border-red-300" : "border-slate-200"
+            }`}
         >
           <div className="px-4 py-3 border-b border-slate-100 bg-slate-50 flex-shrink-0">
             <p className="text-xs md:text-sm font-medium text-slate-500">
@@ -211,9 +210,8 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
 
         {/* ── RIGHT: Ground Position + Diagram ── */}
         <div
-          className={`border rounded-xl hp:rounded-lg bg-white shadow-sm overflow-hidden flex flex-col ${
-            errors.groundPosition ? "border-red-300" : "border-slate-200"
-          }`}
+          className={`border rounded-xl hp:rounded-lg bg-white shadow-sm overflow-hidden flex flex-col ${errors.groundPosition ? "border-red-300" : "border-slate-200"
+            }`}
         >
           {/* ── Ground position header ── */}
           <div id="taperPoleStandard.groundPosition" className="px-4 py-3 border-b border-slate-100 bg-slate-50 flex flex-col xl:flex-row items-start xl:items-center gap-3 xl:gap-4 flex-shrink-0">
@@ -306,11 +304,10 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
                         id="taperPoleStandard.height"
                         value={taperPoleStandard.height}
                         onChange={(e) => onUpdate({ height: e.target.value })}
-                        className={`w-full px-1 md:px-3 py-2 lg:py-2.5 border rounded-lg hp:rounded-md text-xs md:text-sm min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] outline-none transition-all bg-white appearance-none ${
-                          errors.height
+                        className={`w-full px-1 md:px-3 py-2 lg:py-2.5 border rounded-lg hp:rounded-md text-xs md:text-sm min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] outline-none transition-all bg-white appearance-none ${errors.height
                             ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
                             : "border-gray-300 focus:border-[#1D4ED8]"
-                        }`}
+                          }`}
                       >
                         <option value="" disabled>
                           Select Height
@@ -344,9 +341,8 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
                     onLoad={() =>
                       setLoadedImages((prev) => new Set(prev).add(currentImage))
                     }
-                    className={`w-auto h-full max-h-full object-contain transition-opacity duration-300 ${
-                      isImageLoaded ? "opacity-100" : "opacity-0"
-                    }`}
+                    className={`w-auto h-full max-h-full object-contain transition-opacity duration-300 ${isImageLoaded ? "opacity-100" : "opacity-0"
+                      }`}
                   />
                 </div>
 
@@ -364,11 +360,10 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
                         value={taperPoleStandard.embedmentLength || ""}
                         onChange={(e) => onUpdate({ embedmentLength: e.target.value })}
                         onWheel={(e) => e.target.blur()}
-                        className={`w-full px-2 py-1.5 md:py-2 lg:py-2.5 border rounded-lg hp:rounded-md text-xs md:text-sm outline-none transition-all pr-8 md:pr-10 min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] ${
-                          errors.embedmentLength
+                        className={`w-full px-2 py-1.5 md:py-2 lg:py-2.5 border rounded-lg hp:rounded-md text-xs md:text-sm outline-none transition-all pr-8 md:pr-10 min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] ${errors.embedmentLength
                             ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
                             : "border-gray-300 focus:border-[#1D4ED8]"
-                        }`}
+                          }`}
                       />
                       <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs md:text-sm pointer-events-none">
                         mm

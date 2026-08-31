@@ -18,6 +18,11 @@ export function usePoleCalculation({
   armForm,
   poleStandardForm,
   poleConfigForm, // structural design (lowestStep, overDesign)
+  // Optional callbacks to expand collapsed accordion sections before scrolling
+  expandPole,
+  expandDo,
+  expandOhw,
+  expandArm,
 }) {
   const { type: projectType, draftId } = useParams();
   const navigate = useNavigate();
@@ -183,25 +188,72 @@ export function usePoleCalculation({
     if (!validation.isValid) {
       mapErrors(validation);
       showToast(validation.message);
-      
-      if (validation.poleStandardErrors && Object.keys(validation.poleStandardErrors).length > 0) {
-        scrollToFirstError(validation.poleStandardErrors);
-      } else if (validation.straightPoleStandardErrors && Object.keys(validation.straightPoleStandardErrors).length > 0) {
-        scrollToFirstError(validation.straightPoleStandardErrors);
-      } else if (validation.taperPoleStandardErrors && Object.keys(validation.taperPoleStandardErrors).length > 0) {
-        scrollToFirstError(validation.taperPoleStandardErrors, "taperPoleStandard.");
-      } else if (validation.poleConfigErrors && Object.keys(validation.poleConfigErrors).length > 0) {
-        scrollToFirstError(validation.poleConfigErrors);
-      } else if (validation.polesErrors && Object.keys(validation.polesErrors).length > 0) {
-        scrollToFirstNestedError(validation.polesErrors, "pole-");
-      } else if (validation.directObjectsErrors && Object.keys(validation.directObjectsErrors).length > 0) {
-        scrollToFirstNestedError(validation.directObjectsErrors, "do-");
-      } else if (validation.overheadWiresErrors && Object.keys(validation.overheadWiresErrors).length > 0) {
-        scrollToFirstNestedError(validation.overheadWiresErrors, "ohw-");
-      } else if (validation.armsErrors && Object.keys(validation.armsErrors).length > 0) {
-        scrollToFirstNestedError(validation.armsErrors, "arm-");
+
+      // Helper: expand a section then scroll after the DOM has updated
+      const expandAndScroll = (expandFn, scrollFn) => {
+        if (expandFn) expandFn(true);
+        // Wait a tick so the accordion animation starts before we scroll
+        setTimeout(scrollFn, 50);
+      };
+
+      if (
+        validation.poleStandardErrors &&
+        Object.keys(validation.poleStandardErrors).length > 0
+      ) {
+        expandAndScroll(expandPole, () =>
+          scrollToFirstError(validation.poleStandardErrors)
+        );
+      } else if (
+        validation.straightPoleStandardErrors &&
+        Object.keys(validation.straightPoleStandardErrors).length > 0
+      ) {
+        expandAndScroll(expandPole, () =>
+          scrollToFirstError(validation.straightPoleStandardErrors)
+        );
+      } else if (
+        validation.taperPoleStandardErrors &&
+        Object.keys(validation.taperPoleStandardErrors).length > 0
+      ) {
+        expandAndScroll(expandPole, () =>
+          scrollToFirstError(validation.taperPoleStandardErrors, "taperPoleStandard.")
+        );
+      } else if (
+        validation.poleConfigErrors &&
+        Object.keys(validation.poleConfigErrors).length > 0
+      ) {
+        expandAndScroll(expandPole, () =>
+          scrollToFirstError(validation.poleConfigErrors)
+        );
+      } else if (
+        validation.polesErrors &&
+        Object.keys(validation.polesErrors).length > 0
+      ) {
+        expandAndScroll(expandPole, () =>
+          scrollToFirstNestedError(validation.polesErrors, "pole-")
+        );
+      } else if (
+        validation.doErrors &&
+        Object.keys(validation.doErrors).length > 0
+      ) {
+        expandAndScroll(expandDo, () =>
+          scrollToFirstNestedError(validation.doErrors, "do-")
+        );
+      } else if (
+        validation.ohwErrors &&
+        Object.keys(validation.ohwErrors).length > 0
+      ) {
+        expandAndScroll(expandOhw, () =>
+          scrollToFirstNestedError(validation.ohwErrors, "ohw-")
+        );
+      } else if (
+        validation.armsErrors &&
+        Object.keys(validation.armsErrors).length > 0
+      ) {
+        expandAndScroll(expandArm, () =>
+          scrollToFirstNestedError(validation.armsErrors, "arm-")
+        );
       }
-      
+
       return;
     }
 

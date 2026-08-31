@@ -1,7 +1,13 @@
 export const MENU_ITEMS = [
-  { name: "Pole Calculation", icon: "Calculator", path: "/calculation" },
-  { name: "Report Preview", icon: "FileText", path: "/report" },
-  { name: "Project Database", icon: "Database", path: "/database" },
+  // Super Admin specific routes
+  { name: "Dashboard", icon: "LayoutDashboard", path: "/superadmin/dashboard", roles: ["superadmin"] },
+  { name: "Departments", icon: "Building2", path: "/superadmin/departments", roles: ["superadmin"] },
+  { name: "Users", icon: "Users", path: "/superadmin/users", roles: ["superadmin"] },
+
+  // Shared routes
+  { name: "Pole Calculation", icon: "Calculator", path: "/calculation", roles: ["superadmin", "admin", "drafter"] },
+  { name: "Report Preview", icon: "FileText", path: "/report", roles: ["superadmin", "admin", "drafter"] },
+  { name: "Project Database", icon: "Database", path: "/database", roles: ["superadmin", "admin", "drafter"] },
 ];
 
 // Shared spring animation config — used across sidebar and nav animations
