@@ -25,7 +25,7 @@ export function ProfileDropdown({ userData, onLogout }) {
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2.5 group cursor-pointer"
       >
-        <p className="text-[12px] font-semibold text-slate-800 hidden sm:block">
+        <p className="text-sm font-semibold text-slate-800 hidden sm:block">
           {userData.name}
         </p>
         <div

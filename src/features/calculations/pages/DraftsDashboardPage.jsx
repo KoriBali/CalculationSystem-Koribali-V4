@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Helmet } from "react-helmet";
-import { ArrowLeft, FileText, FileEdit, Plus, Trash2, Edit3, Hash, Building2 } from "lucide-react";
+import { ArrowLeft, FileText, FileEdit, Plus, Trash2, Edit3, Hash, Building2, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { getDraftsIndex, deleteDraft, handleSessionTransition } from "../utils/coreLogic";
+import { projectTypeLabel } from "../constants/projectTypes";
 import { ConfirmDeleteModal } from "../components/modals/ConfirmDeleteModal";
 
 // Animation configs
@@ -27,12 +28,7 @@ export default function DraftsDashboardPage() {
   const [draftToDelete, setDraftToDelete] = useState(null);
 
   // Format the project type name for display
-  const formattedType = type
-    ? type
-      .split("-")
-      .map((w) => w[0].toUpperCase() + w.slice(1))
-      .join(" ")
-    : "Project";
+  const formattedType = projectTypeLabel(type);
 
   useEffect(() => {
     // If there is an active draft left behind (e.g. user used sidebar to navigate here), auto-save it!
@@ -91,60 +87,65 @@ export default function DraftsDashboardPage() {
         <title>{formattedType} Drafts - KORI BALI</title>
       </Helmet>
 
-      {/* Hybrid Layout: No white header block, matching spacing with Project Setup */}
-      <div className="mx-6 2040:mx-[250px] hp:mx-2 py-4 sm:py-6 lg:py-8">
+      {/* Layout matching UserManagement spacing */}
+      <div className="mx-auto w-full max-w-[1600px] px-6 hp:px-3 py-4 sm:py-6 lg:py-8">
 
-        {/* Back button */}
-        <button
-          onClick={() => navigate("/calculation")}
-          className="flex items-center gap-1.5 text-sm text-slate-500 hover:bg-blue-50 hover:text-[#0d3b66] active:bg-blue-100 px-3 py-1.5 rounded-md transition-all mb-6 font-medium w-fit -ml-3"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Project Types
-        </button>
-
-        {/* Header Section (Old styles) */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        {/* Header Section */}
+        <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4 mb-8">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
               {formattedType} Drafts
             </h1>
-            <p className="text-slate-500 mt-1 text-sm">
-              Manage your recent calculations or start a new one ({drafts.length}/6 drafts used).
+            <p className="text-slate-500 mt-1.5 text-sm">
+              Manage your recent calculations or start a new one.
+              <span className="ml-1 text-slate-400">({drafts.length} of 6 used)</span>
             </p>
           </div>
 
-          <button
-            onClick={handleCreateNew}
-            disabled={drafts.length >= 6}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-all shadow-sm
-              ${drafts.length >= 6
-                ? "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200"
-                : "bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] text-white hover:brightness-110"
-              }`}
-          >
-            <Plus className="w-4.5 h-4.5" />
-            New Calculation
-          </button>
+          {/* Action buttons — same size/shape, hierarchy by colour:
+              Back = outlined secondary, New Project = filled primary. */}
+          <div className="flex flex-col sm:flex-row gap-3 lg:flex-shrink-0">
+            <button
+              onClick={() => navigate("/calculation")}
+              className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg font-semibold text-sm bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 active:scale-[0.98] transition-all"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Project Types
+            </button>
+
+            <button
+              onClick={handleCreateNew}
+              disabled={drafts.length >= 6}
+              className={`flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg font-semibold text-sm transition-all shadow-sm
+                ${drafts.length >= 6
+                  ? "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200"
+                  : "bg-[#0d3b66] text-white hover:bg-[#0a2c4c] active:scale-[0.98]"
+                }`}
+            >
+              <Plus className="w-4.5 h-4.5" />
+              New Project
+            </button>
+          </div>
         </div>
 
-        {/* Drafts Grid (Old styles) */}
+        {/* Drafts Grid */}
         <div className="w-full pt-4">
           {drafts.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full min-h-[300px] text-center max-w-sm mx-auto">
-              <div className="w-24 h-24 bg-gradient-to-br from-[#f0f4f8] to-[#e6eef5] rounded-full flex items-center justify-center mb-6 shadow-sm">
-                <FileEdit className="w-10 h-10 text-[#254b73]" strokeWidth={1.5} />
+            <div className="rounded-2xl border border-dashed border-slate-300 bg-white/70 px-6 py-14 sm:py-20 flex flex-col items-center text-center">
+              <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mb-5">
+                <FileEdit className="w-7 h-7 text-slate-400" strokeWidth={1.5} />
               </div>
-              <h3 className="text-lg font-semibold text-slate-800 mb-2">No drafts found</h3>
-              <p className="text-slate-500 text-sm mb-6">
-                You haven't created any calculations for this project type yet.
+              <h3 className="text-lg font-semibold text-slate-900 mb-1.5">No drafts yet</h3>
+              <p className="text-slate-500 text-sm max-w-md mb-6">
+                Create your first {formattedType} calculation to get started. Each
+                one is saved as a draft you can return to anytime.
               </p>
               <button
                 onClick={handleCreateNew}
-                className="text-[#0d3b66] font-medium text-sm hover:underline flex items-center gap-1"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold text-sm bg-[#0d3b66] text-white hover:bg-[#0a2c4c] active:scale-[0.98] transition-all shadow-sm"
               >
-                Start your first calculation
-                <ArrowLeft className="w-4 h-4 rotate-180" />
+                <Plus className="w-4.5 h-4.5" />
+                New Project
               </button>
             </div>
           ) : (
@@ -159,59 +160,66 @@ export default function DraftsDashboardPage() {
                   key={draft.id}
                   variants={itemVariants}
                   onClick={() => handleOpenDraft(draft.id)}
-                  className="group bg-white rounded-2xl border border-slate-200 p-5 md:p-6 cursor-pointer hover:border-[#3399cc] hover:shadow-md transition-all duration-300 relative flex flex-col justify-between min-h-[140px]"
+                  className="group bg-white rounded-xl border border-slate-200 p-5 md:p-6 cursor-pointer hover:border-slate-300 hover:shadow-md transition-all duration-200 relative flex flex-col justify-between"
                 >
-                  {/* Delete button (shows on hover) */}
-                  <button
-                    onClick={(e) => handleDeleteClick(e, draft.id)}
-                    className="absolute top-4 right-4 p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg opacity-0 group-hover:opacity-100 transition-all z-10"
-                    title="Delete Draft"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  {/* Top row: icon + content + chevron */}
+                  <div className="flex items-start gap-4 md:gap-5">
 
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#f0f4f8] to-[#e6eef5] text-[#2b6cb0] flex items-center justify-center shrink-0 border border-white shadow-sm">
-                      <FileEdit className="w-5.5 h-5.5" strokeWidth={1.75} />
+                    {/* Icon */}
+                    <div className="flex-shrink-0 p-3 bg-slate-100 text-slate-600 rounded-lg group-hover:bg-blue-50 group-hover:text-blue-700 transition-colors duration-300">
+                      <FileEdit className="w-5 h-5 stroke-[1.5]" />
                     </div>
-                    <div className="pr-4 w-full mt-0.5 mb-5">
-                      <h3 className="text-slate-900 font-bold text-base leading-tight mb-3 group-hover:text-[#0d3b66] transition-colors line-clamp-1">
+
+                    {/* Content */}
+                    <div className="flex-grow min-w-0">
+                      <h3 className="text-base font-semibold text-slate-800 mb-3 group-hover:text-blue-700 transition-colors duration-300 line-clamp-1">
                         {draft.title || "Untitled Project"}
                       </h3>
-                      
-                      <div className="grid grid-cols-1 gap-2.5">
-                        <div className="flex items-center gap-2 text-[13px] text-slate-600">
-                           <div className="flex items-center gap-1.5 w-[90px] text-slate-400">
-                             <FileText className="w-3.5 h-3.5" />
-                             <span>Req No</span>
-                           </div>
-                           <span className="font-medium text-slate-800 truncate">{draft.requestNo || draft.subtitle || "-"}</span>
-                        </div>
 
-                        <div className="flex items-center gap-2 text-[13px] text-slate-600">
-                           <div className="flex items-center gap-1.5 w-[90px] text-slate-400">
-                             <Hash className="w-3.5 h-3.5" />
-                             <span>Project No</span>
-                           </div>
-                           <span className="font-medium text-slate-800 truncate">{draft.projectNo || "-"}</span>
+                      <div className="grid grid-cols-1 gap-2">
+                        <div className="flex items-center gap-2 text-[13px]">
+                          <div className="flex items-center gap-1.5 w-[82px] text-slate-400 flex-shrink-0">
+                            <FileText className="w-3.5 h-3.5" />
+                            <span>Req No</span>
+                          </div>
+                          <span className="font-medium text-slate-700 truncate">{draft.requestNo || draft.subtitle || "-"}</span>
                         </div>
-
-                        <div className="flex items-center gap-2 text-[13px] text-slate-600">
-                           <div className="flex items-center gap-1.5 w-[90px] text-slate-400">
-                             <Building2 className="w-3.5 h-3.5" />
-                             <span>Company</span>
-                           </div>
-                           <span className="font-medium text-slate-800 truncate">{draft.companyName || "-"}</span>
+                        <div className="flex items-center gap-2 text-[13px]">
+                          <div className="flex items-center gap-1.5 w-[82px] text-slate-400 flex-shrink-0">
+                            <Hash className="w-3.5 h-3.5" />
+                            <span>Project No</span>
+                          </div>
+                          <span className="font-medium text-slate-700 truncate">{draft.projectNo || "-"}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-[13px]">
+                          <div className="flex items-center gap-1.5 w-[82px] text-slate-400 flex-shrink-0">
+                            <Building2 className="w-3.5 h-3.5" />
+                            <span>Company</span>
+                          </div>
+                          <span className="font-medium text-slate-700 truncate">{draft.companyName || "-"}</span>
                         </div>
                       </div>
                     </div>
+
+                    {/* Chevron + Delete (stacked, right side) */}
+                    <div className="flex-shrink-0 flex flex-col items-center gap-3 self-stretch justify-between">
+                      {/* Delete — visible on hover */}
+                      <button
+                        onClick={(e) => handleDeleteClick(e, draft.id)}
+                        className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-all z-10"
+                        title="Delete Draft"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                      {/* Chevron */}
+                      <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-all duration-300" />
+                    </div>
                   </div>
 
-                  <div className="mt-auto pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
-                    <div className="flex items-center gap-1.5">
-                      <Edit3 className="w-3.5 h-3.5" />
-                      <span>Last edited {formatDate(draft.lastEdited)}</span>
-                    </div>
+                  {/* Footer */}
+                  <div className="mt-4 pt-3.5 border-t border-slate-100 flex items-center gap-1.5 text-xs text-slate-400">
+                    <Edit3 className="w-3 h-3" />
+                    <span>Last edited {formatDate(draft.lastEdited)}</span>
                   </div>
                 </motion.div>
               ))}
