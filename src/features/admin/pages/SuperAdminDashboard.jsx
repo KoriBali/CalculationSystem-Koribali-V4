@@ -35,11 +35,11 @@ const DEPARTMENTS = [
 ];
 
 const RECENT_REQUESTS = [
-  { id: 1, actor: "Aiko Tanaka", requestNo: "YSC-26-0142", projectName: "Lighting Pole", requestType: "New", time: "12 mins ago" },
-  { id: 2, actor: "Hiro Nakamura", requestNo: "YSF-26-0087", projectName: "Signboard", requestType: "Revision", time: "Yesterday" },
-  { id: 3, actor: "Rina Kobayashi", requestNo: "YSG-26-0033", projectName: "Acemast", requestType: "New", time: "3 days ago" },
-  { id: 4, actor: "Yui Sato", requestNo: "YSC-26-0139", projectName: "Lighting Pole", requestType: "New", time: "4 days ago" },
-  { id: 5, actor: "Kenji Watanabe", requestNo: "YS-26-0201", projectName: "Multiple", requestType: "Revision", time: "5 days ago" },
+  { id: 1, actor: "Aiko Tanaka", requestNo: "YSC-26-0142", projectName: "Lighting Project", requestType: "New", time: "12 mins ago" },
+  { id: 2, actor: "Hiro Nakamura", requestNo: "YSF-26-0087", projectName: "Signboard Project", requestType: "Revision", time: "Yesterday" },
+  { id: 3, actor: "Rina Kobayashi", requestNo: "YSG-26-0033", projectName: "Disaster Prevention Project", requestType: "New", time: "3 days ago" },
+  { id: 4, actor: "Yui Sato", requestNo: "YSC-26-0139", projectName: "Lighting Project", requestType: "New", time: "4 days ago" },
+  { id: 5, actor: "Kenji Watanabe", requestNo: "YS-26-0201", projectName: "Multi-purpose Project", requestType: "Revision", time: "5 days ago" },
 ];
 
 const REQUEST_TYPE_DATA = [

@@ -31,6 +31,11 @@ const ErrorStyle = ({ show, text }) =>
     </div>
   ) : null;
 
+// Look up display label for a type value from master data options
+// Falls back to the raw value if not found (e.g. still loading or unmatched)
+const getTypeLabel = (options, value) =>
+  options.find((opt) => opt.value === value)?.label || value;
+
 /**
  * MAIN COMPONENT
  */
@@ -242,7 +247,9 @@ export function ArmObjectForm({
                     Arm Object
                     {armObject.name && ` : ${armObject.name}`}
                   </h4>
-                  <p className="text-xs text-gray-500">{armObject.type} Type</p>
+                  <p className="text-xs text-gray-500">
+                    {getTypeLabel(objectTypeOptions, armObject.type)} Type
+                  </p>
                 </div>
               </div>
 

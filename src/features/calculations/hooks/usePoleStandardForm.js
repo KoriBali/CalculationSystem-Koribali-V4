@@ -36,7 +36,7 @@ export function usePoleStandardForm(projectType) {
       lowerLength: "",
       embedmentLength: "",
       groundPosition: "onGL",
-      heightDepth: "0",
+      lowestHeight: "0",
     },
   );
 
@@ -74,7 +74,7 @@ export function usePoleStandardForm(projectType) {
     let next = { ...updates };
 
     if ("groundPosition" in updates) {
-      next.heightDepth = updates.groundPosition === "onGL" ? 0 : "";
+      next.lowestHeight = updates.groundPosition === "onGL" ? 0 : "";
     }
 
     Utils.updateStraightPoleStandard(
@@ -82,7 +82,7 @@ export function usePoleStandardForm(projectType) {
       next,
       setStraightPoleStandard,
     );
-    
+
     // Clear errors for updated fields
     setStraightPoleErrors((prev) => {
       if (Object.keys(prev).length === 0) return prev;

@@ -42,19 +42,29 @@ export const CouplingSchema = yup.object().shape({
     yup.object().shape({
       height: heightField,
       withHookband: yup.boolean(),
+      // After refactoring, caseDetails has the shape:
+      //   { caseId, cp1: { position, size, type, verticalAngle, ... }, cp2?: { ... } }
+      // Field-level validation (position, size, type, verticalAngle) is handled
+      // inside CouplingCaseFormModal before the data is saved here.
+      // This schema only verifies that caseDetails exists and has a valid caseId + cp1.
       caseDetails: yup
         .object()
         .shape({
           caseId: yup.number().required("*Coupling case is required"),
-          position: yup.string().required("*Coupling position is required"),
-          size: yup.string().required("*Coupling size is required"),
-          type: yup.string().required("*Coupling type is required"),
-          verticalAngle: yup
-            .number()
-            .transform((_, val) => (val === "" ? undefined : Number(val)))
-            .typeError("*Vertical angle must be a number")
-            .required("*Vertical angle is required")
-            .min(0, "*Vertical angle must be positive"),
+          cp1: yup
+            .object()
+            .required("*Coupling 1 details are required")
+            .test(
+              "cp1-has-required-fields",
+              "*Please complete Coupling 1 configuration",
+              (val) =>
+                val != null &&
+                val.position !== "" &&
+                val.size !== "" &&
+                val.type !== "" &&
+                val.verticalAngle !== "" &&
+                val.verticalAngle != null
+            ),
         })
         .nullable()
         .required("*Please configure coupling details"),

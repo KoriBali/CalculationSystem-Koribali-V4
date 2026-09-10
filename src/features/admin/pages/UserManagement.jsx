@@ -1,4 +1,5 @@
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { Helmet } from "react-helmet";
 import {
   Users,
@@ -9,7 +10,10 @@ import {
   X,
   Building2,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   Check,
+  UserCog,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 // import { getUsers, getDepartments, createUser, updateUser, deleteUser } from "../services/userService";
@@ -56,11 +60,137 @@ const initials = (name) =>
     .join("")
     .toUpperCase();
 
-const avatarTone = (id) => AVATAR_TONES[id % AVATAR_TONES.length];
+// Stable colour per user — deterministic hash so the same user always gets the
+// same tone, regardless of whether `id` is a number or a UUID string.
+const avatarTone = (id) => {
+  const str = String(id ?? "");
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash * 31 + str.charCodeAt(i)) | 0;
+  }
+  return AVATAR_TONES[Math.abs(hash) % AVATAR_TONES.length];
+};
 
 const emptyForm = { fullName: "", username: "", email: "", role: "drafter", departmentId: "" };
 
 // ─── Form modal (create + edit) ────────────────────────────────────────────
+
+function FormSelect({ value, onChange, options, placeholder, hasError }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [dropdownStyle, setDropdownStyle] = useState({});
+  const triggerRef = useRef(null);
+  const menuRef = useRef(null);
+
+  // Calculate position of the portal dropdown relative to the trigger button
+  const updatePosition = useCallback(() => {
+    if (!triggerRef.current) return;
+    const rect = triggerRef.current.getBoundingClientRect();
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const spaceAbove = rect.top;
+    const menuHeight = 220;
+    const openBelow = spaceBelow >= menuHeight || spaceBelow >= spaceAbove;
+    setDropdownStyle({
+      position: "fixed",
+      left: rect.left,
+      width: rect.width,
+      zIndex: 9999,
+      ...(openBelow
+        ? { top: rect.bottom + 4 }
+        : { bottom: window.innerHeight - rect.top + 4 }),
+    });
+  }, []);
+
+  const handleOpen = () => {
+    updatePosition();
+    setIsOpen((v) => !v);
+  };
+
+  // Close on outside click
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleClickOutside = (e) => {
+      if (
+        triggerRef.current && !triggerRef.current.contains(e.target) &&
+        menuRef.current && !menuRef.current.contains(e.target)
+      ) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isOpen]);
+
+  // Close on scroll/resize
+  useEffect(() => {
+    if (!isOpen) return;
+    const close = () => setIsOpen(false);
+    window.addEventListener("scroll", close, true);
+    window.addEventListener("resize", close);
+    return () => {
+      window.removeEventListener("scroll", close, true);
+      window.removeEventListener("resize", close);
+    };
+  }, [isOpen]);
+
+  const selectedOption = options.find((opt) => String(opt.value) === String(value));
+
+  return (
+    <div className="relative w-full">
+      <button
+        ref={triggerRef}
+        type="button"
+        onClick={handleOpen}
+        className={`w-full px-3 md:px-4 py-2 md:py-2.5 rounded-md md:rounded-lg outline-none transition-all text-xs md:text-sm border text-left flex justify-between items-center ${
+          hasError
+            ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
+            : isOpen
+              ? "border-[#3399cc] bg-white ring-1 ring-[#3399cc]"
+              : "border-gray-300 bg-white hover:border-[#3399cc]"
+        } ${!selectedOption ? "text-slate-400" : "text-slate-900"}`}
+      >
+        <span className="truncate">{selectedOption ? selectedOption.label : placeholder}</span>
+        <ChevronDown className={`w-4 h-4 shrink-0 transition-transform ${isOpen ? "rotate-180" : ""} text-gray-400`} />
+      </button>
+
+      <AnimatePresence>
+        {isOpen && createPortal(
+          <motion.div
+            ref={menuRef}
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.15 }}
+            style={dropdownStyle}
+            className="bg-white rounded-lg shadow-2xl border border-slate-200 overflow-hidden"
+          >
+            <div className="max-h-[200px] overflow-y-auto py-1">
+              {options.map((opt) => {
+                const isActive = String(value) === String(opt.value);
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => {
+                      onChange(opt.value);
+                      setIsOpen(false);
+                    }}
+                    className="w-full px-3 md:px-4 py-2 md:py-2.5 flex items-center justify-between hover:bg-slate-50 transition-colors group"
+                  >
+                    <span className={`text-xs md:text-sm ${isActive ? "text-[#0d3b66] font-bold" : "text-slate-700 font-medium group-hover:text-slate-900"}`}>
+                      {opt.label}
+                    </span>
+                    {isActive && <Check className="w-4 h-4 text-[#0d3b66]" />}
+                  </button>
+                );
+              })}
+            </div>
+          </motion.div>,
+          document.body
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 function UserFormModal({ open, user, onClose, onSave }) {
   const [form, setForm] = useState(emptyForm);
@@ -106,43 +236,58 @@ function UserFormModal({ open, user, onClose, onSave }) {
   };
 
   const inputClass = (hasError) =>
-    `w-full px-3 py-2.5 rounded-lg border text-sm outline-none transition-all ${
+    `w-full px-3 md:px-4 py-2 md:py-2.5 rounded-md md:rounded-lg outline-none transition-all text-xs md:text-sm border ${
       hasError
-        ? "border-red-400 bg-red-50/50 focus:ring-2 focus:ring-red-100"
-        : "border-slate-200 focus:border-[#3399cc] focus:ring-2 focus:ring-[#3399cc]/15"
+        ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
+        : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
     }`;
 
+  const labelClass = "block text-gray-700 mb-1 md:mb-2 text-xs md:text-sm font-medium";
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm px-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm px-4 transition-opacity">
       <motion.div
         initial={{ opacity: 0, scale: 0.96, y: 12 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ type: "spring", damping: 22, stiffness: 320 }}
-        className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden max-h-[90vh] flex flex-col"
+        className="w-full max-w-xl bg-white rounded-2xl shadow-2xl flex flex-col max-h-[90vh]"
       >
-        <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 shrink-0">
-          <h2 className="text-base font-bold text-slate-900">{user ? "Edit User" : "Add User"}</h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] px-6 py-5 flex items-center justify-between shrink-0 rounded-t-2xl">
+          <div className="flex items-center gap-2 text-white">
+            {user ? <Edit2 className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
+            <h2 className="text-base font-bold">{user ? "Edit User Details" : "Add New User"}</h2>
+          </div>
+          <button onClick={onClose} className="text-white/70 hover:text-white transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="px-6 py-5 flex flex-col gap-4 overflow-y-auto">
-          <div>
-            <label className="block text-xs font-medium text-slate-700 mb-1.5">Full Name</label>
-            <input
-              type="text"
-              value={form.fullName}
-              onChange={(e) => setForm((f) => ({ ...f, fullName: e.target.value }))}
-              placeholder="e.g. Sora Yamamoto"
-              className={inputClass(errors.fullName)}
-            />
-            {errors.fullName && <p className="mt-1 text-[11px] text-red-500">*{errors.fullName}</p>}
-          </div>
+        {/* Content */}
+        <div className="p-6 overflow-y-auto">
+          <p className="text-slate-600 mb-6 text-sm">
+            Please fill in the user details below. Make sure the email and username are unique across the system.
+          </p>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1.5">Username</label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6 md:gap-y-8">
+            <div className="relative md:col-span-2">
+              <label className={labelClass}>Full Name</label>
+              <input
+                type="text"
+                value={form.fullName}
+                onChange={(e) => setForm((f) => ({ ...f, fullName: e.target.value }))}
+                placeholder="e.g. Sora Yamamoto"
+                className={inputClass(errors.fullName)}
+              />
+              {errors.fullName && (
+                <div className="absolute left-0 -bottom-4 md:-bottom-5 flex items-center gap-1 text-[9px] md:text-[11px] text-red-500">
+                  <span>*{errors.fullName}</span>
+                </div>
+              )}
+            </div>
+
+            <div className="relative">
+              <label className={labelClass}>Username</label>
               <input
                 type="text"
                 value={form.username}
@@ -150,59 +295,72 @@ function UserFormModal({ open, user, onClose, onSave }) {
                 placeholder="sora.y"
                 className={inputClass(errors.username)}
               />
-              {errors.username && <p className="mt-1 text-[11px] text-red-500">*{errors.username}</p>}
+              {errors.username && (
+                <div className="absolute left-0 -bottom-4 md:-bottom-5 flex items-center gap-1 text-[9px] md:text-[11px] text-red-500">
+                  <span>*{errors.username}</span>
+                </div>
+              )}
             </div>
-            <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1.5">Role</label>
-              <select
+
+            <div className="relative">
+              <label className={labelClass}>Role</label>
+              <FormSelect
                 value={form.role}
-                onChange={(e) => setForm((f) => ({ ...f, role: e.target.value }))}
-                className={`${inputClass(false)} appearance-none cursor-pointer`}
-              >
-                <option value="drafter">Drafter</option>
-                <option value="admin">Admin</option>
-              </select>
+                onChange={(val) => setForm((f) => ({ ...f, role: val }))}
+                options={[
+                  { value: "drafter", label: "Drafter" },
+                  { value: "admin", label: "Admin" },
+                ]}
+                placeholder="Select role"
+                hasError={false}
+              />
             </div>
-          </div>
 
-          <div>
-            <label className="block text-xs font-medium text-slate-700 mb-1.5">Email</label>
-            <input
-              type="email"
-              value={form.email}
-              onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-              placeholder="sora.yamamoto@koribali.com"
-              className={inputClass(errors.email)}
-            />
-            {errors.email && <p className="mt-1 text-[11px] text-red-500">*{errors.email}</p>}
-          </div>
+            <div className="relative md:col-span-2">
+              <label className={labelClass}>Email Address</label>
+              <input
+                type="email"
+                value={form.email}
+                onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+                placeholder="sora.yamamoto@koribali.com"
+                className={inputClass(errors.email)}
+              />
+              {errors.email && (
+                <div className="absolute left-0 -bottom-4 md:-bottom-5 flex items-center gap-1 text-[9px] md:text-[11px] text-red-500">
+                  <span>*{errors.email}</span>
+                </div>
+              )}
+            </div>
 
-          <div>
-            <label className="block text-xs font-medium text-slate-700 mb-1.5">Department</label>
-            <select
-              value={form.departmentId}
-              onChange={(e) => setForm((f) => ({ ...f, departmentId: e.target.value }))}
-              className={`${inputClass(errors.departmentId)} appearance-none cursor-pointer`}
-            >
-              <option value="" disabled>Select department</option>
-              {DEPARTMENTS.map((dept) => (
-                <option key={dept.id} value={dept.id}>{dept.name}</option>
-              ))}
-            </select>
-            {errors.departmentId && <p className="mt-1 text-[11px] text-red-500">*{errors.departmentId}</p>}
+            <div className="relative md:col-span-2">
+              <label className={labelClass}>Department</label>
+              <FormSelect
+                value={form.departmentId}
+                onChange={(val) => setForm((f) => ({ ...f, departmentId: val }))}
+                options={DEPARTMENTS.map((dept) => ({ value: dept.id, label: dept.name }))}
+                placeholder="Select department"
+                hasError={errors.departmentId}
+              />
+              {errors.departmentId && (
+                <div className="absolute left-0 -bottom-4 md:-bottom-5 flex items-center gap-1 text-[9px] md:text-[11px] text-red-500">
+                  <span>*{errors.departmentId}</span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-2.5 px-6 py-4 bg-slate-50 border-t border-slate-100 shrink-0">
+        {/* Footer */}
+        <div className="bg-slate-50 px-4 sm:px-6 py-4 sm:py-5 border-t border-slate-200 flex flex-col-reverse sm:flex-row justify-end gap-3 rounded-b-2xl shrink-0">
           <button
             onClick={onClose}
-            className="px-4 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-100 transition-colors"
+            className="w-full sm:w-auto px-6 py-2.5 rounded-lg font-medium text-sm bg-[#eef2f6] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:bg-[#e2e8f0] hover:ring-[#b8c2d1] transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
-            className="px-5 py-2.5 rounded-lg text-sm font-medium text-white bg-[#0d3b66] hover:bg-[#0a2c4c] transition-colors shadow-sm"
+            className="w-full sm:w-auto flex justify-center items-center gap-2 px-6 py-2.5 rounded-lg font-medium text-sm bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm transition-all"
           >
             {user ? "Save Changes" : "Add User"}
           </button>
@@ -214,11 +372,29 @@ function UserFormModal({ open, user, onClose, onSave }) {
 
 // ─── Department filter dropdown ────────────────────────────────────────────
 
-function DepartmentFilterDropdown({ options, selected, onChange }) {
+function CountBadge({ count, isActive }) {
+  if (count === 0) {
+    return (
+      <span className="inline-flex items-center justify-center min-w-[22px] h-[22px] px-1.5 rounded-full text-[11px] font-semibold tabular-nums bg-slate-100 text-slate-400">
+        0
+      </span>
+    );
+  }
+  return (
+    <span className={`inline-flex items-center justify-center min-w-[22px] h-[22px] px-1.5 rounded-full text-[11px] font-bold tabular-nums transition-colors ${
+      isActive
+        ? "bg-[#0d3b66] text-white"
+        : "bg-slate-100 text-slate-500"
+    }`}>
+      {count}
+    </span>
+  );
+}
+
+function CustomFilterDropdown({ icon: Icon, options, selected, onChange }) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  // Close on outside click — same idiom as ProfileDropdown in the header.
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -232,17 +408,18 @@ function DepartmentFilterDropdown({ options, selected, onChange }) {
   const selectedOption = options.find((opt) => opt.key === selected) || options[0];
 
   return (
-    <div className="relative shrink-0 w-full lg:w-auto" ref={dropdownRef}>
+    <div className="relative shrink-0 w-full sm:w-[210px]" ref={dropdownRef}>
+      {/* Trigger button */}
       <button
         type="button"
         onClick={() => setIsOpen((v) => !v)}
-        className={`w-full lg:w-64 h-10 flex items-center gap-2 pl-3.5 pr-3 rounded-xl border text-sm bg-white transition-all ${
-          isOpen ? "border-[#3399cc] ring-4 ring-[#0d3b66]/10" : "border-slate-200 hover:border-slate-300"
+        className={`w-full h-10 flex items-center gap-2 pl-3.5 pr-3 rounded-xl border text-sm bg-white transition-all outline-none ${
+          isOpen ? "border-[#3399cc] ring-1 ring-[#3399cc]" : "border-slate-200 hover:border-slate-300 focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
         }`}
       >
-        <Building2 className="w-4 h-4 text-slate-400 shrink-0" />
+        <Icon className="w-4 h-4 text-slate-400 shrink-0" />
         <span className="flex-1 text-left text-slate-700 font-medium truncate">{selectedOption.label}</span>
-        <span className="text-[11px] font-bold text-[#3399cc] tabular-nums shrink-0">{selectedOption.count}</span>
+        <CountBadge count={selectedOption.count} isActive={true} />
         <ChevronDown className={`w-4 h-4 text-slate-400 shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
       </button>
 
@@ -253,31 +430,175 @@ function DepartmentFilterDropdown({ options, selected, onChange }) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -6, scale: 0.98 }}
             transition={{ duration: 0.15 }}
-            className="absolute z-20 mt-2 w-full lg:w-72 left-0 bg-white rounded-xl border border-slate-200 shadow-lg overflow-hidden py-1.5"
+            className="absolute z-20 mt-2 w-full sm:w-auto sm:min-w-[220px] left-0 bg-white rounded-xl border border-slate-200 shadow-lg overflow-hidden whitespace-nowrap"
           >
-            {options.map((opt) => {
+            {/* "All" option — visually separated */}
+            {options.slice(0, 1).map((opt) => {
               const isActive = opt.key === selected;
               return (
                 <button
                   key={opt.key}
-                  onClick={() => {
-                    onChange(opt.key);
-                    setIsOpen(false);
-                  }}
-                  className={`w-full flex items-center justify-between gap-3 px-3.5 py-2.5 text-sm transition-colors ${
+                  onClick={() => { onChange(opt.key); setIsOpen(false); }}
+                  className={`w-full flex items-center justify-between gap-3 px-3.5 py-2.5 text-sm transition-colors border-b border-slate-100 ${
                     isActive ? "bg-[#0d3b66]/5 text-[#0d3b66] font-semibold" : "text-slate-600 hover:bg-slate-50"
                   }`}
                 >
                   <span className="flex items-center gap-2.5 min-w-0">
-                    {isActive ? (
-                      <Check className="w-4 h-4 text-[#3399cc] shrink-0" />
-                    ) : (
-                      <span className="w-4 shrink-0" />
-                    )}
+                    {isActive
+                      ? <Check className="w-4 h-4 text-[#3399cc] shrink-0" />
+                      : <span className="w-4 shrink-0" />
+                    }
                     <span className="truncate">{opt.label}</span>
                   </span>
-                  <span className={`text-xs font-semibold tabular-nums shrink-0 ${isActive ? "text-[#3399cc]" : "text-slate-400"}`}>
-                    {opt.count}
+                  <CountBadge count={opt.count} isActive={isActive} />
+                </button>
+              );
+            })}
+
+            {/* Options */}
+            <div className="py-1">
+              {options.slice(1).map((opt) => {
+                const isActive = opt.key === selected;
+                return (
+                  <button
+                    key={opt.key}
+                    onClick={() => { onChange(opt.key); setIsOpen(false); }}
+                    className={`w-full flex items-center justify-between gap-3 px-3.5 py-2.5 text-sm transition-colors ${
+                      isActive ? "bg-[#0d3b66]/5 text-[#0d3b66] font-semibold" : "text-slate-600 hover:bg-slate-50"
+                    }`}
+                  >
+                    <span className="flex items-center gap-2.5 min-w-0">
+                      {isActive
+                        ? <Check className="w-4 h-4 text-[#3399cc] shrink-0" />
+                        : <span className="w-4 shrink-0" />
+                      }
+                      <span className="truncate">{opt.label}</span>
+                    </span>
+                    <CountBadge count={opt.count} isActive={isActive} />
+                  </button>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+// ─── Delete confirm ─────────────────────────────────────────────────────────
+
+function DeleteUserModal({ user, onClose, onConfirm }) {
+  return (
+    <AnimatePresence>
+      {!!user && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center px-4">
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+          />
+
+          {/* Modal card */}
+          <motion.div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modal-title"
+            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+            className="relative bg-white rounded-xl sm:rounded-2xl p-4 sm:p-8 shadow-xl w-full max-w-xs sm:max-w-md border border-gray-200"
+          >
+            <div className="flex flex-col items-center text-center">
+              <div className="mx-auto mb-3 flex items-center justify-center w-10 h-10 sm:w-16 sm:h-16 rounded-full bg-red-100">
+                <Trash2 className="w-5 h-5 sm:w-8 sm:h-8 text-red-500" />
+              </div>
+              
+              <h2 id="modal-title" className="text-center font-bold text-sm sm:text-base text-gray-900 mb-1 sm:mb-2">
+                Remove User?
+              </h2>
+              
+              <p className="text-center text-gray-600 text-xs sm:text-sm mb-4 sm:mb-6">
+                <strong className="font-semibold">{user.fullName}</strong> will lose access immediately. This action cannot be undone.
+              </p>
+              
+              <div className="flex gap-2 sm:gap-3 w-full">
+                <button
+                  onClick={onClose}
+                  className="flex-1 py-2 sm:py-3 font-bold text-xs sm:text-sm bg-slate-100 text-slate-600 rounded-md sm:rounded-lg hover:bg-slate-200 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => onConfirm(user.id)}
+                  className="flex-1 py-2 sm:py-3 font-bold text-xs sm:text-sm bg-red-500 text-white rounded-md sm:rounded-lg hover:bg-red-600 transition-colors"
+                >
+                  Remove
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+function PaginationDropdown({ options, value, onChange }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return (
+    <div className="relative shrink-0" ref={dropdownRef}>
+      <button
+        type="button"
+        onClick={() => setIsOpen((v) => !v)}
+        className={`h-8 flex items-center justify-between gap-1.5 pl-3 pr-2 rounded-lg border text-[13px] bg-white transition-all outline-none font-medium text-slate-700 min-w-[64px] ${
+          isOpen ? "border-[#3399cc] ring-1 ring-[#3399cc]" : "border-slate-200 hover:border-slate-300 focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
+        }`}
+      >
+        <span>{value}</span>
+        <ChevronDown className={`w-3.5 h-3.5 text-slate-400 shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
+      </button>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 6, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 6, scale: 0.98 }}
+            transition={{ duration: 0.15 }}
+            className="absolute bottom-full mb-1.5 z-20 w-auto min-w-[90px] left-0 bg-white rounded-xl border border-slate-200 shadow-lg overflow-hidden py-1"
+          >
+            {options.map((opt) => {
+              const isActive = opt === value;
+              return (
+                <button
+                  key={opt}
+                  onClick={() => { onChange(opt); setIsOpen(false); }}
+                  className={`w-full flex items-center justify-between gap-3 px-3 py-2 text-[13px] transition-colors ${
+                    isActive ? "bg-[#0d3b66]/5 text-[#0d3b66] font-semibold" : "text-slate-600 hover:bg-slate-50"
+                  }`}
+                >
+                  <span className="flex items-center gap-2 min-w-0">
+                    {isActive
+                      ? <Check className="w-3.5 h-3.5 text-[#3399cc] shrink-0" />
+                      : <span className="w-3.5 shrink-0" />
+                    }
+                    <span>{opt}</span>
                   </span>
                 </button>
               );
@@ -289,45 +610,6 @@ function DepartmentFilterDropdown({ options, selected, onChange }) {
   );
 }
 
-// ─── Delete confirm ─────────────────────────────────────────────────────────
-
-function DeleteUserModal({ user, onClose, onConfirm }) {
-  if (!user) return null;
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm px-4">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.96, y: 12 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ type: "spring", damping: 22, stiffness: 320 }}
-        className="w-full max-w-sm bg-white rounded-2xl shadow-xl border border-slate-200 p-6"
-      >
-        <div className="mx-auto mb-4 flex items-center justify-center w-14 h-14 rounded-full bg-red-100">
-          <Trash2 className="w-6 h-6 text-red-500" />
-        </div>
-        <h2 className="text-center font-bold text-sm text-slate-900 mb-2">Remove User?</h2>
-        <p className="text-center text-slate-500 text-xs leading-relaxed mb-5">
-          <span className="font-semibold text-slate-700">{user.fullName}</span> will lose access
-          immediately. This action cannot be undone.
-        </p>
-        <div className="flex gap-2.5">
-          <button
-            onClick={onClose}
-            className="flex-1 py-2.5 font-semibold text-xs sm:text-sm bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={() => onConfirm(user.id)}
-            className="flex-1 py-2.5 font-semibold text-xs sm:text-sm bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
-          >
-            Remove
-          </button>
-        </div>
-      </motion.div>
-    </div>
-  );
-}
-
 // ─── Page ───────────────────────────────────────────────────────────────────
 
 export default function UserManagement() {
@@ -335,8 +617,18 @@ export default function UserManagement() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDept, setSelectedDept] = useState("all");
+  const [selectedRole, setSelectedRole] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [formState, setFormState] = useState({ open: false, user: null });
   const [deleteTarget, setDeleteTarget] = useState(null);
+
+  const PAGE_SIZE_OPTIONS = [10, 25, 50];
+
+  const handlePageSizeChange = (newSize) => {
+    setPageSize(newSize);
+    setCurrentPage(1);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -366,32 +658,73 @@ export default function UserManagement() {
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.username.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesDept = selectedDept === "all" || user.departmentId.toString() === selectedDept;
-    return matchesSearch && matchesDept;
+    const matchesRole = selectedRole === "all" || user.role === selectedRole;
+    return matchesSearch && matchesDept && matchesRole;
   });
 
-  const roleCounts = useMemo(() => {
-    return users.reduce(
-      (acc, u) => ({ ...acc, [u.role]: (acc[u.role] || 0) + 1 }),
-      { admin: 0, drafter: 0 }
-    );
-  }, [users]);
+  // Reset to page 1 whenever the filter/search changes
+  const totalPages = Math.max(1, Math.ceil(filteredUsers.length / pageSize));
+  const safePage = Math.min(currentPage, totalPages);
+  const pagedUsers = filteredUsers.slice((safePage - 1) * pageSize, safePage * pageSize);
+  const rangeStart = filteredUsers.length === 0 ? 0 : (safePage - 1) * pageSize + 1;
+  const rangeEnd = Math.min(safePage * pageSize, filteredUsers.length);
+
+  const handleFilterChange = (dept) => {
+    setSelectedDept(dept);
+    setCurrentPage(1);
+  };
+  const handleRoleFilterChange = (role) => {
+    setSelectedRole(role);
+    setCurrentPage(1);
+  };
+  const handleSearchChange = (value) => {
+    setSearchTerm(value);
+    setCurrentPage(1);
+  };
 
   // Live per-department counts for the filter pills, so they track edits
   // (add/remove/reassign) instead of a number baked in at load time.
   const filterOptions = useMemo(() => {
+    // Only apply non-department filters (search & role) to get accurate counts for the department dropdown
+    const preFilteredForDept = users.filter((user) => {
+      const matchesSearch = user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) || user.email.toLowerCase().includes(searchTerm.toLowerCase()) || user.username.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesRole = selectedRole === "all" || user.role === selectedRole;
+      return matchesSearch && matchesRole;
+    });
+
     const deptCounts = {};
-    users.forEach((u) => {
+    preFilteredForDept.forEach((u) => {
       deptCounts[u.departmentId] = (deptCounts[u.departmentId] || 0) + 1;
     });
     return [
-      { key: "all", label: "All Departments", count: users.length },
+      { key: "all", label: "All Departments", count: preFilteredForDept.length },
       ...DEPARTMENTS.map((dept) => ({
         key: String(dept.id),
         label: dept.name,
         count: deptCounts[dept.id] || 0,
       })),
     ];
-  }, [users]);
+  }, [users, searchTerm, selectedRole]);
+
+  // Live per-role counts
+  const roleFilterOptions = useMemo(() => {
+    // Only apply non-role filters (search & dept) to get accurate counts for the role dropdown
+    const preFilteredForRole = users.filter((user) => {
+      const matchesSearch = user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) || user.email.toLowerCase().includes(searchTerm.toLowerCase()) || user.username.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesDept = selectedDept === "all" || user.departmentId.toString() === selectedDept;
+      return matchesSearch && matchesDept;
+    });
+
+    const roleCounts = {};
+    preFilteredForRole.forEach((u) => {
+      roleCounts[u.role] = (roleCounts[u.role] || 0) + 1;
+    });
+    return [
+      { key: "all", label: "All Roles", count: preFilteredForRole.length },
+      { key: "admin", label: "Admin", count: roleCounts["admin"] || 0 },
+      { key: "drafter", label: "Drafter", count: roleCounts["drafter"] || 0 },
+    ];
+  }, [users, searchTerm, selectedDept]);
 
   const handleSave = (payload) => {
     if (formState.user) {
@@ -413,14 +746,11 @@ export default function UserManagement() {
         <title>Users - KORI BALI</title>
       </Helmet>
 
-      <div className="mx-6 2040:mx-[250px] hp:mx-2 py-4 sm:py-6 lg:py-8">
+      <div className="mx-auto w-full max-w-7xl px-6 hp:px-3 py-4 sm:py-6 lg:py-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
-              <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0d3b66] to-[#3399cc] flex items-center justify-center text-white shadow-sm">
-                <Users className="w-5 h-5" />
-              </span>
+            <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
               User Management
             </h1>
             <p className="text-slate-500 mt-1.5 text-sm">
@@ -437,53 +767,51 @@ export default function UserManagement() {
           </button>
         </div>
 
-        {/* Stat strip */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          <div className="bg-white rounded-xl border border-slate-200 px-4 py-3.5">
-            <p className="text-[11px] font-medium text-slate-500 mb-0.5">Total Users</p>
-            <p className="text-xl font-bold text-slate-900 tabular-nums">{users.length}</p>
-          </div>
-          <div className="bg-white rounded-xl border border-slate-200 px-4 py-3.5">
-            <p className="text-[11px] font-medium text-slate-500 mb-0.5">Admins</p>
-            <p className="text-xl font-bold text-slate-900 tabular-nums">{roleCounts.admin}</p>
-          </div>
-          <div className="bg-white rounded-xl border border-slate-200 px-4 py-3.5">
-            <p className="text-[11px] font-medium text-slate-500 mb-0.5">Drafters</p>
-            <p className="text-xl font-bold text-slate-900 tabular-nums">{roleCounts.drafter}</p>
-          </div>
-        </div>
-
         {/* Search + Filter */}
-        <div className="bg-white p-4 rounded-t-2xl border border-b-0 border-slate-200 flex flex-col lg:flex-row lg:items-center gap-3">
-          <div className="relative w-full lg:w-96 shrink-0">
+        <div className="bg-white p-4 rounded-t-2xl border border-b-0 border-slate-200 flex flex-col md:flex-row md:flex-wrap lg:flex-nowrap items-stretch md:items-center gap-3">
+          <div className="relative w-full md:flex-1">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
               type="text"
               placeholder="Search by name, email, or username..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full h-10 pl-10 pr-4 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-4 focus:ring-[#0d3b66]/10 focus:border-[#3399cc] transition-all"
+              onChange={(e) => handleSearchChange(e.target.value)}
+              className="w-full h-10 pl-10 pr-4 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc] transition-all"
             />
           </div>
 
-          <DepartmentFilterDropdown
+          <CustomFilterDropdown
+            icon={Building2}
             options={filterOptions}
             selected={selectedDept}
-            onChange={setSelectedDept}
+            onChange={handleFilterChange}
+          />
+          <CustomFilterDropdown
+            icon={UserCog}
+            options={roleFilterOptions}
+            selected={selectedRole}
+            onChange={handleRoleFilterChange}
           />
         </div>
 
         {/* Table */}
         <div className="bg-white rounded-b-2xl border border-slate-200 overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm whitespace-nowrap">
+            <table className="w-full text-left text-sm table-fixed min-w-[720px]">
+              <colgroup>
+                <col className="w-[32%]" />
+                <col className="w-[18%]" />
+                <col className="w-[24%]" />
+                <col className="w-[14%]" />
+                <col className="w-[112px]" />
+              </colgroup>
               <thead className="bg-slate-50 text-slate-500 border-b border-slate-200">
                 <tr>
                   <th className="px-6 py-4 font-semibold">User</th>
                   <th className="px-6 py-4 font-semibold">Username</th>
                   <th className="px-6 py-4 font-semibold">Department</th>
                   <th className="px-6 py-4 font-semibold">Role</th>
-                  <th className="px-6 py-4 font-semibold w-28 text-right">Actions</th>
+                  <th className="px-6 py-4 font-semibold text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -493,7 +821,7 @@ export default function UserManagement() {
                       Loading users…
                     </td>
                   </tr>
-                ) : filteredUsers.length === 0 ? (
+                ) : pagedUsers.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="px-6 py-14">
                       <div className="flex flex-col items-center gap-2 text-slate-400">
@@ -503,7 +831,7 @@ export default function UserManagement() {
                     </td>
                   </tr>
                 ) : (
-                  filteredUsers.map((user) => (
+                  pagedUsers.map((user) => (
                     <motion.tr
                       key={user.id}
                       initial={{ opacity: 0 }}
@@ -517,15 +845,15 @@ export default function UserManagement() {
                           >
                             {initials(user.fullName)}
                           </div>
-                          <div className="flex flex-col">
-                            <span className="font-medium text-slate-900">{user.fullName}</span>
-                            <span className="text-xs text-slate-500">{user.email}</span>
+                          <div className="flex flex-col min-w-0">
+                            <span className="font-medium text-slate-900 truncate">{user.fullName}</span>
+                            <span className="text-xs text-slate-500 truncate">{user.email}</span>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-slate-700">@{user.username}</td>
+                      <td className="px-6 py-4 text-slate-700 truncate">{user.username}</td>
                       <td className="px-6 py-4">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
+                        <span className="inline-flex items-center max-w-full truncate px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
                           {departmentById[user.departmentId]?.name || "No dept."}
                         </span>
                       </td>
@@ -558,6 +886,59 @@ export default function UserManagement() {
               </tbody>
             </table>
           </div>
+
+          {/* Pagination footer — only shown when there's something to page */}
+          {!isLoading && filteredUsers.length > 0 && (
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 py-4 border-t border-slate-200 bg-slate-50/60">
+              {/* Left: rows-per-page selector + range info */}
+              <div className="flex items-center gap-3">
+                <label className="flex items-center gap-2 text-[13px] text-slate-500 whitespace-nowrap">
+                  Rows per page:
+                  <PaginationDropdown
+                    options={PAGE_SIZE_OPTIONS}
+                    value={pageSize}
+                    onChange={handlePageSizeChange}
+                  />
+                </label>
+                <span className="text-[13px] text-slate-500 tabular-nums">
+                  {rangeStart}–{rangeEnd} of {filteredUsers.length}
+                </span>
+              </div>
+
+              {/* Right: page navigation */}
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={safePage === 1}
+                  className="flex items-center justify-center w-8 h-8 rounded-lg border border-slate-200 text-slate-500 hover:bg-white hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`flex items-center justify-center w-8 h-8 rounded-lg text-[13px] font-semibold transition-all ${
+                      page === safePage
+                        ? "bg-[#0d3b66] text-white shadow-sm"
+                        : "border border-slate-200 text-slate-500 hover:bg-white hover:border-slate-300"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+
+                <button
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={safePage === totalPages}
+                  className="flex items-center justify-center w-8 h-8 rounded-lg border border-slate-200 text-slate-500 hover:bg-white hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

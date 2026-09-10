@@ -34,7 +34,6 @@ const InputField = ({
           {unit}
         </span>
       </div>
-
     </div>
   );
 };
@@ -102,7 +101,7 @@ export function FourRibTypeForm({
             {/* Baseplate Width (EW) — top center */}
             <div className="absolute top-12 sm:top-0 xl:top-2 left-[52.6%] sm:left-[51.3%] xl:left-[49.6%] -translate-x-1/2">
               <label className="block text-xs md:text-sm text-gray-700 mb-1">
-                Baseplate Width (EW)
+                Baseplate Width
               </label>
               <div className="relative w-fit">
                 <input
@@ -125,7 +124,7 @@ export function FourRibTypeForm({
             {/* Anchor Pitch (EW) — below Baseplate Width (EW) */}
             <div className="absolute top-[110px] sm:top-[23%] xl:top-[24%] left-[49.6%] -translate-x-1/2">
               <label className="block text-xs md:text-sm text-gray-700 mb-1">
-                Anchor Pitch (EW)
+                Anchor Pitch
               </label>
               <div className="relative w-fit">
                 <input
@@ -201,7 +200,7 @@ export function FourRibTypeForm({
                   <input
                     type="number"
                     min={0}
-                  id="anchorDia"
+                    id="anchorDia"
                     value={fourRibType.anchorDia}
                     onChange={handleChange("anchorDia")}
                     onWheel={(e) => e.target.blur()}
@@ -223,7 +222,7 @@ export function FourRibTypeForm({
                   <input
                     type="number"
                     min={0}
-                  id="anchorCount"
+                    id="anchorCount"
                     value={fourRibType.anchorCount}
                     onChange={handleChange("anchorCount")}
                     onWheel={(e) => e.target.blur()}
@@ -283,7 +282,7 @@ export function FourRibTypeForm({
                   <input
                     type="number"
                     min={0}
-                  id="bpThickness"
+                    id="bpThickness"
                     value={fourRibType.bpThickness}
                     onChange={handleChange("bpThickness")}
                     onWheel={(e) => e.target.blur()}
@@ -306,7 +305,7 @@ export function FourRibTypeForm({
                   <input
                     type="number"
                     min={0}
-                  id="ribHeight"
+                    id="ribHeight"
                     value={fourRibType.ribHeight}
                     onChange={handleChange("ribHeight")}
                     onWheel={(e) => e.target.blur()}
@@ -329,7 +328,7 @@ export function FourRibTypeForm({
                   <input
                     type="number"
                     min={0}
-                  id="weldLeg"
+                    id="weldLeg"
                     value={fourRibType.weldLeg}
                     onChange={handleChange("weldLeg")}
                     onWheel={(e) => e.target.blur()}
@@ -352,7 +351,7 @@ export function FourRibTypeForm({
                   <input
                     type="number"
                     min={0}
-                  id="ribScallop"
+                    id="ribScallop"
                     value={fourRibType.ribScallop}
                     onChange={handleChange("ribScallop")}
                     onWheel={(e) => e.target.blur()}
@@ -375,7 +374,7 @@ export function FourRibTypeForm({
                   <input
                     type="number"
                     min={0}
-                  id="ribLength"
+                    id="ribLength"
                     value={fourRibType.ribLength}
                     onChange={handleChange("ribLength")}
                     onWheel={(e) => e.target.blur()}
@@ -398,7 +397,7 @@ export function FourRibTypeForm({
                   <input
                     type="number"
                     min={0}
-                  id="ribThickness"
+                    id="ribThickness"
                     value={fourRibType.ribThickness}
                     onChange={handleChange("ribThickness")}
                     onWheel={(e) => e.target.blur()}
@@ -523,7 +522,7 @@ export function FourRibTypeForm({
                   ${
                     !isCalculated
                       ? "bg-gray-100 text-gray-400 ring-1 ring-inset ring-gray-200 cursor-not-allowed shadow-none"
-                      : buttonLabel === "Next Input"
+                      : buttonLabel.startsWith("Next")
                         ? "bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm"
                         : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
                   }`}

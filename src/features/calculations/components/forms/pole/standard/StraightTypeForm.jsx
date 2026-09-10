@@ -7,11 +7,11 @@ import { ConfirmResetAllModal } from "../../../modals/ConfirmResetAllModal";
 
 // === IMAGES ===
 const onGlImg = "/images/on-gl.svg";
-const onGldImg = "/images/on-GL(d).svg";
+const onGldImg = "/images/on-GL(h).svg";
 const upperGlImg = "/images/upper-gl.svg";
-const upperGldImg = "/images/upper-GL(d).svg";
+const upperGldImg = "/images/upper-GL(h).svg";
 const underGlImg = "/images/under-gl.svg";
-const underGldImg = "/images/under-GL(d).svg";
+const underGldImg = "/images/under-GL(h).svg";
 
 // Maps ground position id to its diagram image
 const groundPositionImageMap = {
@@ -30,9 +30,10 @@ const groundPositionImageMapD = {
 // Returns input className based on validation state
 const inputStyle = (hasError) =>
   `px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg outline-none transition-all border text-sm pr-9
-  ${hasError
-    ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
-    : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
+  ${
+    hasError
+      ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
+      : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
   } hp:pl-2 hp:rounded-md hp:text-xs`;
 
 // Renders a red error message below an invalid field
@@ -68,7 +69,7 @@ const EMPTY_STEPPED_POLE = {
   lowerLength: "",
   embedmentLength: "",
   groundPosition: "",
-  heightDepth: "",
+  lowestHeight: "",
 };
 
 // === COMPONENT ===
@@ -114,20 +115,22 @@ export function StraightPoleStandardForm({
               Loading pole standard options...
             </p>
           )}
-          {!poleStandardLoading && poleStandardError && steppedPoleOptions.length === 0 && (
-            <div className="flex items-center justify-between gap-3 mb-3 px-3 py-2 rounded-lg bg-red-50 border border-red-200">
-              <p className="text-xs sm:text-sm text-red-600">
-                Failed to load pole standard options.
-              </p>
-              <button
-                type="button"
-                onClick={refetchPoleStandard}
-                className="text-xs sm:text-sm font-medium text-red-600 underline hover:text-red-700 shrink-0"
-              >
-                Retry
-              </button>
-            </div>
-          )}
+          {!poleStandardLoading &&
+            poleStandardError &&
+            steppedPoleOptions.length === 0 && (
+              <div className="flex items-center justify-between gap-3 mb-3 px-3 py-2 rounded-lg bg-red-50 border border-red-200">
+                <p className="text-xs sm:text-sm text-red-600">
+                  Failed to load pole standard options.
+                </p>
+                <button
+                  type="button"
+                  onClick={refetchPoleStandard}
+                  className="text-xs sm:text-sm font-medium text-red-600 underline hover:text-red-700 shrink-0"
+                >
+                  Retry
+                </button>
+              </div>
+            )}
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {steppedPoleOptions.map((option) => {
               const isActive = straightPoleStandard.poleType === option.id;
@@ -138,9 +141,10 @@ export function StraightPoleStandardForm({
                   type="button"
                   onClick={() => onUpdate({ poleType: option.id })}
                   className={`rounded-lg hp:rounded-md border px-4 py-2 lg:py-2.5 text-xs md:text-sm font-medium transition-all
-                    ${isActive
-                      ? "border-blue-500 bg-blue-50 text-blue-600 shadow-sm"
-                      : "border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50"
+                    ${
+                      isActive
+                        ? "border-blue-500 bg-blue-50 text-blue-600 shadow-sm"
+                        : "border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50"
                     }`}
                 >
                   {option.label}
@@ -181,9 +185,10 @@ export function StraightPoleStandardForm({
                             })
                           }
                           className={`w-full py-2 lg:py-2.5 rounded-lg hp:rounded-md text-sm hp:text-xs border transition
-                            ${isActive
-                              ? "bg-blue-50 border-blue-500 text-blue-600"
-                              : "border-slate-200 text-slate-600 hover:bg-slate-50"
+                            ${
+                              isActive
+                                ? "bg-blue-50 border-blue-500 text-blue-600"
+                                : "border-slate-200 text-slate-600 hover:bg-slate-50"
                             }`}
                         >
                           {group}
@@ -215,9 +220,10 @@ export function StraightPoleStandardForm({
                         <option value="" disabled>
                           Select Combination
                         </option>
-                        {(combinations[
-                          straightPoleStandard.combinationGroup
-                        ] || []).map((c) => (
+                        {(
+                          combinations[straightPoleStandard.combinationGroup] ||
+                          []
+                        ).map((c) => (
                           <option key={c} value={c}>
                             {c}
                           </option>
@@ -381,8 +387,8 @@ export function StraightPoleStandardForm({
           <div>
             <SectionTitle>
               {condition.baseplateEnabled
-                ? "Base Type Pole Installation"
-                : "Embedment Type Pole Installation"}
+                ? "Pole Base Type"
+                : "Pole Embedment Type"}
             </SectionTitle>
 
             <div className="border border-slate-200 rounded-xl hp:rounded-lg p-4 sm:p-6 bg-white shadow-sm">
@@ -447,10 +453,11 @@ export function StraightPoleStandardForm({
                             }
                             onWheel={(e) => e.target.blur()}
                             className={`w-full pl-3 md:pl-4 pr-9 py-2 lg:py-2.5 rounded-lg hp:rounded-md text-xs md:text-sm outline-none transition-all border
-                                    ${errors.embedmentLength
-                                ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
-                                : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
-                              }`}
+                                    ${
+                                      errors.embedmentLength
+                                        ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
+                                        : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
+                                    }`}
                           />
                           <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                             mm
@@ -496,14 +503,15 @@ export function StraightPoleStandardForm({
                             if (isActive) return;
                             onUpdate({
                               groundPosition: opt.id,
-                              heightDepth: opt.id === "onGL" ? "0" : "",
+                              lowestHeight: opt.id === "onGL" ? "0" : "",
                             });
                           }}
                           className={`flex flex-col gap-4 rounded-xl hp:rounded-lg border-2 p-4 cursor-pointer transition-all
-                          ${isActive
+                          ${
+                            isActive
                               ? "border-[#3399cc] bg-[#f0f8ff]"
                               : "border-gray-100 bg-gray-50 hover:border-gray-200 hover:bg-gray-100"
-                            }`}
+                          }`}
                         >
                           {/* Label */}
                           <p
@@ -520,13 +528,17 @@ export function StraightPoleStandardForm({
                               alt={opt.label}
                               className={`2xl:hidden h-40 md:h-48 w-full object-contain transition-all ${!isActive ? "opacity-40" : ""}`}
                             />
-                            {/* Depth input */}
+                            {/* Lowest Height input */}
                             <div className="mb-2 w-full 2xl:w-auto">
                               <label
                                 className={`block text-xs md:text-sm mb-2 md:mb-2 ${isActive ? "text-gray-700" : "text-gray-300"}`}
                               >
-                                <span className="2xl:hidden">Depth (d)</span>
-                                <span className="hidden 2xl:inline">Depth</span>
+                                <span className="2xl:hidden">
+                                  Lowest Height (h)
+                                </span>
+                                <span className="hidden 2xl:inline">
+                                  Lowest Height
+                                </span>
                               </label>
                               <div className="relative">
                                 <input
@@ -535,42 +547,43 @@ export function StraightPoleStandardForm({
                                     isOnGL
                                       ? "0"
                                       : isActive
-                                        ? straightPoleStandard.heightDepth
+                                        ? straightPoleStandard.lowestHeight
                                         : ""
                                   }
                                   readOnly={!isActive}
                                   placeholder={
-                                    isActive && !isOnGL ? "Input depth" : "—"
+                                    isActive && !isOnGL ? "Input height" : "—"
                                   }
                                   onMouseDown={() => {
                                     if (!isActive) {
                                       onUpdate({
                                         groundPosition: opt.id,
-                                        heightDepth:
+                                        lowestHeight:
                                           opt.id === "onGL" ? "0" : "",
                                       });
                                     }
                                   }}
                                   onChange={(e) =>
                                     !disabled &&
-                                    onUpdate({ heightDepth: e.target.value })
+                                    onUpdate({ lowestHeight: e.target.value })
                                   }
                                   onWheel={(e) => e.target.blur()}
                                   className={`w-full pl-3 md:pl-4 pr-9 py-2 lg:py-2.5 rounded-lg hp:rounded-md text-xs md:text-sm outline-none transition-all border
-                                    ${disabled
-                                      ? "bg-gray-100 border-gray-200 text-gray-400"
-                                      : errors.heightDepth
-                                        ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
-                                        : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
+                                    ${
+                                      disabled
+                                        ? "bg-gray-100 border-gray-200 text-gray-400"
+                                        : errors.lowestHeight
+                                          ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
+                                          : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
                                     }`}
                                 />
                                 <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                                   mm
                                 </span>
                               </div>
-                              {isActive && errors.heightDepth && (
+                              {isActive && errors.lowestHeight && (
                                 <p className="text-[10px] text-red-500 mt-1">
-                                  *{errors.heightDepth}
+                                  *{errors.lowestHeight}
                                 </p>
                               )}
                             </div>

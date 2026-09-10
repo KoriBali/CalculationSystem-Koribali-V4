@@ -15,13 +15,15 @@ const cookieOptions = {
 // Save login session — access token is a session cookie (cleared on browser
 // close, since it's short-lived and kept fresh by the refresh flow anyway).
 // Refresh token persists for REFRESH_TOKEN_EXPIRES_DAYS.
+// User profile (incl. role) is stored in localStorage so it survives browser
+// restarts — without it, role-based guards flash "drafter" until getMe() returns.
 export const setAuthSession = ({ accessToken, refreshToken, user }) => {
   Cookies.set(ACCESS_TOKEN_KEY, accessToken, cookieOptions);
   Cookies.set(REFRESH_TOKEN_KEY, refreshToken, {
     ...cookieOptions,
     expires: REFRESH_TOKEN_EXPIRES_DAYS,
   });
-  sessionStorage.setItem(USER_KEY, JSON.stringify(user));
+  localStorage.setItem(USER_KEY, JSON.stringify(user));
 };
 
 // Update just the access (and optionally rotated refresh) token after a
@@ -38,14 +40,14 @@ export const setTokens = ({ accessToken, refreshToken }) => {
 
 // Update just the stored user profile (e.g. after a getMe() call).
 export const setUser = (user) => {
-  sessionStorage.setItem(USER_KEY, JSON.stringify(user));
+  localStorage.setItem(USER_KEY, JSON.stringify(user));
 };
 
 // Clear login session
 export const clearAuthSession = () => {
   Cookies.remove(ACCESS_TOKEN_KEY);
   Cookies.remove(REFRESH_TOKEN_KEY);
-  sessionStorage.removeItem(USER_KEY);
+  localStorage.removeItem(USER_KEY);
 };
 
 export const getAccessToken = () => Cookies.get(ACCESS_TOKEN_KEY) || null;
@@ -54,7 +56,7 @@ export const getRefreshToken = () => Cookies.get(REFRESH_TOKEN_KEY) || null;
 
 // Get logged in user
 export const getUser = () => {
-  const user = sessionStorage.getItem(USER_KEY);
+  const user = localStorage.getItem(USER_KEY);
 
   return user ? JSON.parse(user) : null;
 };

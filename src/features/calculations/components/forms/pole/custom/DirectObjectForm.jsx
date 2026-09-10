@@ -31,6 +31,11 @@ const ErrorStyle = ({ show, text }) =>
     </div>
   ) : null;
 
+// Look up display label for a type value from master data options.
+// Falls back to the raw value if not found (e.g. still loading or unmatched).
+const getTypeLabel = (options, value) =>
+  options.find((opt) => opt.value === value)?.label || value;
+
 /**
  * MAIN COMPONENT
  */
@@ -242,7 +247,7 @@ export function DirectObjectForm({
                     {directObject.name && ` : ${directObject.name}`}
                   </h4>
                   <p className="text-xs text-gray-500">
-                    {directObject.type} Type
+                    {getTypeLabel(objectTypeOptions, directObject.type)} Type
                   </p>
                 </div>
               </div>
@@ -382,7 +387,7 @@ export function DirectObjectForm({
                 {/* Type of Direct Object Selector */}
                 <div className="relative xl:w-[130px] xl:flex-none min-w-0 hp:w-full">
                   <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-                    Type of DO
+                    Object Type
                   </label>
                   <div className="relative">
                     <select

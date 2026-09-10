@@ -208,7 +208,7 @@ export function RTypeForm({
             title="Reset"
             className="flex justify-center items-center gap-2 px-5 py-2.5 hp:px-3 hp:py-2 md:px-6
               rounded-lg hp:rounded-md font-medium bg-white hover:bg-red-50 text-red-400 text-xs sm:text-sm
-              border border-gray-200 hover:border-red-200 shadow-sm transition-colors"
+              border border-red-300 hover:border-red-400 shadow-sm transition-colors"
           >
             <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
             <span className="hp:hidden">Reset</span>
@@ -238,7 +238,7 @@ export function RTypeForm({
                 ${
                   !isCalculated
                     ? "bg-gray-100 text-gray-400 ring-1 ring-inset ring-gray-200 cursor-not-allowed shadow-none"
-                    : buttonLabel === "Next Input"
+                    : buttonLabel.startsWith("Next")
                       ? "bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm"
                       : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
                 }`}

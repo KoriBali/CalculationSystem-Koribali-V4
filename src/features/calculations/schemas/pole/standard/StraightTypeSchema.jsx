@@ -48,7 +48,7 @@ export const StraightTypeSchema = (condition) => {
     }),
 
     // ===== UNDER & UPPER GL ONLY =====
-    heightDepth: optionalNumberField("Depth")
+    lowestHeight: optionalNumberField("Depth")
       .when("groundPosition", {
         is: (val) => isBase && val === "underGL",
         then: (schema) =>

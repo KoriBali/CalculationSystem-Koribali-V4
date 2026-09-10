@@ -21,12 +21,14 @@ export function getStepNavigation(condition, currentStep, withReport = false) {
   const nextStep = !isLast ? steps[currentIndex + 1] : null;
   const prevStep = !isFirst ? steps[currentIndex - 1] : null;
 
+  const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+
   return {
     steps,
     currentIndex,
     isLast,
     nextStep,
     prevStep,
-    buttonLabel: isLast ? (withReport ? "Generate Report" : "Save & Finish") : "Next Input",
+    buttonLabel: isLast ? (withReport ? "Generate Report" : "Save & Finish") : `Next: ${capitalize(nextStep)}`,
   };
 }

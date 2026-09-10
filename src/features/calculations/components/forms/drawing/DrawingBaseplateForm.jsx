@@ -1,13 +1,20 @@
-import { RotateCcw, ChevronLeft, ChevronRight, ChevronDown, Box } from "lucide-react";
+import {
+  RotateCcw,
+  ChevronLeft,
+  ChevronRight,
+  ChevronDown,
+  Box,
+} from "lucide-react";
 import { useState } from "react";
 import { ConfirmResetAllModal } from "../../modals/ConfirmResetAllModal";
 import { FieldErrorHint } from "../../../../../shared/components/FieldErrorHint";
 
 const inputStyle = (hasError) =>
   `w-full px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border
-  ${hasError
-    ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
-    : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
+  ${
+    hasError
+      ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
+      : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
   }`;
 
 const ErrorStyle = ({ show, text }) =>
@@ -17,7 +24,14 @@ const ErrorStyle = ({ show, text }) =>
     </div>
   ) : null;
 
-export function DrawingBaseplateForm({ baseplate, onUpdate, onReset, onBack, onNext, errors }) {
+export function DrawingBaseplateForm({
+  baseplate,
+  onUpdate,
+  onReset,
+  onBack,
+  onNext,
+  errors,
+}) {
   const [showResetModal, setShowResetModal] = useState(false);
 
   const handleChange = (field) => (e) => {
@@ -27,11 +41,12 @@ export function DrawingBaseplateForm({ baseplate, onUpdate, onReset, onBack, onN
   return (
     <div className="bg-white rounded-b-2xl hp:rounded-b-xl shadow-sm border border-gray-200">
       <div className="p-4 md:p-6 shadow-sm space-y-4 md:space-y-6">
-        
         {/* ── Baseplate Type ── */}
         <div className="bg-white px-4 md:px-5 py-5 rounded-xl hp:rounded-lg border border-gray-200">
           <div className="relative pb-1">
-            <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">Baseplate Type</label>
+            <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">
+              Baseplate Type
+            </label>
             <div className="relative">
               <select
                 id="baseplateType"
@@ -39,7 +54,9 @@ export function DrawingBaseplateForm({ baseplate, onUpdate, onReset, onBack, onN
                 onChange={(e) => onUpdate({ baseplateType: e.target.value })}
                 className={`${inputStyle(errors.baseplateType)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] cursor-pointer appearance-none`}
               >
-                <option value="" disabled>Select Baseplate Type</option>
+                <option value="" disabled>
+                  Select Baseplate Type
+                </option>
                 <option value="4rib">4 Rib Type</option>
                 <option value="8rib">8 Rib Type</option>
               </select>
@@ -47,7 +64,10 @@ export function DrawingBaseplateForm({ baseplate, onUpdate, onReset, onBack, onN
                 <ChevronDown className="w-4 h-4 text-gray-400" />
               </div>
             </div>
-            <ErrorStyle show={errors.baseplateType} text={errors.baseplateType} />
+            <ErrorStyle
+              show={errors.baseplateType}
+              text={errors.baseplateType}
+            />
           </div>
         </div>
 
@@ -71,9 +91,11 @@ export function DrawingBaseplateForm({ baseplate, onUpdate, onReset, onBack, onN
                 )}
 
                 {/* Baseplate Width (EW) Input */}
-                <div className={`absolute top-12 sm:top-0 xl:top-2 -translate-x-1/2 ${baseplate.baseplateType === "4rib" ? "left-[52.6%] sm:left-[51.3%] xl:left-[49.6%]" : "left-[50.6%] sm:left-[50%] xl:left-[49.99%]"}`}>
+                <div
+                  className={`absolute top-12 sm:top-0 xl:top-2 -translate-x-1/2 ${baseplate.baseplateType === "4rib" ? "left-[52.6%] sm:left-[51.3%] xl:left-[49.6%]" : "left-[50.6%] sm:left-[50%] xl:left-[49.99%]"}`}
+                >
                   <label className="block text-xs md:text-sm text-gray-700 mb-1 text-center">
-                    Baseplate Width (EW)
+                    Baseplate Width
                   </label>
                   <div className="relative w-fit mx-auto">
                     <input

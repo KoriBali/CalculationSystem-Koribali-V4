@@ -132,12 +132,12 @@ export function OverheadWireForm({
               type="number"
               min={1}
               max={8}
-              placeholder="Input OHW Number"
+              placeholder="Input Overhead Wire Number"
               value={wireCountInput}
               onChange={(e) => setWireCountInput(e.target.value)}
               onWheel={(e) => e.target.blur()}
               className="
-                w-[180px] px-3.5 py-2 lg:py-2.5 text-center text-sm rounded-md sm:rounded-lg outline-none
+                w-[233px] px-3.5 py-2 lg:py-2.5 text-center text-sm rounded-md sm:rounded-lg outline-none
                 transition-all border border-slate-300 bg-white
                 focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]
                 hp:flex-1
@@ -359,7 +359,7 @@ export function OverheadWireForm({
                 {/* Overhead Wire Name Input */}
                 <div className="relative col-span-2 xl:flex-[2] min-w-0 hp:w-full hp:col-span-2">
                   <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-                    OHW Name
+                    Overhead Wire Name
                   </label>
                   <input
                     id={`ohw-${overheadWire.idOhw}-name`}
@@ -619,7 +619,7 @@ export function OverheadWireForm({
           `}
         >
           <Plus className="w-3.5 sm:w-4 lg:w-4.5 h-3.5 sm:h-4 lg:h-4.5" />
-          Add OHW
+          Add Overhead Wire
         </button>
       </div>
     </div>

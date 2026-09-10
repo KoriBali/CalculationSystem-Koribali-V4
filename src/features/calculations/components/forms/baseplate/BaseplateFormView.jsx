@@ -111,7 +111,7 @@ export default function BaseplateFormView() {
           />
         </Helmet>
 
-        <div className="flex-1 rounded-t-2xl hp:rounded-t-xl bg-gray-50 border border-gray-250">
+        <div className="flex-1 rounded-t-2xl hp:rounded-t-xl bg-gray-50">
           {/* PERBAIKAN: Menggunakan HeaderCalculationPage sesuai dengan import di atas */}
           <HeaderCalculationPage />
 

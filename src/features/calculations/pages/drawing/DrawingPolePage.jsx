@@ -47,7 +47,7 @@ export default function DrawingPolePage() {
           <title>Pole Drawing Input - KORI BALI</title>
         </Helmet>
 
-        <div className="flex-1 rounded-t-2xl hp:rounded-t-xl bg-gray-50 border border-gray-250">
+        <div className="flex-1 rounded-t-2xl hp:rounded-t-xl bg-gray-50">
           <HeaderCalculationPage />
 
           <div className="w-full max-w-[1440px] mx-auto pt-0 pb-24 sm:pb-8 px-2">

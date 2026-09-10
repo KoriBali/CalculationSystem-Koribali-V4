@@ -20,9 +20,10 @@ import { ConfirmResetAllModal } from "../../modals/ConfirmResetAllModal";
 // Returns input className based on validation state
 const inputStyle = (hasError) =>
   `w-full px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border
-  ${hasError
-    ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
-    : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
+  ${
+    hasError
+      ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
+      : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
   }`;
 
 // Renders a red error message below an invalid field
@@ -80,240 +81,269 @@ export function ConditionForm({
   const handleReset = () => onUpdate(EMPTY_CONDITION);
 
   return (
-    <div className="bg-white rounded-b-2xl hp:rounded-b-xl shadow-sm border border-gray-200">
-      <div className="p-4 md:p-6 shadow-sm space-y-4 md:space-y-6">
-        {/* ── Standard and Condition ── */}
-        <div>
-          <SectionTitle>Design Parameters</SectionTitle>
-          <SectionCard>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-6 md:gap-y-8">
-              {/* Design Standard */}
-              <div className="relative">
-                <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">
-                  Design Standard
-                </label>
-                <div className="relative">
-                  <select
-                    id="designStandard"
-                    value={condition.designStandard}
-                    onChange={(e) => onUpdate({ designStandard: e.target.value })}
-                    className={`${inputStyle(errors.designStandard)} lg:px-2 xl:px-4 min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] appearance-none`}
-                  >
-                    <option value="" disabled>
-                      Select Design Standard
-                    </option>
-                    {(designStandardOptions[projectType] || []).map((item) => (
-                      <option key={item.value} value={item.value}>
-                        {item.label}
-                      </option>
-                    ))}
-                  </select>
-                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                    <ChevronRight className="w-4 h-4 text-gray-400 rotate-90" />
-                  </div>
-                </div>
-                <ErrorStyle
-                  show={errors.designStandard}
-                  text={errors.designStandard}
-                />
-              </div>
+    <div className="relative">
+      <div
+        className="
+          bg-white
+          rounded-2xl hp:rounded-xl
+          border border-gray-200
+          shadow-[0_2px_10px_rgba(15,23,42,0.06)]
+          overflow-hidden
+        "
+      >
+        {/* Top accent strip — full-bleed rect, otomatis ke-clip mengikuti rounded corner parent */}
+        <div
+          aria-hidden="true"
+          className="
+            h-1.5
+            bg-gradient-to-r from-[#0d3b66] to-[#3399cc]
+          "
+        />
 
-              {/* Design Wind Speed */}
-              <div className="relative">
-                <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">
-                  Design Wind Speed
-                </label>
-                <div className="relative">
-                  <input
-                    id="designWindSpeed"
-                    type="number"
-                    inputMode="decimal"
-                    min={0}
-                    value={condition.designWindSpeed}
-                    onChange={(e) =>
-                      onUpdate({ designWindSpeed: e.target.value })
-                    }
-                    onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(errors.designWindSpeed)} pr-10 xl:pr-10`}
-                  />
-                  <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
-                    m/s
-                  </span>
-                </div>
-                <ErrorStyle
-                  show={errors.designWindSpeed}
-                  text={errors.designWindSpeed}
-                />
-              </div>
-
-              {/* Air Density */}
-              <div className="relative">
-                <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">
-                  Air Density
-                </label>
-                <div className="relative">
-                  <input
-                    id="designAirDensity"
-                    type="number"
-                    inputMode="decimal"
-                    min={0}
-                    step="0.01"
-                    value={condition.designAirDensity}
-                    onChange={(e) =>
-                      onUpdate({ designAirDensity: e.target.value })
-                    }
-                    onWheel={(e) => e.target.blur()}
-                    className={`${inputStyle(errors.designAirDensity)} pr-[88px] xl:pr-[88px]`}
-                  />
-                  <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
-                    N・sec<sup>2</sup>/m<sup>4</sup>
-                  </span>
-                </div>
-                <ErrorStyle
-                  show={errors.designAirDensity}
-                  text={errors.designAirDensity}
-                />
-              </div>
-            </div>
-          </SectionCard>
-        </div>
-
-        {/* ── Select Pole Type (lighting-pole only) ── */}
-        {projectType === "lighting-pole" && (
-          <div id="poleType">
-            <SectionTitle>Pole Type</SectionTitle>
+        <div className="p-4 md:p-6 space-y-4 md:space-y-6">
+          {/* ── Standard and Condition ── */}
+          <div>
+            <SectionTitle>Design Parameters</SectionTitle>
             <SectionCard>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {poleTypeOptions.map((option) => {
-                  const Icon = option.icon;
-                  const isActive = condition.poleType === option.id;
-
-                  return (
-                    <button
-                      key={option.id}
-                      type="button"
-                      title={option.desc}
-                      onClick={() => {
-                        if (projectMode === "both" && option.id === "standard") {
-                          onUpdate({
-                            poleType: option.id,
-                            openingEnabled: true
-                          });
-                        } else {
-                          onUpdate({ poleType: option.id });
-                        }
-                      }}
-                      className={`group w-full flex items-center justify-between px-3 xl:px-4 py-2 lg:py-3 relative overflow-hidden rounded-lg border transition-all duration-300 cursor-pointer active:scale-[0.98]
-                        ${isActive
-                          ? "border-blue-500 bg-blue-50 shadow-sm ring-1 ring-blue-50"
-                          : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
-                        }`}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-6 md:gap-y-8">
+                {/* Design Standard */}
+                <div className="relative">
+                  <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">
+                    Design Standard
+                  </label>
+                  <div className="relative">
+                    <select
+                      id="designStandard"
+                      value={condition.designStandard}
+                      onChange={(e) =>
+                        onUpdate({ designStandard: e.target.value })
+                      }
+                      className={`${inputStyle(errors.designStandard)} lg:px-2 xl:px-4 min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] appearance-none`}
                     >
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`p-1.5 rounded-md ${isActive ? "bg-blue-100 text-blue-600" : "bg-slate-100 text-slate-500"}`}
-                        >
-                          <Icon size={16} />
-                        </div>
-                        <div className="flex flex-col items-start">
-                          <p
-                            className={`text-[12px] md:text-sm font-medium ${isActive ? "text-slate-900" : "text-slate-700"}`}
-                          >
-                            {option.title}
-                          </p>
-                          <p className={`text-[11px] md:text-xs mt-0.5 ${isActive ? "text-slate-500" : "text-slate-400"}`}>
-                            {option.desc}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="shrink-0 ml-2 flex items-center">
-                        {isActive ? (
-                          <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-blue-500" />
-                        ) : (
-                          <Circle className="w-4 h-4 md:w-5 md:h-5 text-slate-300 group-hover:text-slate-400" />
-                        )}
-                      </div>
-                    </button>
-                  );
-                })}
+                      <option value="" disabled>
+                        Select Design Standard
+                      </option>
+                      {(designStandardOptions[projectType] || []).map(
+                        (item) => (
+                          <option key={item.value} value={item.value}>
+                            {item.label}
+                          </option>
+                        ),
+                      )}
+                    </select>
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                      <ChevronRight className="w-4 h-4 text-gray-400 rotate-90" />
+                    </div>
+                  </div>
+                  <ErrorStyle
+                    show={errors.designStandard}
+                    text={errors.designStandard}
+                  />
+                </div>
+
+                {/* Design Wind Speed */}
+                <div className="relative">
+                  <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">
+                    Design Wind Speed
+                  </label>
+                  <div className="relative">
+                    <input
+                      id="designWindSpeed"
+                      type="number"
+                      inputMode="decimal"
+                      min={0}
+                      value={condition.designWindSpeed}
+                      onChange={(e) =>
+                        onUpdate({ designWindSpeed: e.target.value })
+                      }
+                      onWheel={(e) => e.target.blur()}
+                      className={`${inputStyle(errors.designWindSpeed)} pr-10 xl:pr-10`}
+                    />
+                    <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
+                      m/s
+                    </span>
+                  </div>
+                  <ErrorStyle
+                    show={errors.designWindSpeed}
+                    text={errors.designWindSpeed}
+                  />
+                </div>
+
+                {/* Air Density */}
+                <div className="relative">
+                  <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">
+                    Air Density
+                  </label>
+                  <div className="relative">
+                    <input
+                      id="designAirDensity"
+                      type="number"
+                      inputMode="decimal"
+                      min={0}
+                      step="0.01"
+                      value={condition.designAirDensity}
+                      onChange={(e) =>
+                        onUpdate({ designAirDensity: e.target.value })
+                      }
+                      onWheel={(e) => e.target.blur()}
+                      className={`${inputStyle(errors.designAirDensity)} pr-[88px] xl:pr-[88px]`}
+                    />
+                    <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
+                      N・sec<sup>2</sup>/m<sup>4</sup>
+                    </span>
+                  </div>
+                  <ErrorStyle
+                    show={errors.designAirDensity}
+                    text={errors.designAirDensity}
+                  />
+                </div>
               </div>
             </SectionCard>
-            {errors.poleType && (
-              <div className="mt-1 text-[11px] text-red-500">
-                {errors.poleType}
-              </div>
-            )}
           </div>
-        )}
 
-        {/* ── Additional Component (toggles) ── */}
-        <div>
-          <SectionTitle>Additional Components</SectionTitle>
-          <SectionCard>
-            <div className="grid xl:grid-cols-3 gap-6">
-              {/* Opening */}
-              <ToggleCard
-                label="Opening"
-                icon={<DoorOpen size={16} />}
-                enabled={condition.openingEnabled}
-                disabled={projectMode === "both" && condition.poleType === "standard"}
-                onToggle={() =>
-                  onUpdate({ openingEnabled: !condition.openingEnabled })
-                }
-              />
+          {/* ── Select Pole Type (lighting-pole only) ── */}
+          {projectType === "lighting-pole" && (
+            <div id="poleType">
+              <SectionTitle>Pole Type</SectionTitle>
+              <SectionCard>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {poleTypeOptions.map((option) => {
+                    const Icon = option.icon;
+                    const isActive = condition.poleType === option.id;
 
-              {/* Baseplate */}
-              <ToggleCard
-                label="Baseplate"
-                icon={<BaseplateIcon size={18} />}
-                enabled={condition.baseplateEnabled}
-                onToggle={() =>
-                  onUpdate({ baseplateEnabled: !condition.baseplateEnabled })
-                }
-              />
-
-              {/* Foundation */}
-              <ToggleCard
-                label="Foundation"
-                icon={<Layers size={16} />}
-                enabled={condition.foundationEnabled}
-                onToggle={() =>
-                  onUpdate({ foundationEnabled: !condition.foundationEnabled })
-                }
-              />
+                    return (
+                      <button
+                        key={option.id}
+                        type="button"
+                        title={option.desc}
+                        onClick={() => {
+                          if (
+                            projectMode === "both" &&
+                            option.id === "standard"
+                          ) {
+                            onUpdate({
+                              poleType: option.id,
+                              openingEnabled: true,
+                            });
+                          } else {
+                            onUpdate({ poleType: option.id });
+                          }
+                        }}
+                        className={`group w-full flex items-center justify-between px-3 xl:px-4 py-2 lg:py-3 relative overflow-hidden rounded-lg border transition-all duration-300 cursor-pointer active:scale-[0.98]
+                        ${
+                          isActive
+                            ? "border-blue-500 bg-blue-50 shadow-sm ring-1 ring-blue-50"
+                            : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={`p-1.5 rounded-md ${isActive ? "bg-blue-100 text-blue-600" : "bg-slate-100 text-slate-500"}`}
+                          >
+                            <Icon size={16} />
+                          </div>
+                          <div className="flex flex-col items-start">
+                            <p
+                              className={`text-[12px] md:text-sm font-medium ${isActive ? "text-slate-900" : "text-slate-700"}`}
+                            >
+                              {option.title}
+                            </p>
+                            <p
+                              className={`text-[11px] md:text-xs mt-0.5 ${isActive ? "text-slate-500" : "text-slate-400"}`}
+                            >
+                              {option.desc}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="shrink-0 ml-2 flex items-center">
+                          {isActive ? (
+                            <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-blue-500" />
+                          ) : (
+                            <Circle className="w-4 h-4 md:w-5 md:h-5 text-slate-300 group-hover:text-slate-400" />
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </SectionCard>
+              {errors.poleType && (
+                <div className="mt-1 text-[11px] text-red-500">
+                  {errors.poleType}
+                </div>
+              )}
             </div>
-          </SectionCard>
-        </div>
+          )}
 
+          {/* ── Additional Component (toggles) ── */}
+          <div>
+            <SectionTitle>Additional Components</SectionTitle>
+            <SectionCard>
+              <div className="grid xl:grid-cols-3 gap-6">
+                {/* Opening */}
+                <ToggleCard
+                  label="Opening"
+                  icon={<DoorOpen size={16} />}
+                  enabled={condition.openingEnabled}
+                  disabled={
+                    projectMode === "both" && condition.poleType === "standard"
+                  }
+                  onToggle={() =>
+                    onUpdate({ openingEnabled: !condition.openingEnabled })
+                  }
+                />
 
-        {/* Divider */}
-        <div className="border-t border-gray-200" />
+                {/* Baseplate */}
+                <ToggleCard
+                  label="Baseplate"
+                  icon={<BaseplateIcon size={18} />}
+                  enabled={condition.baseplateEnabled}
+                  onToggle={() =>
+                    onUpdate({ baseplateEnabled: !condition.baseplateEnabled })
+                  }
+                />
 
-        {/* Footer */}
-        <div className="flex justify-between items-center pt-4 md:pt-0">
-          {/* Reset => clears all fields */}
-          <button
-            onClick={() => setShowResetModal(true)}
-            className="flex justify-center items-center gap-2 px-5 py-2.5 md:px-6
-            rounded-lg hp:rounded-md font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] text-xs sm:text-sm 
-            ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm transition-colors"
-          >
-            <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-            Reset
-          </button>
+                {/* Foundation */}
+                <ToggleCard
+                  label="Foundation"
+                  icon={<Layers size={16} />}
+                  enabled={condition.foundationEnabled}
+                  onToggle={() =>
+                    onUpdate({
+                      foundationEnabled: !condition.foundationEnabled,
+                    })
+                  }
+                />
+              </div>
+            </SectionCard>
+          </div>
 
-          {/* Finish => proceeds to next step */}
-          <button
-            onClick={onFinish}
-            className="flex justify-center items-center gap-2 px-5 py-2.5 md:px-6 
+          {/* Divider */}
+          <div className="border-t border-gray-200" />
+
+          {/* Footer */}
+          <div className="flex justify-between items-center pt-4 md:pt-0">
+            {/* Reset => clears all fields */}
+            <button
+              onClick={() => setShowResetModal(true)}
+              className="flex items-center gap-2 px-5 py-2.5 md:px-6 rounded-lg hp:rounded-md bg-white text-red-500 font-medium text-xs md:text-sm hover:bg-red-50 hover:text-red-600 transition-colors border border-red-300"
+            >
+              <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+              Reset
+            </button>
+
+            {/* Finish => proceeds to next step */}
+            <button
+              onClick={onFinish}
+              className="flex justify-center items-center gap-2 px-5 py-2.5 md:px-6 
             rounded-lg hp:rounded-md font-medium bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white text-xs md:text-sm hover:brightness-110 shadow-sm transition-all"
-          >
-            Save & Continue
-            <ChevronRight className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-          </button>
+            >
+              Next: Pole
+              <ChevronRight className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+            </button>
+          </div>
         </div>
       </div>
-
       <ConfirmResetAllModal
         open={showResetModal}
         onClose={() => setShowResetModal(false)}
@@ -331,13 +361,14 @@ function ToggleCard({ label, icon, enabled, onToggle, disabled = false }) {
     <div
       onClick={disabled ? undefined : onToggle}
       className={`relative overflow-hidden rounded-lg border px-3 xl:px-4 py-2 lg:py-3 transition-all duration-300
-        ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}
-        ${disabled && !enabled ? 'bg-slate-100 opacity-60' : ''}
-        ${enabled
-          ? "border-blue-500 bg-white shadow-sm ring-1 ring-blue-50"
-          : disabled
-            ? "border-slate-200"
-            : "border-slate-200 bg-slate-50/50 hover:border-slate-300 hover:bg-slate-50"
+        ${disabled ? "cursor-not-allowed" : "cursor-pointer"}
+        ${disabled && !enabled ? "bg-slate-100 opacity-60" : ""}
+        ${
+          enabled
+            ? "border-blue-500 bg-white shadow-sm ring-1 ring-blue-50"
+            : disabled
+              ? "border-slate-200"
+              : "border-slate-200 bg-slate-50/50 hover:border-slate-300 hover:bg-slate-50"
         }`}
     >
       <div className="flex items-center justify-between">
@@ -363,7 +394,7 @@ function ToggleCard({ label, icon, enabled, onToggle, disabled = false }) {
             e.stopPropagation();
             if (!disabled) onToggle();
           }}
-          className={`relative inline-flex h-5 w-10 md:h-6 md:w-11 items-center rounded-full ${enabled ? "bg-blue-500" : "bg-slate-300"} ${disabled ? 'cursor-not-allowed' : ''}`}
+          className={`relative inline-flex h-5 w-10 md:h-6 md:w-11 items-center rounded-full ${enabled ? "bg-blue-500" : "bg-slate-300"} ${disabled ? "cursor-not-allowed" : ""}`}
         >
           <span
             className={`inline-block h-2.5 w-2.5 md:h-4 md:w-4 transform rounded-full bg-white transition ${enabled ? "translate-x-6" : "translate-x-1"}`}

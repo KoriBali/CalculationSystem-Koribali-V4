@@ -188,7 +188,7 @@ export function ArmForm({ arm, onUpdate, armError }) {
         {/* Exp.Length Arm Input */}
         <div className="relative 2xl:flex-1 min-w-0 hp:w-full">
           <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-            exp.Length
+            Exp.Length
           </label>
           <div className="relative">
             <input

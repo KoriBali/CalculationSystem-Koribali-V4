@@ -1,22 +1,9 @@
-import { useState, useEffect } from "react";
+import { useScrollDirection } from "../../hooks/useScrollDirection";
 import { ChevronUp } from "lucide-react";
 
 export function ScrollToTopButton() {
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    const toggleVisibility = () => {
-      // Show button when page is scrolled more than 300px
-      if (window.scrollY > 300) {
-        setIsVisible(true);
-      } else {
-        setIsVisible(false);
-      }
-    };
-
-    window.addEventListener("scroll", toggleVisibility, { passive: true });
-    return () => window.removeEventListener("scroll", toggleVisibility);
-  }, []);
+  const scrollDirection = useScrollDirection();
+  const isVisible = scrollDirection === "down";
 
   const scrollToTop = () => {
     window.scrollTo({

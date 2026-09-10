@@ -148,7 +148,7 @@ export function PoleForm({ pole, onUpdate, errors }) {
         {/* Pole Type */}
         <div className="relative xl:w-[130px] xl:flex-none min-w-0 hp:w-full">
           <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-            Type
+            Pole Type
           </label>
           <div className="relative">
             <select

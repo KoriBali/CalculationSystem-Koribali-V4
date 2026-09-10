@@ -147,7 +147,7 @@ export default function LoginPage() {
         {/* Center / Hero text */}
         <div className="text-center md:text-left">
           <h2 className="text-[32px] leading-[1.15] md:text-5xl lg:text-[54px] font-semibold md:leading-[1.1] tracking-tight">
-            Pole Structure
+            Design
             <br />
             Calculation
             <br />

@@ -44,7 +44,10 @@ import { useReport } from "../../../../report/hooks/useReport";
 import { FinishCalculationModal } from "../../modals/FinishCalculationModal";
 import { ConfirmSaveDatabaseModal } from "../../modals/ConfirmSaveDatabaseModal";
 import { CoverFormModal } from "../../modals/CoverFormModal";
-import { saveWorkingSessionToDraft, clearActiveDraftId } from "../../../utils/coreLogic";
+import {
+  saveWorkingSessionToDraft,
+  clearActiveDraftId,
+} from "../../../utils/coreLogic";
 import { clearCalculationSession } from "../../../utils";
 
 // ─── COMPONENT ───────────────────────────────────────────────────────────────
@@ -52,7 +55,6 @@ import { clearCalculationSession } from "../../../utils";
 export default function PoleFormView() {
   const { type: projectType, draftId } = useParams();
 
-  
   const navigate = useNavigate();
   // Read condition from sessionStorage
   const condition = (() => {
@@ -112,13 +114,22 @@ export default function PoleFormView() {
 
   // Automatically select taper pole in calculation & drawing mode
   useEffect(() => {
-    if (projectType === "lighting-pole" && condition.poleType === "standard" && isCalculationAndDrawing) {
+    if (
+      projectType === "lighting-pole" &&
+      condition.poleType === "standard" &&
+      isCalculationAndDrawing
+    ) {
       if (poleStandardForm.poleTypeStandard.type !== "taper") {
         poleStandardForm.updatePoleTypeStandard({ type: "taper" });
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [projectType, condition.poleType, isCalculationAndDrawing, poleStandardForm.poleTypeStandard.type]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    projectType,
+    condition.poleType,
+    isCalculationAndDrawing,
+    poleStandardForm.poleTypeStandard.type,
+  ]);
 
   // Opens cover modal if last step, otherwise navigates to next
   const handleFinish = () => {
@@ -177,7 +188,7 @@ export default function PoleFormView() {
         itemName="step poles"
       />
 
-      <div className="flex-1 rounded-t-2xl hp:rounded-xl bg-gray-50 border border-gray-250">
+      <div className="flex-1 rounded-t-2xl hp:rounded-xl bg-gray-50">
         <HeaderCalculationPage />
 
         <div className="w-full max-w-[1440px] mx-auto pt-0 pb-24 sm:pb-8 px-2">
@@ -230,7 +241,7 @@ export default function PoleFormView() {
                 condition.poleType === "standard" && (
                   <>
                     <div className="pt-6 hp:pt-4" />
-                    
+
                     {!isCalculationAndDrawing && (
                       <PoleTypeSelector
                         poleTypeStandard={poleStandardForm.poleTypeStandard}
@@ -238,7 +249,8 @@ export default function PoleFormView() {
                       />
                     )}
 
-                    {(isCalculationAndDrawing || poleStandardForm.poleTypeStandard.type === "taper") && (
+                    {(isCalculationAndDrawing ||
+                      poleStandardForm.poleTypeStandard.type === "taper") && (
                       <TaperPoleStandardForm
                         taperPoleStandard={poleStandardForm.taperPoleStandard}
                         onUpdate={poleStandardForm.updateTaperPoleStandard}
@@ -247,16 +259,17 @@ export default function PoleFormView() {
                       />
                     )}
 
-                    {!isCalculationAndDrawing && poleStandardForm.poleTypeStandard.type === "straight" && (
-                      <StraightPoleStandardForm
-                        straightPoleStandard={
-                          poleStandardForm.straightPoleStandard
-                        }
-                        onUpdate={poleStandardForm.updateStraightPoleStandard}
-                        errors={poleStandardForm.straightPoleErrors}
-                        condition={condition}
-                      />
-                    )}
+                    {!isCalculationAndDrawing &&
+                      poleStandardForm.poleTypeStandard.type === "straight" && (
+                        <StraightPoleStandardForm
+                          straightPoleStandard={
+                            poleStandardForm.straightPoleStandard
+                          }
+                          onUpdate={poleStandardForm.updateStraightPoleStandard}
+                          errors={poleStandardForm.straightPoleErrors}
+                          condition={condition}
+                        />
+                      )}
                   </>
                 )}
 
@@ -347,7 +360,9 @@ export default function PoleFormView() {
                           max={6}
                           placeholder="Input Pole Number"
                           value={poleForm.poleCountInput}
-                          onChange={(e) => poleForm.setPoleCountInput(e.target.value)}
+                          onChange={(e) =>
+                            poleForm.setPoleCountInput(e.target.value)
+                          }
                           onWheel={(e) => e.target.blur()}
                           className="
                             w-[180px] px-3.5 py-2 lg:py-2.5 text-center text-sm rounded-md sm:rounded-lg outline-none
@@ -370,7 +385,8 @@ export default function PoleFormView() {
                             isNaN(poleForm.poleCountInput) ||
                             Number(poleForm.poleCountInput) <= 0 ||
                             Number(poleForm.poleCountInput) > 6 ||
-                            Number(poleForm.poleCountInput) === poleForm.poles.length
+                            Number(poleForm.poleCountInput) ===
+                              poleForm.poles.length
                           }
                           className={`
                             flex items-center gap-2 px-7 py-2 lg:py-2.5 text-sm font-medium rounded-md sm:rounded-lg
@@ -385,7 +401,8 @@ export default function PoleFormView() {
                               isNaN(poleForm.poleCountInput) ||
                               Number(poleForm.poleCountInput) <= 0 ||
                               Number(poleForm.poleCountInput) > 6 ||
-                              Number(poleForm.poleCountInput) === poleForm.poles.length
+                              Number(poleForm.poleCountInput) ===
+                                poleForm.poles.length
                                 ? "bg-gray-50 border-gray-300 text-gray-600 opacity-40 cursor-not-allowed"
                                 : "bg-blue-50 border-blue-500 text-blue-700 hover:bg-blue-100"
                             }
@@ -395,7 +412,8 @@ export default function PoleFormView() {
                           isNaN(poleForm.poleCountInput) ||
                           Number(poleForm.poleCountInput) <= 0 ||
                           Number(poleForm.poleCountInput) > 6 ||
-                          Number(poleForm.poleCountInput) === poleForm.poles.length ? (
+                          Number(poleForm.poleCountInput) ===
+                            poleForm.poles.length ? (
                             <Circle className="w-4 h-4 text-gray-400 hp:w-3.5 hp:h-3.5" />
                           ) : (
                             <CheckCircle className="w-4 h-4 text-blue-500 hp:w-3.5 hp:h-3.5" />
@@ -476,14 +494,14 @@ export default function PoleFormView() {
 
                               {/* Reset */}
                               <button
-                                onClick={() => poleForm.resetActivePole(pole.id)}
+                                onClick={() =>
+                                  poleForm.resetActivePole(pole.id)
+                                }
                                 className="flex justify-center items-center gap-2 px-4 py-2 md:px-5 lg:py-2.5 rounded-lg hp:rounded-md font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] 
                                 text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm transition-colors"
                               >
                                 <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-                                <span className="text-sm">
-                                  Reset
-                                </span>
+                                <span className="text-sm">Reset</span>
                               </button>
 
                               {poleForm.poles.length > 1 && (
@@ -496,9 +514,7 @@ export default function PoleFormView() {
                                   text-red-600 ring-1 ring-inset ring-red-200 hover:ring-red-300 shadow-sm transition-all"
                                 >
                                   <Trash2 className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-                                  <span className="text-sm">
-                                    Delete Step
-                                  </span>
+                                  <span className="text-sm">Delete Step</span>
                                 </button>
                               )}
                             </div>
@@ -515,7 +531,7 @@ export default function PoleFormView() {
                       </div>
                     );
                   })}
-                  
+
                   {/* Divider */}
                   <div className="border-t border-gray-200" />
 
@@ -542,8 +558,6 @@ export default function PoleFormView() {
                       Add Step
                     </button>
                   </div>
-
-
                 </>
               )}
             </div>
@@ -617,7 +631,7 @@ export default function PoleFormView() {
               >
                 <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg hp:rounded-md border border-white/20 hp:px-3 hp:py-[8px]">
                   <h2 className="text-white text-xs md:text-sm font-semibold md:font-bold">
-                    Overhead Wire
+                    Overhead Wire (OHW)
                   </h2>
                 </div>
                 <div
@@ -973,7 +987,9 @@ export default function PoleFormView() {
           <div className="flex items-center justify-between p-5 mt-12 mb-20 bg-gradient-to-b from-white to-slate-50 rounded-2xl hp:rounded-xl border border-gray-200 shadow-sm hp:gap-2">
             {/* Back => returns to Initial Input step */}
             <button
-              onClick={() => navigate(`/calculation/${projectType}/${draftId}/initial`)}
+              onClick={() =>
+                navigate(`/calculation/${projectType}/${draftId}/initial`)
+              }
               className="flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-3 hp:py-2 md:px-6
               rounded-lg hp:rounded-md font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] text-sm
               ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm transition-colors flex-shrink-0"
@@ -1004,7 +1020,7 @@ export default function PoleFormView() {
                 ${
                   !calculation.isCalculated
                     ? "bg-gray-100 text-gray-400 ring-1 ring-inset ring-gray-200 cursor-not-allowed shadow-none"
-                    : calculation.buttonLabel === "Next Input"
+                    : calculation.buttonLabel.startsWith("Next")
                       ? "bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm"
                       : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
                 }`}
@@ -1028,8 +1044,6 @@ export default function PoleFormView() {
           </div>
         </div>
       </div>
-
-
 
       {/* ── Toast ── */}
       <FinishCalculationModal
@@ -1101,13 +1115,13 @@ export default function PoleFormView() {
         onConfirm={armForm.confirmReduceArmObjects}
         itemName="arm objects"
       />
-      
-      <CoverFormModal 
-        open={showCoverModal} 
-        onClose={() => setShowCoverModal(false)} 
-        projectType={projectType} 
-        draftId={draftId} 
-        onConfirm={handleConfirmCover} 
+
+      <CoverFormModal
+        open={showCoverModal}
+        onClose={() => setShowCoverModal(false)}
+        projectType={projectType}
+        draftId={draftId}
+        onConfirm={handleConfirmCover}
       />
     </div>
   );

@@ -506,7 +506,7 @@ export function EightRibTypeForm({
                   ${
                     !isCalculated
                       ? "bg-gray-100 text-gray-400 ring-1 ring-inset ring-gray-200 cursor-not-allowed shadow-none"
-                      : buttonLabel === "Next Input"
+                      : buttonLabel.startsWith("Next")
                         ? "bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm"
                         : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
                   }`}

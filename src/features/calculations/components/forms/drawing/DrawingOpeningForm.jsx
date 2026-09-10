@@ -12,22 +12,31 @@ const ErrorStyle = ({ show, text }) =>
 
 const inputStyle = (hasError) =>
   `w-full px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border
-  ${hasError
-    ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
-    : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
+  ${
+    hasError
+      ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
+      : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
   }`;
 
-export function DrawingOpeningForm({ opening, onUpdate, onReset, onBack, onNext, errors }) {
+export function DrawingOpeningForm({
+  opening,
+  onUpdate,
+  onReset,
+  onBack,
+  onNext,
+  errors,
+}) {
   const [showResetModal, setShowResetModal] = useState(false);
 
   return (
     <div className="bg-white rounded-b-2xl hp:rounded-b-xl shadow-sm border border-gray-200">
       <div className="p-4 md:p-6 shadow-sm space-y-4 md:space-y-6">
-
         {/* ── Opening Type Selection ── */}
         <div className="bg-white px-4 md:px-5 py-5 rounded-xl hp:rounded-lg border border-gray-200">
           <div className="relative">
-            <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2 font-medium">Opening Type</label>
+            <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2 font-medium">
+              Opening Type
+            </label>
             <div className="relative">
               <select
                 id="type"
@@ -35,7 +44,9 @@ export function DrawingOpeningForm({ opening, onUpdate, onReset, onBack, onNext,
                 onChange={(e) => onUpdate({ type: e.target.value })}
                 className={`${inputStyle(errors.type)} lg:pl-3 xl:pl-4 pr-8 lg:pr-8 xl:pr-8 min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] appearance-none`}
               >
-                <option value="" disabled>Select Opening Type</option>
+                <option value="" disabled>
+                  Select Opening Type
+                </option>
                 <option value="box">Box Type</option>
                 <option value="r">R Type</option>
               </select>
@@ -51,9 +62,8 @@ export function DrawingOpeningForm({ opening, onUpdate, onReset, onBack, onNext,
         {opening.type ? (
           <div className="bg-white px-4 md:px-5 py-8 md:py-12 rounded-xl hp:rounded-lg border border-gray-200 flex justify-center">
             <div className="flex flex-row gap-1 sm:ml-[21px] 2xl:ml-0 justify-center items-center px-2 md:px-6">
-
               {/* Left Side: Opening Direction */}
-              <div className="relative mb-[10px] sm:mb-[20px] w-[100px] sm:w-[120px] xl:w-[140px]">
+              <div className="relative mb-[10px] sm:mb-[20px] w-[120px] sm:w-[150px] xl:w-[150px]">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2 font-medium whitespace-nowrap">
                   Opening Direction
                 </label>
@@ -64,7 +74,9 @@ export function DrawingOpeningForm({ opening, onUpdate, onReset, onBack, onNext,
                     onChange={(e) => onUpdate({ direction: e.target.value })}
                     className={`${inputStyle(errors.direction)} appearance-none pr-6 sm:pr-8`}
                   >
-                    <option value="" disabled>Select</option>
+                    <option value="" disabled>
+                      Select Direction
+                    </option>
                     <option value="left">Left</option>
                     <option value="front">Front</option>
                     <option value="right">Right</option>
@@ -80,7 +92,11 @@ export function DrawingOpeningForm({ opening, onUpdate, onReset, onBack, onNext,
               {/* Middle: Side View Diagram */}
               <div className="flex items-center justify-center">
                 <img
-                  src={opening.type === "box" ? "/images/op-side-view-v2.svg" : "/images/RType-SideView (1).svg"}
+                  src={
+                    opening.type === "box"
+                      ? "/images/op-side-view-v2.svg"
+                      : "/images/RType-SideView (1).svg"
+                  }
                   alt="Side View"
                   className="h-[200px] sm:h-[320px] 2xl:h-[350px] object-contain"
                 />

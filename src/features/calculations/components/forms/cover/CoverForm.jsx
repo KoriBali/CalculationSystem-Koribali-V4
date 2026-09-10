@@ -24,52 +24,112 @@ export function CoverForm({
   // State for reset confirmation modal
   const [showResetModal, setShowResetModal] = useState(false);
 
+  // Determine the next page based on the selected document type.
+  // Drawing Only        -> Drawing Setup
+  // Calculation Only    -> Calculation Setup
+  // Calculation & Drawing -> Calculation Setup
+  const nextStepLabel =
+    projectMode === "drawing"
+      ? "Next: Drawing Setup"
+      : "Next: Calculation Setup";
+
   return (
-    <div className="bg-white rounded-b-2xl hp:rounded-b-xl shadow-sm border border-gray-200">
-      <div className="p-4 md:p-6 shadow-sm space-y-4 md:space-y-6">
-        <div className="space-y-6 md:space-y-8">
-          <ProjectIdentityFields
-            identityData={identityData}
-            onUpdate={onUpdateIdentity}
-            errors={identityErrors}
-          />
+    <div className="relative">
+      <div
+        className="
+          bg-white
+          rounded-2xl hp:rounded-xl
+          border border-gray-200
+          shadow-[0_2px_10px_rgba(15,23,42,0.06)]
+          overflow-hidden
+        "
+      >
+        {/* Top accent strip — full-bleed rect, otomatis ke-clip mengikuti rounded corner parent */}
+        <div
+          aria-hidden="true"
+          className="
+            h-1.5
+            bg-gradient-to-r from-[#0d3b66] to-[#3399cc]
+          "
+        />
 
-          <WorkflowModePicker projectMode={projectMode} onSelectMode={onSelectMode} />
-        </div>
+        <div className="p-4 md:p-6 space-y-4 md:space-y-6">
+          {/* Project setup content */}
+          <div className="space-y-6 md:space-y-8">
+            <ProjectIdentityFields
+              identityData={identityData}
+              onUpdate={onUpdateIdentity}
+              errors={identityErrors}
+            />
 
-        {/* Divider */}
-        <div className="border-t border-gray-200" />
+            <WorkflowModePicker
+              projectMode={projectMode}
+              onSelectMode={onSelectMode}
+            />
+          </div>
 
-        {/* Footer actions */}
-        <div className="flex justify-between items-center pt-4 md:pt-0">
-          {/* Reset => clears identity fields + document type back to default */}
-          <button
-            onClick={() => setShowResetModal(true)}
-            className="flex justify-center items-center gap-2 px-5 py-2.5 md:px-6
-            rounded-lg hp:rounded-md font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] text-xs sm:text-sm
-            ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm transition-colors"
-          >
-            <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-            Reset
-          </button>
+          {/* Divider */}
+          <div className="border-t border-gray-200" />
 
-          {/* Submit - triggers next step */}
-          <button
-            onClick={onFinish}
-            className="flex justify-center items-center gap-2 px-5 py-2.5 md:px-6
-            rounded-lg hp:rounded-md font-medium bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white text-xs md:text-sm hover:brightness-110 shadow-sm transition-all"
-          >
-            Save & Continue
-            <ChevronRight className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-          </button>
+          {/* Footer actions */}
+          <div className="flex justify-between items-center pt-4 md:pt-0">
+            <button
+              type="button"
+              onClick={() => setShowResetModal(true)}
+              className="
+              flex justify-center items-center gap-2
+              px-5 py-2.5
+              hp:px-3 hp:py-2
+              md:px-6
+              rounded-lg hp:rounded-md
+              font-medium
+              bg-white
+              hover:bg-red-50
+              text-red-400
+              text-xs sm:text-sm
+              border border-red-300
+              hover:border-red-400
+              shadow-sm
+              transition-colors
+            "
+            >
+              <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+              <span className="hp:hidden">Reset</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={onFinish}
+              className="
+              flex justify-center items-center gap-2
+              px-5 py-2.5
+              md:px-6
+              rounded-lg hp:rounded-md
+              font-medium
+              bg-gradient-to-r
+              from-[#0d3b66]
+              to-[#3399cc]
+              text-white
+              text-xs md:text-sm
+              hover:brightness-110
+              shadow-sm
+              transition-all
+            "
+            >
+              <span>{nextStepLabel}</span>
+              <ChevronRight className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+            </button>
+          </div>
         </div>
       </div>
 
+      {/* Reset confirmation modal */}
       <ConfirmResetAllModal
         open={showResetModal}
         onClose={() => setShowResetModal(false)}
         onReset={onReset}
       />
     </div>
+
   );
 }

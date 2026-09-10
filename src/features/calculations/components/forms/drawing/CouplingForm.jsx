@@ -1,6 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useProjectStorage } from "../../../hooks/useProjectStorage";
+import { useCouplingMasterData } from "../../../hooks/useCouplingMasterData";
+import {
+  preloadImagesWhenIdle,
+  COUPLING_CASE_IMAGES,
+} from "../../../utils/preloadImages";
 import { validateWithYup } from "../../../utils/validation";
 import {
   scrollToFirstError,
@@ -101,6 +106,32 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
   });
   const [showResetModal, setShowResetModal] = useState(false);
 
+  // Coupling positions / sizes / types / case configs from /api/master/coupling
+  // (the backend is the single source of truth — no hardcoded copy).
+  const {
+    fieldOptions,
+    caseSchema,
+    caseList,
+    eo,
+    loading: masterLoading,
+    error: masterError,
+    refetch: refetchMaster,
+  } = useCouplingMasterData();
+
+  const regionOptions = eo?.regions ?? [];
+
+  // Legacy drafts stored the region label ("East Japan"); master data uses the
+  // code ("east_japan"). Migrate once so resolveEO's region lookup keeps working.
+  useEffect(() => {
+    const LEGACY = { "East Japan": "east_japan", "West Japan": "west_japan" };
+    if (LEGACY[location]) setLocation(LEGACY[location]);
+  }, [location, setLocation]);
+
+  // Warm the browser cache with all 20 coupling diagrams (10 grid + 10 detail)
+  // as soon as this page mounts, so opening the case picker / case form later
+  // shows the SVG instantly instead of a loading skeleton.
+  useEffect(() => preloadImagesWhenIdle(COUPLING_CASE_IMAGES), []);
+
   const handleReset = () => {
     setLocation("");
     setCouplings((prev) =>
@@ -174,39 +205,26 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
       <div className="p-4 md:p-6 space-y-6 md:space-y-8">
         {/* --- Input Location of Project --- */}
         <div id="location" className="relative">
-          <SectionTitle>Input Location of Project</SectionTitle>
+          <SectionTitle>Project Location</SectionTitle>
           <SectionCard>
             <div className="flex flex-col sm:flex-row gap-4">
-              <div className="w-full sm:w-[220px]">
-                <CardOption
-                  label="West Japan"
-                  value="West Japan"
-                  current={location}
-                  onChange={(val) => {
-                    setLocation(val);
-                    setErrors((prev) => {
-                      const newErrors = { ...prev };
-                      delete newErrors.location;
-                      return newErrors;
-                    });
-                  }}
-                />
-              </div>
-              <div className="w-full sm:w-[220px]">
-                <CardOption
-                  label="East Japan"
-                  value="East Japan"
-                  current={location}
-                  onChange={(val) => {
-                    setLocation(val);
-                    setErrors((prev) => {
-                      const newErrors = { ...prev };
-                      delete newErrors.location;
-                      return newErrors;
-                    });
-                  }}
-                />
-              </div>
+              {regionOptions.map((region) => (
+                <div key={region.value} className="w-full sm:w-[220px]">
+                  <CardOption
+                    label={region.label}
+                    value={region.value}
+                    current={location}
+                    onChange={(val) => {
+                      setLocation(val);
+                      setErrors((prev) => {
+                        const newErrors = { ...prev };
+                        delete newErrors.location;
+                        return newErrors;
+                      });
+                    }}
+                  />
+                </div>
+              ))}
             </div>
           </SectionCard>
           {errors.location && (
@@ -221,10 +239,26 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
           <div className="flex items-center justify-between mb-4">
             <SectionTitle>Coupling Input</SectionTitle>
           </div>
+          {masterError && (
+            <div className="mb-4 flex items-center justify-between gap-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-xs md:text-sm text-amber-800">
+              <span>
+                Couldn't load coupling master data. Case selection is
+                unavailable until this loads.
+              </span>
+              <button
+                type="button"
+                onClick={refetchMaster}
+                className="shrink-0 flex items-center gap-1.5 rounded-md border border-amber-400 bg-white px-3 py-1.5 font-medium text-amber-800 hover:bg-amber-100 transition-colors"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                Retry
+              </button>
+            </div>
+          )}
           <SectionCard>
             <div className="mb-8">
               <label className="block text-xs md:text-sm text-gray-700 mb-2 md:mb-3">
-                Input Coupling Height Number
+                Number of Coupling Heights
               </label>
               <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden bg-white shadow-sm w-fit transition-all focus-within:border-[#3399cc] focus-within:ring-1 focus-within:ring-[#3399cc] h-[34px] sm:h-[38px] lg:h-[42px]">
                 <button
@@ -325,41 +359,7 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
                       <div className="absolute left-[40%] sm:left-[45%] md:left-[50%] top-1/2 w-4 h-4 md:w-5 md:h-5 bg-white border-[3px] md:border-[4px] border-[#0d3b66] group-hover:border-[#0d3b66] rounded-full shadow-md z-20 transform -translate-x-1/2 -translate-y-1/2 group-hover:scale-125 transition-all duration-300" />
 
                       {/* Right Side: Options */}
-                      <div className="w-[60%] sm:w-[55%] md:w-[50%] pl-5 sm:pl-8 md:pl-10 xl:pl-12 pr-2 sm:pr-4 md:pr-8 flex flex-col xl:flex-row items-stretch xl:items-center gap-2 sm:gap-3 xl:gap-4">
-                        <label className="flex items-center justify-start gap-2 sm:gap-3 cursor-pointer group/cb bg-white hover:bg-gray-50 pl-2 pr-4 sm:px-4 py-2 lg:py-2.5 min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] rounded-lg border border-gray-300 shadow-sm transition-all w-full xl:w-[160px]">
-                          <div className="relative flex items-center justify-center shrink-0">
-                            <input
-                              type="checkbox"
-                              className="peer appearance-none w-4 h-4 md:w-5 md:h-5 border-2 border-gray-300 rounded bg-white checked:bg-[#0d3b66] checked:border-[#0d3b66] transition-all cursor-pointer"
-                              checked={c.withHookband}
-                              onChange={(e) =>
-                                updateCoupling(
-                                  i,
-                                  "withHookband",
-                                  e.target.checked,
-                                )
-                              }
-                            />
-                            <div className="absolute text-white opacity-0 peer-checked:opacity-100 pointer-events-none">
-                              <svg
-                                className="w-3 h-3 md:w-3.5 md:h-3.5"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                                strokeWidth={3}
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  d="M5 13l4 4L19 7"
-                                />
-                              </svg>
-                            </div>
-                          </div>
-                          <span className="text-[10px] sm:text-[11px] md:text-sm font-medium text-gray-700 group-hover/cb:text-[#0d3b66] transition-colors whitespace-nowrap flex-1">
-                            with Hookband
-                          </span>
-                        </label>
+                      <div className="w-[60%] sm:w-[55%] md:w-[50%] pl-5 sm:pl-8 xl:pl-8 pr-2 sm:pr-4 flex flex-col xl:flex-row xl:flex-wrap items-stretch xl:items-center gap-2 sm:gap-3 xl:gap-3">
                         <div className="flex flex-col items-end relative">
                           <button
                             id={`couplings[${i}].caseDetails`}
@@ -372,10 +372,6 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
                                   ...prev,
                                   location: message,
                                 }));
-                                // The inline message renders up in the
-                                // Location section, well above this button —
-                                // without a toast + scroll, clicking here
-                                // looks like the button does nothing.
                                 if (onError) onError(message);
                                 scrollToFirstError({ location: message });
                                 return;
@@ -417,7 +413,7 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
                             <span className="whitespace-nowrap">
                               {c.caseDetails
                                 ? `Coupling Height ${i + 1} Configured`
-                                : `Input Coupling at Height ${i + 1}`}
+                                : `Configure Height ${i + 1}`}
                             </span>
                           </button>
                           {errors[`couplings[${i}].caseDetails`] && (
@@ -426,6 +422,41 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
                             </span>
                           )}
                         </div>
+
+                        <label className="flex items-center justify-start gap-2 sm:gap-3 cursor-pointer group/cb bg-white hover:bg-gray-50 pl-2 pr-4 sm:px-4 py-2 lg:py-2.5 min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] rounded-lg border border-gray-300 shadow-sm transition-all w-full xl:w-auto">
+                          <div className="relative flex items-center justify-center shrink-0">
+                            <input
+                              type="checkbox"
+                              className="peer appearance-none w-4 h-4 md:w-5 md:h-5 border-2 border-gray-300 rounded bg-white checked:bg-[#0d3b66] checked:border-[#0d3b66] transition-all cursor-pointer"
+                              checked={c.withHookband}
+                              onChange={(e) =>
+                                updateCoupling(
+                                  i,
+                                  "withHookband",
+                                  e.target.checked,
+                                )
+                              }
+                            />
+                            <div className="absolute text-white opacity-0 peer-checked:opacity-100 pointer-events-none">
+                              <svg
+                                className="w-3 h-3 md:w-3.5 md:h-3.5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                strokeWidth={3}
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  d="M5 13l4 4L19 7"
+                                />
+                              </svg>
+                            </div>
+                          </div>
+                          <span className="text-[10px] sm:text-[11px] md:text-sm font-medium text-gray-700 group-hover/cb:text-[#0d3b66] transition-colors whitespace-nowrap flex-1">
+                            with Hookband
+                          </span>
+                        </label>
                       </div>
                     </div>
                   );
@@ -484,6 +515,10 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
         isOpen={modalState.isOpen && modalState.step === "grid"}
         onClose={() => setModalState({ ...modalState, isOpen: false })}
         couplingIndex={modalState.index}
+        caseList={caseList}
+        loading={masterLoading}
+        error={masterError}
+        onRetry={refetchMaster}
         onSelect={(caseObj) => {
           setModalState((prev) => ({
             ...prev,
@@ -507,10 +542,16 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
             ? {
                 id: modalState.selectedCaseId,
                 title: `Case ${modalState.selectedCaseId} of Coupling`,
-                image: `/images/CPdetail-Case${modalState.selectedCaseId}.svg`,
+                image:
+                  caseList.find((c) => c.id === modalState.selectedCaseId)
+                    ?.detailImage ??
+                  `/images/CPdetail-Case${modalState.selectedCaseId}.svg`,
               }
             : null
         }
+        caseSchema={caseSchema}
+        fieldOptions={fieldOptions}
+        eo={eo}
         location={location}
         initialData={
           modalState.index !== null &&

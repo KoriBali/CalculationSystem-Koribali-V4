@@ -18,9 +18,9 @@ const optionalNumberField = (label) =>
     .optional();
 
 export const EightRibTypeSchema = yup.object({
-  bpWidthEW: numberField("Baseplate Width (EW)"),
+  bpWidthEW: numberField("Baseplate Width"),
   bpWidthNS: optionalNumberField("Baseplate Width (NS)"),
-  anchorPitchEW: numberField("Anchor Pitch (EW)"),
+  anchorPitchEW: numberField("Anchor Pitch"),
   anchorPitchNS: optionalNumberField("Anchor Pitch (NS)"),
   anchorDia: numberField("Anchor Bolt Diameter"),
   anchorCount: optionalNumberField("Number of Anchor Bolts"),

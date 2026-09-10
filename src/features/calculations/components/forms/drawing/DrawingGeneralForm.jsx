@@ -1,19 +1,29 @@
-import { RotateCcw, ChevronRight, CheckCircle, Circle, FileText, Settings2, Link, XCircle, DoorOpen, Layers } from "lucide-react";
+import {
+  RotateCcw,
+  ChevronRight,
+  CheckCircle,
+  Circle,
+  DoorOpen,
+  Layers,
+} from "lucide-react";
 import { BaseplateIcon } from "../../../../../assets/icon";
 import { useMasterData } from "../../../hooks/useMasterData";
+import { poleTypeOptions } from "../../../constants/poleTypeOptions";
+import { couplingUsageOptions } from "../../../constants/couplingUsageOptions";
 
 const ToggleCard = ({ label, icon, enabled, onToggle, disabled = false }) => {
   return (
     <div
       onClick={disabled ? undefined : onToggle}
       className={`relative overflow-hidden rounded-lg border px-3 xl:px-4 py-2 lg:py-3 transition-all duration-300
-        ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}
-        ${disabled && !enabled ? 'bg-slate-100 opacity-60' : ''}
-        ${enabled
-          ? "border-blue-500 bg-white shadow-sm ring-1 ring-blue-50"
-          : disabled
-            ? "border-slate-200"
-            : "border-slate-200 bg-slate-50/50 hover:border-slate-300 hover:bg-slate-50"
+        ${disabled ? "cursor-not-allowed" : "cursor-pointer"}
+        ${disabled && !enabled ? "bg-slate-100 opacity-60" : ""}
+        ${
+          enabled
+            ? "border-blue-500 bg-white shadow-sm ring-1 ring-blue-50"
+            : disabled
+              ? "border-slate-200"
+              : "border-slate-200 bg-slate-50/50 hover:border-slate-300 hover:bg-slate-50"
         }
       `}
     >
@@ -36,7 +46,7 @@ const ToggleCard = ({ label, icon, enabled, onToggle, disabled = false }) => {
             e.stopPropagation();
             if (!disabled) onToggle();
           }}
-          className={`relative inline-flex h-5 w-10 md:h-6 md:w-11 items-center rounded-full ${enabled ? "bg-blue-500" : "bg-slate-300"} ${disabled ? 'cursor-not-allowed' : ''}`}
+          className={`relative inline-flex h-5 w-10 md:h-6 md:w-11 items-center rounded-full ${enabled ? "bg-blue-500" : "bg-slate-300"} ${disabled ? "cursor-not-allowed" : ""}`}
         >
           <span
             className={`inline-block h-2.5 w-2.5 md:h-4 md:w-4 transform rounded-full bg-white transition ${enabled ? "translate-x-6" : "translate-x-1"}`}
@@ -54,21 +64,28 @@ const CardOption = ({ label, desc, icon: Icon, current, value, onChange }) => {
       type="button"
       onClick={() => onChange(value)}
       className={`group w-full flex items-center justify-between px-3 xl:px-4 py-2 lg:py-3 relative overflow-hidden rounded-lg border transition-all duration-300 cursor-pointer active:scale-[0.98]
-        ${isActive
-          ? "border-blue-500 bg-blue-50 shadow-sm ring-1 ring-blue-50"
-          : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+        ${
+          isActive
+            ? "border-blue-500 bg-blue-50 shadow-sm ring-1 ring-blue-50"
+            : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
         }`}
     >
       <div className="flex items-center gap-3">
-        <div className={`p-1.5 rounded-md ${isActive ? "bg-blue-100 text-blue-600" : "bg-slate-100 text-slate-500"}`}>
+        <div
+          className={`p-1.5 rounded-md ${isActive ? "bg-blue-100 text-blue-600" : "bg-slate-100 text-slate-500"}`}
+        >
           <Icon className="w-4 h-4 md:w-4.5 md:h-4.5" />
         </div>
         <div className="flex flex-col items-start">
-          <p className={`text-[12px] md:text-sm font-medium ${isActive ? "text-slate-900" : "text-slate-700"}`}>
+          <p
+            className={`text-[12px] md:text-sm font-medium ${isActive ? "text-slate-900" : "text-slate-700"}`}
+          >
             {label}
           </p>
           {desc && (
-            <p className={`text-[11px] md:text-xs mt-0.5 ${isActive ? "text-slate-500" : "text-slate-400"}`}>
+            <p
+              className={`text-[11px] md:text-xs mt-0.5 ${isActive ? "text-slate-500" : "text-slate-400"}`}
+            >
               {desc}
             </p>
           )}
@@ -87,9 +104,10 @@ const CardOption = ({ label, desc, icon: Icon, current, value, onChange }) => {
 
 const inputStyle = (hasError) =>
   `w-full px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border
-  ${hasError
-    ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
-    : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
+  ${
+    hasError
+      ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
+      : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
   }`;
 
 const ErrorStyle = ({ show, text }) =>
@@ -112,7 +130,14 @@ const SectionCard = ({ children }) => (
   </div>
 );
 
-export function DrawingGeneralForm({ general, onUpdate, onReset, onNext, errors, projectMode }) {
+export function DrawingGeneralForm({
+  general,
+  onUpdate,
+  onReset,
+  onNext,
+  errors,
+  projectMode,
+}) {
   const {
     lightingCompanyOptions,
     loading: lightingCompaniesLoading,
@@ -120,19 +145,22 @@ export function DrawingGeneralForm({ general, onUpdate, onReset, onNext, errors,
     refetch: refetchLightingCompanies,
   } = useMasterData();
   const lightingCompaniesFailed =
-    lightingCompaniesError && lightingCompanyOptions.length === 0 && !lightingCompaniesLoading;
+    lightingCompaniesError &&
+    lightingCompanyOptions.length === 0 &&
+    !lightingCompaniesLoading;
 
   return (
     <div className="bg-white rounded-b-2xl hp:rounded-b-xl shadow-sm border border-gray-200">
       <div className="p-4 md:p-6 shadow-sm space-y-4 md:space-y-6">
-
         {/* ── Project Information ── */}
         <div>
           <SectionTitle>Project Information</SectionTitle>
           <SectionCard>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
               <div className="relative pb-1">
-                <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">Drawing Type</label>
+                <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">
+                  Drawing Type
+                </label>
                 <input
                   id="drawingType"
                   type="text"
@@ -140,11 +168,16 @@ export function DrawingGeneralForm({ general, onUpdate, onReset, onNext, errors,
                   onChange={(e) => onUpdate({ drawingType: e.target.value })}
                   className={`${inputStyle(errors.drawingType)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px]`}
                 />
-                <ErrorStyle show={errors.drawingType} text={errors.drawingType} />
+                <ErrorStyle
+                  show={errors.drawingType}
+                  text={errors.drawingType}
+                />
               </div>
 
               <div className="relative pb-1">
-                <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">Drawing Number</label>
+                <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">
+                  Drawing Number
+                </label>
                 <input
                   id="drawingNumber"
                   type="text"
@@ -152,11 +185,16 @@ export function DrawingGeneralForm({ general, onUpdate, onReset, onNext, errors,
                   onChange={(e) => onUpdate({ drawingNumber: e.target.value })}
                   className={`${inputStyle(errors.drawingNumber)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px]`}
                 />
-                <ErrorStyle show={errors.drawingNumber} text={errors.drawingNumber} />
+                <ErrorStyle
+                  show={errors.drawingNumber}
+                  text={errors.drawingNumber}
+                />
               </div>
 
               <div className="relative pb-1">
-                <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">Part Number</label>
+                <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">
+                  Part Number
+                </label>
                 <input
                   id="partNumber"
                   type="text"
@@ -168,13 +206,19 @@ export function DrawingGeneralForm({ general, onUpdate, onReset, onNext, errors,
               </div>
 
               <div className="relative pb-1">
-                <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">Lighting Company Name</label>
+                <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">
+                  Lighting Company Name
+                </label>
                 <div className="relative">
                   <select
                     id="lightingCompanyName"
                     value={general.lightingCompanyName || ""}
-                    onChange={(e) => onUpdate({ lightingCompanyName: e.target.value })}
-                    disabled={lightingCompaniesLoading || lightingCompaniesFailed}
+                    onChange={(e) =>
+                      onUpdate({ lightingCompanyName: e.target.value })
+                    }
+                    disabled={
+                      lightingCompaniesLoading || lightingCompaniesFailed
+                    }
                     className={`${inputStyle(errors.lightingCompanyName || lightingCompaniesFailed)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] cursor-pointer appearance-none`}
                   >
                     <option value="" disabled>
@@ -206,7 +250,10 @@ export function DrawingGeneralForm({ general, onUpdate, onReset, onNext, errors,
                     </button>
                   </div>
                 ) : (
-                  <ErrorStyle show={errors.lightingCompanyName} text={errors.lightingCompanyName} />
+                  <ErrorStyle
+                    show={errors.lightingCompanyName}
+                    text={errors.lightingCompanyName}
+                  />
                 )}
               </div>
 
@@ -232,7 +279,9 @@ export function DrawingGeneralForm({ general, onUpdate, onReset, onNext, errors,
           <SectionCard>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-6">
               <div className="relative pb-1">
-                <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">Designer Name</label>
+                <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">
+                  Designer Name
+                </label>
                 <input
                   id="designerName"
                   type="text"
@@ -240,11 +289,16 @@ export function DrawingGeneralForm({ general, onUpdate, onReset, onNext, errors,
                   onChange={(e) => onUpdate({ designerName: e.target.value })}
                   className={`${inputStyle(errors.designerName)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px]`}
                 />
-                <ErrorStyle show={errors.designerName} text={errors.designerName} />
+                <ErrorStyle
+                  show={errors.designerName}
+                  text={errors.designerName}
+                />
               </div>
 
               <div className="relative pb-1">
-                <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">Checked By Name</label>
+                <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">
+                  Checked By Name
+                </label>
                 <input
                   id="checkedByName"
                   type="text"
@@ -252,11 +306,16 @@ export function DrawingGeneralForm({ general, onUpdate, onReset, onNext, errors,
                   onChange={(e) => onUpdate({ checkedByName: e.target.value })}
                   className={`${inputStyle(errors.checkedByName)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px]`}
                 />
-                <ErrorStyle show={errors.checkedByName} text={errors.checkedByName} />
+                <ErrorStyle
+                  show={errors.checkedByName}
+                  text={errors.checkedByName}
+                />
               </div>
 
               <div className="relative pb-1">
-                <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">Approved By Name</label>
+                <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">
+                  Approved By Name
+                </label>
                 <input
                   id="approvedByName"
                   type="text"
@@ -264,7 +323,10 @@ export function DrawingGeneralForm({ general, onUpdate, onReset, onNext, errors,
                   onChange={(e) => onUpdate({ approvedByName: e.target.value })}
                   className={`${inputStyle(errors.approvedByName)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px]`}
                 />
-                <ErrorStyle show={errors.approvedByName} text={errors.approvedByName} />
+                <ErrorStyle
+                  show={errors.approvedByName}
+                  text={errors.approvedByName}
+                />
               </div>
             </div>
           </SectionCard>
@@ -278,30 +340,27 @@ export function DrawingGeneralForm({ general, onUpdate, onReset, onNext, errors,
               <SectionCard>
                 <div id="poleType" className="relative pb-2">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <CardOption
-                      label="Standard Pole"
-                      desc="Use predefined pole specifications."
-                      icon={FileText}
-                      value="Standard Pole"
-                      current={general.poleType}
-                      onChange={(val) => {
-                        onUpdate({
-                          poleType: val,
-                          additionalComponents: {
-                            ...(general.additionalComponents || {}),
-                            opening: true
-                          }
-                        });
-                      }}
-                    />
-                    <CardOption
-                      label="Custom Pole"
-                      desc="Define your own pole specifications."
-                      icon={Settings2}
-                      value="Custom Pole"
-                      current={general.poleType}
-                      onChange={(val) => onUpdate({ poleType: val })}
-                    />
+                    {poleTypeOptions.map((option) => (
+                      <CardOption
+                        key={option.id}
+                        label={option.title}
+                        desc={option.desc}
+                        icon={option.icon}
+                        value={option.title}
+                        current={general.poleType}
+                        onChange={(val) => {
+                          onUpdate({
+                            poleType: val,
+                            ...(option.id === "standard" && {
+                              additionalComponents: {
+                                ...(general.additionalComponents || {}),
+                                opening: true,
+                              },
+                            }),
+                          });
+                        }}
+                      />
+                    ))}
                   </div>
                   <ErrorStyle show={errors.poleType} text={errors.poleType} />
                 </div>
@@ -322,7 +381,9 @@ export function DrawingGeneralForm({ general, onUpdate, onReset, onNext, errors,
                       onUpdate({
                         additionalComponents: {
                           ...(general.additionalComponents || {}),
-                          opening: !(general.additionalComponents?.opening || false),
+                          opening: !(
+                            general.additionalComponents?.opening || false
+                          ),
                         },
                       })
                     }
@@ -335,7 +396,9 @@ export function DrawingGeneralForm({ general, onUpdate, onReset, onNext, errors,
                       onUpdate({
                         additionalComponents: {
                           ...(general.additionalComponents || {}),
-                          baseplate: !(general.additionalComponents?.baseplate || false),
+                          baseplate: !(
+                            general.additionalComponents?.baseplate || false
+                          ),
                         },
                       })
                     }
@@ -348,7 +411,9 @@ export function DrawingGeneralForm({ general, onUpdate, onReset, onNext, errors,
                       onUpdate({
                         additionalComponents: {
                           ...(general.additionalComponents || {}),
-                          foundation: !(general.additionalComponents?.foundation || false),
+                          foundation: !(
+                            general.additionalComponents?.foundation || false
+                          ),
                         },
                       })
                     }
@@ -365,23 +430,20 @@ export function DrawingGeneralForm({ general, onUpdate, onReset, onNext, errors,
           <SectionCard>
             <div id="useCoupling" className="relative pb-2">
               <label className="block text-xs md:text-sm font-medium text-gray-800 mb-3">
-                Do you want to use coupling?
+                Use Coupling?
               </label>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <CardOption
-                  label="Yes, use coupling"
-                  icon={Link}
-                  value={true}
-                  current={general.useCoupling}
-                  onChange={(val) => onUpdate({ useCoupling: val })}
-                />
-                <CardOption
-                  label="No, skip coupling"
-                  icon={XCircle}
-                  value={false}
-                  current={general.useCoupling}
-                  onChange={(val) => onUpdate({ useCoupling: val })}
-                />
+                {couplingUsageOptions.map((option) => (
+                  <CardOption
+                    key={option.id}
+                    label={option.title}
+                    desc={option.desc}
+                    icon={option.icon}
+                    value={option.id === "yes"}
+                    current={general.useCoupling}
+                    onChange={(val) => onUpdate({ useCoupling: val })}
+                  />
+                ))}
               </div>
               <ErrorStyle show={errors.useCoupling} text={errors.useCoupling} />
             </div>

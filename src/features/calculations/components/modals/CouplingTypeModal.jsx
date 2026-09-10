@@ -1,5 +1,12 @@
 import { useState, useEffect } from "react";
-import { ChevronRight, CheckCircle, Image as ImageIcon } from "lucide-react";
+import {
+  ChevronRight,
+  CheckCircle,
+  Image as ImageIcon,
+  Loader2,
+  AlertTriangle,
+  RotateCcw,
+} from "lucide-react";
 
 const ImageLoader = ({ src, alt, className, wrapperClass }) => {
   const [loaded, setLoaded] = useState(false);
@@ -29,7 +36,17 @@ const ImageLoader = ({ src, alt, className, wrapperClass }) => {
   );
 };
 
-export function CouplingTypeModal({ isOpen, onClose, couplingIndex, onSelect }) {
+export function CouplingTypeModal({
+  isOpen,
+  onClose,
+  couplingIndex,
+  onSelect,
+  // Coupling case list from /api/master/coupling (via CouplingForm).
+  caseList = [],
+  loading = false,
+  error = null,
+  onRetry,
+}) {
   const [selectedCaseId, setSelectedCaseId] = useState(null);
 
   // Reset selection when modal opens/closes
@@ -42,12 +59,9 @@ export function CouplingTypeModal({ isOpen, onClose, couplingIndex, onSelect }) 
   // The coupling level is index + 1 (e.g., index 0 is H1)
   const levelName = `H${couplingIndex + 1}`;
 
-  // Generate 10 cases
-  const cases = Array.from({ length: 10 }, (_, i) => ({
-    id: i + 1,
-    title: `Case ${i + 1} of Coupling`,
-    image: `/images/CP-Case${i + 1}.svg`,
-  }));
+  const cases = caseList;
+  const isBusy = loading && cases.length === 0;
+  const hasError = !!error && cases.length === 0;
 
   const handleNext = () => {
     if (selectedCaseId) {
@@ -72,6 +86,30 @@ export function CouplingTypeModal({ isOpen, onClose, couplingIndex, onSelect }) 
             Please select the appropriate coupling type for {levelName}.
           </p>
 
+          {isBusy && (
+            <div className="flex flex-col items-center justify-center py-16 text-slate-500">
+              <Loader2 className="w-8 h-8 animate-spin mb-3" />
+              <span className="text-sm">Loading coupling cases…</span>
+            </div>
+          )}
+
+          {hasError && (
+            <div className="flex flex-col items-center justify-center py-16 text-slate-500">
+              <AlertTriangle className="w-8 h-8 text-amber-500 mb-3" />
+              <span className="text-sm mb-4">Failed to load coupling cases.</span>
+              {onRetry && (
+                <button
+                  onClick={onRetry}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-[#0d3b66] bg-white border border-slate-300 hover:bg-slate-50 transition-colors"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  Retry
+                </button>
+              )}
+            </div>
+          )}
+
+          {!isBusy && !hasError && (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {cases.map((c) => {
               const isSelected = selectedCaseId === c.id;
@@ -109,6 +147,7 @@ export function CouplingTypeModal({ isOpen, onClose, couplingIndex, onSelect }) 
               );
             })}
           </div>
+          )}
         </div>
 
         {/* Footer */}

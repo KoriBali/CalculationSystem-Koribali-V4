@@ -3,6 +3,7 @@ import { RotateCcw, Box, ChevronRight, Loader2 } from "lucide-react";
 import { GROUND_POSITION_OPTIONS } from "../../../../constants/taperPoleStandradOptions";
 import { usePoleStandardData } from "../../../../hooks/usePoleStandardData";
 import { ConfirmResetAllModal } from "../../../modals/ConfirmResetAllModal";
+import { preloadImagesWhenIdle } from "../../../../utils/preloadImages";
 
 // === IMAGES (12 cases: 6 pole types × 2 ground positions) ===
 const DIAGRAM_IMAGE_MAP = {
@@ -41,22 +42,6 @@ const ALL_DIAGRAM_IMAGES = [
   ...Object.values(DIAGRAM_IMAGE_MAP).flatMap((byGround) => Object.values(byGround)),
   ...Object.values(EMBED_IMAGE_MAP),
 ];
-
-// Module-level so the 18 SVGs are only ever fetched once per browser session,
-// even if this form mounts/unmounts multiple times while navigating.
-const preloadedDiagrams = new Set();
-
-// fetchPriority "low" so this background warm-up never competes for
-// bandwidth with the diagram the user is actually waiting to see right now.
-const preloadDiagrams = (urls) => {
-  urls.forEach((src) => {
-    if (preloadedDiagrams.has(src)) return;
-    preloadedDiagrams.add(src);
-    const img = new Image();
-    img.fetchPriority = "low";
-    img.src = src;
-  });
-};
 
 // === HELPERS ===
 // Renders a red error message below an invalid field
@@ -103,12 +88,7 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
 
   // Warm the browser cache with every pole diagram in the background so
   // switching pole type / ground position later never shows a blank flash.
-  useEffect(() => {
-    const idle = window.requestIdleCallback || ((cb) => setTimeout(cb, 200));
-    const cancelIdle = window.cancelIdleCallback || clearTimeout;
-    const id = idle(() => preloadDiagrams(ALL_DIAGRAM_IMAGES));
-    return () => cancelIdle(id);
-  }, []);
+  useEffect(() => preloadImagesWhenIdle(ALL_DIAGRAM_IMAGES), []);
   const currentHeightOptions =
     heightOptionsByStandard[taperPoleStandard.poleType] ??
     EMPTY_HEIGHT_OPTIONS;
