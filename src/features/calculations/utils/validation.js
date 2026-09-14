@@ -9,7 +9,7 @@ export const validateWithYup = async (schema, data, options = {}) => {
     const errors = {};
 
     if (error.inner && error.inner.length > 0) {
-      // Kasus normal: multiple field errors
+      // Kasus normal: multi-purpose-project field errors
       error.inner.forEach((curr) => {
         if (curr.path) errors[curr.path] = curr.message;
       });

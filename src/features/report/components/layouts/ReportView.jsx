@@ -63,8 +63,10 @@ export function ReportView() {
       navigate("/calculation");
       return;
     }
-    
-    const activeDraftId = sessionStorage.getItem(`${projectType}_active_draft_id`);
+
+    const activeDraftId = sessionStorage.getItem(
+      `${projectType}_active_draft_id`,
+    );
     if (activeDraftId) {
       navigate(`/calculation/${projectType}/${activeDraftId}`);
     } else {
@@ -114,7 +116,7 @@ export function ReportView() {
     };
 
     switch (projectType) {
-      case "lighting-pole":
+      case "lighting-project":
         return (
           <div id="report-a4">
             <LightingPoleReport
@@ -126,7 +128,7 @@ export function ReportView() {
           </div>
         );
 
-      case "acemast":
+      case "disaster-prevention-project":
         return (
           <div id="report-a4">
             <AcemastReport
@@ -138,7 +140,7 @@ export function ReportView() {
           </div>
         );
 
-      case "signboard":
+      case "signboard-project":
         return (
           <div id="report-a4">
             <SignboardReport
@@ -150,7 +152,7 @@ export function ReportView() {
           </div>
         );
 
-      case "multiple":
+      case "multi-purpose-project":
         return (
           <div id="report-a4">
             <MultipleReport

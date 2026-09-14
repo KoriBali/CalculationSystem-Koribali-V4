@@ -34,8 +34,8 @@ export default function ProjectIdentityPage() {
     if (mode === "drawing") {
       navigate(`/calculation/${projectType}/${draftId}/drawing`);
     } else {
-      // Both 'calculation' and 'both' start at the initial calculation setup
-      navigate(`/calculation/${projectType}/${draftId}/initial`);
+      // Both 'calculation' and 'both' start at the calculation condition
+      navigate(`/calculation/${projectType}/${draftId}/calculation-condition`);
     }
   };
 
@@ -65,7 +65,9 @@ export default function ProjectIdentityPage() {
                 identityErrors={identityForm.identityErrors}
                 onUpdateIdentity={identityForm.updateIdentity}
                 projectMode={workflowForm.workflowData.projectMode}
-                onSelectMode={(mode) => workflowForm.updateWorkflow({ projectMode: mode })}
+                onSelectMode={(mode) =>
+                  workflowForm.updateWorkflow({ projectMode: mode })
+                }
                 onReset={handleReset}
                 onFinish={handleFinishCover}
               />

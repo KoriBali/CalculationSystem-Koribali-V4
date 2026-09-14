@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { getMasterData, clearMasterDataCache } from "../services/masterDataService";
+import {
+  getMasterData,
+  clearMasterDataCache,
+} from "../services/masterDataService";
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
 
@@ -38,7 +41,7 @@ const toCompanyOptions = (list) =>
 // Loads shared master data (materials, object types, region codes, lighting
 // company codes, ...) from the bootstrap endpoint/sessionStorage cache and
 // exposes it as ready-to-use {value, label} option lists for dropdowns.
-// Safe to call from multiple components — the underlying service dedupes
+// Safe to call from multi-purpose-project components — the underlying service dedupes
 // the actual network request.
 export function useMasterData() {
   const [data, setData] = useState(null);

@@ -50,7 +50,7 @@ export function BoxTypeForm({
   };
 
   return (
-    <div className="bg-white rounded-b-xl md:rounded-b-2xl shadow-sm border border-gray-200">
+    <div className="bg-white rounded-xl md:rounded-2xl shadow-[0_1px_6px_rgba(15,23,42,0.04)] border border-gray-200">
       {/* Wrapper TOP + BOTTOM jadi satu row di lg */}
       <div className="flex justify-center pb-8 pt-12 sm:pt-8 xl:pt-12">
         <div className="flex flex-col gap-12 2xl:flex-row 2xl:items-center 2xl:gap-8">
@@ -177,14 +177,18 @@ export function BoxTypeForm({
                     <select
                       id="openingDirection"
                       value={boxType.openingDirection || ""}
-                      onChange={(e) => onUpdate({ openingDirection: e.target.value })}
+                      onChange={(e) =>
+                        onUpdate({ openingDirection: e.target.value })
+                      }
                       className={`w-full px-2 sm:px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border appearance-none pr-8 min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] ${
                         errors.openingDirection
                           ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
                           : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
                       }`}
                     >
-                      <option value="" disabled>Select</option>
+                      <option value="" disabled>
+                        Select
+                      </option>
                       <option value="left">Left</option>
                       <option value="front">Front</option>
                       <option value="right">Right</option>
@@ -234,7 +238,6 @@ export function BoxTypeForm({
         </div>
       </div>
 
-
       {/* Divider line */}
       <div className="border-t mx-4 md:mx-6 border-gray-200"></div>
 
@@ -276,7 +279,7 @@ export function BoxTypeForm({
             >
               <Calculator className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
               <span className="hp:text-[11px] whitespace-nowrap">
-                Calculate Result
+                Calculate Results
               </span>
             </button>
 

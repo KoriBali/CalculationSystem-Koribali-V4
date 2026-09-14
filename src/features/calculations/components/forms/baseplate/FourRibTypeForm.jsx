@@ -87,7 +87,7 @@ export function FourRibTypeForm({
   };
 
   return (
-    <div className="bg-white rounded-b-xl md:rounded-b-2xl shadow-sm border border-gray-200">
+    <div className="bg-white rounded-xl md:rounded-2xl shadow-[0_1px_6px_rgba(15,23,42,0.04)] border border-gray-200">
       <div className="sm:p-4 md:p-6">
         <div className="flex justify-center items-center pt-3 sm:pl-[93px] xl:pl-0 xl:pt-0 xl:pr-0 2xl:pr-[245px]">
           {/* ================= TOP VIEW : SVG + POSITIONED INPUTS ================= */}
@@ -508,7 +508,7 @@ export function FourRibTypeForm({
               >
                 <Calculator className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
                 <span className="hp:text-[11px] whitespace-nowrap">
-                  Calculate Result
+                  Calculate Results
                 </span>
               </button>
 

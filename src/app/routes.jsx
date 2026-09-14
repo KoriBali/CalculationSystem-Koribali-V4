@@ -61,15 +61,39 @@ export default function AppRoutes() {
                   <Route index element={<DraftsDashboardPage />} />
                   <Route path=":draftId" element={<DraftSessionGuard />}>
                     <Route index element={<ProjectIdentityPage />} />
-                    <Route path="initial" element={<InitialInputPage />} />
-                    <Route path="drawing" element={<Navigate to="general" replace />} />
-                    <Route path="drawing/general" element={<DrawingGeneralPage />} />
+                    <Route
+                      path="calculation-condition"
+                      element={<InitialInputPage />}
+                    />
+                    <Route
+                      path="drawing"
+                      element={<Navigate to="general" replace />}
+                    />
+                    <Route
+                      path="drawing/general"
+                      element={<DrawingGeneralPage />}
+                    />
                     <Route path="drawing/pole" element={<DrawingPolePage />} />
-                    <Route path="drawing/opening" element={<DrawingOpeningPage />} />
-                    <Route path="drawing/baseplate" element={<DrawingBaseplatePage />} />
-                    <Route path="drawing/foundation" element={<DrawingFoundationPage />} />
-                    <Route path="drawing/coupling" element={<DrawingCouplingPage />} />
-                    <Route path="drawing/surface" element={<DrawingSurfacePage />} />
+                    <Route
+                      path="drawing/opening"
+                      element={<DrawingOpeningPage />}
+                    />
+                    <Route
+                      path="drawing/baseplate"
+                      element={<DrawingBaseplatePage />}
+                    />
+                    <Route
+                      path="drawing/foundation"
+                      element={<DrawingFoundationPage />}
+                    />
+                    <Route
+                      path="drawing/coupling"
+                      element={<DrawingCouplingPage />}
+                    />
+                    <Route
+                      path="drawing/surface"
+                      element={<DrawingSurfacePage />}
+                    />
                     <Route path="pole" element={<PoleFormPage />} />
                     <Route path="opening" element={<OpeningFormPage />} />
                     <Route path="baseplate" element={<BaseplateFormPage />} />
@@ -83,7 +107,10 @@ export default function AppRoutes() {
             <Route path="database" element={<ProjectDatabasePage />} />
 
             {/* Super Admin Routes */}
-            <Route path="superadmin" element={<RoleGuard allowedRoles={['superadmin']} />}>
+            <Route
+              path="superadmin"
+              element={<RoleGuard allowedRoles={["superadmin"]} />}
+            >
               <Route path="dashboard" element={<SuperAdminDashboard />} />
               <Route path="departments" element={<DepartmentManagement />} />
               <Route path="users" element={<UserManagement />} />

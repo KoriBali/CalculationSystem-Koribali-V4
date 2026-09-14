@@ -26,12 +26,12 @@ export function CoverForm({
 
   // Determine the next page based on the selected document type.
   // Drawing Only        -> Drawing Setup
-  // Calculation Only    -> Calculation Setup
-  // Calculation & Drawing -> Calculation Setup
+  // Calculation Only    -> Calculation Condition
+  // Calculation & Drawing -> Calculation Condition
   const nextStepLabel =
     projectMode === "drawing"
       ? "Next: Drawing Setup"
-      : "Next: Calculation Setup";
+      : "Next: Calculation Condition";
 
   return (
     <div className="relative">
@@ -130,6 +130,5 @@ export function CoverForm({
         onReset={onReset}
       />
     </div>
-
   );
 }

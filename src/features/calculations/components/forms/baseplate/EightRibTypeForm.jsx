@@ -34,7 +34,6 @@ const InputField = ({
           {unit}
         </span>
       </div>
-
     </div>
   );
 };
@@ -87,7 +86,7 @@ export function EightRibTypeForm({
   };
 
   return (
-    <div className="bg-white rounded-b-xl md:rounded-b-2xl shadow-sm border border-gray-200">
+    <div className="bg-white rounded-xl md:rounded-2xl shadow-[0_1px_6px_rgba(15,23,42,0.04)] border border-gray-200">
       <div className="sm:p-4 md:p-6">
         <div className="flex justify-center items-center pt-3 xl:pt-0 sm:pl-[83px] xl:pl-0 xl:pr-[1px] 2xl:pr-[252px]">
           {/* ================= TOP VIEW : IMAGE + POSITIONED INPUTS ================= */}
@@ -206,7 +205,7 @@ export function EightRibTypeForm({
                   <input
                     type="number"
                     min={0}
-                  id="anchorDia"
+                    id="anchorDia"
                     value={eightRibType.anchorDia}
                     onChange={handleChange("anchorDia")}
                     onWheel={(e) => e.target.blur()}
@@ -228,7 +227,7 @@ export function EightRibTypeForm({
                   <input
                     type="number"
                     min={0}
-                  id="anchorCount"
+                    id="anchorCount"
                     value={eightRibType.anchorCount}
                     onChange={handleChange("anchorCount")}
                     onWheel={(e) => e.target.blur()}
@@ -311,7 +310,7 @@ export function EightRibTypeForm({
                   <input
                     type="number"
                     min={0}
-                  id="bpThickness"
+                    id="bpThickness"
                     value={eightRibType.bpThickness}
                     onChange={handleChange("bpThickness")}
                     onWheel={(e) => e.target.blur()}
@@ -334,7 +333,7 @@ export function EightRibTypeForm({
                   <input
                     type="number"
                     min={0}
-                  id="ribHeight"
+                    id="ribHeight"
                     value={eightRibType.ribHeight}
                     onChange={handleChange("ribHeight")}
                     onWheel={(e) => e.target.blur()}
@@ -357,7 +356,7 @@ export function EightRibTypeForm({
                   <input
                     type="number"
                     min={0}
-                  id="weldLeg"
+                    id="weldLeg"
                     value={eightRibType.weldLeg}
                     onChange={handleChange("weldLeg")}
                     onWheel={(e) => e.target.blur()}
@@ -380,7 +379,7 @@ export function EightRibTypeForm({
                   <input
                     type="number"
                     min={0}
-                  id="ribScallop"
+                    id="ribScallop"
                     value={eightRibType.ribScallop}
                     onChange={handleChange("ribScallop")}
                     onWheel={(e) => e.target.blur()}
@@ -414,7 +413,7 @@ export function EightRibTypeForm({
                   <input
                     type="number"
                     min={0}
-                  id="ribLength"
+                    id="ribLength"
                     value={eightRibType.ribLength}
                     onChange={handleChange("ribLength")}
                     onWheel={(e) => e.target.blur()}
@@ -437,7 +436,7 @@ export function EightRibTypeForm({
                   <input
                     type="number"
                     min={0}
-                  id="ribThickness"
+                    id="ribThickness"
                     value={eightRibType.ribThickness}
                     onChange={handleChange("ribThickness")}
                     onWheel={(e) => e.target.blur()}
@@ -492,7 +491,7 @@ export function EightRibTypeForm({
               >
                 <Calculator className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
                 <span className="hp:text-[11px] whitespace-nowrap">
-                  Calculate Result
+                  Calculate Results
                 </span>
               </button>
 

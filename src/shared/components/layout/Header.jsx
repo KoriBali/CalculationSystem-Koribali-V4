@@ -124,57 +124,45 @@ export function Header({
                   aria-hidden="true"
                 />
 
-                {/* Project Type (e.g. Lighting Project) */}
-                <button
-                  type="button"
-                  onClick={onProjectCrumbClick}
-                  title={`Go to ${currentTitle.global} drafts`}
-                  className="
-                    hidden sm:block
-                    max-w-[120px] lg:max-w-[200px]
-                    truncate
-                    font-medium
-                    text-slate-500
-                    rounded
-                    hover:text-[#0d3b66]
-                    transition-colors
-                    focus:outline-none
-                    focus-visible:ring-2
-                    focus-visible:ring-[#3399cc]/40
-                  "
-                >
-                  {currentTitle.global}
-                </button>
-
-                <ChevronRight
-                  size={14}
-                  strokeWidth={2.5}
-                  className="hidden sm:block shrink-0 text-slate-400"
-                  aria-hidden="true"
-                />
-
-                {/* Project Setup — clickable when there's a substage */}
-                {currentTitle.substage ? (
+                {!currentTitle.stage ? (
+                  /* NEW: Project Type landing page (e.g. Drafts) —
+                     "global" is the final crumb: bold, non-clickable.
+                     No separate "Drafts" text, no second chevron. */
+                  <span
+                    className="
+                      shrink-0
+                      truncate
+                      max-w-[160px] lg:max-w-[240px]
+                      whitespace-nowrap
+                      font-semibold
+                      text-slate-900
+                    "
+                    aria-current="page"
+                  >
+                    {currentTitle.global}
+                  </span>
+                ) : (
                   <>
+                    {/* Project Type (e.g. Lighting Project) */}
                     <button
                       type="button"
-                      onClick={onSetupCrumbClick}
-                      title="Go to Project Setup"
+                      onClick={onProjectCrumbClick}
+                      title={`Go to ${currentTitle.global} drafts`}
                       className="
                         hidden sm:block
-                        shrink-0
+                        max-w-[120px] lg:max-w-[200px]
+                        truncate
                         font-medium
                         text-slate-500
                         rounded
                         hover:text-[#0d3b66]
                         transition-colors
-                        whitespace-nowrap
                         focus:outline-none
                         focus-visible:ring-2
                         focus-visible:ring-[#3399cc]/40
                       "
                     >
-                      {currentTitle.stage}
+                      {currentTitle.global}
                     </button>
 
                     <ChevronRight
@@ -184,33 +172,66 @@ export function Header({
                       aria-hidden="true"
                     />
 
-                    {/* Current sub-step (Initial / Pole / Opening / etc.) */}
-                    <span
-                      className="
-                        shrink-0
-                        truncate
-                        max-w-[140px] lg:max-w-[220px]
-                        font-semibold
-                        text-slate-900
-                      "
-                      aria-current="page"
-                    >
-                      {currentTitle.substage}
-                    </span>
+                    {/* Project Setup — clickable when there's a substage */}
+                    {currentTitle.substage ? (
+                      <>
+                        <button
+                          type="button"
+                          onClick={onSetupCrumbClick}
+                          title="Go to Project Setup"
+                          className="
+                            hidden sm:block
+                            shrink-0
+                            font-medium
+                            text-slate-500
+                            rounded
+                            hover:text-[#0d3b66]
+                            transition-colors
+                            whitespace-nowrap
+                            focus:outline-none
+                            focus-visible:ring-2
+                            focus-visible:ring-[#3399cc]/40
+                          "
+                        >
+                          {currentTitle.stage}
+                        </button>
+
+                        <ChevronRight
+                          size={14}
+                          strokeWidth={2.5}
+                          className="hidden sm:block shrink-0 text-slate-400"
+                          aria-hidden="true"
+                        />
+
+                        {/* Current sub-step (Initial / Pole / Opening / etc.) */}
+                        <span
+                          className="
+                            shrink-0
+                            truncate
+                            max-w-[140px] lg:max-w-[220px]
+                            font-semibold
+                            text-slate-900
+                          "
+                          aria-current="page"
+                        >
+                          {currentTitle.substage}
+                        </span>
+                      </>
+                    ) : (
+                      /* No substage — stage is the final crumb (e.g. "Project Setup") */
+                      <span
+                        className="
+                          shrink-0
+                          whitespace-nowrap
+                          font-semibold
+                          text-slate-900
+                        "
+                        aria-current="page"
+                      >
+                        {currentTitle.stage}
+                      </span>
+                    )}
                   </>
-                ) : (
-                  /* No substage — stage is the final crumb (e.g. "Project Setup" or "Drafts") */
-                  <span
-                    className="
-                      shrink-0
-                      whitespace-nowrap
-                      font-semibold
-                      text-slate-900
-                    "
-                    aria-current="page"
-                  >
-                    {currentTitle.stage}
-                  </span>
                 )}
               </nav>
             )}

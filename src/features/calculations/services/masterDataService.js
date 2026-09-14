@@ -7,7 +7,7 @@ const STORAGE_KEY = "masterData";
 const CACHE_TTL_MS = 60 * 60 * 1000;
 
 // In-flight fetch promise, shared across all callers so simultaneous
-// getMasterData() calls (e.g. from multiple mounted components) don't
+// getMasterData() calls (e.g. from multi-purpose-project mounted components) don't
 // trigger duplicate network requests.
 let inFlightRequest = null;
 

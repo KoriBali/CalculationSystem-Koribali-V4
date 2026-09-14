@@ -1,7 +1,7 @@
 // Scrolls to and focuses the first invalid field after a failed validation,
 // so the user lands on the problem instead of hunting for a red border.
 // `errors` is a Yup-style { fieldName: message } object; `prefix` namespaces
-// ids when a page renders multiple sub-forms that could share field names
+// ids when a page renders multi-purpose-project sub-forms that could share field names
 // (e.g. "pole-" vs "directObject-").
 export function scrollToFirstError(errors, prefix = "") {
   const firstField = Object.keys(errors || {})[0];

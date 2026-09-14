@@ -13,7 +13,7 @@ export const ConditionSchema = yup.object({
   designWindSpeed: numberField("Design Wind Speed"),
   designAirDensity: numberField("Air Density"),
   poleType: yup.string().when("$projectType", {
-    is: "lighting-pole",
+    is: "lighting-project",
     then: (s) => s.required("*Please select a pole type"),
     otherwise: (s) => s.notRequired(),
   }),

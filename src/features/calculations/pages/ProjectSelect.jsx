@@ -19,21 +19,25 @@ const cardAnimation = (index) => ({
 
 // Professional descriptions and icons mapping
 const PROJECT_DETAILS = {
-  "lighting-pole": {
+  "lighting-project": {
     icon: Lightbulb,
-    description: "Calculate structural integrity and wind load for street and area lighting pole installations.",
+    description:
+      "Calculate structural integrity and wind load for street and area lighting pole installations.",
   },
-  "signboard": {
+  "signboard-project": {
     icon: Monitor,
-    description: "Analyze structural requirements for standalone and wall-mounted advertisement signboards.",
+    description:
+      "Analyze structural requirements for standalone and wall-mounted advertisement signboards.",
   },
-  "acemast": {
+  "disaster-prevention-project": {
     icon: Shield,
-    description: "Evaluate safety factors and load capacities for emergency alert and disaster warning systems.",
+    description:
+      "Evaluate safety factors and load capacities for emergency alert and disaster warning systems.",
   },
-  "multiple": {
+  "multi-purpose-project": {
     icon: Layers,
-    description: "Comprehensive analysis for structures supporting various multi-purpose load attachments.",
+    description:
+      "Comprehensive analysis for structures supporting various multi-purpose load attachments.",
   },
 };
 
@@ -67,18 +71,26 @@ export default function ProjectSelectPage() {
             Select Project Type
           </h1>
           <p className="text-slate-500 mt-1.5 text-sm">
-            Choose the specific project module to begin the structural and load analysis configuration.
+            Choose the specific project module to begin the structural and load
+            analysis configuration.
           </p>
         </motion.div>
 
         {/* ── Project type cards ── */}
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 w-full max-w-[1400px] mx-auto">
           {PROJECT_TYPES.map((project, index) => {
-            const details = PROJECT_DETAILS[project.id] || { icon: Layers, description: "Standard structural calculation module." };
+            const details = PROJECT_DETAILS[project.id] || {
+              icon: Layers,
+              description: "Standard structural calculation module.",
+            };
             const Icon = details.icon;
 
             return (
-              <motion.div key={project.id} {...cardAnimation(index)} className="h-full">
+              <motion.div
+                key={project.id}
+                {...cardAnimation(index)}
+                className="h-full"
+              >
                 <button
                   onClick={() => handleSelectProject(project.id)}
                   className="h-full group relative w-full text-left bg-white border border-slate-200 p-5 md:p-6 rounded-xl transition-all duration-200 hover:border-slate-300 hover:shadow-md flex flex-col sm:flex-row items-start sm:items-center gap-4 md:gap-5"

@@ -1157,7 +1157,7 @@ export const createBlocks = (results = [], resultsDo = [], poleConfig = {}) => {
               N = vertical force
               Pmax = maximum horizontal force
             */}
-              <table className="tables-pages multiple">
+              <table className="tables-pages multi-purpose-project">
                 <thead>
                   {/* Header Line 1 */}
                   <tr className="tracking-[0.05em]">

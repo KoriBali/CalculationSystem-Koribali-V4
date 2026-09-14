@@ -17,7 +17,7 @@ const getDefaultCondition = (projectType) => ({
   designStandard: "",
   designWindSpeed: "",
   designAirDensity: "",
-  poleType: projectType === "lighting-pole" ? "" : "custom",
+  poleType: projectType === "lighting-project" ? "" : "custom",
   openingEnabled: false,
   baseplateEnabled: false,
   foundationEnabled: false,
@@ -62,7 +62,9 @@ export function useConditionForm() {
 
     if (!validation.isValid) {
       setErrors(validation.errors); // Yup langsung set error yang benar
-      setToast({ message: firstErrorMessage(validation.errors) || validation.message });
+      setToast({
+        message: firstErrorMessage(validation.errors) || validation.message,
+      });
       scrollToFirstError(validation.errors);
       return;
     }

@@ -244,7 +244,7 @@
   border-bottom: none;
 }
 
-.tables-pages.multiple thead tr:nth-child(1) th:nth-child(10) {
+.tables-pages.multi-purpose-project thead tr:nth-child(1) th:nth-child(10) {
   border-bottom: 1.5px solid #000;
 }
 

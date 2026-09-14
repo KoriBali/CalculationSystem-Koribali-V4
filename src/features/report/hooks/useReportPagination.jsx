@@ -118,13 +118,13 @@ export function paginateA4LightingPole({ blocks, measureRef }) {
   });
 }
 
-// Paginate blocks for signboard report layout
-// ptValue and pageHeader are tuned specifically for signboard page dimensions
+// Paginate blocks for signboard-project report layout
+// ptValue and pageHeader are tuned specifically for signboard-project page dimensions
 export function paginateA4Signboard({ blocks, measureRef }) {
   return paginateA4({
     blocks,
     measureRef,
-    ptValue: 15, // top padding discount for signboard layout
-    pageHeader: 21.53, // header height for signboard page
+    ptValue: 15, // top padding discount for signboard-project layout
+    pageHeader: 21.53, // header height for signboard-project page
   });
 }

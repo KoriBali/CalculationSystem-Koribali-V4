@@ -6,7 +6,12 @@ import { Header } from "./Header";
 import { LogoutModal } from "./LogoutModal";
 import { DraftActionModal } from "../../../features/calculations/components/modals/DraftActionModal";
 import { MENU_ITEMS } from "../../constants/layoutConstants";
-import { getUser, setUser, isAuthenticated, clearAuthSession } from "../../../utils/auth";
+import {
+  getUser,
+  setUser,
+  isAuthenticated,
+  clearAuthSession,
+} from "../../../utils/auth";
 import { logoutUser, getMe } from "../../../services/authService";
 import { ScrollToTopButton } from "../ScrollToTopButton";
 import { ErrorBoundary } from "../ErrorBoundary";
@@ -49,15 +54,24 @@ export default function Layout() {
   const projectType = sessionStorage.getItem("projectType");
   const formattedProjectType = formatProjectType(projectType);
   const isCalculationRoot = location.pathname === "/calculation";
-  
+
   let currentTitle;
   if (isCalculationRoot) {
-    currentTitle = MENU_ITEMS.find((item) => item.path === "/calculation")?.name ?? "Calculation";
-  } else if (location.pathname.startsWith("/calculation") && formattedProjectType) {
+    currentTitle =
+      MENU_ITEMS.find((item) => item.path === "/calculation")?.name ??
+      "Calculation";
+  } else if (
+    location.pathname.startsWith("/calculation") &&
+    formattedProjectType
+  ) {
     const pathParts = location.pathname.replace(/\/$/, "").split("/");
     // /calculation/:type => 3 parts, /calculation/:type/:draftId => 4 parts
     const isDraftsList = pathParts.length === 3;
-    const isDraftRoot = pathParts.length === 4 && !pathParts[3]?.match(/^(initial|pole|opening|baseplate|foundation|drawing|report|result)/);
+    const isDraftRoot =
+      pathParts.length === 4 &&
+      !pathParts[3]?.match(
+        /^(calculation-condition|pole|opening|baseplate|foundation|drawing|report|result)/,
+      );
 
     let substage = null;
     if (location.pathname.includes("/drawing")) {
@@ -71,11 +85,13 @@ export default function Layout() {
         surface: "Surface",
       };
       const drawingMatch = Object.keys(drawingSegments).find((k) =>
-        location.pathname.includes(`/drawing/${k}`)
+        location.pathname.includes(`/drawing/${k}`),
       );
-      substage = drawingMatch ? `Drawing · ${drawingSegments[drawingMatch]}` : "Drawing";
-    } else if (location.pathname.includes("/initial")) {
-      substage = "Calculation Setup";
+      substage = drawingMatch
+        ? `Drawing · ${drawingSegments[drawingMatch]}`
+        : "Drawing";
+    } else if (location.pathname.includes("/calculation-condition")) {
+      substage = "Calculation Condition";
     } else if (location.pathname.includes("/pole")) {
       substage = "Pole";
     } else if (location.pathname.includes("/opening")) {
@@ -84,17 +100,30 @@ export default function Layout() {
       substage = "Baseplate";
     } else if (location.pathname.includes("/foundation")) {
       substage = "Foundation";
-    } else if (location.pathname.includes("/report") || location.pathname.includes("/result")) {
+    } else if (
+      location.pathname.includes("/report") ||
+      location.pathname.includes("/result")
+    ) {
       substage = "Report";
     }
 
     if (isDraftsList) {
-      currentTitle = { global: formattedProjectType, stage: "Drafts", substage: null };
+      currentTitle = {
+        global: formattedProjectType,
+        stage: null,
+        substage: null,
+      };
     } else {
-      currentTitle = { global: formattedProjectType, stage: "Project Setup", substage };
+      currentTitle = {
+        global: formattedProjectType,
+        stage: "Project Setup",
+        substage,
+      };
     }
   } else {
-    currentTitle = MENU_ITEMS.find((item) => location.pathname.startsWith(item.path))?.name ?? "Page Not Found";
+    currentTitle =
+      MENU_ITEMS.find((item) => location.pathname.startsWith(item.path))
+        ?.name ?? "Page Not Found";
   }
 
   // Navigate out of the calculation area (from the logo or the header
@@ -166,7 +195,9 @@ export default function Layout() {
   // Returns nav path — if projectType exists, go directly to that calculation or its active draft
   const getMenuPath = (path) => {
     if (path === "/calculation" && projectType) {
-      const activeDraftId = sessionStorage.getItem(`${projectType}_active_draft_id`);
+      const activeDraftId = sessionStorage.getItem(
+        `${projectType}_active_draft_id`,
+      );
       return activeDraftId
         ? `/calculation/${projectType}/${activeDraftId}`
         : `/calculation/${projectType}`;
@@ -315,9 +346,8 @@ export default function Layout() {
             <Outlet />
           </ErrorBoundary>
         </main>
-
       </div>
-      
+
       <ScrollToTopButton />
     </div>
   );

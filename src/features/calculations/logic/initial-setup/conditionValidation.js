@@ -2,7 +2,7 @@ import { validateWithYup } from "../../utils";
 import { ConditionSchema } from "../../schemas/initial-setup/ConditionSchema";
 
 // Validates condition form — passes projectType as yup context
-// so poleType validation only fires for lighting-pole
+// so poleType validation only fires for lighting-project
 export async function validateCondition(condition, projectType) {
   const { isValid, errors } = await validateWithYup(
     ConditionSchema,

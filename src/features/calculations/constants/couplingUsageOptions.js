@@ -1,6 +1,6 @@
 import { Link2, XCircle } from "lucide-react";
 
-// Coupling usage options => used in ConditionForm (lighting-pole only)
+// Coupling usage options => used in ConditionForm (lighting-project only)
 export const couplingUsageOptions = [
   {
     id: "yes",

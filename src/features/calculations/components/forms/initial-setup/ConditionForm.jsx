@@ -201,8 +201,8 @@ export function ConditionForm({
             </SectionCard>
           </div>
 
-          {/* ── Select Pole Type (lighting-pole only) ── */}
-          {projectType === "lighting-pole" && (
+          {/* ── Select Pole Type (lighting-project only) ── */}
+          {projectType === "lighting-project" && (
             <div id="poleType">
               <SectionTitle>Pole Type</SectionTitle>
               <SectionCard>

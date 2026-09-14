@@ -3,7 +3,6 @@ import { FieldErrorHint } from "../../../../../shared/components/FieldErrorHint"
 import { useState } from "react";
 import { ConfirmResetAllModal } from "../../modals/ConfirmResetAllModal";
 
-
 /**
  * HELPER COMPONENTS & FUNCTIONS
  */
@@ -57,7 +56,9 @@ export function SquareCaissonTypeForm({
   };
 
   return (
-    <div className={`bg-white shadow-sm border border-gray-200 ${isDrawingMode ? 'rounded-xl hp:rounded-lg' : 'rounded-b-xl md:rounded-b-2xl'}`}>
+    <div
+      className={`bg-white shadow-[0_1px_6px_rgba(15,23,42,0.04)] border border-gray-200 ${isDrawingMode ? "rounded-xl hp:rounded-lg" : "rounded-xl md:rounded-2xl"}`}
+    >
       {/* ================= DIMENSION INPUT ================= */}
       <div className="px-6 md:px-8 pt-6 md:pt-8">
         <h3 className="text-[#0d3b66] flex items-center gap-2 text-xs md:text-sm font-medium">
@@ -297,7 +298,7 @@ export function SquareCaissonTypeForm({
               >
                 <Calculator className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
                 <span className="hp:text-[11px] whitespace-nowrap">
-                  Calculate Result
+                  Calculate Results
                 </span>
               </button>
             )}
@@ -309,7 +310,7 @@ export function SquareCaissonTypeForm({
               className={`flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-3 hp:py-2 md:px-6
                 rounded-lg hp:rounded-md font-medium transition-all text-sm
                 ${
-                  (!isDrawingMode && !isCalculated)
+                  !isDrawingMode && !isCalculated
                     ? "bg-gray-100 text-gray-400 ring-1 ring-inset ring-gray-200 cursor-not-allowed shadow-none"
                     : buttonLabel.startsWith("Next")
                       ? "bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm"

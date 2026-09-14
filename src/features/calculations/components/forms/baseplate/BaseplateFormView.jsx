@@ -1,6 +1,6 @@
 import { Helmet } from "react-helmet";
 import { useParams, useNavigate } from "react-router-dom";
-import { ChevronDown, ChevronUp, Box } from "lucide-react";
+import { Box } from "lucide-react";
 
 import { HeaderCalculationPage } from "../../layout/HeaderCalculationPage";
 import { BaseplateType } from "./BaseplateType";
@@ -12,7 +12,10 @@ import { ToastModal } from "../../modals/ToastModal";
 import { FinishCalculationModal } from "../../modals/FinishCalculationModal";
 import { ConfirmSaveDatabaseModal } from "../../modals/ConfirmSaveDatabaseModal";
 import { CoverFormModal } from "../../modals/CoverFormModal";
-import { saveWorkingSessionToDraft, clearActiveDraftId } from "../../../utils/coreLogic";
+import {
+  saveWorkingSessionToDraft,
+  clearActiveDraftId,
+} from "../../../utils/coreLogic";
 import { clearCalculationSession } from "../../../utils";
 
 import { useBaseplateForm } from "../../../hooks/useBaseplateForm";
@@ -23,13 +26,12 @@ import { useState } from "react";
 export default function BaseplateFormView() {
   const { type: projectType, draftId } = useParams();
 
-  
   const navigate = useNavigate();
   const [showFinishModal, setShowFinishModal] = useState(false);
   const [showDbModal, setShowDbModal] = useState(false);
   const [showCoverModal, setShowCoverModal] = useState(false);
 
-// ================= BASEPLATE FORM HOOK =================
+  // ================= BASEPLATE FORM HOOK =================
   const {
     // State
     baseplateType,
@@ -38,19 +40,14 @@ export default function BaseplateFormView() {
     baseplateTypeErrors,
     fourRibTypeErrors,
     eightRibTypeErrors,
-    isBaseplateExpanded,
-    isSelectExpanded,
     isCalculated,
     showResultsBaseplate, // PERBAIKAN: Sinkronkan dengan nama variabel di Hook (dengan 's')
     calculatedBaseplate,
     buttonLabel,
     toast,
-    typeLabelMap,
     loading,
 
     // Actions
-    setIsBaseplateExpanded,
-    setIsSelectExpanded,
     handleBaseplateTypeUpdate,
     handleFourRibTypeUpdate,
     handleEightRibTypeUpdate,
@@ -116,155 +113,90 @@ export default function BaseplateFormView() {
           <HeaderCalculationPage />
 
           <div className="w-full max-w-[1440px] mx-auto pt-0 pb-24 sm:pb-8 px-2">
-            {/* ================= BASEPLATE TYPE SECTION ================= */}
+            {/* ── Baseplate configuration (Baseplate Type + Detail) ── */}
             <div
-              className={`bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] px-4 py-3 md:p-4 flex items-center justify-between cursor-pointer mt-6 transition-all duration-500 ease-in-out ${
-                isBaseplateExpanded
-                  ? "rounded-t-xl md:rounded-t-2xl"
-                  : "rounded-xl md:rounded-2xl"
-              }`}
-              onClick={() => setIsBaseplateExpanded(!isBaseplateExpanded)}
+              className="
+                bg-white
+                mt-6
+                rounded-2xl hp:rounded-xl
+                border border-gray-200
+                shadow-[0_2px_10px_rgba(15,23,42,0.06)]
+                overflow-hidden
+              "
             >
-              {/* Section title */}
-              <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg hp:rounded-md border border-white/20 hp:px-3 hp:py-[8px]">
-                <h2 className="text-white text-xs md:text-sm font-semibold md:font-bold">
-                  Baseplate Type
-                </h2>
-              </div>
-
-              {/* Toggle icon */}
+              {/* Top accent strip */}
               <div
-                className="
-                  flex h-8 w-8
-                  sm:h-9 sm:w-9
-                  shrink-0
-                  items-center justify-center
-                  rounded-full
-                  bg-white/15
-                  text-white
-                  border border-white/20
-                  transition
-                  group-hover:bg-white/20
-                  group-active:bg-white/25
-                "
-              >
-                {isBaseplateExpanded ? (
-                  <ChevronUp className="w-4 h-4 sm:w-5 sm:h-5" />
-                ) : (
-                  <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5" />
-                )}
-              </div>
-            </div>
-
-            {/* Collapsible body */}
-            <div
-              className={`transition-all duration-500 ease-in-out overflow-hidden ${
-                isBaseplateExpanded
-                  ? "max-h-[10000px] rounded-b-2xl hp:rounded-b-xl"
-                  : "max-h-0 rounded-b-2xl hp:rounded-b-xl"
-              }`}
-            >
-              <BaseplateType
-                baseplateType={baseplateType}
-                onUpdate={handleBaseplateTypeUpdate}
-                errors={baseplateTypeErrors}
+                aria-hidden="true"
+                className="h-1.5 bg-gradient-to-r from-[#0d3b66] to-[#3399cc]"
               />
-            </div>
 
-            {/* ================= BASEPLATE DETAIL SECTION ================= */}
-            <div
-              className={`bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] px-4 py-3 md:p-4 flex items-center justify-between cursor-pointer mt-10 transition-all duration-500 ease-in-out ${
-                isSelectExpanded
-                  ? "rounded-t-2xl hp:rounded-t-xl"
-                  : "rounded-2xl hp:rounded-xl"
-              }`}
-              onClick={() => setIsSelectExpanded(!isSelectExpanded)}
-            >
-              {/* Dynamic title based on selected type */}
-              <div>
-                {baseplateType.type && (
-                  <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg hp:rounded-md border border-white/20 hp:px-3 hp:py-[8px]">
-                    <h2 className="text-white text-xs md:text-sm font-semibold md:font-bold">
-                      {typeLabelMap[baseplateType.type]}
-                    </h2>
-                  </div>
-                )}
-              </div>
-
-              {/* Toggle icon */}
-              <div
-                className="
-                  flex h-8 w-8
-                  sm:h-9 sm:w-9
-                  shrink-0
-                  items-center justify-center
-                  rounded-full
-                  bg-white/15
-                  text-white
-                  border border-white/20
-                  transition
-                  group-hover:bg-white/20
-                  group-active:bg-white/25
-                "
-              >
-                {isSelectExpanded ? (
-                  <ChevronUp className="w-4 h-4 sm:w-5 sm:h-5" />
-                ) : (
-                  <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5" />
-                )}
-              </div>
-            </div>
-
-            {/* Collapsible body */}
-            <div
-              className={`transition-all duration-500 ease-in-out overflow-hidden ${
-                isSelectExpanded
-                  ? "max-h-[10000px] rounded-b-2xl hp:rounded-b-xl"
-                  : "max-h-0 rounded-b-2xl hp:rounded-b-xl"
-              }`}
-            >
-              {/* Empty state when no type selected */}
-              {!baseplateType.type && (
-                <div className="bg-white border border-gray-200 rounded-b-2xl p-10 flex flex-col items-center justify-center text-center">
-                  <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
-                    <Box className="w-6 h-6 text-gray-400" />
-                  </div>
-                  <p className="text-gray-500 text-sm">
-                    Please select baseplate type first
-                  </p>
-                  <p className="text-gray-400 text-xs mt-1">
-                    Choose the type above to configure parameters
-                  </p>
+              <div className="p-4 md:p-6 space-y-4 md:space-y-6">
+                {/* ================= BASEPLATE TYPE SECTION ================= */}
+                <div>
+                  <h3 className="text-[#0d3b66] mb-4 flex items-center gap-1 md:gap-2 text-xs md:text-sm font-medium">
+                    <div className="w-1 h-4 md:h-5 bg-[#3399cc] rounded-full" />
+                    Baseplate Type
+                  </h3>
+                  <BaseplateType
+                    baseplateType={baseplateType}
+                    onUpdate={handleBaseplateTypeUpdate}
+                    errors={baseplateTypeErrors}
+                  />
                 </div>
-              )}
 
-              {/* Render 4 Rib Type form */}
-              {baseplateType.type === "4rib" && (
-                <FourRibTypeForm
-                  fourRibType={fourRibType}
-                  onUpdate={handleFourRibTypeUpdate}
-                  errors={fourRibTypeErrors}
-                  onCalculate={handleCalculate}
-                  onBack={handleBack}
-                  onNext={handleNextStep} // PERBAIKAN: Gunakan handleNextStep untuk navigasi terpadu
-                  isCalculated={isCalculated}
-                  buttonLabel={buttonLabel}
-                />
-              )}
+                {/* ================= BASEPLATE DETAIL SECTION ================= */}
+                <div>
+                  <h3 className="text-[#0d3b66] mb-4 flex items-center gap-1 md:gap-2 text-xs md:text-sm font-medium">
+                    <div className="w-1 h-4 md:h-5 bg-[#3399cc] rounded-full" />
+                    Baseplate Specifications
+                  </h3>
 
-              {/* Render 8 Rib Type form */}
-              {baseplateType.type === "8rib" && (
-                <EightRibTypeForm
-                  eightRibType={eightRibType}
-                  onUpdate={handleEightRibTypeUpdate}
-                  errors={eightRibTypeErrors}
-                  onCalculate={handleCalculate}
-                  onBack={handleBack}
-                  onNext={handleNextStep} // PERBAIKAN: Gunakan handleNextStep untuk navigasi terpadu
-                  isCalculated={isCalculated}
-                  buttonLabel={buttonLabel}
-                />
-              )}
+                  {/* Empty state when no type selected */}
+                  {!baseplateType.type && (
+                    <div className="bg-white rounded-xl md:rounded-2xl shadow-sm border border-gray-200">
+                      <div className="flex flex-col items-center justify-center text-center py-10">
+                        <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+                          <Box className="w-6 h-6 text-gray-400" />
+                        </div>
+                        <p className="text-gray-500 text-sm">
+                          Please select baseplate type first
+                        </p>
+                        <p className="text-gray-400 text-xs mt-1">
+                          Choose the type above to configure parameters
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Render 4 Rib Type form */}
+                  {baseplateType.type === "4rib" && (
+                    <FourRibTypeForm
+                      fourRibType={fourRibType}
+                      onUpdate={handleFourRibTypeUpdate}
+                      errors={fourRibTypeErrors}
+                      onCalculate={handleCalculate}
+                      onBack={handleBack}
+                      onNext={handleNextStep} // PERBAIKAN: Gunakan handleNextStep untuk navigasi terpadu
+                      isCalculated={isCalculated}
+                      buttonLabel={buttonLabel}
+                    />
+                  )}
+
+                  {/* Render 8 Rib Type form */}
+                  {baseplateType.type === "8rib" && (
+                    <EightRibTypeForm
+                      eightRibType={eightRibType}
+                      onUpdate={handleEightRibTypeUpdate}
+                      errors={eightRibTypeErrors}
+                      onCalculate={handleCalculate}
+                      onBack={handleBack}
+                      onNext={handleNextStep} // PERBAIKAN: Gunakan handleNextStep untuk navigasi terpadu
+                      isCalculated={isCalculated}
+                      buttonLabel={buttonLabel}
+                    />
+                  )}
+                </div>
+              </div>
             </div>
 
             {/* ================= RESULT TABLE ================= */}
@@ -278,8 +210,6 @@ export default function BaseplateFormView() {
           </div>
         </div>
       </div>
-
-
 
       {/* ================= MODALS ================= */}
       <FinishCalculationModal
@@ -298,12 +228,12 @@ export default function BaseplateFormView() {
         onConfirm={handleConfirmSaveDb}
       />
       <ToastModal toast={toast} onClose={() => setToast(null)} />
-      <CoverFormModal 
-        open={showCoverModal} 
-        onClose={() => setShowCoverModal(false)} 
-        projectType={projectType} 
-        draftId={draftId} 
-        onConfirm={handleConfirmCover} 
+      <CoverFormModal
+        open={showCoverModal}
+        onClose={() => setShowCoverModal(false)}
+        projectType={projectType}
+        draftId={draftId}
+        onConfirm={handleConfirmCover}
       />
     </>
   );

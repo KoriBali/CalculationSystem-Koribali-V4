@@ -38,7 +38,9 @@ export const NextStepModal = ({
           {/* Option: Calculation */}
           <button
             onClick={() =>
-              handleNavigate(`/calculation/${projectType}/${draftId}/initial`)
+              handleNavigate(
+                `/calculation/${projectType}/${draftId}/calculation-condition`,
+              )
             }
             className="w-full flex items-center gap-4 p-4  rounded-xl border border-slate-200 bg-white hover:border-blue-500 hover:bg-blue-50/50 transition-all text-left group"
           >

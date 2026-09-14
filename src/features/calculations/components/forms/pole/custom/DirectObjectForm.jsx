@@ -206,7 +206,7 @@ export function DirectObjectForm({
         // Check if last item
         const isLast = index === directObjects.length - 1;
 
-        // Check if multiple items exist
+        // Check if multi-purpose-project items exist
         const hasMultiple = directObjects.length > 1;
 
         return (

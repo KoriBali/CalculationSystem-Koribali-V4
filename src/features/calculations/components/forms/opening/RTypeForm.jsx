@@ -47,7 +47,7 @@ export function RTypeForm({
   };
 
   return (
-    <div className="bg-white rounded-b-xl md:rounded-b-2xl shadow-sm border border-gray-200">
+    <div className="bg-white rounded-xl md:rounded-2xl shadow-[0_1px_6px_rgba(15,23,42,0.04)] border border-gray-200">
       {/* Wrapper TOP + BOTTOM jadi satu row di 2xl */}
       <div className="flex justify-center pb-8 pt-8 xl:pt-12">
         <div className="flex flex-col gap-8 2xl:flex-row 2xl:items-center 2xl:gap-8">
@@ -224,7 +224,7 @@ export function RTypeForm({
             >
               <Calculator className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
               <span className="hp:text-[11px] whitespace-nowrap">
-                Calculate Result
+                Calculate Results
               </span>
             </button>
 

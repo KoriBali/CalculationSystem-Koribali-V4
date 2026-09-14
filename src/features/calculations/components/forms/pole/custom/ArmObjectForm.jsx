@@ -207,7 +207,7 @@ export function ArmObjectForm({
         // Check if last item
         const isLast = index === armObjects.length - 1;
 
-        // Check if multiple items exist
+        // Check if multi-purpose-project items exist
         const hasMultiple = armObjects.length > 1;
 
         return (

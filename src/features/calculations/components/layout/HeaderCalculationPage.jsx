@@ -188,8 +188,8 @@ export function HeaderCalculationPage() {
   // ─── CALCULATION NAVIGATION ──────────────────────────────────────────────
   const navItems = [
     {
-      label: "Calculation Setup",
-      path: `/calculation/${type}/${draftId}/initial`,
+      label: "Calculation Condition",
+      path: `/calculation/${type}/${draftId}/calculation-condition`,
       icon: LayoutDashboard,
       completed: isConditionCompleted,
       disabled: false,
@@ -204,7 +204,7 @@ export function HeaderCalculationPage() {
             icon: TowerControl,
             completed: isPoleStepCompleted,
             disabled: !isConditionCompleted,
-            disabledMessage: "Complete Calculation Setup first",
+            disabledMessage: "Complete Calculation Condition first",
           },
         ]
       : []),
@@ -221,7 +221,7 @@ export function HeaderCalculationPage() {
               : !isConditionCompleted,
             disabledMessage: config?.pole
               ? 'Click "Calculate Result" in Pole first'
-              : "Complete Calculation Setup first",
+              : "Complete Calculation Condition first",
           },
         ]
       : []),
@@ -583,7 +583,9 @@ export function HeaderCalculationPage() {
                 <button
                   type="button"
                   onClick={() =>
-                    navigate(`/calculation/${type}/${draftId}/initial`)
+                    navigate(
+                      `/calculation/${type}/${draftId}/calculation-condition`,
+                    )
                   }
                   className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
                     !isDrawingPage
@@ -656,7 +658,9 @@ export function HeaderCalculationPage() {
             <button
               type="button"
               onClick={() =>
-                navigate(`/calculation/${type}/${draftId}/initial`)
+                navigate(
+                  `/calculation/${type}/${draftId}/calculation-condition`,
+                )
               }
               className={`flex-1 flex justify-center items-center gap-2 px-2 py-2 rounded-md text-xs font-medium transition-all ${
                 !isDrawingPage

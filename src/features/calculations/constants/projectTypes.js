@@ -5,19 +5,19 @@
 // `title` is the display label only.
 export const PROJECT_TYPES = [
   {
-    id: "lighting-pole",
+    id: "lighting-project",
     title: "Lighting Project",
   },
   {
-    id: "signboard",
+    id: "signboard-project",
     title: "Signboard Project",
   },
   {
-    id: "acemast",
+    id: "disaster-prevention-project",
     title: "Disaster Prevention Project",
   },
   {
-    id: "multiple",
+    id: "multi-purpose-project",
     title: "Multi-purpose Project",
   },
 ];
