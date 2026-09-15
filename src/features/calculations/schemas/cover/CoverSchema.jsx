@@ -8,5 +8,4 @@ export const CoverSchema = yup.object({
   designRequestManagementNo: yup.string().required("Required field"),
   region: yup.string().required("Required field"),
   author: yup.string().required("Required field"),
-  departmentInCharge: yup.string().required("Required field"),
 });

@@ -8,11 +8,16 @@ import { computeInitialIdentity } from "../utils/coverMigration";
 
 const DEFAULT_IDENTITY = {
   requestNo: "",
+  receiptNo: "",
   companyName: "",
-  requestType: "New",
+  responsibleDepartment: "",
+  requestType: "",
+  requestCategory: "",
   projectNo: "",
   requestedDueDate: "",
   projectName: "",
+  checkedByName: "",
+  approvedByName: "",
 };
 
 // ─── HOOK ────────────────────────────────────────────────────────────────────

@@ -137,8 +137,19 @@ export function useBaseplateForm() {
 
   // ── Update handlers ──
 
+  // Any edit after a calculation invalidates it — the stored result no
+  // longer matches the current inputs, so Calculate should go back to
+  // being the primary action (and Next back to disabled) until the user
+  // recalculates. Cheap to call unconditionally: setting an already-null
+  // value is a no-op re-render-wise.
+  const invalidateCalculation = () => {
+    setCalculatedBaseplate(null);
+    setShowResultsBaseplate(false);
+  };
+
   const handleBaseplateTypeUpdate = (updates) => {
     Utils.updateBaseplateType(baseplateType, updates, setBaseplateType);
+    invalidateCalculation();
     setBaseplateTypeErrors((prev) => {
       const cleared = { ...prev };
       Object.keys(updates).forEach((key) => delete cleared[key]);
@@ -148,6 +159,7 @@ export function useBaseplateForm() {
 
   const handleFourRibTypeUpdate = (updates) => {
     Utils.updateFourRibType(fourRibType, updates, setFourRibType);
+    invalidateCalculation();
     setFourRibTypeErrors((prev) => {
       const cleared = { ...prev };
       Object.keys(updates).forEach((key) => delete cleared[key]);
@@ -157,6 +169,7 @@ export function useBaseplateForm() {
 
   const handleEightRibTypeUpdate = (updates) => {
     Utils.updateEightRibType(eightRibType, updates, setEightRibType);
+    invalidateCalculation();
     setEightRibTypeErrors((prev) => {
       const cleared = { ...prev };
       Object.keys(updates).forEach((key) => delete cleared[key]);

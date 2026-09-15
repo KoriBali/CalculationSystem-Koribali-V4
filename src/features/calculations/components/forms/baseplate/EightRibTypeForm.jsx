@@ -474,20 +474,27 @@ export function EightRibTypeForm({
               onClick={() => setShowResetModal(true)}
               title="Reset"
               className="flex justify-center items-center gap-2 px-5 py-2.5 hp:px-3 hp:py-2 md:px-6
-                rounded-lg hp:rounded-md font-medium bg-white hover:bg-red-50 text-red-400 text-xs sm:text-sm
-                border border-gray-200 hover:border-red-200 shadow-sm transition-colors"
+                rounded-lg hp:rounded-md font-medium bg-white hover:bg-red-50 text-red-500 hover:text-red-600 text-xs sm:text-sm
+                border border-red-300 transition-colors"
             >
               <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
               <span className="hp:hidden">Reset</span>
             </button>
 
             <div className="flex items-center gap-2 hp:gap-0">
-              {/* Button to trigger calculations */}
+              {/* Button to trigger calculations — steps aside to the
+                  secondary style once calculated, so Next reads as the
+                  thing to do now. Stays fully clickable either way (e.g.
+                  to recalculate on purpose without editing anything). */}
               <button
                 onClick={onCalculate}
-                className="flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-4 hp:py-2 md:px-6
+                className={`flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-4 hp:py-2 md:px-6
                     rounded-lg hp:rounded-md font-medium text-sm transition-all
-                    bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
+                    ${
+                      isCalculated
+                        ? "bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm"
+                        : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
+                    }`}
               >
                 <Calculator className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
                 <span className="hp:text-[11px] whitespace-nowrap">
@@ -495,7 +502,10 @@ export function EightRibTypeForm({
                 </span>
               </button>
 
-              {/* Proceed to next step or report generation */}
+              {/* Proceed to next step or report generation — becomes the
+                  primary button once calculated (mirrors Calculate stepping
+                  aside above), regardless of whether this is a mid-flow
+                  "Next" or the final step's label. */}
               <button
                 onClick={onNext}
                 disabled={!isCalculated}
@@ -505,9 +515,7 @@ export function EightRibTypeForm({
                   ${
                     !isCalculated
                       ? "bg-gray-100 text-gray-400 ring-1 ring-inset ring-gray-200 cursor-not-allowed shadow-none"
-                      : buttonLabel.startsWith("Next")
-                        ? "bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm"
-                        : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
+                      : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
                   }`}
               >
                 <span className="hp:hidden">{buttonLabel}</span>

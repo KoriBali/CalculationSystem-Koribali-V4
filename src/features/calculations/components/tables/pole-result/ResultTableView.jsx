@@ -33,20 +33,24 @@ export function ResultsTableView({
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mt-12">
-      {/* ── Header ── */}
-      <div className="bg-gradient-to-r from-[#0d3b66] to-[#0d3b66] px-6 py-5 hp:px-4 hp:py-3">
-        <div className="flex items-center gap-3 hp:gap-2">
-          <div className="bg-white/10 backdrop-blur-sm p-2 hp:p-1.5 rounded-lg">
-            <CheckCircle2 className="w-6 h-6 hp:w-5 hp:h-5 text-white" />
-          </div>
-          <div>
-            <h2 className="text-white text-sm hp:text-xs font-semibold mb-0.5">
-              Calculation Results
-            </h2>
-            <p className="text-white/70 text-xs font-medium hp:hidden">
-              Comprehensive structural analysis output
-            </p>
-          </div>
+      {/* Top accent strip — thin gradient line, matches the other result tables */}
+      <div
+        aria-hidden="true"
+        className="h-1.5 bg-gradient-to-r from-[#0d3b66] to-[#3399cc]"
+      />
+
+      {/* ── Header — light background, navy text/icon instead of solid navy block ── */}
+      <div className="px-6 py-5 hp:px-4 hp:py-3 flex items-center gap-3 hp:gap-2 border-b border-gray-200">
+        <div className="bg-blue-50 p-2 hp:p-1.5 rounded-lg shrink-0">
+          <CheckCircle2 className="w-6 h-6 hp:w-5 hp:h-5 text-[#0d3b66]" />
+        </div>
+        <div>
+          <h2 className="text-[#0d3b66] text-sm hp:text-xs font-semibold mb-0.5">
+            Calculation Results
+          </h2>
+          <p className="text-slate-500 text-xs font-medium hp:hidden">
+            Comprehensive structural analysis output
+          </p>
         </div>
       </div>
 

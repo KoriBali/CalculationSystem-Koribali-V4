@@ -113,9 +113,20 @@ export function useOpeningForm() {
 
   // ── Update handlers ──
 
+  // Any edit after a calculation invalidates it — the stored result no
+  // longer matches the current inputs, so Calculate should go back to
+  // being the primary action (and Next back to disabled) until the user
+  // recalculates. Cheap to call unconditionally: setting an already-null
+  // value is a no-op re-render-wise.
+  const invalidateCalculation = () => {
+    setCalculatedOp(null);
+    setShowResultsOp(false);
+  };
+
   // Updates opening type selection
   const updateOpeningType = (updates) => {
     Utils.updateOpeningType(openingType, updates, setOpeningType);
+    invalidateCalculation();
 
     // Hapus error spesifik saat field diupdate
     setOpeningTypeErrors((prev) => {
@@ -128,6 +139,7 @@ export function useOpeningForm() {
   // Updates box type fields
   const updateBoxType = (updates) => {
     Utils.updateBoxType(boxType, updates, setBoxType);
+    invalidateCalculation();
 
     // Hapus error spesifik saat field diupdate
     setBoxTypeErrors((prev) => {
@@ -140,6 +152,7 @@ export function useOpeningForm() {
   // Updates R type fields
   const updateRType = (updates) => {
     Utils.updateRType(rType, updates, setRType);
+    invalidateCalculation();
 
     // Hapus error spesifik saat field diupdate
     setRTypeErrors((prev) => {

@@ -12,6 +12,7 @@ import { BaseplateIcon } from "../../../../../assets/icon";
 import { designStandardOptions } from "../../../constants/designStandards";
 import { poleTypeOptions } from "../../../constants/poleTypeOptions";
 import { ConfirmResetAllModal } from "../../modals/ConfirmResetAllModal";
+import { FormSelect } from "../../../../../shared/components/FormSelect";
 
 /**
  * HELPER COMPONENTS & FUNCTIONS
@@ -111,30 +112,14 @@ export function ConditionForm({
                   <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">
                     Design Standard
                   </label>
-                  <div className="relative">
-                    <select
-                      id="designStandard"
-                      value={condition.designStandard}
-                      onChange={(e) =>
-                        onUpdate({ designStandard: e.target.value })
-                      }
-                      className={`${inputStyle(errors.designStandard)} lg:px-2 xl:px-4 min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] appearance-none`}
-                    >
-                      <option value="" disabled>
-                        Select Design Standard
-                      </option>
-                      {(designStandardOptions[projectType] || []).map(
-                        (item) => (
-                          <option key={item.value} value={item.value}>
-                            {item.label}
-                          </option>
-                        ),
-                      )}
-                    </select>
-                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                      <ChevronRight className="w-4 h-4 text-gray-400 rotate-90" />
-                    </div>
-                  </div>
+                  <FormSelect
+                    id="designStandard"
+                    value={condition.designStandard}
+                    onChange={(val) => onUpdate({ designStandard: val })}
+                    options={designStandardOptions[projectType] || []}
+                    hasError={!!errors.designStandard}
+                    placeholder="Select Design Standard"
+                  />
                   <ErrorStyle
                     show={errors.designStandard}
                     text={errors.designStandard}

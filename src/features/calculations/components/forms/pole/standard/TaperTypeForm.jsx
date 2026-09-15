@@ -380,8 +380,8 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
           <button
             type="button"
             onClick={() => setShowResetModal(true)}
-            className="flex justify-center items-center text-sm gap-2 px-5 py-2.5 sm:py-2.5 lg:py-2.5 md:px-6 bg-white text-red-400 border border-gray-200 rounded-lg hp:rounded-md
-            hover:bg-red-50 hover:border-red-200 transition-colors font-medium hp:text-xs"
+            className="flex justify-center items-center text-sm gap-2 px-5 py-2.5 sm:py-2.5 lg:py-2.5 md:px-6 bg-white text-red-500 border border-red-300 rounded-lg hp:rounded-md
+            hover:bg-red-50 hover:text-red-600 transition-colors font-medium hp:text-xs"
           >
             <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
             Reset

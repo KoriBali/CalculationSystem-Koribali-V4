@@ -15,7 +15,6 @@ const DEFAULT_COVER = {
   designRequestManagementNo: "",
   region: "",
   author: "",
-  departmentInCharge: "",
 };
 
 // ─── HOOK ────────────────────────────────────────────────────────────────────

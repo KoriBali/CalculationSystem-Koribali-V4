@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useProjectStorage } from "./useProjectStorage";
 
@@ -89,6 +89,67 @@ export function usePoleCalculation({
   const [toast, setToast] = useState(null);
 
   const showToast = (message, type = "error") => setToast({ message, type });
+
+  // Any edit to the underlying pole/object/wire/arm/standard/config data
+  // after a calculation invalidates it — Calculate should go back to being
+  // the primary action (and Next/Finish back to disabled) until the user
+  // recalculates.
+  //
+  // Guarded by comparing against the *previous* dependency values (not a
+  // simple "have I mounted before" boolean) — React StrictMode
+  // double-invokes effects on mount to catch bugs, and a boolean guard
+  // gets fooled by that second synchronous call, wrongly treating it as
+  // "data changed since mount" and wiping results every single time the
+  // Pole page is (re)visited. Comparing references instead is immune to
+  // that: between the two StrictMode calls nothing re-rendered, so every
+  // dependency is still the exact same reference and this correctly does
+  // nothing — it only fires for a *real* edit, which always produces a new
+  // reference for whatever changed.
+  const prevDepsRef = useRef(null);
+  useEffect(() => {
+    const currentDeps = [
+      poleForm.poles,
+      directObjectForm.directObjects,
+      ohwForm.overheadWires,
+      armForm.arms,
+      poleStandardForm.poleTypeStandard,
+      poleStandardForm.taperPoleStandard,
+      poleStandardForm.straightPoleStandard,
+      poleConfigForm.poleConfig,
+    ];
+
+    const hasChanged =
+      prevDepsRef.current !== null &&
+      currentDeps.some((dep, i) => dep !== prevDepsRef.current[i]);
+
+    prevDepsRef.current = currentDeps;
+
+    if (!hasChanged) return;
+
+    if (
+      results.length ||
+      resultsDo.length ||
+      resultsOhw.length ||
+      resultsArm.length ||
+      showResults
+    ) {
+      setResults([]);
+      setResultsDo([]);
+      setResultsOhw([]);
+      setResultsArm([]);
+      setShowResults(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    poleForm.poles,
+    directObjectForm.directObjects,
+    ohwForm.overheadWires,
+    armForm.arms,
+    poleStandardForm.poleTypeStandard,
+    poleStandardForm.taperPoleStandard,
+    poleStandardForm.straightPoleStandard,
+    poleConfigForm.poleConfig,
+  ]);
 
   // Step navigation — determines button label and next route
   const { buttonLabel, nextStep, isLast } = Utils.getStepNavigation(

@@ -273,65 +273,6 @@ export function DrawingGeneralForm({
           </SectionCard>
         </div>
 
-        {/* ── Approval Information ── */}
-        <div>
-          <SectionTitle>Approval Information</SectionTitle>
-          <SectionCard>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-6">
-              <div className="relative pb-1">
-                <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">
-                  Designer Name
-                </label>
-                <input
-                  id="designerName"
-                  type="text"
-                  value={general.designerName || ""}
-                  onChange={(e) => onUpdate({ designerName: e.target.value })}
-                  className={`${inputStyle(errors.designerName)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px]`}
-                />
-                <ErrorStyle
-                  show={errors.designerName}
-                  text={errors.designerName}
-                />
-              </div>
-
-              <div className="relative pb-1">
-                <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">
-                  Checked By Name
-                </label>
-                <input
-                  id="checkedByName"
-                  type="text"
-                  value={general.checkedByName || ""}
-                  onChange={(e) => onUpdate({ checkedByName: e.target.value })}
-                  className={`${inputStyle(errors.checkedByName)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px]`}
-                />
-                <ErrorStyle
-                  show={errors.checkedByName}
-                  text={errors.checkedByName}
-                />
-              </div>
-
-              <div className="relative pb-1">
-                <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">
-                  Approved By Name
-                </label>
-                <input
-                  id="approvedByName"
-                  type="text"
-                  value={general.approvedByName || ""}
-                  onChange={(e) => onUpdate({ approvedByName: e.target.value })}
-                  className={`${inputStyle(errors.approvedByName)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px]`}
-                />
-                <ErrorStyle
-                  show={errors.approvedByName}
-                  text={errors.approvedByName}
-                />
-              </div>
-            </div>
-          </SectionCard>
-        </div>
-
         {projectMode === "drawing" && (
           <>
             {/* ── Select Pole Type ── */}

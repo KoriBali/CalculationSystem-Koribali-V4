@@ -123,9 +123,20 @@ export function useFoundationForm() {
 
   // ================= HANDLERS =================
 
+  // Any edit after a calculation invalidates it — the stored result no
+  // longer matches the current inputs, so Calculate should go back to
+  // being the primary action (and Next back to disabled) until the user
+  // recalculates. Cheap to call unconditionally: setting an already-null
+  // value is a no-op re-render-wise.
+  const invalidateCalculation = () => {
+    setCalculatedFoundation(null);
+    setShowResultsFoundation(false);
+  };
+
   // Update foundation type
   const handleFoundationTypeUpdate = (updates) => {
     Utils.updateFoundationType(foundationType, updates, setFoundationType);
+    invalidateCalculation();
 
     setFoundationTypeErrors((prev) => {
       const cleared = { ...prev };
@@ -137,6 +148,7 @@ export function useFoundationForm() {
   // Update Square Caisson Type inputs and clear related errors
   const handleSquareCaissonUpdate = (updates) => {
     Utils.updateSquareCaisson(squareCaisson, updates, setSquareCaisson);
+    invalidateCalculation();
 
     setSquareCaissonErrors((prev) => {
       const cleared = { ...prev };
@@ -148,6 +160,7 @@ export function useFoundationForm() {
   // Update Round Caisson Type inputs and clear related errors
   const handleRoundCaissonUpdate = (updates) => {
     Utils.updateRoundCaisson(roundCaisson, updates, setRoundCaisson);
+    invalidateCalculation();
 
     setRoundCaissonErrors((prev) => {
       const cleared = { ...prev };

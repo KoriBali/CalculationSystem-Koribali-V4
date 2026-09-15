@@ -26,8 +26,11 @@ export const computeInitialIdentity = (projectType, defaultIdentity) => {
 
   return {
     requestNo: legacy.requestNo ?? "",
+    receiptNo: legacy.receiptNo ?? "",
     companyName: legacy.companyName ?? "",
-    requestType: legacy.requestType ?? "New",
+    responsibleDepartment: legacy.responsibleDepartment ?? "",
+    requestType: legacy.requestType ?? "",
+    requestCategory: legacy.requestCategory ?? "",
     projectNo: legacy.projectNo ?? "",
     requestedDueDate: legacy.requestedDueDate ?? "",
     projectName: legacy.projectName ?? "",

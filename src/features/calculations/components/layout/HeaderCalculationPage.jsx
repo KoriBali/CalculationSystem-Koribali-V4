@@ -25,7 +25,6 @@ import {
   clearActiveDraftId,
   hasDraftChanged,
 } from "../../utils/coreLogic";
-import { useScrollDirection } from "../../../../hooks/useScrollDirection";
 
 // ─── COMPONENT ───────────────────────────────────────────────────────────────
 export function HeaderCalculationPage() {
@@ -490,10 +489,6 @@ export function HeaderCalculationPage() {
     navigate(`/calculation/${type}`);
   };
 
-  // ─── STICKY HEADER ───────────────────────────────────────────────────────
-  const scrollDirection = useScrollDirection();
-  const isHidden = scrollDirection === "down";
-
   // ─── TAB RENDER HELPER ───────────────────────────────────────────────────
   const renderTabs = () =>
     currentNavItems.map((item, index) => {
@@ -547,11 +542,7 @@ export function HeaderCalculationPage() {
     });
 
   return (
-    <div
-      className={`relative z-10 sm:sticky sm:top-16 sm:z-30 w-[calc(100%+2px)] -mx-[1px] bg-[#f8fafc] transition-transform duration-300 ease-in-out ${
-        isHidden ? "sm:-translate-y-16" : "sm:translate-y-0"
-      }`}
-    >
+    <div className="relative z-10 sm:sticky sm:top-16 sm:z-30 w-[calc(100%+2px)] -mx-[1px] bg-[#f8fafc]">
       {/* ─── BLUE HEADER CARD ─────────────────────────────────────────────── */}
       <div
         className={`rounded-xl bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] shadow-sm px-3 py-3 sm:px-4 sm:py-4 md:px-6 2xl:px-8 flex flex-col gap-3 sm:gap-4 ${!isProjectIdentityPage ? "sm:rounded-t-2xl sm:rounded-b-none" : "sm:rounded-2xl"}`}

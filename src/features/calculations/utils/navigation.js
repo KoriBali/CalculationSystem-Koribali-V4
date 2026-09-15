@@ -29,6 +29,6 @@ export function getStepNavigation(condition, currentStep, withReport = false) {
     isLast,
     nextStep,
     prevStep,
-    buttonLabel: isLast ? (withReport ? "Generate Report" : "Save & Finish") : `Next: ${capitalize(nextStep)}`,
+    buttonLabel: isLast ? (withReport ? "Generate Report" : "Finish") : `Next: ${capitalize(nextStep)}`,
   };
 }

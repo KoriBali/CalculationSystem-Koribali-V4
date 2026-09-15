@@ -546,8 +546,7 @@ export default function PoleFormView() {
                                   onClick={() =>
                                     poleForm.resetActivePole(pole.id)
                                   }
-                                  className="flex justify-center items-center gap-2 px-4 py-2 md:px-5 lg:py-2.5 rounded-lg hp:rounded-md font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] 
-                                  text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm transition-colors"
+                                  className="flex justify-center items-center gap-2 px-4 py-2 md:px-5 lg:py-2.5 rounded-lg hp:rounded-md font-medium bg-white hover:bg-red-50 text-red-500 hover:text-red-600 border border-red-300 transition-colors"
                                 >
                                   <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
                                   <span className="text-sm">Reset</span>
@@ -1046,7 +1045,7 @@ export default function PoleFormView() {
                                   {/* RESET BUTTON */}
                                   <button
                                     onClick={armForm.resetArm}
-                                    className="flex justify-center items-center gap-2 px-4 py-2 md:px-5 lg:py-2.5 rounded-lg text-sm font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm transition-colors"
+                                    className="flex justify-center items-center gap-2 px-4 py-2 md:px-5 lg:py-2.5 rounded-lg text-sm font-medium bg-white hover:bg-red-50 text-red-500 hover:text-red-600 border border-red-300 transition-colors"
                                   >
                                     <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
                                     Reset
@@ -1107,7 +1106,7 @@ export default function PoleFormView() {
                                     <button
                                       onClick={armForm.resetArm}
                                       title="Reset"
-                                      className="w-[34px] h-[34px] flex-shrink-0 rounded-md border bg-[#eef2f6] text-[#0d3b66] hover:bg-[#e2e8f0] transition flex items-center justify-center"
+                                      className="w-[34px] h-[34px] flex-shrink-0 rounded-md border border-red-300 bg-white text-red-500 hover:bg-red-50 hover:text-red-600 transition flex items-center justify-center"
                                     >
                                       <RotateCcw className="w-3.5 h-3.5" />
                                     </button>
@@ -1215,11 +1214,19 @@ export default function PoleFormView() {
             </button>
 
             <div className="flex items-center gap-3 hp:gap-0">
+              {/* Calculate button — steps aside to the secondary style
+                  once calculated, so Next/Finish reads as the thing to do
+                  now. Stays fully clickable either way (e.g. to
+                  recalculate on purpose without editing anything). */}
               <button
                 onClick={calculation.calculate}
-                className="flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-4 hp:py-2 md:px-6
+                className={`flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-4 hp:py-2 md:px-6
                 rounded-lg hp:rounded-md font-medium text-sm transition-all
-                bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
+                ${
+                  calculation.isCalculated
+                    ? "bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm"
+                    : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
+                }`}
               >
                 <Calculator className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
                 <span className="hp:text-[11px] whitespace-nowrap">
@@ -1227,18 +1234,20 @@ export default function PoleFormView() {
                 </span>
               </button>
 
+              {/* Next/Finish button — becomes the primary button once
+                  calculated (mirrors Calculate stepping aside above),
+                  regardless of whether this is a mid-flow "Next" or the
+                  final step's label. */}
               <button
                 onClick={handleFinish}
                 disabled={!calculation.isCalculated}
                 title={calculation.buttonLabel}
-                className={`flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-3 hp:py-2 md:px-6 
+                className={`flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-3 hp:py-2 md:px-6
                 rounded-lg hp:rounded-md font-medium transition-all text-sm
                 ${
                   !calculation.isCalculated
                     ? "bg-gray-100 text-gray-400 ring-1 ring-inset ring-gray-200 cursor-not-allowed shadow-none"
-                    : calculation.buttonLabel.startsWith("Next")
-                      ? "bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm"
-                      : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
+                    : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
                 }`}
               >
                 <span className="hp:hidden">{calculation.buttonLabel}</span>

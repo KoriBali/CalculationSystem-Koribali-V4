@@ -14,7 +14,6 @@ export function CoverFormModal({ open, onClose, projectType, onConfirm }) {
   const {
     regionOptions,
     authorOptions,
-    departmentOptions,
     loading: masterDataLoading,
     error: masterDataError,
     refetch: refetchMasterData,
@@ -23,8 +22,7 @@ export function CoverFormModal({ open, onClose, projectType, onConfirm }) {
     masterDataError &&
     !masterDataLoading &&
     regionOptions.length === 0 &&
-    authorOptions.length === 0 &&
-    departmentOptions.length === 0;
+    authorOptions.length === 0;
 
   if (!open) return null;
 
@@ -44,7 +42,6 @@ export function CoverFormModal({ open, onClose, projectType, onConfirm }) {
       designRequestManagementNo: "",
       region: "",
       author: "",
-      departmentInCharge: "",
     });
     coverForm.setCoverErrors({});
   };
@@ -160,7 +157,7 @@ export function CoverFormModal({ open, onClose, projectType, onConfirm }) {
               {masterDataFailed && (
                 <div className="flex items-center justify-between gap-3 mb-4 px-3 py-2 rounded-lg bg-red-50 border border-red-200">
                   <p className="text-xs sm:text-sm text-red-600">
-                    Failed to load Region / Author / Department options.
+                    Failed to load Region / Author options.
                   </p>
                   <button
                     type="button"
@@ -172,7 +169,7 @@ export function CoverFormModal({ open, onClose, projectType, onConfirm }) {
                 </div>
               )}
 
-              <div className="grid grid-cols-3 gap-4 border border-slate-200 p-5 rounded-xl bg-slate-50/50">
+              <div className="grid grid-cols-2 gap-4 border border-slate-200 p-5 rounded-xl bg-slate-50/50">
                 {/* Region */}
                 <div className="flex flex-col items-center gap-3">
                   <label className="text-xs md:text-sm font-medium text-slate-700">
@@ -222,35 +219,6 @@ export function CoverFormModal({ open, onClose, projectType, onConfirm }) {
                     {coverErrors.author && (
                       <div className="absolute -bottom-4 md:-bottom-5 flex justify-center w-full whitespace-nowrap text-[9px] md:text-[11px] text-red-500">
                         <span>*{coverErrors.author}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Department in charge */}
-                <div className="flex flex-col items-center gap-3">
-                  <label className="text-xs md:text-sm font-medium text-slate-700">
-                    Department
-                  </label>
-                  <div className="relative flex flex-col items-center w-full mb-4 md:mb-5">
-                    <BadgeSelect
-                      value={coverData.departmentInCharge}
-                      onChange={(val) =>
-                        updateCover({ departmentInCharge: val })
-                      }
-                      error={coverErrors.departmentInCharge}
-                      placeholder={
-                        masterDataLoading
-                          ? "Loading..."
-                          : masterDataFailed
-                            ? "Failed to load"
-                            : "-"
-                      }
-                      options={masterDataLoading ? [] : departmentOptions}
-                    />
-                    {coverErrors.departmentInCharge && (
-                      <div className="absolute -bottom-4 md:-bottom-5 flex justify-center w-full whitespace-nowrap text-[9px] md:text-[11px] text-red-500">
-                        <span>*{coverErrors.departmentInCharge}</span>
                       </div>
                     )}
                   </div>
