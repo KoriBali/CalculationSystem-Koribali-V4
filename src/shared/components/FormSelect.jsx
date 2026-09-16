@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
-import { ChevronDown, Check, ArrowLeft } from "lucide-react";
+import { ChevronDown, Check, ArrowLeft, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 // Same visual language as the compact filter/form dropdowns already used on
@@ -20,9 +20,14 @@ export function FormSelect({
   placeholder = "Select...",
   hasError = false,
   disabled = false,
+  loading = false,
+  loadingText = "Loading...",
   allowCustom = false,
   customPlaceholder = "Enter a value",
 }) {
+  // Loading implies disabled — the trigger can't be opened until options
+  // (usually master data) arrive.
+  const isDisabled = disabled || loading;
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownStyle, setDropdownStyle] = useState({});
   const triggerRef = useRef(null);
@@ -65,7 +70,7 @@ export function FormSelect({
   }, []);
 
   const handleOpen = () => {
-    if (disabled) return;
+    if (isDisabled) return;
     updatePosition();
     setIsOpen((v) => !v);
   };
@@ -142,10 +147,10 @@ export function FormSelect({
         ref={triggerRef}
         id={id}
         type="button"
-        disabled={disabled}
+        disabled={isDisabled}
         onClick={handleOpen}
         className={`w-full px-3 md:px-4 py-2 md:py-2.5 rounded-md md:rounded-lg outline-none transition-all text-xs md:text-sm border text-left flex justify-between items-center ${
-          disabled ? "bg-gray-50 cursor-not-allowed" : ""
+          isDisabled ? "bg-gray-50 cursor-not-allowed" : ""
         } ${
           hasError
             ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
@@ -155,11 +160,15 @@ export function FormSelect({
         } ${!selectedOption ? "text-slate-400" : "text-slate-900"}`}
       >
         <span className="truncate">
-          {selectedOption ? selectedOption.label : placeholder}
+          {loading ? loadingText : selectedOption ? selectedOption.label : placeholder}
         </span>
-        <ChevronDown
-          className={`w-4 h-4 shrink-0 transition-transform ${isOpen ? "rotate-180" : ""} text-gray-400`}
-        />
+        {loading ? (
+          <Loader2 className="w-4 h-4 shrink-0 animate-spin text-gray-400" />
+        ) : (
+          <ChevronDown
+            className={`w-4 h-4 shrink-0 transition-transform ${isOpen ? "rotate-180" : ""} text-gray-400`}
+          />
+        )}
       </button>
 
       {isOpen &&

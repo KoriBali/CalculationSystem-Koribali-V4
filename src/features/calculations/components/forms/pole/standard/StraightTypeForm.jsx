@@ -1,9 +1,10 @@
-import { RotateCcw, ChevronRight } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 import { useState } from "react";
 import { GROUND_POSITION_OPTIONS } from "../../../../constants/straightPoleStandardOptions";
 import { getThicknessOptions } from "../../../../logic/pole/standard/straightPoleLogic";
 import { usePoleStandardData } from "../../../../hooks/usePoleStandardData";
 import { ConfirmResetAllModal } from "../../../modals/ConfirmResetAllModal";
+import { FormSelect } from "../../../../../../shared/components/FormSelect";
 
 // === IMAGES ===
 const onGlImg = "/images/on-gl.svg";
@@ -205,34 +206,23 @@ export function StraightPoleStandardForm({
                   </h4>
 
                   {straightPoleStandard.combinationGroup ? (
-                    <div className="relative">
-                      <select
-                        value={straightPoleStandard.combination}
-                        onChange={(e) =>
-                          onUpdate({
-                            combination: e.target.value,
-                            upperThickness: "", // reset downstream fields
-                            lowerThickness: "",
-                          })
-                        }
-                        className={`${inputStyle(errors.combination)} w-full min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] appearance-none`}
-                      >
-                        <option value="" disabled>
-                          Select Combination
-                        </option>
-                        {(
-                          combinations[straightPoleStandard.combinationGroup] ||
-                          []
-                        ).map((c) => (
-                          <option key={c} value={c}>
-                            {c}
-                          </option>
-                        ))}
-                      </select>
-                      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                        <ChevronRight className="w-4 h-4 text-gray-400 rotate-90" />
-                      </div>
-                    </div>
+                    <FormSelect
+                      value={straightPoleStandard.combination}
+                      onChange={(val) =>
+                        onUpdate({
+                          combination: val,
+                          upperThickness: "", // reset downstream fields
+                          lowerThickness: "",
+                        })
+                      }
+                      options={(
+                        combinations[straightPoleStandard.combinationGroup] ||
+                        []
+                      ).map((c) => ({ value: c, label: c }))}
+                      loading={poleStandardLoading}
+                      hasError={!!errors.combination}
+                      placeholder="Select Combination"
+                    />
                   ) : (
                     <SelectFirst message="Select lower pole diameter first" />
                   )}
@@ -252,27 +242,19 @@ export function StraightPoleStandardForm({
                       </h4>
                       {straightPoleStandard.combination ? (
                         <div className="relative">
-                          <div className="relative">
-                            <select
-                              value={straightPoleStandard.upperThickness}
-                              onChange={(e) =>
-                                onUpdate({ upperThickness: e.target.value })
-                              }
-                              className={`${inputStyle(errors.upperThickness)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] w-full appearance-none`}
-                            >
-                              <option value="" disabled>
-                                Select Thickness
-                              </option>
-                              {upperOptions.map((t) => (
-                                <option key={t} value={t}>
-                                  {t} mm
-                                </option>
-                              ))}
-                            </select>
-                            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                              <ChevronRight className="w-4 h-4 text-gray-400 rotate-90" />
-                            </div>
-                          </div>
+                          <FormSelect
+                            value={straightPoleStandard.upperThickness}
+                            onChange={(val) =>
+                              onUpdate({ upperThickness: val })
+                            }
+                            options={upperOptions.map((t) => ({
+                              value: t,
+                              label: `${t} mm`,
+                            }))}
+                            loading={poleStandardLoading}
+                            hasError={!!errors.upperThickness}
+                            placeholder="Select Thickness"
+                          />
                           <ErrorStyle
                             show={errors.upperThickness}
                             text={errors.upperThickness}
@@ -320,27 +302,19 @@ export function StraightPoleStandardForm({
                       </h4>
                       {straightPoleStandard.combination ? (
                         <div className="relative">
-                          <div className="relative">
-                            <select
-                              value={straightPoleStandard.lowerThickness}
-                              onChange={(e) =>
-                                onUpdate({ lowerThickness: e.target.value })
-                              }
-                              className={`${inputStyle(errors.lowerThickness)} w-full min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] appearance-none`}
-                            >
-                              <option value="" disabled>
-                                Select Thickness
-                              </option>
-                              {lowerOptions.map((t) => (
-                                <option key={t} value={t}>
-                                  {t} mm
-                                </option>
-                              ))}
-                            </select>
-                            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                              <ChevronRight className="w-4 h-4 text-gray-400 rotate-90" />
-                            </div>
-                          </div>
+                          <FormSelect
+                            value={straightPoleStandard.lowerThickness}
+                            onChange={(val) =>
+                              onUpdate({ lowerThickness: val })
+                            }
+                            options={lowerOptions.map((t) => ({
+                              value: t,
+                              label: `${t} mm`,
+                            }))}
+                            loading={poleStandardLoading}
+                            hasError={!!errors.lowerThickness}
+                            placeholder="Select Thickness"
+                          />
                           <ErrorStyle
                             show={errors.lowerThickness}
                             text={errors.lowerThickness}

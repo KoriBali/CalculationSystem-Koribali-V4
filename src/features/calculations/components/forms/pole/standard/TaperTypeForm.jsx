@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { RotateCcw, Box, ChevronRight, Loader2 } from "lucide-react";
+import { RotateCcw, Box, Loader2 } from "lucide-react";
 import { GROUND_POSITION_OPTIONS } from "../../../../constants/taperPoleStandradOptions";
 import { usePoleStandardData } from "../../../../hooks/usePoleStandardData";
 import { ConfirmResetAllModal } from "../../../modals/ConfirmResetAllModal";
 import { preloadImagesWhenIdle } from "../../../../utils/preloadImages";
+import { FormSelect } from "../../../../../../shared/components/FormSelect";
 
 // === IMAGES (12 cases: 6 pole types × 2 ground positions) ===
 const DIAGRAM_IMAGE_MAP = {
@@ -279,29 +280,17 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
                     <span className="block text-gray-600 text-xs md:text-sm font-medium mb-2">
                       Height
                     </span>
-                    <div className="relative">
-                      <select
-                        id="taperPoleStandard.height"
-                        value={taperPoleStandard.height}
-                        onChange={(e) => onUpdate({ height: e.target.value })}
-                        className={`w-full px-1 md:px-3 py-2 lg:py-2.5 border rounded-lg hp:rounded-md text-xs md:text-sm min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] outline-none transition-all bg-white appearance-none ${errors.height
-                            ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
-                            : "border-gray-300 focus:border-[#1D4ED8]"
-                          }`}
-                      >
-                        <option value="" disabled>
-                          Select Height
-                        </option>
-                        {currentHeightOptions[heightLookupKey]?.map((h) => (
-                          <option key={h.id} value={h.id}>
-                            {h.label}
-                          </option>
-                        ))}
-                      </select>
-                      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                        <ChevronRight className="w-4 h-4 text-gray-400 rotate-90" />
-                      </div>
-                    </div>
+                    <FormSelect
+                      id="taperPoleStandard.height"
+                      value={taperPoleStandard.height}
+                      onChange={(val) => onUpdate({ height: val })}
+                      options={(currentHeightOptions[heightLookupKey] || []).map(
+                        (h) => ({ value: h.id, label: h.label }),
+                      )}
+                      loading={poleStandardLoading}
+                      hasError={!!errors.height}
+                      placeholder="Select Height"
+                    />
                     <ErrorStyle show={errors.height} text={errors.height} />
                   </div>
                 </div>

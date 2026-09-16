@@ -1,7 +1,15 @@
 import { RotateCcw, ChevronRight, ChevronLeft, Calculator } from "lucide-react";
 import { FieldErrorHint } from "../../../../../shared/components/FieldErrorHint";
+import { FormSelect } from "../../../../../shared/components/FormSelect";
 import { useState } from "react";
 import { ConfirmResetAllModal } from "../../modals/ConfirmResetAllModal";
+
+const OPENING_DIRECTION_OPTIONS = [
+  { value: "left", label: "Left" },
+  { value: "front", label: "Front" },
+  { value: "right", label: "Right" },
+  { value: "back", label: "Back" },
+];
 
 /**
  * HELPER COMPONENTS & FUNCTIONS
@@ -119,29 +127,16 @@ export function RTypeForm({
                     Opening Direction
                   </label>
                   <div className="relative">
-                    <select
+                    <FormSelect
                       id="openingDirection"
                       value={rType.openingDirection || ""}
-                      onChange={(e) =>
-                        onUpdate({ openingDirection: e.target.value })
+                      onChange={(val) =>
+                        onUpdate({ openingDirection: val })
                       }
-                      className={`w-full px-2 sm:px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border appearance-none pr-8 min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] ${
-                        errors.openingDirection
-                          ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
-                          : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
-                      }`}
-                    >
-                      <option value="" disabled>
-                        Select
-                      </option>
-                      <option value="left">Left</option>
-                      <option value="front">Front</option>
-                      <option value="right">Right</option>
-                      <option value="back">Back</option>
-                    </select>
-                    <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                      <ChevronRight className="w-3 h-3 md:w-4 md:h-4 text-gray-400 rotate-90" />
-                    </div>
+                      options={OPENING_DIRECTION_OPTIONS}
+                      hasError={!!errors.openingDirection}
+                      placeholder="Select"
+                    />
                     <FieldErrorHint message={errors.openingDirection} />
                   </div>
                 </div>

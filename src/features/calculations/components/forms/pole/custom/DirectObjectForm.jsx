@@ -6,9 +6,9 @@ import {
   ClipboardPaste,
   CheckCircle,
   Circle,
-  ChevronRight,
 } from "lucide-react";
 import { useMasterData } from "../../../../hooks/useMasterData";
+import { FormSelect } from "../../../../../../shared/components/FormSelect";
 
 /**
  * HELPER COMPONENTS & FUNCTIONS
@@ -389,32 +389,20 @@ export function DirectObjectForm({
                   <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
                     Object Type
                   </label>
-                  <div className="relative">
-                    <select
-                      id={`do-${directObject.idDo}-type`}
-                      value={directObject.type}
-                      onChange={(e) =>
-                        onUpdate(directObject.idDo, { type: e.target.value })
-                      }
-                      disabled={objectTypesLoading || objectTypesFailed}
-                      className={`${inputStyle(doError.type || objectTypesFailed)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] pl-3 2xl:pl-4 pr-8 appearance-none`}
-                    >
-                      {objectTypesLoading ? (
-                        <option value="">Loading...</option>
-                      ) : objectTypesFailed ? (
-                        <option value="">Failed to load</option>
-                      ) : (
-                        objectTypeOptions.map((option) => (
-                          <option key={option.value} value={option.value}>
-                            {option.label}
-                          </option>
-                        ))
-                      )}
-                    </select>
-                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                      <ChevronRight className="w-4 h-4 text-gray-400 rotate-90" />
-                    </div>
-                  </div>
+                  <FormSelect
+                    id={`do-${directObject.idDo}-type`}
+                    value={directObject.type}
+                    onChange={(val) =>
+                      onUpdate(directObject.idDo, { type: val })
+                    }
+                    options={objectTypeOptions}
+                    loading={objectTypesLoading}
+                    disabled={objectTypesFailed}
+                    hasError={!!(doError.type || objectTypesFailed)}
+                    placeholder={
+                      objectTypesFailed ? "Failed to load" : "Select Type"
+                    }
+                  />
                   {objectTypesFailed ? (
                     <div className="absolute left-0 -bottom-4 md:-bottom-5 flex items-center gap-1 text-[9px] md:text-[11px] text-red-500">
                       <span>Failed to load.</span>

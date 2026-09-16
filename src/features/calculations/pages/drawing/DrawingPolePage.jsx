@@ -37,7 +37,7 @@ export default function DrawingPolePage() {
   };
 
   const onBack = () => {
-    navigate(`/calculation/${projectType}/${draftId}/drawing/general`);
+    navigate(`/calculation/${projectType}/${draftId}/drawing/drawing-setup`);
   };
 
   return (

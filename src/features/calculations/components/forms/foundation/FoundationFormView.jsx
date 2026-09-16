@@ -229,7 +229,10 @@ export default function FoundationFormView() {
       <ToastModal toast={toast} onClose={() => setToast(null)} />
       <CoverFormModal
         open={showCoverModal}
-        onClose={() => setShowCoverModal(false)}
+        onClose={() => {
+          setShowCoverModal(false);
+          setShowFinishModal(true);
+        }}
         projectType={projectType}
         draftId={draftId}
         onConfirm={handleConfirmCover}

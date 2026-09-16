@@ -10,6 +10,14 @@ import { BaseplateIcon } from "../../../../../assets/icon";
 import { useMasterData } from "../../../hooks/useMasterData";
 import { poleTypeOptions } from "../../../constants/poleTypeOptions";
 import { couplingUsageOptions } from "../../../constants/couplingUsageOptions";
+import { FormSelect } from "../../../../../shared/components/FormSelect";
+
+const DRAWING_TYPE_OPTIONS = [
+  { value: "APD (Approval Drawing)", label: "APD (Approval Drawing)" },
+  { value: "MFD (Manufacturer Drawing)", label: "MFD (Manufacturer Drawing)" },
+  { value: "Order Drawing", label: "Order Drawing" },
+  { value: "Meeting Drawing", label: "Meeting Drawing" },
+];
 
 const ToggleCard = ({ label, icon, enabled, onToggle, disabled = false }) => {
   return (
@@ -137,6 +145,7 @@ export function DrawingGeneralForm({
   onNext,
   errors,
   projectMode,
+  nextLabel = "Save & Continue",
 }) {
   const {
     lightingCompanyOptions,
@@ -150,23 +159,25 @@ export function DrawingGeneralForm({
     !lightingCompaniesLoading;
 
   return (
-    <div className="bg-white rounded-b-2xl hp:rounded-b-xl shadow-sm border border-gray-200">
-      <div className="p-4 md:p-6 shadow-sm space-y-4 md:space-y-6">
-        {/* ── Project Information ── */}
+    <div className="bg-white rounded-2xl hp:rounded-xl border border-gray-200 shadow-[0_2px_10px_rgba(15,23,42,0.06)] overflow-hidden">
+      <div aria-hidden="true" className="h-1.5 bg-gradient-to-r from-[#0d3b66] to-[#3399cc]" />
+      <div className="p-4 md:p-6 space-y-4 md:space-y-6">
+        {/* ── Drawing Information ── */}
         <div>
-          <SectionTitle>Project Information</SectionTitle>
+          <SectionTitle>Drawing Information</SectionTitle>
           <SectionCard>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
               <div className="relative pb-1">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">
                   Drawing Type
                 </label>
-                <input
+                <FormSelect
                   id="drawingType"
-                  type="text"
                   value={general.drawingType || ""}
-                  onChange={(e) => onUpdate({ drawingType: e.target.value })}
-                  className={`${inputStyle(errors.drawingType)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px]`}
+                  onChange={(val) => onUpdate({ drawingType: val })}
+                  options={DRAWING_TYPE_OPTIONS}
+                  hasError={!!errors.drawingType}
+                  placeholder="Select Drawing Type"
                 />
                 <ErrorStyle
                   show={errors.drawingType}
@@ -209,35 +220,22 @@ export function DrawingGeneralForm({
                 <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">
                   Lighting Company Name
                 </label>
-                <div className="relative">
-                  <select
-                    id="lightingCompanyName"
-                    value={general.lightingCompanyName || ""}
-                    onChange={(e) =>
-                      onUpdate({ lightingCompanyName: e.target.value })
-                    }
-                    disabled={
-                      lightingCompaniesLoading || lightingCompaniesFailed
-                    }
-                    className={`${inputStyle(errors.lightingCompanyName || lightingCompaniesFailed)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] cursor-pointer appearance-none`}
-                  >
-                    <option value="" disabled>
-                      {lightingCompaniesLoading
-                        ? "Loading..."
-                        : lightingCompaniesFailed
-                          ? "Failed to load"
-                          : "Select Lighting Company"}
-                    </option>
-                    {lightingCompanyOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                    <ChevronRight className="w-4 h-4 text-gray-400 rotate-90" />
-                  </div>
-                </div>
+                <FormSelect
+                  id="lightingCompanyName"
+                  value={general.lightingCompanyName || ""}
+                  onChange={(val) =>
+                    onUpdate({ lightingCompanyName: val })
+                  }
+                  options={lightingCompanyOptions}
+                  loading={lightingCompaniesLoading}
+                  disabled={lightingCompaniesFailed}
+                  hasError={!!(errors.lightingCompanyName || lightingCompaniesFailed)}
+                  placeholder={
+                    lightingCompaniesFailed
+                      ? "Failed to load"
+                      : "Select Lighting Company"
+                  }
+                />
                 {lightingCompaniesFailed ? (
                   <div className="absolute left-0 -bottom-4 md:-bottom-5 flex items-center gap-1 text-[9px] md:text-[11px] text-red-500">
                     <span>Failed to load.</span>
@@ -370,9 +368,6 @@ export function DrawingGeneralForm({
           <SectionTitle>Coupling Usage</SectionTitle>
           <SectionCard>
             <div id="useCoupling" className="relative pb-2">
-              <label className="block text-xs md:text-sm font-medium text-gray-800 mb-3">
-                Use Coupling?
-              </label>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {couplingUsageOptions.map((option) => (
                   <CardOption
@@ -398,9 +393,7 @@ export function DrawingGeneralForm({
         <div className="flex justify-between items-center pt-4 md:pt-0">
           <button
             onClick={onReset}
-            className="flex justify-center items-center gap-2 px-5 py-2.5 md:px-6
-            rounded-lg hp:rounded-md font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] text-xs sm:text-sm 
-            ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm transition-colors"
+            className="flex items-center gap-2 px-5 py-2.5 md:px-6 rounded-lg hp:rounded-md bg-white text-red-500 font-medium text-xs md:text-sm hover:bg-red-50 hover:text-red-600 transition-colors border border-red-300"
           >
             <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
             Reset
@@ -408,10 +401,10 @@ export function DrawingGeneralForm({
 
           <button
             onClick={onNext}
-            className="flex justify-center items-center gap-2 px-5 py-2.5 md:px-6 
+            className="flex justify-center items-center gap-2 px-5 py-2.5 md:px-6
             rounded-lg hp:rounded-md font-medium bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white text-xs md:text-sm hover:brightness-110 shadow-sm transition-all"
           >
-            Save & Continue
+            {nextLabel}
             <ChevronRight className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
           </button>
         </div>

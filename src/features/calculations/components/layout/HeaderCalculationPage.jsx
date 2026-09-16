@@ -328,7 +328,7 @@ export function HeaderCalculationPage() {
   const drawingNavItems = [
     {
       label: "Drawing Setup",
-      path: `/calculation/${type}/${draftId}/drawing/general`,
+      path: `/calculation/${type}/${draftId}/drawing/drawing-setup`,
       icon: FileEdit,
       disabled: false,
       completed: isDrawingSetupCompleted,

@@ -75,21 +75,23 @@ export default function Layout() {
 
     let substage = null;
     if (location.pathname.includes("/drawing")) {
+      // "Drawing Setup" is the flow's entry step — its own label already
+      // says "Drawing", so it skips the "Drawing · " prefix the later
+      // steps use to disambiguate from the Calculation flow's same-named
+      // steps (e.g. "Drawing · Pole" vs. Calculation's "Pole").
       const drawingSegments = {
-        general: "General",
-        pole: "Pole",
-        opening: "Opening",
-        baseplate: "Baseplate",
-        foundation: "Foundation",
-        coupling: "Coupling",
-        surface: "Surface",
+        "drawing-setup": "Drawing Setup",
+        pole: "Drawing · Pole",
+        opening: "Drawing · Opening",
+        baseplate: "Drawing · Baseplate",
+        foundation: "Drawing · Foundation",
+        coupling: "Drawing · Coupling",
+        surface: "Drawing · Surface",
       };
       const drawingMatch = Object.keys(drawingSegments).find((k) =>
         location.pathname.includes(`/drawing/${k}`),
       );
-      substage = drawingMatch
-        ? `Drawing · ${drawingSegments[drawingMatch]}`
-        : "Drawing";
+      substage = drawingMatch ? drawingSegments[drawingMatch] : "Drawing";
     } else if (location.pathname.includes("/calculation-condition")) {
       substage = "Calculation Condition";
     } else if (location.pathname.includes("/pole")) {

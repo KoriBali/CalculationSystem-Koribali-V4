@@ -87,6 +87,7 @@ export function PoleConfigForm({ poleConfig, onUpdate, errors }) {
                       </label>
                       <div className="relative">
                         <input
+                          id={isActive ? "lowestHeight" : undefined}
                           type="number"
                           value={isOnGL ? "0" : isActive ? lowestHeight : ""}
                           readOnly={!isActive}
@@ -143,6 +144,7 @@ export function PoleConfigForm({ poleConfig, onUpdate, errors }) {
           </div>
           <div className="relative w-full sm:w-[180px] xl:w-[200px]">
             <input
+              id="overdesignFactor"
               type="number"
               min={0}
               value={overdesignFactor}

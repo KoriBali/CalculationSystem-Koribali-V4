@@ -185,6 +185,16 @@ export function useDrawingGeneralForm() {
   // Expose the committed snapshot so the page can revert on modal cancel
   const getCommitted = () => committedRef.current;
 
+  // Mirrors proceed()'s routing above — Drawing Only goes to Pole, while
+  // Calculation & Drawing skips Pole (that's driven by the Calculation
+  // side) and goes straight to Coupling or Surface.
+  const nextLabel =
+    projectMode === "drawing"
+      ? "Next: Pole"
+      : localGeneral.useCoupling
+        ? "Next: Coupling"
+        : "Next: Surface";
+
   return {
     projectType,
     localGeneral,
@@ -199,6 +209,7 @@ export function useDrawingGeneralForm() {
     handleNext,
     proceed,
     projectMode,
+    nextLabel,
     getCommitted,
   };
 }

@@ -67,10 +67,10 @@ export default function AppRoutes() {
                     />
                     <Route
                       path="drawing"
-                      element={<Navigate to="general" replace />}
+                      element={<Navigate to="drawing-setup" replace />}
                     />
                     <Route
-                      path="drawing/general"
+                      path="drawing/drawing-setup"
                       element={<DrawingGeneralPage />}
                     />
                     <Route path="drawing/pole" element={<DrawingPolePage />} />
