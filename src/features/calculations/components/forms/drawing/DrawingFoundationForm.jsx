@@ -1,13 +1,12 @@
-import { Box, ChevronDown } from "lucide-react";
+import { Box } from "lucide-react";
 import { RoundCaissonTypeForm } from "../foundation/RoundCaissonTypeForm";
 import { SquareCaissonTypeForm } from "../foundation/SquareCaissonTypeForm";
+import { FormSelect } from "../../../../../shared/components/FormSelect";
 
-const inputStyle = (hasError) =>
-  `w-full px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border
-  ${hasError
-    ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
-    : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
-  }`;
+const FOUNDATION_TYPE_OPTIONS = [
+  { value: "square-caisson", label: "Square Caisson Type" },
+  { value: "round-caisson", label: "Round Caisson Type" },
+];
 
 const ErrorStyle = ({ show, text }) =>
   show ? (
@@ -15,6 +14,13 @@ const ErrorStyle = ({ show, text }) =>
       <span>*{text}</span>
     </div>
   ) : null;
+
+const SectionTitle = ({ children }) => (
+  <h3 className="text-[#0d3b66] mb-4 flex items-center gap-1 md:gap-2 text-xs md:text-sm font-medium">
+    <div className="w-1 h-4 md:h-5 bg-[#3399cc] rounded-full" />
+    {children}
+  </h3>
+);
 
 export function DrawingFoundationForm({
   foundationType,
@@ -26,70 +32,73 @@ export function DrawingFoundationForm({
   errors,
   onNext,
   onBack,
+  buttonLabel = "Save & Continue",
 }) {
   return (
-    <div className="flex flex-col h-full bg-white rounded-b-2xl hp:rounded-b-xl shadow-sm border border-gray-200 p-4 md:p-6 space-y-4 md:space-y-6">
-      <div className="bg-white px-4 md:px-5 py-5 rounded-xl hp:rounded-lg border border-gray-200">
-        <div className="relative pb-1">
-          <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">Foundation Type</label>
-          <div className="relative">
-            <select
-              id="foundationType"
-              value={foundationType.type || ""}
-              onChange={(e) => onFoundationTypeUpdate({ type: e.target.value })}
-              className={`${inputStyle(errors.foundationType?.type)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] cursor-pointer appearance-none`}
-            >
-              <option value="" disabled>Select Foundation Type</option>
-              <option value="square-caisson">Square Caisson Type</option>
-              <option value="round-caisson">Round Caisson Type</option>
-            </select>
-            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-              <ChevronDown className="w-4 h-4 text-gray-400" />
+    <div className="bg-white rounded-2xl hp:rounded-xl border border-gray-200 shadow-[0_2px_10px_rgba(15,23,42,0.06)] overflow-hidden">
+      <div aria-hidden="true" className="h-1.5 bg-gradient-to-r from-[#0d3b66] to-[#3399cc]" />
+      <div className="flex flex-col h-full p-4 md:p-6 space-y-4 md:space-y-6">
+        <div>
+          <SectionTitle>Foundation Type</SectionTitle>
+          <div className="bg-white px-4 md:px-5 py-5 rounded-xl hp:rounded-lg border border-gray-200">
+            <div className="relative pb-1">
+              <FormSelect
+                id="foundationType"
+                value={foundationType.type || ""}
+                onChange={(val) => onFoundationTypeUpdate({ type: val })}
+                options={FOUNDATION_TYPE_OPTIONS}
+                hasError={!!errors.foundationType?.type}
+                placeholder="Select Foundation Type"
+              />
+              <ErrorStyle show={errors.foundationType?.type} text={errors.foundationType?.type} />
             </div>
           </div>
-          <ErrorStyle show={errors.foundationType?.type} text={errors.foundationType?.type} />
+        </div>
+
+        <div>
+          <SectionTitle>Foundation Specifications</SectionTitle>
+
+          {!foundationType.type && (
+            <div className="bg-white border border-gray-200 rounded-xl hp:rounded-lg p-10 flex flex-col items-center justify-center text-center">
+              <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+                <Box className="w-6 h-6 text-gray-400" />
+              </div>
+              <p className="text-gray-500 text-sm">
+                Please select foundation type first
+              </p>
+              <p className="text-gray-400 text-xs mt-1">
+                Choose the type above to configure parameters
+              </p>
+            </div>
+          )}
+
+          {foundationType.type === "square-caisson" && (
+            <SquareCaissonTypeForm
+              squareCaisson={squareCaisson}
+              onUpdate={onSquareCaissonUpdate}
+              errors={errors.squareCaisson || {}}
+              onNext={onNext}
+              onBack={onBack}
+              isCalculated={true}
+              buttonLabel={buttonLabel}
+              isDrawingMode={true}
+            />
+          )}
+
+          {foundationType.type === "round-caisson" && (
+            <RoundCaissonTypeForm
+              roundCaisson={roundCaisson}
+              onUpdate={onRoundCaissonUpdate}
+              errors={errors.roundCaisson || {}}
+              onNext={onNext}
+              onBack={onBack}
+              isCalculated={true}
+              buttonLabel={buttonLabel}
+              isDrawingMode={true}
+            />
+          )}
         </div>
       </div>
-
-      {!foundationType.type && (
-        <div className="bg-white border border-gray-200 rounded-xl hp:rounded-lg p-10 flex flex-col items-center justify-center text-center">
-          <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
-            <Box className="w-6 h-6 text-gray-400" />
-          </div>
-          <p className="text-gray-500 text-sm">
-            Please select foundation type first
-          </p>
-          <p className="text-gray-400 text-xs mt-1">
-            Choose the type above to configure parameters
-          </p>
-        </div>
-      )}
-
-      {foundationType.type === "square-caisson" && (
-        <SquareCaissonTypeForm
-          squareCaisson={squareCaisson}
-          onUpdate={onSquareCaissonUpdate}
-          errors={errors.squareCaisson || {}}
-          onNext={onNext}
-          onBack={onBack}
-          isCalculated={true} 
-          buttonLabel="Save & Continue"
-          isDrawingMode={true}
-        />
-      )}
-
-      {foundationType.type === "round-caisson" && (
-        <RoundCaissonTypeForm
-          roundCaisson={roundCaisson}
-          onUpdate={onRoundCaissonUpdate}
-          errors={errors.roundCaisson || {}}
-          onNext={onNext}
-          onBack={onBack}
-          isCalculated={true} 
-          buttonLabel="Save & Continue"
-          isDrawingMode={true}
-        />
-      )}
     </div>
   );
 }

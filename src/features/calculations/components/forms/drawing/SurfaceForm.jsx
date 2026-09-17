@@ -1,6 +1,19 @@
 import { RotateCcw, ChevronLeft, ChevronRight, CheckCircle, Circle, Sparkles, PaintBucket } from "lucide-react";
 import { useState } from "react";
 import { ConfirmResetAllModal } from "../../modals/ConfirmResetAllModal";
+import { FormSelect } from "../../../../../shared/components/FormSelect";
+
+const PLATING_TYPE_OPTIONS = [
+  { value: "Standard Plating", label: "Standard Plating" },
+  { value: "Not Standard Plating", label: "Not Standard Plating" },
+];
+
+const PAINTING_TYPE_OPTIONS = [
+  { value: "Acrilic Silicone", label: "Acrilic Silicone" },
+  { value: "Stain Coating", label: "Stain Coating" },
+  { value: "Ceramic Coating", label: "Ceramic Coating" },
+  { value: "Specified Color Paint", label: "Specified Color Paint" },
+];
 
 /**
  * HELPER COMPONENTS & FUNCTIONS
@@ -113,8 +126,9 @@ export function SurfaceForm({ surface, onUpdate, onReset, onBack, onFinish, erro
   const colorCombined = colorParts.join(" ");
 
   return (
-    <div className="bg-white rounded-b-2xl hp:rounded-b-xl shadow-sm border border-gray-200">
-      <div className="p-4 md:p-6 shadow-sm space-y-4 md:space-y-6">
+    <div className="bg-white rounded-2xl hp:rounded-xl border border-gray-200 shadow-[0_2px_10px_rgba(15,23,42,0.06)] overflow-hidden">
+      <div aria-hidden="true" className="h-1.5 bg-gradient-to-r from-[#0d3b66] to-[#3399cc]" />
+      <div className="p-4 md:p-6 space-y-4 md:space-y-6">
 
         {/* ── Surface Treatment ── */}
         <div>
@@ -155,21 +169,14 @@ export function SurfaceForm({ surface, onUpdate, onReset, onBack, onFinish, erro
                   <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">
                     Plating Type
                   </label>
-                  <div className="relative">
-                    <select
-                      id="platingType"
-                      value={surface.platingType || ""}
-                      onChange={(e) => handlePlatingTypeChange(e.target.value)}
-                      className={`${inputStyle(errors.platingType)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] cursor-pointer appearance-none`}
-                    >
-                      <option value="" disabled>Select Plating Type</option>
-                      <option value="Standard Plating">Standard Plating</option>
-                      <option value="Not Standard Plating">Not Standard Plating</option>
-                    </select>
-                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                      <ChevronRight className="w-4 h-4 text-gray-400 rotate-90" />
-                    </div>
-                  </div>
+                  <FormSelect
+                    id="platingType"
+                    value={surface.platingType || ""}
+                    onChange={(val) => handlePlatingTypeChange(val)}
+                    options={PLATING_TYPE_OPTIONS}
+                    hasError={!!errors.platingType}
+                    placeholder="Select Plating Type"
+                  />
                   <ErrorStyle show={errors.platingType} text={errors.platingType} />
                 </div>
 
@@ -202,23 +209,14 @@ export function SurfaceForm({ surface, onUpdate, onReset, onBack, onFinish, erro
                         <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">
                           Painting Type
                         </label>
-                        <div className="relative">
-                          <select
-                            id="paintingType"
-                            value={surface.paintingType || ""}
-                            onChange={(e) => handlePaintingTypeChange(e.target.value)}
-                            className={`${inputStyle(errors.paintingType)} min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] cursor-pointer appearance-none`}
-                          >
-                            <option value="" disabled>Select Painting Type</option>
-                            <option value="Acrilic Silicone">Acrilic Silicone</option>
-                            <option value="Stain Coating">Stain Coating</option>
-                            <option value="Ceramic Coating">Ceramic Coating</option>
-                            <option value="Specified Color Paint">Specified Color Paint</option>
-                          </select>
-                          <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                            <ChevronRight className="w-4 h-4 text-gray-400 rotate-90" />
-                          </div>
-                        </div>
+                        <FormSelect
+                          id="paintingType"
+                          value={surface.paintingType || ""}
+                          onChange={(val) => handlePaintingTypeChange(val)}
+                          options={PAINTING_TYPE_OPTIONS}
+                          hasError={!!errors.paintingType}
+                          placeholder="Select Painting Type"
+                        />
                         <ErrorStyle show={errors.paintingType} text={errors.paintingType} />
                       </div>
                     </div>
@@ -305,9 +303,7 @@ export function SurfaceForm({ surface, onUpdate, onReset, onBack, onFinish, erro
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowResetModal(true)}
-              className="flex justify-center items-center gap-2 px-5 py-2.5 md:px-6
-              rounded-lg hp:rounded-md font-medium bg-white hover:bg-red-50 text-red-400 text-xs sm:text-sm
-              border border-gray-200 hover:border-red-200 shadow-sm transition-colors"
+              className="flex items-center gap-2 px-5 py-2.5 md:px-6 rounded-lg hp:rounded-md bg-white text-red-500 font-medium text-xs md:text-sm hover:bg-red-50 hover:text-red-600 transition-colors border border-red-300"
             >
               <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
               Reset

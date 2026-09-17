@@ -6,11 +6,13 @@ import {
   DoorOpen,
   Layers,
 } from "lucide-react";
+import { useState } from "react";
 import { BaseplateIcon } from "../../../../../assets/icon";
 import { useMasterData } from "../../../hooks/useMasterData";
 import { poleTypeOptions } from "../../../constants/poleTypeOptions";
 import { couplingUsageOptions } from "../../../constants/couplingUsageOptions";
 import { FormSelect } from "../../../../../shared/components/FormSelect";
+import { ConfirmResetAllModal } from "../../modals/ConfirmResetAllModal";
 
 const DRAWING_TYPE_OPTIONS = [
   { value: "APD (Approval Drawing)", label: "APD (Approval Drawing)" },
@@ -157,6 +159,8 @@ export function DrawingGeneralForm({
     lightingCompaniesError &&
     lightingCompanyOptions.length === 0 &&
     !lightingCompaniesLoading;
+
+  const [showResetModal, setShowResetModal] = useState(false);
 
   return (
     <div className="bg-white rounded-2xl hp:rounded-xl border border-gray-200 shadow-[0_2px_10px_rgba(15,23,42,0.06)] overflow-hidden">
@@ -392,7 +396,7 @@ export function DrawingGeneralForm({
         {/* Footer */}
         <div className="flex justify-between items-center pt-4 md:pt-0">
           <button
-            onClick={onReset}
+            onClick={() => setShowResetModal(true)}
             className="flex items-center gap-2 px-5 py-2.5 md:px-6 rounded-lg hp:rounded-md bg-white text-red-500 font-medium text-xs md:text-sm hover:bg-red-50 hover:text-red-600 transition-colors border border-red-300"
           >
             <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
@@ -409,6 +413,14 @@ export function DrawingGeneralForm({
           </button>
         </div>
       </div>
+
+      <ConfirmResetAllModal
+        open={showResetModal}
+        onClose={() => setShowResetModal(false)}
+        onReset={onReset}
+        title="Reset all inputs on this section?"
+        description="This will clear all inputs entered in this section. This action cannot be undone."
+      />
     </div>
   );
 }

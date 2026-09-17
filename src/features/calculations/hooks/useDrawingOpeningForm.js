@@ -80,6 +80,19 @@ export function useDrawingOpeningForm() {
     return isCouplingUsed ? "GO_COUPLING" : "GO_SURFACE";
   };
 
+  // Mirrors handleNext()'s own GO_BASEPLATE/GO_COUPLING/GO_SURFACE priority
+  // above, so the button label always names the actual next step.
+  const rawGeneralForLabel = sessionStorage.getItem(`${projectType}_drawing_general`);
+  const generalForLabel = rawGeneralForLabel ? JSON.parse(rawGeneralForLabel) : null;
+  const isBaseplateEnabled = generalForLabel?.additionalComponents?.baseplate === true;
+  const isCouplingUsed =
+    sessionStorage.getItem(`${projectType}_drawing_coupling_confirmed`) === "true";
+  const nextLabel = isBaseplateEnabled
+    ? "Next: Baseplate"
+    : isCouplingUsed
+      ? "Next: Coupling"
+      : "Next: Surface";
+
   return {
     projectType,
     localOpening,
@@ -89,5 +102,6 @@ export function useDrawingOpeningForm() {
     handleUpdate,
     handleReset,
     handleNext,
+    nextLabel,
   };
 }

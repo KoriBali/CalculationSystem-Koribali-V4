@@ -61,7 +61,7 @@ const CardOption = ({ label, current, value, onChange, icon: Icon }) => {
   );
 };
 
-export function DrawingPoleForm({ pole, onUpdate, onReset, onBack, onNext, errors, onToast, isBaseplate }) {
+export function DrawingPoleForm({ pole, onUpdate, onReset, onBack, onNext, errors, onToast, isBaseplate, nextLabel = "Save & Continue" }) {
   const [showResetModal, setShowResetModal] = useState(false);
 
   const taperErrors = {
@@ -72,25 +72,23 @@ export function DrawingPoleForm({ pole, onUpdate, onReset, onBack, onNext, error
   };
 
   return (
-    <div className="bg-white rounded-b-2xl hp:rounded-b-xl shadow-sm border border-gray-200">
-      <div className="p-4 md:p-6 shadow-sm space-y-4 md:space-y-6">
+    <div className="bg-white rounded-2xl hp:rounded-xl border border-gray-200 shadow-[0_2px_10px_rgba(15,23,42,0.06)] overflow-hidden">
+      <div aria-hidden="true" className="h-1.5 bg-gradient-to-r from-[#0d3b66] to-[#3399cc]" />
+      <div className="p-4 md:p-6 space-y-4 md:space-y-6">
 
-        {/* ── Taper Pole Form ── */}
-        <div className="mb-4 relative">
-          <div className="border border-gray-200 rounded-xl overflow-hidden shadow-sm pt-4 md:pt-6">
-            <TaperPoleStandardForm
-                hideReset={true}
-                taperPoleStandard={pole.taperPoleStandard || { poleType: "", groundPosition: "", height: "" }}
-                onUpdate={(data) =>
-                  onUpdate({
-                    taperPoleStandard: { ...(pole.taperPoleStandard || {}), ...data },
-                  })
-                }
-                isBaseplate={isBaseplate}
-                errors={taperErrors}
-              />
-            </div>
-          </div>
+        {/* ── Taper Pole Form — rendered the same way as the Calculation
+            flow's Pole step, no extra wrapping card ── */}
+        <TaperPoleStandardForm
+          hideReset={true}
+          taperPoleStandard={pole.taperPoleStandard || { poleType: "", groundPosition: "", height: "" }}
+          onUpdate={(data) =>
+            onUpdate({
+              taperPoleStandard: { ...(pole.taperPoleStandard || {}), ...data },
+            })
+          }
+          isBaseplate={isBaseplate}
+          errors={taperErrors}
+        />
 
         {/* Divider */}
         <div className="border-t border-gray-200 mt-6" />
@@ -110,9 +108,7 @@ export function DrawingPoleForm({ pole, onUpdate, onReset, onBack, onNext, error
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowResetModal(true)}
-              className="flex justify-center items-center gap-2 px-5 py-2.5 md:px-6
-              rounded-lg hp:rounded-md font-medium bg-white hover:bg-red-50 text-red-400 text-xs sm:text-sm
-              border border-gray-200 hover:border-red-200 shadow-sm transition-colors"
+              className="flex items-center gap-2 px-5 py-2.5 md:px-6 rounded-lg hp:rounded-md bg-white text-red-500 font-medium text-xs md:text-sm hover:bg-red-50 hover:text-red-600 transition-colors border border-red-300"
             >
               <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
               Reset
@@ -123,7 +119,7 @@ export function DrawingPoleForm({ pole, onUpdate, onReset, onBack, onNext, error
               className="flex justify-center items-center gap-2 px-5 py-2.5 md:px-6
               rounded-lg hp:rounded-md font-medium bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white text-xs md:text-sm hover:brightness-110 shadow-sm transition-all"
             >
-              Save & Continue
+              {nextLabel}
               <ChevronRight className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
             </button>
           </div>

@@ -79,6 +79,26 @@ export function useDrawingBaseplateForm() {
     return isCouplingUsed ? "GO_COUPLING" : "GO_SURFACE";
   };
 
+  // Mirrors handleNext()'s own GO_FOUNDATION/GO_COUPLING/GO_SURFACE priority
+  // above, so the button label always names the actual next step.
+  const generalDataStrForLabel = sessionStorage.getItem(`${projectType}_drawing_general`);
+  let isFoundationUsedForLabel = false;
+  if (generalDataStrForLabel) {
+    try {
+      isFoundationUsedForLabel =
+        JSON.parse(generalDataStrForLabel)?.additionalComponents?.foundation === true;
+    } catch {
+      isFoundationUsedForLabel = false;
+    }
+  }
+  const isCouplingUsed =
+    sessionStorage.getItem(`${projectType}_drawing_coupling_confirmed`) === "true";
+  const nextLabel = isFoundationUsedForLabel
+    ? "Next: Foundation"
+    : isCouplingUsed
+      ? "Next: Coupling"
+      : "Next: Surface";
+
   return {
     projectType,
     localBaseplate,
@@ -88,5 +108,6 @@ export function useDrawingBaseplateForm() {
     handleUpdate,
     handleReset,
     handleNext,
+    nextLabel,
   };
 }

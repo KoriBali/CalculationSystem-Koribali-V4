@@ -195,7 +195,8 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
   };
 
   return (
-    <div className="bg-white rounded-b-2xl hp:rounded-b-xl shadow-sm border border-gray-200">
+    <div className="bg-white rounded-2xl hp:rounded-xl border border-gray-200 shadow-[0_2px_10px_rgba(15,23,42,0.06)] overflow-hidden">
+      <div aria-hidden="true" className="h-1.5 bg-gradient-to-r from-[#0d3b66] to-[#3399cc]" />
       <style>{`
         .stagger-spacer { width: calc(var(--stagger-idx) * 12%); }
         @media (min-width: 640px) { .stagger-spacer { width: calc(var(--stagger-idx) * 20%); } }
@@ -484,9 +485,7 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowResetModal(true)}
-              className="flex justify-center items-center gap-2 px-5 py-2.5
-              rounded-lg font-medium bg-white hover:bg-red-50 text-red-400 text-sm
-              border border-gray-200 hover:border-red-200 shadow-sm transition-colors"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-white text-red-500 font-medium text-sm hover:bg-red-50 hover:text-red-600 transition-colors border border-red-300"
             >
               <RotateCcw className="w-4 h-4" />
               Reset
@@ -497,7 +496,7 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
               className="flex justify-center items-center gap-2 px-6 py-2.5
               rounded-lg font-medium bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white text-sm hover:brightness-110 shadow-sm transition-all"
             >
-              Save & Continue
+              Next: Surface
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>

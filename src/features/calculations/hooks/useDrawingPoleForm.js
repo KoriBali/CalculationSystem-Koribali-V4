@@ -82,6 +82,19 @@ export function useDrawingPoleForm() {
   const [general] = useProjectStorage(projectType, "drawing_general", {});
   const isBaseplate = general?.additionalComponents?.baseplate === true;
 
+  // Mirrors handleNext()'s own GO_OPENING/GO_BASEPLATE/GO_COUPLING/GO_SURFACE
+  // priority above, so the button label always names the actual next step.
+  const isOpeningUsed = general?.additionalComponents?.opening === true;
+  const isCouplingUsed =
+    sessionStorage.getItem(`${projectType}_drawing_coupling_confirmed`) === "true";
+  const nextLabel = isOpeningUsed
+    ? "Next: Opening"
+    : isBaseplate
+      ? "Next: Baseplate"
+      : isCouplingUsed
+        ? "Next: Coupling"
+        : "Next: Surface";
+
   return {
     projectType,
     localPole,
@@ -92,5 +105,6 @@ export function useDrawingPoleForm() {
     handleReset,
     handleNext,
     isBaseplate,
+    nextLabel,
   };
 }
