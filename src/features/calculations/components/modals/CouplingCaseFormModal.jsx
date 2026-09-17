@@ -389,7 +389,7 @@ export function CouplingCaseFormModal({
             </button>
             <button
               onClick={handleFormReset}
-              className="flex-1 justify-center sm:flex-none px-4 sm:px-6 py-2.5 rounded-lg font-semibold text-xs sm:text-sm text-[#0d3b66] bg-[#eef2f6] hover:bg-[#e2e8f0] border border-[#d0d7e2] hover:border-[#b8c2d1] transition-colors cursor-pointer flex items-center gap-2 shadow-sm"
+              className="flex-1 justify-center sm:flex-none px-4 sm:px-6 py-2.5 rounded-lg font-semibold text-xs sm:text-sm text-red-500 bg-white hover:bg-red-50 hover:text-red-600 border border-red-300 transition-colors cursor-pointer flex items-center gap-2"
             >
               <RotateCcw className="w-4 h-4" />
               Reset

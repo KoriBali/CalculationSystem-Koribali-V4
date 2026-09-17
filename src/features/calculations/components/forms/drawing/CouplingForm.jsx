@@ -27,6 +27,7 @@ import {
   AlertTriangle,
   Pencil,
 } from "lucide-react";
+import { FieldErrorHint } from "../../../../../shared/components/FieldErrorHint";
 
 /**
  * HELPER COMPONENTS
@@ -51,10 +52,9 @@ const CardOption = ({ label, current, value, onChange }) => {
       type="button"
       onClick={() => onChange(value)}
       className={`group w-full flex items-center justify-between px-3 xl:px-4 py-2 lg:py-2.5 min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] relative overflow-hidden rounded-lg hp:rounded-md border transition-all duration-300 cursor-pointer active:scale-[0.98]
-        ${
-          isActive
-            ? "border-blue-500 bg-blue-50 shadow-sm ring-1 ring-blue-50"
-            : "border-slate-300 bg-white hover:border-slate-400 hover:bg-slate-50 hover:shadow-sm"
+        ${isActive
+          ? "border-blue-500 bg-blue-50 shadow-sm ring-1 ring-blue-50"
+          : "border-slate-300 bg-white hover:border-slate-400 hover:bg-slate-50 hover:shadow-sm"
         }`}
     >
       <p
@@ -75,10 +75,9 @@ const CardOption = ({ label, current, value, onChange }) => {
 
 const inputStyle = (hasError) =>
   `w-full px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border
-  ${
-    hasError
-      ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
-      : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
+  ${hasError
+    ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
+    : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
   }`;
 
 export function CouplingForm({ onReset, onNext, onBack, onError }) {
@@ -118,7 +117,7 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
     const hasType1 = !!t1;
     const hasType2 = !!t2;
     if (!hasType1 && !hasType2) return false;
-    
+
     if (hasType1 && !t1.includes("jis")) return true;
     if (hasType2 && !t2.includes("jis")) return true;
     return false;
@@ -173,7 +172,7 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
       if (onError)
         onError(
           firstErrorMessage(validationErrors) ||
-            "Please correct the errors in Coupling Configuration.",
+          "Please correct the errors in Coupling Configuration.",
         );
       scrollToFirstError(validationErrors);
       return;
@@ -294,7 +293,7 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
             </div>
           )}
           <SectionCard>
-            <div className="mb-8">
+            <div className="mb-4">
               <label className="block text-xs md:text-sm text-gray-700 mb-2 md:mb-3">
                 Number of Coupling Heights <span className="text-gray-400 font-normal ml-1">(Max 3)</span>
               </label>
@@ -320,7 +319,7 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
             </div>
 
             {/* Interactive Diagram Area */}
-            <div className="relative mt-4 mb-2 mx-auto w-full max-w-4xl overflow-hidden z-0">
+            <div className="relative mt-4 mb-2 mx-auto w-full max-w-4xl overflow-hidden z-0" style={{ isolation: 'isolate' }}>
               {/* The Vertical Pole Background */}
               <div className="absolute left-[40%] sm:left-[45%] md:left-[50%] top-8 bottom-4 w-6 md:w-8 bg-gradient-to-r from-[#d0d7e2] via-[#e2e8f0] to-[#b8c2d1] border-x border-t border-[#94a3b8] z-0 rounded-t shadow-inner transform -translate-x-1/2" />
 
@@ -333,7 +332,7 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
                 GL
               </div>
 
-              <div className="flex flex-col gap-24 sm:gap-20 md:gap-16 xl:gap-20 relative z-10 pb-56 md:pb-72 pt-16 md:pt-20">
+              <div className="flex flex-col gap-14 sm:gap-16 md:gap-12 relative z-10 pb-44 md:pb-52 pt-12 md:pt-16">
                 {[0, 1, 2].map((i) => {
                   const isVisible = i < couplingCount;
                   const c = isVisible
@@ -356,40 +355,36 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
                         {/* Dimension lines container */}
                         <div className="flex-1 relative flex flex-col justify-center w-full h-full">
                           {/* Input Area (Absolutely positioned ABOVE the horizontal dimension line) */}
-                          <div className="absolute bottom-[calc(50%+8px)] left-0 flex flex-col items-start w-[80px] sm:w-[100px] md:w-[120px]">
+                          <div className="absolute bottom-[calc(50%+8px)] left-0 flex flex-col items-start w-[90px] sm:w-[110px] md:w-[130px]">
                             <label className="text-[10px] sm:text-xs md:text-sm text-gray-700 mb-1.5 ml-1">
                               Height {i + 1} (mm)
                             </label>
                             <input
                               id={`couplings[${i}].height`}
                               type="number"
-                              placeholder="Enter height..."
-                              className={`w-full min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border ${
-                                errors[`couplings[${i}].height`]
-                                  ? "border-red-500 bg-[#fff5f5] focus:ring-red-200"
-                                  : "border-gray-300 bg-white focus:border-[#0d3b66] focus:ring-1 focus:ring-[#0d3b66]"
-                              }`}
+                              placeholder="Enter height"
+                              className={`w-full min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border ${errors[`couplings[${i}].height`]
+                                ? "border-red-500 bg-[#fff5f5] focus:ring-red-200"
+                                : "border-gray-300 bg-white focus:border-[#0d3b66] focus:ring-1 focus:ring-[#0d3b66]"
+                                }`}
                               value={c.height === undefined || c.height === null ? "" : c.height}
                               onChange={(e) =>
                                 updateCoupling(i, "height", e.target.value)
                               }
                             />
-                          </div>
-
-                          {/* Error Message (Absolutely positioned BELOW the horizontal dimension line) */}
-                          {errors[`couplings[${i}].height`] && (
-                            <div className="absolute top-[calc(50%+4px)] left-2 w-[80px] sm:w-[100px] md:w-[120px]">
-                              <p className="text-red-500 text-[9px] sm:text-[10px] md:text-xs leading-tight">
+                            {/* Error Message tepat di bawah input */}
+                            {errors[`couplings[${i}].height`] && (
+                              <p className="mt-1 left-1 text-red-500 text-xs leading-tight">
                                 {errors[`couplings[${i}].height`]}
                               </p>
-                            </div>
-                          )}
+                            )}
+                          </div>
 
                           {/* Horizontal Connection Line */}
                           <div className="w-full h-[2px] bg-gray-400 group-hover:bg-[#0d3b66] transition-colors" />
 
                           {/* Infinite Vertical Line extending downwards from the horizontal line */}
-                          <div className="absolute top-[50%] left-0 w-[2px] h-[1000px] bg-gray-400 group-hover:bg-[#0d3b66] transition-colors -z-10" />
+                          <div className="absolute top-[50%] left-0 w-[2px] h-[1000px] bg-gray-400 group-hover:bg-[#0d3b66] transition-colors z-0 pointer-events-none" />
                         </div>
                       </div>
 
@@ -397,8 +392,8 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
                       <div className="absolute left-[40%] sm:left-[45%] md:left-[50%] top-1/2 w-4 h-4 md:w-5 md:h-5 bg-white border-[3px] md:border-[4px] border-[#0d3b66] group-hover:border-[#0d3b66] rounded-full shadow-md z-20 transform -translate-x-1/2 -translate-y-1/2 group-hover:scale-125 transition-all duration-300" />
 
                       {/* Right Side: Options */}
-                      <div className="w-[60%] sm:w-[55%] md:w-[50%] pl-5 sm:pl-8 xl:pl-8 pr-2 sm:pr-4 flex flex-col items-start gap-2 sm:gap-3 py-1">
-                        
+                      <div className="w-[60%] sm:w-[55%] md:w-[50%] pl-5 sm:pl-8 xl:pl-8 pr-2 sm:pr-4 flex flex-col items-start gap-2 sm:gap-3 py-1 relative">
+
                         {/* Configure Button */}
                         <div className="flex flex-col items-start w-full relative">
                           <button
@@ -433,7 +428,7 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
                                 });
                               }
                             }}
-                            className={`group/btn flex items-center justify-start gap-1.5 sm:gap-3 pl-2 pr-4 sm:px-4 py-2 lg:py-2.5 min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] border shadow-sm rounded-lg text-[10px] sm:text-[11px] md:text-sm font-medium transition-all w-full xl:w-auto ${
+                            className={`group/btn flex items-center justify-start gap-1.5 sm:gap-3 pl-2 pr-4 sm:px-4 py-2 lg:py-2.5 min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] border shadow-sm rounded-lg text-[10px] sm:text-[11px] md:text-sm font-medium transition-all w-full ${
                               errors[`couplings[${i}].caseDetails`]
                                 ? "bg-red-50 border-red-400 text-red-600 hover:bg-red-100 hover:border-red-500"
                                 : c.caseDetails
@@ -444,10 +439,6 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
                             {c.caseDetails ? (
                               <Pencil
                                 className={`hidden sm:block w-3.5 h-3.5 md:w-4 md:h-4 shrink-0 transition-colors ${errors[`couplings[${i}].caseDetails`] ? "text-red-500" : "text-emerald-600"}`}
-                              />
-                            ) : errors[`couplings[${i}].caseDetails`] ? (
-                              <AlertTriangle
-                                className="hidden sm:block w-3.5 h-3.5 md:w-4 md:h-4 shrink-0 text-red-500 transition-colors"
                               />
                             ) : (
                               <Settings2
@@ -460,14 +451,8 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
                                 : `Configure Coupling Height ${i + 1}`}
                             </span>
                           </button>
-                          
-                          {/* Error Message Layout below button instead of absolute */}
-                          {errors[`couplings[${i}].caseDetails`] && (
-                            <span className="text-[10px] sm:text-[11px] md:text-xs text-red-500 mt-1 flex items-center gap-1">
-                              <AlertTriangle className="w-3 h-3" />
-                              {errors[`couplings[${i}].caseDetails`]}
-                            </span>
-                          )}
+                          {/* FieldErrorHint — absolute badge at top-right, no layout shift */}
+                          <FieldErrorHint message={errors[`couplings[${i}].caseDetails`]} />
                         </div>
 
                         {/* With Hookband */}
@@ -476,56 +461,43 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
                           const nonJis = isNonJis(c.caseDetails);
                           const isJis = isConfigured && !nonJis;
                           const hookbandChecked = isConfigured ? nonJis : false;
-                          
+
                           return (
-                            <div className="flex flex-row items-stretch w-full xl:w-auto mt-2">
-                              {/* Indentation line */}
-                              <div className="w-4 sm:w-6 border-l-2 border-dashed border-gray-300 ml-2 sm:ml-4 shrink-0" />
-                              
-                              {/* Checkbox Card */}
-                              <label className={`flex-1 flex items-center justify-start gap-2 sm:gap-3 cursor-not-allowed group/cb bg-white pl-2 pr-4 sm:px-4 py-1.5 lg:py-2 min-h-[30px] sm:min-h-[34px] lg:min-h-[38px] rounded-lg border border-gray-200 shadow-sm transition-all w-full`}>
-                                <div className="relative flex items-center justify-center shrink-0">
-                                  <input
-                                    type="checkbox"
-                                    className="peer appearance-none w-4 h-4 md:w-4 md:h-4 border-2 border-gray-300 rounded bg-white checked:bg-[#3399cc] checked:border-[#3399cc] opacity-70 transition-all cursor-not-allowed"
-                                    checked={hookbandChecked}
-                                    readOnly
-                                  />
-                                  <div className={`absolute text-white opacity-0 peer-checked:opacity-100 pointer-events-none`}>
-                                    <svg
-                                      className="w-3 h-3 md:w-3.5 md:h-3.5"
-                                      fill="none"
-                                      viewBox="0 0 24 24"
-                                      stroke="currentColor"
-                                      strokeWidth={3}
-                                    >
-                                      <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M5 13l4 4L19 7"
-                                      />
-                                    </svg>
-                                  </div>
-                                </div>
-                                <div className="flex flex-col justify-center">
-                                  <span className={`text-[10px] sm:text-[11px] md:text-xs font-medium transition-colors whitespace-nowrap text-gray-600`}>
-                                    with Hookband
+                            <div className="flex flex-row items-center w-full mt-1.5">
+                              {/* Vertical dashed indent */}
+                              <div className="ml-2 sm:ml-4 shrink-0 self-stretch border-l-2 border-dashed border-gray-300" />
+                              {/* Horizontal dashed connector */}
+                              <div className="w-3 sm:w-5 shrink-0 border-t-2 border-dashed border-gray-300" />
+
+                              {/* Status Chip — 1 warna netral, beda hanya dot + teks */}
+                              {!isConfigured ? (
+                                <div className="flex-1 flex items-center gap-2 px-3 py-1.5 rounded-md bg-slate-50 border border-slate-200">
+                                  <span className="w-2 h-2 rounded-full bg-slate-300 shrink-0" />
+                                  <span className="text-xs text-slate-400 font-medium whitespace-nowrap">
+                                    — Coupling Type Not Set
                                   </span>
-                                  {!isConfigured ? (
-                                    <span className="text-[9px] text-gray-400 italic leading-none mt-0.5">
-                                      Configure coupling first
-                                    </span>
-                                  ) : nonJis ? (
-                                    <span className="text-[9px] text-[#3399cc] italic leading-none mt-0.5">
-                                      Auto-checked (Non-JIS)
-                                    </span>
-                                  ) : (
-                                    <span className="text-[9px] text-gray-400 italic leading-none mt-0.5">
-                                      Not required for JIS
-                                    </span>
-                                  )}
                                 </div>
-                              </label>
+                              ) : nonJis ? (
+                                <div className="flex-1 flex items-center gap-2 px-3 py-1.5 rounded-md bg-slate-50 border border-slate-200">
+                                  <span className="w-2 h-2 rounded-full bg-[#3399cc] shrink-0" />
+                                  <span className="text-xs text-slate-700 font-semibold whitespace-nowrap">
+                                    With Hookband
+                                  </span>
+                                  <span className="text-xs text-slate-400 font-medium whitespace-nowrap">
+                                    — Coupling Type: Non-JIS
+                                  </span>
+                                </div>
+                              ) : (
+                                <div className="flex-1 flex items-center gap-2 px-3 py-1.5 rounded-md bg-slate-50 border border-slate-200">
+                                  <span className="w-2 h-2 rounded-full bg-slate-400 shrink-0" />
+                                  <span className="text-xs text-slate-700 font-semibold whitespace-nowrap">
+                                    Without Hookband
+                                  </span>
+                                  <span className="text-xs text-slate-400 font-medium whitespace-nowrap">
+                                    — Coupling Type: JIS
+                                  </span>
+                                </div>
+                              )}
                             </div>
                           );
                         })()}
@@ -617,13 +589,13 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
         caseData={
           modalState.selectedCaseId
             ? {
-                id: modalState.selectedCaseId,
-                title: `Case ${modalState.selectedCaseId} of Coupling`,
-                image:
-                  caseList.find((c) => c.id === modalState.selectedCaseId)
-                    ?.detailImage ??
-                  `/images/CPdetail-Case${modalState.selectedCaseId}.svg`,
-              }
+              id: modalState.selectedCaseId,
+              title: `Case ${modalState.selectedCaseId} of Coupling`,
+              image:
+                caseList.find((c) => c.id === modalState.selectedCaseId)
+                  ?.detailImage ??
+                `/images/CPdetail-Case${modalState.selectedCaseId}.svg`,
+            }
             : null
         }
         caseSchema={caseSchema}
@@ -632,7 +604,7 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
         location={location}
         initialData={
           modalState.index !== null &&
-          couplings[modalState.index]?.caseDetails?.caseId ===
+            couplings[modalState.index]?.caseDetails?.caseId ===
             modalState.selectedCaseId
             ? couplings[modalState.index].caseDetails
             : null

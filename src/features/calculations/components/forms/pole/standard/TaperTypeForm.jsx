@@ -268,7 +268,7 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
             className={`
           relative flex items-center justify-center overflow-hidden
           transition-colors duration-300
-          py-8 h-[450px] sm:h-[550px] md:h-[650px] lg:h-[750px] xl:h-[750px]
+          py-8 h-[520px] sm:h-[620px] md:h-[720px] lg:h-[820px] xl:h-[820px]
           ${showDiagram ? "bg-slate-50" : "bg-white"}
         `}
           >
