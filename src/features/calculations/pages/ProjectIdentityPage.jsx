@@ -6,8 +6,6 @@ import { ToastModal } from "../components/modals/ToastModal";
 import { useProjectIdentityForm } from "../hooks/useProjectIdentityForm";
 import { useWorkflowMode } from "../hooks/useWorkflowMode";
 import { useState } from "react";
-import { ChevronUp, ChevronDown } from "lucide-react";
-import { NextStepModal } from "../components/modals/NextStepModal";
 
 export default function ProjectIdentityPage() {
   const { type: projectType, draftId } = useParams();
@@ -15,8 +13,6 @@ export default function ProjectIdentityPage() {
   const identityForm = useProjectIdentityForm(projectType);
   const workflowForm = useWorkflowMode(projectType);
   const [toast, setToast] = useState(null);
-  const [isCoverExpanded, setIsCoverExpanded] = useState(true);
-  const [showNextStepModal, setShowNextStepModal] = useState(false);
 
   const handleFinishCover = async () => {
     const { isValid, errors } = await identityForm.validate();

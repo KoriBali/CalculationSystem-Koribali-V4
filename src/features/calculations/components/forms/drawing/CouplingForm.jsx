@@ -24,6 +24,8 @@ import {
   Circle,
   Plus,
   Minus,
+  AlertTriangle,
+  Pencil,
 } from "lucide-react";
 
 /**
@@ -105,6 +107,22 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
     selectedCaseId: null,
   });
   const [showResetModal, setShowResetModal] = useState(false);
+  const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
+  const [pendingCountChange, setPendingCountChange] = useState(null);
+
+  // Helper to check if any of the selected coupling types is Non-JIS
+  const isNonJis = (caseDetails) => {
+    if (!caseDetails) return false;
+    const t1 = caseDetails.cp1?.type?.toLowerCase() || "";
+    const t2 = caseDetails.cp2?.type?.toLowerCase() || "";
+    const hasType1 = !!t1;
+    const hasType2 = !!t2;
+    if (!hasType1 && !hasType2) return false;
+    
+    if (hasType1 && !t1.includes("jis")) return true;
+    if (hasType2 && !t2.includes("jis")) return true;
+    return false;
+  };
 
   // Coupling positions / sizes / types / case configs from /api/master/coupling
   // (the backend is the single source of truth — no hardcoded copy).
@@ -167,6 +185,20 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
 
   const handleCountChange = (newCount) => {
     if (newCount < 1 || newCount > 3) return;
+
+    if (newCount < couplingCount) {
+      const removedCouplings = couplings.slice(newCount, couplingCount);
+      const hasData = removedCouplings.some((c) => c.height !== "" || c.caseDetails !== null);
+      if (hasData) {
+        setPendingCountChange(newCount);
+        setShowConfirmDeleteModal(true);
+        return;
+      }
+    }
+    executeCountChange(newCount);
+  };
+
+  const executeCountChange = (newCount) => {
     setCouplingCount(newCount);
     setCouplings((prev) => {
       const updated = [...prev];
@@ -179,6 +211,11 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
       }
       return updated;
     });
+  };
+
+  const confirmDecrement = () => {
+    executeCountChange(pendingCountChange);
+    setShowConfirmDeleteModal(false);
   };
 
   const updateCoupling = (index, field, value) => {
@@ -259,7 +296,7 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
           <SectionCard>
             <div className="mb-8">
               <label className="block text-xs md:text-sm text-gray-700 mb-2 md:mb-3">
-                Number of Coupling Heights
+                Number of Coupling Heights <span className="text-gray-400 font-normal ml-1">(Max 3)</span>
               </label>
               <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden bg-white shadow-sm w-fit transition-all focus-within:border-[#3399cc] focus-within:ring-1 focus-within:ring-[#3399cc] h-[34px] sm:h-[38px] lg:h-[42px]">
                 <button
@@ -326,13 +363,13 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
                             <input
                               id={`couplings[${i}].height`}
                               type="number"
-                              placeholder="0"
+                              placeholder="Enter height..."
                               className={`w-full min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border ${
                                 errors[`couplings[${i}].height`]
                                   ? "border-red-500 bg-[#fff5f5] focus:ring-red-200"
                                   : "border-gray-300 bg-white focus:border-[#0d3b66] focus:ring-1 focus:ring-[#0d3b66]"
                               }`}
-                              value={c.height}
+                              value={c.height === undefined || c.height === null ? "" : c.height}
                               onChange={(e) =>
                                 updateCoupling(i, "height", e.target.value)
                               }
@@ -360,8 +397,10 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
                       <div className="absolute left-[40%] sm:left-[45%] md:left-[50%] top-1/2 w-4 h-4 md:w-5 md:h-5 bg-white border-[3px] md:border-[4px] border-[#0d3b66] group-hover:border-[#0d3b66] rounded-full shadow-md z-20 transform -translate-x-1/2 -translate-y-1/2 group-hover:scale-125 transition-all duration-300" />
 
                       {/* Right Side: Options */}
-                      <div className="w-[60%] sm:w-[55%] md:w-[50%] pl-5 sm:pl-8 xl:pl-8 pr-2 sm:pr-4 flex flex-col xl:flex-row xl:flex-wrap items-stretch xl:items-center gap-2 sm:gap-3 xl:gap-3">
-                        <div className="flex flex-col items-end relative">
+                      <div className="w-[60%] sm:w-[55%] md:w-[50%] pl-5 sm:pl-8 xl:pl-8 pr-2 sm:pr-4 flex flex-col items-start gap-2 sm:gap-3 py-1">
+                        
+                        {/* Configure Button */}
+                        <div className="flex flex-col items-start w-full relative">
                           <button
                             id={`couplings[${i}].caseDetails`}
                             type="button"
@@ -403,61 +442,93 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
                             }`}
                           >
                             {c.caseDetails ? (
-                              <CheckCircle
+                              <Pencil
                                 className={`hidden sm:block w-3.5 h-3.5 md:w-4 md:h-4 shrink-0 transition-colors ${errors[`couplings[${i}].caseDetails`] ? "text-red-500" : "text-emerald-600"}`}
+                              />
+                            ) : errors[`couplings[${i}].caseDetails`] ? (
+                              <AlertTriangle
+                                className="hidden sm:block w-3.5 h-3.5 md:w-4 md:h-4 shrink-0 text-red-500 transition-colors"
                               />
                             ) : (
                               <Settings2
-                                className={`hidden sm:block w-3.5 h-3.5 md:w-4 md:h-4 shrink-0 transition-colors ${errors[`couplings[${i}].caseDetails`] ? "text-red-500" : "text-slate-500"}`}
+                                className="hidden sm:block w-3.5 h-3.5 md:w-4 md:h-4 shrink-0 text-slate-500 transition-colors"
                               />
                             )}
                             <span className="whitespace-nowrap">
                               {c.caseDetails
-                                ? `Coupling Height ${i + 1} Configured`
-                                : `Configure Height ${i + 1}`}
+                                ? `Edit Coupling Height ${i + 1}`
+                                : `Configure Coupling Height ${i + 1}`}
                             </span>
                           </button>
+                          
+                          {/* Error Message Layout below button instead of absolute */}
                           {errors[`couplings[${i}].caseDetails`] && (
-                            <span className="absolute top-[105%] right-0 text-[9px] sm:text-[10px] md:text-xs text-red-500 whitespace-nowrap mt-0.5">
+                            <span className="text-[10px] sm:text-[11px] md:text-xs text-red-500 mt-1 flex items-center gap-1">
+                              <AlertTriangle className="w-3 h-3" />
                               {errors[`couplings[${i}].caseDetails`]}
                             </span>
                           )}
                         </div>
 
-                        <label className="flex items-center justify-start gap-2 sm:gap-3 cursor-pointer group/cb bg-white hover:bg-gray-50 pl-2 pr-4 sm:px-4 py-2 lg:py-2.5 min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] rounded-lg border border-gray-300 shadow-sm transition-all w-full xl:w-auto">
-                          <div className="relative flex items-center justify-center shrink-0">
-                            <input
-                              type="checkbox"
-                              className="peer appearance-none w-4 h-4 md:w-5 md:h-5 border-2 border-gray-300 rounded bg-white checked:bg-[#0d3b66] checked:border-[#0d3b66] transition-all cursor-pointer"
-                              checked={c.withHookband}
-                              onChange={(e) =>
-                                updateCoupling(
-                                  i,
-                                  "withHookband",
-                                  e.target.checked,
-                                )
-                              }
-                            />
-                            <div className="absolute text-white opacity-0 peer-checked:opacity-100 pointer-events-none">
-                              <svg
-                                className="w-3 h-3 md:w-3.5 md:h-3.5"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                                strokeWidth={3}
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  d="M5 13l4 4L19 7"
-                                />
-                              </svg>
+                        {/* With Hookband */}
+                        {(() => {
+                          const isConfigured = !!c.caseDetails;
+                          const nonJis = isNonJis(c.caseDetails);
+                          const isJis = isConfigured && !nonJis;
+                          const hookbandChecked = isConfigured ? nonJis : false;
+                          
+                          return (
+                            <div className="flex flex-row items-stretch w-full xl:w-auto mt-2">
+                              {/* Indentation line */}
+                              <div className="w-4 sm:w-6 border-l-2 border-dashed border-gray-300 ml-2 sm:ml-4 shrink-0" />
+                              
+                              {/* Checkbox Card */}
+                              <label className={`flex-1 flex items-center justify-start gap-2 sm:gap-3 cursor-not-allowed group/cb bg-white pl-2 pr-4 sm:px-4 py-1.5 lg:py-2 min-h-[30px] sm:min-h-[34px] lg:min-h-[38px] rounded-lg border border-gray-200 shadow-sm transition-all w-full`}>
+                                <div className="relative flex items-center justify-center shrink-0">
+                                  <input
+                                    type="checkbox"
+                                    className="peer appearance-none w-4 h-4 md:w-4 md:h-4 border-2 border-gray-300 rounded bg-white checked:bg-[#3399cc] checked:border-[#3399cc] opacity-70 transition-all cursor-not-allowed"
+                                    checked={hookbandChecked}
+                                    readOnly
+                                  />
+                                  <div className={`absolute text-white opacity-0 peer-checked:opacity-100 pointer-events-none`}>
+                                    <svg
+                                      className="w-3 h-3 md:w-3.5 md:h-3.5"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                      stroke="currentColor"
+                                      strokeWidth={3}
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="M5 13l4 4L19 7"
+                                      />
+                                    </svg>
+                                  </div>
+                                </div>
+                                <div className="flex flex-col justify-center">
+                                  <span className={`text-[10px] sm:text-[11px] md:text-xs font-medium transition-colors whitespace-nowrap text-gray-600`}>
+                                    with Hookband
+                                  </span>
+                                  {!isConfigured ? (
+                                    <span className="text-[9px] text-gray-400 italic leading-none mt-0.5">
+                                      Configure coupling first
+                                    </span>
+                                  ) : nonJis ? (
+                                    <span className="text-[9px] text-[#3399cc] italic leading-none mt-0.5">
+                                      Auto-checked (Non-JIS)
+                                    </span>
+                                  ) : (
+                                    <span className="text-[9px] text-gray-400 italic leading-none mt-0.5">
+                                      Not required for JIS
+                                    </span>
+                                  )}
+                                </div>
+                              </label>
                             </div>
-                          </div>
-                          <span className="text-[10px] sm:text-[11px] md:text-sm font-medium text-gray-700 group-hover/cb:text-[#0d3b66] transition-colors whitespace-nowrap flex-1">
-                            with Hookband
-                          </span>
-                        </label>
+                          );
+                        })()}
                       </div>
                     </div>
                   );
@@ -510,6 +581,13 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
         title="Reset all inputs on this section?"
         description="This will clear all inputs entered in this section. This action cannot be undone."
       />
+      <ConfirmResetAllModal
+        open={showConfirmDeleteModal}
+        onClose={() => setShowConfirmDeleteModal(false)}
+        onReset={confirmDecrement}
+        title="Delete Coupling Data?"
+        description="The coupling(s) you are removing already have data. Are you sure you want to delete them? This action cannot be undone."
+      />
       <CouplingTypeModal
         isOpen={modalState.isOpen && modalState.step === "grid"}
         onClose={() => setModalState({ ...modalState, isOpen: false })}
@@ -561,6 +639,7 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
         }
         onSave={(details) => {
           updateCoupling(modalState.index, "caseDetails", details);
+          updateCoupling(modalState.index, "withHookband", isNonJis(details));
           setModalState({
             isOpen: false,
             index: null,
