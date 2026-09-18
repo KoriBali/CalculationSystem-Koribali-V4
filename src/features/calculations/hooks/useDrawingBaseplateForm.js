@@ -29,6 +29,8 @@ export function useDrawingBaseplateForm() {
     setLocalBaseplate(newBaseplate);
     setBaseplate(newBaseplate);
     
+    sessionStorage.removeItem(`${projectType}_drawing_baseplate_completed`);
+    
     setErrors((prev) => {
       const cleared = { ...prev };
       Object.keys(updates).forEach((key) => delete cleared[key]);

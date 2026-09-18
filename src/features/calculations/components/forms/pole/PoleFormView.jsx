@@ -131,8 +131,16 @@ export default function PoleFormView() {
     poleStandardForm.poleTypeStandard.type,
   ]);
 
-  // Opens cover modal if last step, otherwise navigates to next
+  // Opens cover modal if last step, otherwise navigates to next.
+  // calculation.finish() itself silently no-ops when not yet calculated —
+  // fine when the button was natively `disabled` (it couldn't be clicked
+  // at all), but the button below no longer is, so this needs to explain
+  // why nothing happened instead of just doing nothing.
   const handleFinish = () => {
+    if (!calculation.isCalculated) {
+      calculation.showToast("Click \"Calculate Results\" first", "error");
+      return;
+    }
     const result = calculation.finish();
     if (result === "OPEN_COVER") {
       setShowFinishModal(true);
@@ -1240,8 +1248,12 @@ export default function PoleFormView() {
                   final step's label. */}
               <button
                 onClick={handleFinish}
-                disabled={!calculation.isCalculated}
-                title={calculation.buttonLabel}
+                aria-disabled={!calculation.isCalculated}
+                title={
+                  !calculation.isCalculated
+                    ? 'Click "Calculate Results" first'
+                    : calculation.buttonLabel
+                }
                 className={`flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-3 hp:py-2 md:px-6
                 rounded-lg hp:rounded-md font-medium transition-all text-sm
                 ${

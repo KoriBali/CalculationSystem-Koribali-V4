@@ -5,6 +5,7 @@ import { useProjectStorage } from "./useProjectStorage";
 import { validateBaseplate } from "../logic/baseplate/baseplateValidation";
 import { executeBaseplateCalculation } from "../logic/baseplate/baseplateCalculation";
 import { scrollToFirstError, firstErrorMessage } from "../utils/scrollToError";
+import { notifyCalculationProgressChanged } from "../utils/calculationProgressEvent";
 
 import * as Utils from "../utils";
 
@@ -116,7 +117,11 @@ export function useBaseplateForm() {
 
   // Loading and calculation status
   const [loading, setLoading] = useState(false);
-  const isCalculated = !!calculatedBaseplate;
+  const [isCalculated, setIsCalculated] = useProjectStorage(
+    projectType,
+    "isCalculatedBp",
+    false
+  );
 
   // Toast notification state
   const [toast, setToast] = useState(null);
@@ -143,8 +148,11 @@ export function useBaseplateForm() {
   // recalculates. Cheap to call unconditionally: setting an already-null
   // value is a no-op re-render-wise.
   const invalidateCalculation = () => {
-    setCalculatedBaseplate(null);
-    setShowResultsBaseplate(false);
+    setIsCalculated(false);
+    // Header nav reads this flag straight from sessionStorage to lock/
+    // unlock tabs, which a plain state update can't itself prompt it to
+    // re-read — this nudges it to re-render right away.
+    notifyCalculationProgressChanged();
   };
 
   const handleBaseplateTypeUpdate = (updates) => {
@@ -218,6 +226,10 @@ export function useBaseplateForm() {
 
       // Update UI state after success
       setShowResultsBaseplate(true);
+      setIsCalculated(true);
+      // Let Header re-read sessionStorage now — otherwise the next tab
+      // stays locked-looking until the user also clicks Next and navigates.
+      notifyCalculationProgressChanged();
     } catch (err) {
       showToast(err?.message || "Something went wrong");
     } finally {

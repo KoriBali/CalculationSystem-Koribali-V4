@@ -1,6 +1,7 @@
 import {
   RotateCcw,
   ChevronRight,
+  ChevronLeft,
   CheckCircle,
   Circle,
   DoorOpen,
@@ -145,6 +146,7 @@ export function DrawingGeneralForm({
   onUpdate,
   onReset,
   onNext,
+  onBack,
   errors,
   projectMode,
   nextLabel = "Save & Continue",
@@ -395,22 +397,36 @@ export function DrawingGeneralForm({
 
         {/* Footer */}
         <div className="flex justify-between items-center pt-4 md:pt-0">
+          {/* LEFT: BACK BUTTON */}
           <button
-            onClick={() => setShowResetModal(true)}
-            className="flex items-center gap-2 px-5 py-2.5 md:px-6 rounded-lg hp:rounded-md bg-white text-red-500 font-medium text-xs md:text-sm hover:bg-red-50 hover:text-red-600 transition-colors border border-red-300"
+            onClick={onBack}
+            className="flex items-center gap-2 px-5 py-2.5 md:px-6 rounded-lg hp:rounded-md bg-white text-slate-600 font-medium text-xs md:text-sm hover:bg-slate-50 hover:text-[#0d3b66] transition-colors border border-slate-300"
           >
-            <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-            Reset
+            <ChevronLeft className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+            <span className="hidden sm:inline">Back to Calculation</span>
+            <span className="sm:hidden">Back</span>
           </button>
 
-          <button
-            onClick={onNext}
-            className="flex justify-center items-center gap-2 px-5 py-2.5 md:px-6
-            rounded-lg hp:rounded-md font-medium bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white text-xs md:text-sm hover:brightness-110 shadow-sm transition-all"
-          >
-            {nextLabel}
-            <ChevronRight className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-          </button>
+          {/* RIGHT: RESET & NEXT BUTTONS */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            <button
+              onClick={() => setShowResetModal(true)}
+              className="flex items-center justify-center p-2.5 md:px-5 md:py-2.5 rounded-lg hp:rounded-md bg-white text-red-500 hover:bg-red-50 hover:text-red-600 transition-colors border border-red-300 shadow-sm md:gap-2"
+              title="Reset Form"
+            >
+              <RotateCcw className="w-4 h-4" />
+              <span className="hidden md:inline text-sm font-medium">Reset</span>
+            </button>
+
+            <button
+              onClick={onNext}
+              className="flex justify-center items-center gap-2 px-5 py-2.5 md:px-6
+              rounded-lg hp:rounded-md font-medium bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white text-xs md:text-sm hover:brightness-110 shadow-sm transition-all"
+            >
+              {nextLabel}
+              <ChevronRight className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+            </button>
+          </div>
         </div>
       </div>
 

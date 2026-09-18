@@ -313,8 +313,12 @@ export function RoundCaissonTypeForm({
                 final step's label. */}
             <button
               onClick={onNext}
-              disabled={!isDrawingMode && !isCalculated}
-              title={buttonLabel}
+              aria-disabled={!isDrawingMode && !isCalculated}
+              title={
+                !isDrawingMode && !isCalculated
+                  ? 'Click "Calculate Results" first'
+                  : buttonLabel
+              }
               className={`flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-3 hp:py-2 md:px-6
                 rounded-lg hp:rounded-md font-medium transition-all text-sm
                 ${

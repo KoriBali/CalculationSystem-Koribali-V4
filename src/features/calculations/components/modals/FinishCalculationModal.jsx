@@ -1,13 +1,19 @@
 import React from "react";
 import { Database, FileEdit, ChevronRight, FileText } from "lucide-react";
-import { useParams } from "react-router-dom";
-import { isProjectComplete } from "../../utils/coreLogic";
+import { useParams, useNavigate } from "react-router-dom";
+import { isProjectComplete, clearSmartPreserveWarning, saveCalculationSnapshot } from "../../utils/coreLogic";
+import { PaintBucket } from "lucide-react";
 
 export function FinishCalculationModal({ open, onClose, onSaveDraft, onSaveDatabase, onGenerateReport, isDrawingMode = false }) {
-  const { type: projectType } = useParams();
+  const { type: projectType, draftId } = useParams();
+  const navigate = useNavigate();
   if (!open) return null;
 
   const projectComplete = isProjectComplete(projectType);
+  
+  const rawWorkflow = sessionStorage.getItem(`${projectType}_workflow`);
+  const workflow = rawWorkflow ? JSON.parse(rawWorkflow) : {};
+  const isBothMode = workflow.projectMode === "both";
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm px-4">
@@ -24,6 +30,31 @@ export function FinishCalculationModal({ open, onClose, onSaveDraft, onSaveDatab
           <p className="text-slate-600 text-sm sm:text-base mb-1 sm:mb-2">
             Calculation completed. What would you like to do next?
           </p>
+
+          {!isDrawingMode && isBothMode && (
+            <button
+              onClick={() => {
+                clearSmartPreserveWarning(projectType);
+                saveCalculationSnapshot(projectType);
+                sessionStorage.setItem(`${projectType}_drawing_started`, "true");
+                navigate(`/calculation/${projectType}/${draftId}/drawing/drawing-setup`);
+              }}
+              className="w-full flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl border border-blue-200 bg-blue-50/30 hover:border-blue-500 hover:bg-blue-100 transition-all text-left group cursor-pointer"
+            >
+              <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-blue-500 text-white rounded-lg flex items-center justify-center shadow-sm">
+                <PaintBucket className="w-4 h-4 sm:w-5 sm:h-5" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-bold text-blue-800 text-sm">
+                  Proceed to Drawing
+                </h3>
+                <p className="text-[11px] sm:text-xs text-blue-600 mt-0.5 leading-snug">
+                  Start generating CAD drawings based on this calculation.
+                </p>
+              </div>
+              <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500 group-hover:translate-x-1 transition-transform shrink-0" />
+            </button>
+          )}
 
           <button
             onClick={onGenerateReport}

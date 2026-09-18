@@ -10,6 +10,7 @@ import { useDrawingGeneralForm } from "../../hooks/useDrawingGeneralForm";
 
 export default function DrawingGeneralPage() {
   const { type: projectType, draftId } = useParams();
+  const navigate = useNavigate();
   const [isCustomPoleModalOpen, setIsCustomPoleModalOpen] = useState(false);
 
   const {
@@ -37,6 +38,17 @@ export default function DrawingGeneralPage() {
     await handleNext();
   };
 
+  const onBackStep = () => {
+    const rawConfig = sessionStorage.getItem(`${projectType}_calculation_config`);
+    const config = rawConfig ? JSON.parse(rawConfig) : null;
+    
+    if (config?.foundation) navigate(`/calculation/${projectType}/${draftId}/foundation`);
+    else if (config?.baseplate) navigate(`/calculation/${projectType}/${draftId}/baseplate`);
+    else if (config?.opening) navigate(`/calculation/${projectType}/${draftId}/opening`);
+    else if (config?.pole) navigate(`/calculation/${projectType}/${draftId}/pole`);
+    else navigate(`/calculation/${projectType}/${draftId}/calculation-condition`);
+  };
+
   return (
     <>
       <div className="flex flex-col h-full">
@@ -54,6 +66,7 @@ export default function DrawingGeneralPage() {
                 onUpdate={handleUpdate}
                 onReset={handleReset}
                 onNext={onNextStep}
+                onBack={onBackStep}
                 errors={errors}
                 projectMode={projectMode}
                 nextLabel={nextLabel}

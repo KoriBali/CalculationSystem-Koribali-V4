@@ -10,6 +10,7 @@ import {
 } from "../logic/initial-setup/conditionLogic";
 import { useProjectStorage } from "./useProjectStorage";
 import { scrollToFirstError, firstErrorMessage } from "../utils/scrollToError";
+import { notifyCalculationProgressChanged } from "../utils/calculationProgressEvent";
 
 // ─── CONSTANTS ───────────────────────────────────────────────────────────────
 
@@ -88,20 +89,23 @@ export function useConditionForm() {
     // 2. Cleanup sessionStorage for disabled components
     cleanupDisabledComponents(projectType, localCondition);
 
-    // 3. Clear all calculation results if condition changes so they must recalculate
+    // 3. If condition changes, invalidate every step's calculation so the
+    // user is forced to recalculate before proceeding — but only the
+    // "isCalculated" flags, not the result data itself. This mirrors how an
+    // ordinary input edit already invalidates a step (see the poleForm/etc.
+    // deps effect in usePoleCalculation.js and friends): Calculate goes back
+    // to primary, Next/Finish disables, and the step's tab re-locks in
+    // HeaderCalculationPage — while the previously-computed table stays on
+    // screen as a stale-but-visible reference instead of vanishing outright.
+    // (Steps the user just *disabled* in this condition change are handled
+    // separately by cleanupDisabledComponents() above, which does wipe their
+    // data since they're no longer part of the calculation at all.)
     if (JSON.stringify(condition) !== JSON.stringify(localCondition)) {
-      sessionStorage.removeItem(`${projectType}_results`);
-      sessionStorage.removeItem(`${projectType}_resultsDo`);
-      sessionStorage.removeItem(`${projectType}_resultsOhw`);
-      sessionStorage.removeItem(`${projectType}_resultsArm`);
-      sessionStorage.removeItem(`${projectType}_showResults`);
-
-      sessionStorage.removeItem(`${projectType}_calculatedOp`);
-      sessionStorage.removeItem(`${projectType}_showResultsOp`);
-      sessionStorage.removeItem(`${projectType}_calculatedBaseplate`);
-      sessionStorage.removeItem(`${projectType}_showResultsBaseplate`);
-      sessionStorage.removeItem(`${projectType}_calculatedFoundation`);
-      sessionStorage.removeItem(`${projectType}_showResultsFoundation`);
+      sessionStorage.removeItem(`${projectType}_isCalculatedPole`);
+      sessionStorage.removeItem(`${projectType}_isCalculatedOp`);
+      sessionStorage.removeItem(`${projectType}_isCalculatedBp`);
+      sessionStorage.removeItem(`${projectType}_isCalculatedFd`);
+      notifyCalculationProgressChanged();
     }
 
     // 4. Commit condition to sessionStorage

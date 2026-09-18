@@ -28,6 +28,8 @@ export function useDrawingPoleForm() {
     setLocalPole(newPole);
     setPole(newPole);
     
+    sessionStorage.removeItem(`${projectType}_drawing_pole_completed`);
+    
     setErrors((prev) => {
       const cleared = { ...prev };
       Object.keys(updates).forEach((key) => delete cleared[key]);

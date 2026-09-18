@@ -39,6 +39,8 @@ export function useDrawingOpeningForm() {
     setLocalOpening(newOpening);
     setOpening(newOpening);
     
+    sessionStorage.removeItem(`${projectType}_drawing_opening_completed`);
+    
     setErrors((prev) => {
       const cleared = { ...prev };
       Object.keys(updates).forEach((key) => delete cleared[key]);

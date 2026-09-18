@@ -48,9 +48,16 @@ export function ProjectIdentityFields({ identityData, onUpdate, errors }) {
 
   return (
     <div className="space-y-4 md:space-y-6">
-      {/* ── Request Information ── */}
+      {/* ── Request & Project Information ──
+          Merged into one section/grid (was two separate cards — Request
+          Information capped at xl:grid-cols-4 while Project Information
+          never went past sm:grid-cols-2, so on a wide screen Project
+          Number/Company Name rendered twice as wide as the Request fields
+          directly above them). Combined, there are exactly 8 single-width
+          fields — a clean 4+4 across two full rows — with Project Name
+          alone on its own full-width row after them. */}
       <div>
-        <SectionTitle>Request Information</SectionTitle>
+        <SectionTitle>Request & Project Information</SectionTitle>
         <SectionCard>
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-x-6 gap-y-6">
             {/* Request Number */}
@@ -121,9 +128,8 @@ export function ProjectIdentityFields({ identityData, onUpdate, errors }) {
               />
             </div>
 
-            {/* Requested Due Date — spans half the row on desktop instead
-                of a cramped quarter, matching Responsible Department's width */}
-            <div className="relative xl:col-span-2">
+            {/* Requested Due Date */}
+            <div className="relative">
               <Label>Requested Due Date</Label>
               <input
                 id="requestedDueDate"
@@ -141,7 +147,7 @@ export function ProjectIdentityFields({ identityData, onUpdate, errors }) {
             </div>
 
             {/* Responsible Department */}
-            <div className="relative xl:col-span-2">
+            <div className="relative">
               <div className="flex items-center justify-between">
                 <Label>Responsible Department</Label>
                 {departmentFailed && (
@@ -174,15 +180,7 @@ export function ProjectIdentityFields({ identityData, onUpdate, errors }) {
                 text={errors?.responsibleDepartment}
               />
             </div>
-          </div>
-        </SectionCard>
-      </div>
 
-      {/* ── Project Information ── */}
-      <div>
-        <SectionTitle>Project Information</SectionTitle>
-        <SectionCard>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6">
             {/* Project Number */}
             <div className="relative">
               <Label>Project Number</Label>
@@ -217,8 +215,10 @@ export function ProjectIdentityFields({ identityData, onUpdate, errors }) {
               />
             </div>
 
-            {/* Project Name — own full-width row */}
-            <div className="relative sm:col-span-2">
+            {/* Project Name — own full-width row (8 fields above it fill
+                exactly two full 4-column rows, so this is the clean "4+1"
+                row on its own beneath them) */}
+            <div className="relative sm:col-span-2 xl:col-span-4">
               <Label>Project Name</Label>
               <input
                 id="projectName"

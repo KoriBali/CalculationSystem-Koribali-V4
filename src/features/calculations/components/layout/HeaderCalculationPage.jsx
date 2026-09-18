@@ -12,19 +12,26 @@ import {
   Link,
   PaintBucket,
   Lock,
+  Check,
   TowerControl as TowerControlIcon,
 } from "lucide-react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 
 import { DraftActionModal } from "../modals/DraftActionModal";
 import { ToastModal } from "../modals/ToastModal";
+import { LockedDrawingModal } from "../modals/LockedDrawingModal";
+import { SmartPreserveModal } from "../modals/SmartPreserveModal";
 import { BaseplateIcon } from "../../../../assets/icon";
 import { clearCalculationSession } from "../../utils";
 import {
   saveWorkingSessionToDraft,
   clearActiveDraftId,
   hasDraftChanged,
+  checkSmartPreserveWarning,
+  saveCalculationSnapshot,
+  clearSmartPreserveWarning,
 } from "../../utils/coreLogic";
+import { CALCULATION_PROGRESS_EVENT } from "../../utils/calculationProgressEvent";
 
 // ─── COMPONENT ───────────────────────────────────────────────────────────────
 export function HeaderCalculationPage() {
@@ -34,10 +41,35 @@ export function HeaderCalculationPage() {
 
   const [showDraftModal, setShowDraftModal] = useState(false);
   const [toast, setToast] = useState(null);
+  const [showLockedModal, setShowLockedModal] = useState(false);
+  const [showSmartPreserveModal, setShowSmartPreserveModal] = useState(false);
 
   const scrollRef = useRef(null);
   const [showLeftScroll, setShowLeftScroll] = useState(false);
   const [showRightScroll, setShowRightScroll] = useState(false);
+
+  // ─── LIVE TAB-LOCK STATE ─────────────────────────────────────────────────
+  // isPoleStepCompleted/isOpeningStepCompleted/etc. below read sessionStorage
+  // directly in the render body — accurate for whatever *this* render sees,
+  // but nothing about that read is reactive. A calculation hook (e.g.
+  // usePoleCalculation) writes the fresh "isCalculated" flag the instant
+  // Calculate succeeds, yet this component — a separately mounted instance —
+  // has no way to know that happened, since React only re-renders on its own
+  // state/props/context changes. Without this, a tab stayed locked-looking
+  // until *something else* this component does depend on changed, i.e. only
+  // once the user also clicked Next and the route changed (useLocation()
+  // below). Subscribing to this event and bumping a counter re-renders as
+  // soon as Calculate succeeds, no navigation required.
+  const [, forceTabLockRerender] = useState(0);
+  useEffect(() => {
+    const handleProgressChange = () => forceTabLockRerender((n) => n + 1);
+    window.addEventListener(CALCULATION_PROGRESS_EVENT, handleProgressChange);
+    return () =>
+      window.removeEventListener(
+        CALCULATION_PROGRESS_EVENT,
+        handleProgressChange,
+      );
+  }, []);
 
   // ─── TAB SCROLL ──────────────────────────────────────────────────────────
   const handleScroll = () => {
@@ -112,40 +144,30 @@ export function HeaderCalculationPage() {
   const config = raw ? JSON.parse(raw) : null;
 
   // ─── CHECK CALCULATION COMPLETION ────────────────────────────────────────
+  // Gates entry to the Drawing phase. Driven by the same "isCalculated*"
+  // flags each step's own Calculate/Next button and tab-lock use (see
+  // isPoleStepCompleted etc. below) — not by whether result data merely
+  // exists in sessionStorage. A step's result data can outlive its
+  // isCalculated flag (e.g. it's edited afterward, or a condition change
+  // invalidates it) while staying on screen as a stale reference, so
+  // checking data presence alone would let a user reach Drawing with
+  // out-of-date calculations. Checking the flag keeps this in sync with
+  // "has this step actually been calculated against its current inputs".
   const isProjectComplete = () => {
     if (!config) return false;
 
-    const hasArrayData = (key) => {
-      const val = sessionStorage.getItem(`${type}_${key}`);
+    const isFlagSet = (key) => sessionStorage.getItem(`${type}_${key}`) === "true";
 
-      if (!val || val === "null") {
-        return false;
-      }
+    const hasPole = config.pole ? isFlagSet("isCalculatedPole") : true;
 
-      try {
-        const arr = JSON.parse(val);
-        return Array.isArray(arr) && arr.length > 0;
-      } catch {
-        return false;
-      }
-    };
-
-    const isValueSet = (key) => {
-      const val = sessionStorage.getItem(`${type}_${key}`);
-
-      return val !== null && val !== "null";
-    };
-
-    const hasPole = config.pole ? hasArrayData("results") : true;
-
-    const hasOpening = config.opening ? isValueSet("calculatedOp") : true;
+    const hasOpening = config.opening ? isFlagSet("isCalculatedOp") : true;
 
     const hasBaseplate = config.baseplate
-      ? isValueSet("calculatedBaseplate")
+      ? isFlagSet("isCalculatedBp")
       : true;
 
     const hasFoundation = config.foundation
-      ? isValueSet("calculatedFoundation")
+      ? isFlagSet("isCalculatedFd")
       : true;
 
     return hasPole && hasOpening && hasBaseplate && hasFoundation;
@@ -162,26 +184,16 @@ export function HeaderCalculationPage() {
   const isConditionCompleted = !!condition?.designStandard;
   const isPoleStepCompleted = (() => {
     if (!config?.pole) return false;
-    try {
-      const val = sessionStorage.getItem(`${type}_results`);
-      if (!val || val === "null") return false;
-      const arr = JSON.parse(val);
-      return Array.isArray(arr) && arr.length > 0;
-    } catch {
-      return false;
-    }
+    return sessionStorage.getItem(`${type}_isCalculatedPole`) === "true";
   })();
   const isOpeningStepCompleted = config?.opening
-    ? sessionStorage.getItem(`${type}_calculatedOp`) !== null &&
-      sessionStorage.getItem(`${type}_calculatedOp`) !== "null"
+    ? sessionStorage.getItem(`${type}_isCalculatedOp`) === "true"
     : false;
   const isBaseplateStepCompleted = config?.baseplate
-    ? sessionStorage.getItem(`${type}_calculatedBaseplate`) !== null &&
-      sessionStorage.getItem(`${type}_calculatedBaseplate`) !== "null"
+    ? sessionStorage.getItem(`${type}_isCalculatedBp`) === "true"
     : false;
   const isFoundationStepCompleted = config?.foundation
-    ? sessionStorage.getItem(`${type}_calculatedFoundation`) !== null &&
-      sessionStorage.getItem(`${type}_calculatedFoundation`) !== "null"
+    ? sessionStorage.getItem(`${type}_isCalculatedFd`) === "true"
     : false;
 
   // ─── CALCULATION NAVIGATION ──────────────────────────────────────────────
@@ -492,7 +504,8 @@ export function HeaderCalculationPage() {
   // ─── TAB RENDER HELPER ───────────────────────────────────────────────────
   const renderTabs = () =>
     currentNavItems.map((item, index) => {
-      const isActive = location.pathname === item.path;
+      const normalizePath = (p) => p.replace(/\/$/, "");
+      const isActive = normalizePath(location.pathname) === normalizePath(item.path);
       const isDisabled = item.disabled;
       const Icon = item.icon; // always original icon, no Lock
 
@@ -501,9 +514,22 @@ export function HeaderCalculationPage() {
           <button
             type="button"
             data-active={isActive}
+            aria-disabled={isDisabled}
             title={isDisabled ? item.disabledMessage : undefined}
-            onClick={() => !isDisabled && navigate(item.path)}
-            disabled={isDisabled}
+            onClick={() => {
+              // Not a native `disabled` button on purpose: a disabled button
+              // never fires onClick at all, so the only way a locked tab
+              // could explain itself was the `title` tooltip above — which
+              // needs a mouse hover and never appears on touch. Handling
+              // the click ourselves means tapping a locked tab on mobile
+              // (or clicking one on desktop without hovering first) also
+              // surfaces why, via the same toast used elsewhere in this file.
+              if (isDisabled) {
+                setToast({ message: item.disabledMessage, type: "error" });
+              } else {
+                navigate(item.path);
+              }
+            }}
             className={`flex flex-row items-center justify-center gap-1.5 shrink-0
               px-3 py-2 md:px-4
               rounded-lg
@@ -512,7 +538,7 @@ export function HeaderCalculationPage() {
               ${isManyTabs ? "w-auto" : "min-w-0"}
               ${
                 isDisabled
-                  ? "bg-slate-50 text-slate-400 border-dashed border-slate-300"
+                  ? "bg-slate-50 text-slate-400 border-dashed border-slate-300 cursor-not-allowed"
                   : isActive
                     ? "bg-[#0d3b66] text-white border-[#0d3b66] shadow-sm cursor-default"
                     : "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200 hover:text-slate-900 cursor-pointer"
@@ -542,6 +568,7 @@ export function HeaderCalculationPage() {
     });
 
   return (
+    <>
     <div className="relative z-10 sm:sticky sm:top-16 sm:z-30 w-[calc(100%+2px)] -mx-[1px] bg-[#f8fafc]">
       {/* ─── BLUE HEADER CARD ─────────────────────────────────────────────── */}
       <div
@@ -566,61 +593,98 @@ export function HeaderCalculationPage() {
             </button>
           </div>
 
-          {/* DESKTOP: CALCULATION / DRAWING MODE SWITCH */}
+          {/* DESKTOP: PHASE STEPPER */}
           <div className="hidden sm:flex flex-[2] md:flex-[3] flex-col items-center justify-center">
             {workflow.projectMode === "both" && !isProjectIdentityPage ? (
-              <div className="flex bg-white/10 p-1 rounded-lg gap-2 border border-white/20 items-center">
-                {/* CALCULATION */}
+              <div className="flex items-center w-full max-w-[300px] xl:max-w-[340px] 2xl:max-w-[400px] px-2">
+                {/* Phase 1: Calculation — a pill-shaped button (not a bare
+                    div) so hover/focus affordances read as "clickable" the
+                    way a real button does: background highlight on hover,
+                    a focus ring for keyboard users, and native disabled
+                    styling when there's nothing to click back to. */}
                 <button
                   type="button"
-                  onClick={() =>
-                    navigate(
-                      `/calculation/${type}/${draftId}/calculation-condition`,
-                    )
-                  }
-                  className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
-                    !isDrawingPage
-                      ? "bg-white text-[#0d3b66] shadow-sm"
-                      : "text-white hover:bg-white/10"
-                  }`}
+                  disabled={!isDrawingPage}
+                  title={isDrawingPage ? "Back to Calculation" : undefined}
+                  onClick={() => {
+                    if (config?.foundation) navigate(`/calculation/${type}/${draftId}/foundation`);
+                    else if (config?.baseplate) navigate(`/calculation/${type}/${draftId}/baseplate`);
+                    else if (config?.opening) navigate(`/calculation/${type}/${draftId}/opening`);
+                    else if (config?.pole) navigate(`/calculation/${type}/${draftId}/pole`);
+                    else navigate(`/calculation/${type}/${draftId}/calculation-condition`);
+                  }}
+                  className={`group flex items-center gap-2 rounded-full py-1 pl-1 pr-3 transition-all duration-200
+                    focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70
+                    ${!isDrawingPage
+                      ? "bg-white/15 ring-1 ring-inset ring-white/30 cursor-default"
+                      : "cursor-pointer hover:bg-white/10 active:bg-white/15"}`}
                 >
-                  Calculation
+                  <span className={`flex items-center justify-center w-7 h-7 shrink-0 rounded-full text-xs font-bold shadow-sm ring-2 transition-all duration-200
+                    ${!isDrawingPage
+                      ? "bg-white text-[#0d3b66] ring-white"
+                      : "bg-transparent text-white ring-white/50 group-hover:bg-white group-hover:text-[#0d3b66] group-hover:ring-white"}`}>
+                    {isDrawingPage ? <Check className="w-3.5 h-3.5" /> : "1"}
+                  </span>
+                  <span className={`text-xs sm:text-sm font-medium transition-colors
+                    ${!isDrawingPage ? "text-white" : "text-white/70 group-hover:text-white"}`}>
+                    Calculation
+                  </span>
                 </button>
 
-                <div className="flex items-center justify-center text-white/50 px-0.5">
-                  <ChevronRight
-                    className={`w-4 h-4 transition-transform duration-300 ${
-                      isDrawingPage ? "rotate-180" : ""
-                    }`}
-                  />
+                {/* Connector Line — dashed "route" track (always visible,
+                    even before reaching Drawing) with a solid fill overlay
+                    that grows over it, so the dashes read as "path ahead"
+                    and the solid segment as "path already taken". */}
+                <div className="flex-1 min-w-[20px] h-0 relative mx-2">
+                  <div className="absolute inset-x-0 top-0 border-t-2 border-dashed border-white/40" />
+                  <div className={`absolute inset-x-0 top-0 border-t-2 border-white transition-all duration-500 ease-out overflow-hidden
+                    ${isDrawingPage ? "w-full" : "w-0"}`} />
                 </div>
 
-                {/* DRAWING */}
+                {/* Phase 2: Drawing */}
                 <button
                   type="button"
+                  title={
+                    !isProjectComplete()
+                      ? "Complete all Calculation steps first"
+                      : isDrawingPage
+                        ? undefined
+                        : "Go to Drawing"
+                  }
                   onClick={() => {
                     if (!isProjectComplete()) {
-                      setToast({
-                        message:
-                          "Please complete all calculations before proceeding to drawing.",
-                        type: "error",
-                      });
-                    } else {
-                      navigate(`/calculation/${type}/${draftId}/drawing`);
+                      setShowLockedModal(true);
+                    } else if (!isDrawingPage) {
+                      // Check Smart Preserve
+                      if (checkSmartPreserveWarning(type)) {
+                        setShowSmartPreserveModal(true);
+                      } else {
+                        saveCalculationSnapshot(type);
+                        sessionStorage.setItem(`${type}_drawing_started`, "true");
+                        navigate(`/calculation/${type}/${draftId}/drawing/drawing-setup`);
+                      }
                     }
                   }}
-                  className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
-                    isDrawingPage
-                      ? "bg-white text-[#0d3b66] shadow-sm"
-                      : "text-white hover:bg-white/10"
-                  } ${
-                    !isProjectComplete() && !isDrawingPage ? "opacity-80" : ""
-                  }`}
+                  className={`group flex items-center gap-2 rounded-full py-1 pl-1 pr-3 transition-all duration-200
+                    focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70
+                    ${isDrawingPage
+                      ? "bg-white/15 ring-1 ring-inset ring-white/30 cursor-default"
+                      : isProjectComplete()
+                        ? "cursor-pointer hover:bg-white/10 active:bg-white/15"
+                        : "cursor-not-allowed"}`}
                 >
-                  {!isProjectComplete() && !isDrawingPage && (
-                    <Lock className="w-3.5 h-3.5" />
-                  )}
-                  Drawing
+                  <span className={`flex items-center justify-center w-7 h-7 shrink-0 rounded-full text-xs font-bold shadow-sm ring-2 transition-all duration-200
+                    ${isDrawingPage
+                      ? "bg-white text-[#0d3b66] ring-white"
+                      : isProjectComplete()
+                        ? "bg-transparent text-white/90 ring-white/50 group-hover:bg-white group-hover:text-[#0d3b66] group-hover:ring-white"
+                        : "bg-transparent text-white/40 ring-white/20"}`}>
+                    {isProjectComplete() || isDrawingPage ? "2" : <Lock className="w-3.5 h-3.5" />}
+                  </span>
+                  <span className={`text-xs sm:text-sm font-medium transition-colors
+                    ${isDrawingPage ? "text-white" : isProjectComplete() ? "text-white/70 group-hover:text-white" : "text-white/40"}`}>
+                    Drawing
+                  </span>
                 </button>
               </div>
             ) : null}
@@ -642,58 +706,72 @@ export function HeaderCalculationPage() {
           </div>
         </div>
 
-        {/* MOBILE: CALCULATION / DRAWING SWITCH */}
+        {/* MOBILE: PHASE STEPPER — same button/pill/checkmark treatment as
+            the desktop version above, scaled down for a compact touch bar. */}
         {workflow.projectMode === "both" && !isProjectIdentityPage && (
-          <div className="flex sm:hidden bg-white/10 p-1 rounded-lg gap-1 border border-white/20 w-full items-center">
-            {/* CALCULATION */}
+          <div className="flex sm:hidden w-full items-center justify-center px-4 pt-2">
+            {/* Phase 1 */}
             <button
               type="button"
-              onClick={() =>
-                navigate(
-                  `/calculation/${type}/${draftId}/calculation-condition`,
-                )
-              }
-              className={`flex-1 flex justify-center items-center gap-2 px-2 py-2 rounded-md text-xs font-medium transition-all ${
-                !isDrawingPage
-                  ? "bg-white text-[#0d3b66] shadow-sm"
-                  : "text-white hover:bg-white/10"
-              }`}
+              disabled={!isDrawingPage}
+              onClick={() => {
+                if (config?.foundation) navigate(`/calculation/${type}/${draftId}/foundation`);
+                else if (config?.baseplate) navigate(`/calculation/${type}/${draftId}/baseplate`);
+                else if (config?.opening) navigate(`/calculation/${type}/${draftId}/opening`);
+                else if (config?.pole) navigate(`/calculation/${type}/${draftId}/pole`);
+                else navigate(`/calculation/${type}/${draftId}/calculation-condition`);
+              }}
+              className={`flex flex-col items-center gap-0.5 flex-1 py-1 rounded-lg transition-all duration-200
+                ${!isDrawingPage ? "bg-white/15 ring-1 ring-inset ring-white/30" : "active:bg-white/10"}`}
             >
-              Calculation
+              <span className={`flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-bold shadow-sm ring-2 transition-colors
+                ${!isDrawingPage ? "bg-white text-[#0d3b66] ring-white" : "bg-transparent text-white ring-white/50"}`}>
+                {isDrawingPage ? <Check className="w-3 h-3" /> : "1"}
+              </span>
+              <span className={`text-[9px] font-medium transition-colors
+                ${!isDrawingPage ? "text-white" : "text-white/70"}`}>
+                Calc
+              </span>
             </button>
 
-            <div className="flex items-center justify-center text-white/50 shrink-0">
-              <ChevronRight
-                className={`w-3.5 h-3.5 transition-transform duration-300 ${
-                  isDrawingPage ? "rotate-180" : ""
-                }`}
-              />
+            {/* Line — same dashed-track + solid-fill treatment as desktop */}
+            <div className="flex-[2] min-w-[16px] h-0 relative mx-2">
+              <div className="absolute inset-x-0 top-0 border-t-2 border-dashed border-white/40" />
+              <div className={`absolute inset-x-0 top-0 border-t-2 border-white transition-all duration-500 overflow-hidden
+                ${isDrawingPage ? "w-full" : "w-0"}`} />
             </div>
 
-            {/* DRAWING */}
+            {/* Phase 2 */}
             <button
               type="button"
               onClick={() => {
                 if (!isProjectComplete()) {
-                  setToast({
-                    message:
-                      "Please complete all calculations before proceeding to drawing.",
-                    type: "error",
-                  });
-                } else {
-                  navigate(`/calculation/${type}/${draftId}/drawing`);
+                  setShowLockedModal(true);
+                } else if (!isDrawingPage) {
+                  if (checkSmartPreserveWarning(type)) {
+                    setShowSmartPreserveModal(true);
+                  } else {
+                    saveCalculationSnapshot(type);
+                    sessionStorage.setItem(`${type}_drawing_started`, "true");
+                    navigate(`/calculation/${type}/${draftId}/drawing/drawing-setup`);
+                  }
                 }
               }}
-              className={`flex-1 flex justify-center items-center gap-2 px-2 py-2 rounded-md text-xs font-medium transition-all ${
-                isDrawingPage
-                  ? "bg-white text-[#0d3b66] shadow-sm"
-                  : "text-white hover:bg-white/10"
-              } ${!isProjectComplete() && !isDrawingPage ? "opacity-80" : ""}`}
+              className={`flex flex-col items-center gap-0.5 flex-1 py-1 rounded-lg transition-all duration-200
+                ${isDrawingPage
+                  ? "bg-white/15 ring-1 ring-inset ring-white/30"
+                  : isProjectComplete() ? "active:bg-white/10" : "cursor-not-allowed"}`}
             >
-              {!isProjectComplete() && !isDrawingPage && (
-                <Lock className="w-3 h-3" />
-              )}
-              Drawing
+              <span className={`flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-bold shadow-sm ring-2 transition-colors
+                ${isDrawingPage ? "bg-white text-[#0d3b66] ring-white"
+                  : isProjectComplete() ? "bg-transparent text-white/80 ring-white/50"
+                  : "bg-transparent text-white/40 ring-white/20"}`}>
+                {isProjectComplete() || isDrawingPage ? "2" : <Lock className="w-2.5 h-2.5" />}
+              </span>
+              <span className={`text-[9px] font-medium transition-colors
+                ${isDrawingPage ? "text-white" : isProjectComplete() ? "text-white/60" : "text-white/40"}`}>
+                Draw
+              </span>
             </button>
           </div>
         )}
@@ -767,7 +845,8 @@ export function HeaderCalculationPage() {
             {/* TAB LIST (mobile layout: icon on top, label below) */}
             <div className="flex items-center justify-start w-full overflow-x-auto overflow-y-hidden whitespace-nowrap scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden py-1">
               {currentNavItems.map((item, index) => {
-                const isActive = location.pathname === item.path;
+                const normalizePath = (p) => p.replace(/\/$/, "");
+                const isActive = normalizePath(location.pathname) === normalizePath(item.path);
                 const isDisabled = item.disabled;
                 const Icon = isDisabled ? Lock : item.icon;
 
@@ -776,8 +855,18 @@ export function HeaderCalculationPage() {
                     <button
                       type="button"
                       data-active={isActive}
-                      onClick={() => !isDisabled && navigate(item.path)}
-                      disabled={isDisabled}
+                      aria-disabled={isDisabled}
+                      onClick={() => {
+                        // Same reasoning as the desktop tabs above: this used
+                        // to be a native `disabled` button with no `title`
+                        // at all, so a locked tab here gave zero explanation
+                        // on tap. Now a tap surfaces the reason via toast.
+                        if (isDisabled) {
+                          setToast({ message: item.disabledMessage, type: "error" });
+                        } else {
+                          navigate(item.path);
+                        }
+                      }}
                       className={`flex flex-col items-center justify-center gap-0.5
                         flex-none min-w-[15%]
                         px-2 py-1.5
@@ -830,7 +919,17 @@ export function HeaderCalculationPage() {
         </div>
       )}
 
-      {/* ─── MODALS ─────────────────────────────────────────────────────────── */}
+    </div>
+
+      {/* ─── MODALS ──────────────────────────────────────────────────────────
+          Rendered OUTSIDE the sticky/z-30 wrapper above on purpose: that
+          wrapper sets `position + z-index`, which creates its own stacking
+          context. Any modal rendered inside it — even with z-[100]/z-[200] —
+          only wins against siblings *inside that same context*; the outer
+          app Header (Layout.jsx, sticky z-40) sits in a different, higher
+          context and would render on top of it regardless of the modal's
+          own z-index. Keeping the modals as siblings of the wrapper (not
+          descendants) lets their z-index compare directly against Header. */}
 
       <DraftActionModal
         open={showDraftModal}
@@ -840,6 +939,16 @@ export function HeaderCalculationPage() {
       />
 
       <ToastModal toast={toast} onClose={() => setToast(null)} />
-    </div>
+
+      <LockedDrawingModal
+        open={showLockedModal}
+        onClose={() => setShowLockedModal(false)}
+      />
+
+      <SmartPreserveModal
+        open={showSmartPreserveModal}
+        onClose={() => setShowSmartPreserveModal(false)}
+      />
+    </>
   );
 }

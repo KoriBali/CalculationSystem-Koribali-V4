@@ -5,6 +5,7 @@ import { useProjectStorage } from "./useProjectStorage";
 import { validateFoundation } from "../logic/foundation/foundationValidation";
 import { executeFoundationCalculation } from "../logic/foundation/foundationCalculation";
 import { scrollToFirstError, firstErrorMessage } from "../utils/scrollToError";
+import { notifyCalculationProgressChanged } from "../utils/calculationProgressEvent";
 
 import * as Utils from "../utils";
 
@@ -104,7 +105,11 @@ export function useFoundationForm() {
 
   // Loading and calculation status
   const [loading, setLoading] = useState(false);
-  const isCalculated = !!calculatedFoundation;
+  const [isCalculated, setIsCalculated] = useProjectStorage(
+    projectType,
+    "isCalculatedFd",
+    false
+  );
 
   // Toast notification state
   const [toast, setToast] = useState(null);
@@ -129,8 +134,11 @@ export function useFoundationForm() {
   // recalculates. Cheap to call unconditionally: setting an already-null
   // value is a no-op re-render-wise.
   const invalidateCalculation = () => {
-    setCalculatedFoundation(null);
-    setShowResultsFoundation(false);
+    setIsCalculated(false);
+    // Header nav reads this flag straight from sessionStorage to lock/
+    // unlock tabs, which a plain state update can't itself prompt it to
+    // re-read — this nudges it to re-render right away.
+    notifyCalculationProgressChanged();
   };
 
   // Update foundation type
@@ -215,6 +223,10 @@ export function useFoundationForm() {
 
       // Update UI state after success
       setShowResultsFoundation(true);
+      setIsCalculated(true);
+      // Let Header re-read sessionStorage now — otherwise the next tab
+      // stays locked-looking until the user also clicks Next and navigates.
+      notifyCalculationProgressChanged();
     } catch (err) {
       // Handle API or unexpected errors
       showToast(err?.message || "Something went wrong");

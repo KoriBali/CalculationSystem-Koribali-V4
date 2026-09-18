@@ -8,6 +8,7 @@ import {
 } from "../logic/pole/poleValidation";
 import { executePoleCalculation } from "../logic/pole/poleCalculation";
 import { scrollToFirstError, scrollToFirstNestedError } from "../utils/scrollToError";
+import { notifyCalculationProgressChanged } from "../utils/calculationProgressEvent";
 import * as Utils from "../utils";
 
 // Orchestrates pole calculation — validates, calls API, maps errors back to UI
@@ -84,7 +85,11 @@ export function usePoleCalculation({
   );
 
   // ── UI state ──
-  const isCalculated = !!results?.length;
+  const [isCalculated, setIsCalculated] = useProjectStorage(
+    projectType,
+    "isCalculatedPole",
+    false
+  );
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState(null);
 
@@ -126,19 +131,30 @@ export function usePoleCalculation({
 
     if (!hasChanged) return;
 
-    if (
-      results.length ||
-      resultsDo.length ||
-      resultsOhw.length ||
-      resultsArm.length ||
-      showResults
-    ) {
-      setResults([]);
-      setResultsDo([]);
-      setResultsOhw([]);
-      setResultsArm([]);
-      setShowResults(false);
+    if (isCalculated) {
+      setIsCalculated(false);
     }
+
+    // Opening, Baseplate, and Foundation each take one of their calculation
+    // parameters from Pole's result — so once Pole's own inputs change
+    // (meaning its current result is about to go stale), their previously
+    // calculated results are stale too, even though nothing on their own
+    // pages was touched. Their tab in the header nav already re-locks based
+    // on isCalculatedPole, but that only blocks getting there by clicking
+    // the tab — a direct URL/back-button visit would still land on a page
+    // that looks fully calculated. Resetting their own "isCalculated" flags
+    // here (written straight to sessionStorage, since this hook only has
+    // scope over the Pole page) makes each page correctly show "needs
+    // recalculating" regardless of how the user gets there.
+    sessionStorage.removeItem(`${projectType}_isCalculatedOp`);
+    sessionStorage.removeItem(`${projectType}_isCalculatedBp`);
+    sessionStorage.removeItem(`${projectType}_isCalculatedFd`);
+
+    // Header nav computes tab-lock state by reading sessionStorage
+    // directly, which a plain write like the ones above can't itself
+    // prompt it to re-read — this nudges it to re-render immediately
+    // instead of only catching up on the next route change.
+    notifyCalculationProgressChanged();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     poleForm.poles,
@@ -343,6 +359,10 @@ export function usePoleCalculation({
       );
       setResultsArm(mergeArms(data.resultsArm, validation.resolvedArms));
       setShowResults(true);
+      setIsCalculated(true);
+      // Let Header re-read sessionStorage now — otherwise the Opening tab
+      // stays locked-looking until the user also clicks Next and navigates.
+      notifyCalculationProgressChanged();
 
       document
         .getElementById("results-pole")

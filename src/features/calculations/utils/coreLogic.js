@@ -324,3 +324,53 @@ export const handleSessionTransition = (projectType, targetDraftId) => {
 export const clearActiveDraftId = (projectType) => {
   sessionStorage.removeItem(`${projectType}_active_draft_id`);
 };
+
+// ===============================================================================
+// SMART PRESERVE LOGIC (HANDOFF & CHANGE DETECTION)
+// ===============================================================================
+
+export const saveCalculationSnapshot = (projectType) => {
+  // Snapshot critical calculation data before moving to drawing
+  const snapshot = {
+    pole: sessionStorage.getItem(`${projectType}_results`),
+    opening: sessionStorage.getItem(`${projectType}_calculatedOp`),
+    baseplate: sessionStorage.getItem(`${projectType}_calculatedBaseplate`),
+    foundation: sessionStorage.getItem(`${projectType}_calculatedFoundation`),
+  };
+  sessionStorage.setItem(`${projectType}_calc_snapshot`, JSON.stringify(snapshot));
+};
+
+export const checkSmartPreserveWarning = (projectType) => {
+  // Only check if drawing has started
+  const drawingStarted = sessionStorage.getItem(`${projectType}_drawing_started`) === "true";
+  if (!drawingStarted) return false;
+
+  const rawSnapshot = sessionStorage.getItem(`${projectType}_calc_snapshot`);
+  if (!rawSnapshot) {
+    // If drawing started but no snapshot exists, create one now to baseline
+    saveCalculationSnapshot(projectType);
+    return false;
+  }
+
+  const snapshot = JSON.parse(rawSnapshot);
+  const current = {
+    pole: sessionStorage.getItem(`${projectType}_results`),
+    opening: sessionStorage.getItem(`${projectType}_calculatedOp`),
+    baseplate: sessionStorage.getItem(`${projectType}_calculatedBaseplate`),
+    foundation: sessionStorage.getItem(`${projectType}_calculatedFoundation`),
+  };
+
+  // Compare snapshot with current
+  for (const key in snapshot) {
+    if (snapshot[key] !== current[key]) {
+      return true; // Calculation was modified
+    }
+  }
+
+  return false;
+};
+
+export const clearSmartPreserveWarning = (projectType) => {
+  // Re-baseline the snapshot so the warning clears
+  saveCalculationSnapshot(projectType);
+};

@@ -33,8 +33,16 @@ export default function OpeningFormView() {
   const opening = useOpeningForm();
   const { makeReport } = useReport(projectType);
 
-  // Opens cover modal if this is the last step, otherwise navigates to next
+  // Opens cover modal if this is the last step, otherwise navigates to next.
+  // opening.finish() silently no-ops when not yet calculated — fine when
+  // the Next button was natively `disabled`, but it no longer is (see
+  // BoxTypeForm/RTypeForm), so this needs to explain why nothing happened
+  // instead of doing nothing.
   const handleNextStep = () => {
+    if (!opening.isCalculated) {
+      opening.showToast('Click "Calculate Results" first', "error");
+      return;
+    }
     const result = opening.finish();
     if (result === "OPEN_COVER") {
       setShowFinishModal(true);

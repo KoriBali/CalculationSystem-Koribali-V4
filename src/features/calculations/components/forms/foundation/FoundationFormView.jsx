@@ -59,8 +59,16 @@ export default function FoundationFormView() {
   // ================= REPORT HOOK =================
   const { makeReport } = useReport(projectType);
 
-  // Handle navigation to next step or create report
+  // Handle navigation to next step or create report.
+  // handleFinish() silently no-ops when not yet calculated — fine when the
+  // Next button was natively `disabled`, but it no longer is (see
+  // RoundCaissonTypeForm/SquareCaissonTypeForm), so this needs to explain
+  // why nothing happened instead of doing nothing.
   const handleNextStep = () => {
+    if (!isCalculated) {
+      showToast('Click "Calculate Results" first', "error");
+      return;
+    }
     const result = handleFinish();
     if (result === "OPEN_COVER") {
       setShowFinishModal(true);

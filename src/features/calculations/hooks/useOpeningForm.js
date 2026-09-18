@@ -6,6 +6,7 @@ import { validateOpening } from "../logic/opening/openingValidation";
 import { executeOpeningCalculation } from "../logic/opening/openingCalculation";
 import * as Utils from "../utils";
 import { scrollToFirstError, firstErrorMessage } from "../utils/scrollToError";
+import { notifyCalculationProgressChanged } from "../utils/calculationProgressEvent";
 
 // ─── CONSTANTS ───────────────────────────────────────────────────────────────
 
@@ -93,7 +94,11 @@ export function useOpeningForm() {
   const [isOpeningExpanded, setIsOpeningExpanded] = useState(true);
   const [isSelectExpanded, setIsSelectExpanded] = useState(true);
   const [loading, setLoading] = useState(false);
-  const isCalculated = !!calculatedOp;
+  const [isCalculated, setIsCalculated] = useProjectStorage(
+    projectType,
+    "isCalculatedOp",
+    false
+  );
   const [toast, setToast] = useState(null);
 
   // ── Navigation ──
@@ -119,8 +124,11 @@ export function useOpeningForm() {
   // recalculates. Cheap to call unconditionally: setting an already-null
   // value is a no-op re-render-wise.
   const invalidateCalculation = () => {
-    setCalculatedOp(null);
-    setShowResultsOp(false);
+    setIsCalculated(false);
+    // Header nav reads this flag straight from sessionStorage to lock/
+    // unlock tabs, which a plain state update can't itself prompt it to
+    // re-read — this nudges it to re-render right away.
+    notifyCalculationProgressChanged();
   };
 
   // Updates opening type selection
@@ -201,6 +209,10 @@ export function useOpeningForm() {
       // Persist result alongside its opening type for the result table
       setCalculatedOp({ ...data, openingType });
       setShowResultsOp(true);
+      setIsCalculated(true);
+      // Let Header re-read sessionStorage now — otherwise the next tab
+      // stays locked-looking until the user also clicks Next and navigates.
+      notifyCalculationProgressChanged();
     } catch (err) {
       showToast(err?.message || "Something went wrong");
     } finally {

@@ -63,6 +63,7 @@ export function useDrawingFoundationForm() {
 
   const handleFoundationTypeUpdate = (updates) => {
     Utils.updateFoundationType(foundationType, updates, setFoundationType);
+    sessionStorage.removeItem(`${projectType}_drawing_foundation_completed`);
     setFoundationTypeErrors((prev) => {
       const cleared = { ...prev };
       Object.keys(updates).forEach((key) => delete cleared[key]);
@@ -72,6 +73,7 @@ export function useDrawingFoundationForm() {
 
   const handleSquareCaissonUpdate = (updates) => {
     Utils.updateSquareCaisson(squareCaisson, updates, setSquareCaisson);
+    sessionStorage.removeItem(`${projectType}_drawing_foundation_completed`);
     setSquareCaissonErrors((prev) => {
       const cleared = { ...prev };
       Object.keys(updates).forEach((key) => delete cleared[key]);
@@ -81,6 +83,7 @@ export function useDrawingFoundationForm() {
 
   const handleRoundCaissonUpdate = (updates) => {
     Utils.updateRoundCaisson(roundCaisson, updates, setRoundCaisson);
+    sessionStorage.removeItem(`${projectType}_drawing_foundation_completed`);
     setRoundCaissonErrors((prev) => {
       const cleared = { ...prev };
       Object.keys(updates).forEach((key) => delete cleared[key]);
