@@ -781,7 +781,7 @@ export function HeaderCalculationPage() {
             <button
               type="button"
               onClick={handleQuickSave}
-              className="flex items-center justify-center gap-1 sm:gap-2 px-3 py-2 sm:px-4 bg-white/10 hover:bg-white/20 active:bg-white/25 border border-white/20 text-white rounded-lg hp:rounded-md text-xs sm:text-sm font-medium transition"
+              className="flex items-center justify-center gap-1 sm:gap-2 px-3 py-2 sm:px-4 shrink-0 whitespace-nowrap bg-white/10 hover:bg-white/20 active:bg-white/25 border border-white/20 text-white rounded-lg hp:rounded-md text-xs sm:text-sm font-medium transition"
             >
               <Save className="w-4 h-4 shrink-0" />
 
@@ -804,7 +804,7 @@ export function HeaderCalculationPage() {
                   onClick={handleToggleCollapsed}
                   title="Minimize header"
                   aria-label="Minimize header"
-                  className="hidden lg:flex items-center justify-center gap-2 px-3 py-2 shrink-0 text-white/80 hover:text-white hover:bg-white/10 active:bg-white/15 rounded-lg text-sm font-medium transition"
+                  className="hidden lg:flex items-center justify-center gap-2 px-3 py-2 shrink-0 whitespace-nowrap text-white/80 hover:text-white hover:bg-white/10 active:bg-white/15 rounded-lg text-sm font-medium transition"
                 >
                   <PanelLeftClose className="w-4 h-4 shrink-0" />
                   <span>Minimize</span>
