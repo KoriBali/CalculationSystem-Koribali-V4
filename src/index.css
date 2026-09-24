@@ -98,3 +98,19 @@ code {
     border: none;
   }
 }
+
+/* Brief highlight on a value that just changed (pole diagram dimension
+   labels when the Height changes). box-shadow widens the highlight without
+   adding padding, so the text doesn't shift. Used via
+   animate-[label-flash_0.9s_ease-out]. */
+@keyframes label-flash {
+  0%,
+  35% {
+    background-color: rgb(254 240 138);
+    box-shadow: 0 0 0 3px rgb(254 240 138);
+  }
+  100% {
+    background-color: rgb(254 240 138 / 0);
+    box-shadow: 0 0 0 3px rgb(254 240 138 / 0);
+  }
+}
