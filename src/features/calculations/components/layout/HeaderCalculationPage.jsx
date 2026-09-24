@@ -14,6 +14,8 @@ import {
   Lock,
   Check,
   TowerControl as TowerControlIcon,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 
@@ -32,6 +34,7 @@ import {
   clearSmartPreserveWarning,
 } from "../../utils/coreLogic";
 import { CALCULATION_PROGRESS_EVENT } from "../../utils/calculationProgressEvent";
+import { useCollapsibleStickyHeader } from "../../../../hooks/useCollapsibleStickyHeader";
 
 // ─── COMPONENT ───────────────────────────────────────────────────────────────
 export function HeaderCalculationPage() {
@@ -47,6 +50,32 @@ export function HeaderCalculationPage() {
   const scrollRef = useRef(null);
   const [showLeftScroll, setShowLeftScroll] = useState(false);
   const [showRightScroll, setShowRightScroll] = useState(false);
+
+  // Once scrolled, the sticky header can be folded into a slim pill on the
+  // left (like the sidebar) so it stops covering the form. Flow height never
+  // changes — the full header just becomes transparent/click-through — so
+  // toggling doesn't shift the content under the user.
+  const { canCollapse, isCollapsed, toggleCollapsed } =
+    useCollapsibleStickyHeader();
+
+  // The button that was clicked disappears (goes inert) on toggle, which
+  // would drop keyboard focus onto <body>. Hand focus to its counterpart
+  // instead: Minimize → Expand, Expand → Minimize.
+  const expandButtonRef = useRef(null);
+  const minimizeButtonRef = useRef(null);
+  const focusAfterToggleRef = useRef(false);
+
+  const handleToggleCollapsed = () => {
+    focusAfterToggleRef.current = true;
+    toggleCollapsed();
+  };
+
+  useEffect(() => {
+    if (!focusAfterToggleRef.current) return;
+    focusAfterToggleRef.current = false;
+    const target = isCollapsed ? expandButtonRef : minimizeButtonRef;
+    target.current?.focus({ preventScroll: true });
+  }, [isCollapsed]);
 
   // ─── LIVE TAB-LOCK STATE ─────────────────────────────────────────────────
   // isPoleStepCompleted/isOpeningStepCompleted/etc. below read sessionStorage
@@ -569,7 +598,64 @@ export function HeaderCalculationPage() {
 
   return (
     <>
-    <div className="relative z-10 sm:sticky sm:top-16 sm:z-30 w-[calc(100%+2px)] -mx-[1px] bg-[#f8fafc]">
+    <div
+      className={`relative z-10 sm:sticky sm:top-16 sm:z-30 w-[calc(100%+2px)] -mx-[1px] transition-colors duration-300 motion-reduce:transition-none ${
+        isCollapsed ? "bg-transparent pointer-events-none" : "bg-[#f8fafc]"
+      }`}
+    >
+      {/* ─── COLLAPSED PILL ─────────────────────────────────────────────────
+          Aligned with the Back button's position in the full header, so the
+          header visibly folds into the spot it collapses toward. */}
+      <div
+        aria-hidden={!isCollapsed}
+        inert={!isCollapsed || undefined}
+        className={`hidden lg:flex absolute z-10 top-2.5 left-2.5 md:left-[18px] 2xl:left-[26px] w-[68px] flex-col items-center gap-2 px-1.5 py-3 rounded-xl bg-gradient-to-b from-[#0d3b66] to-[#1a5a92] text-white shadow-lg ring-1 ring-black/5 transition-all duration-300 ease-in-out motion-reduce:transition-none ${
+          isCollapsed
+            ? "opacity-100 translate-x-0 pointer-events-auto delay-100"
+            : "opacity-0 -translate-x-2 pointer-events-none"
+        }`}
+      >
+        {/* Just Expand + Save, stacked vertically so the pill stays small.
+            No step name here — the app Header's breadcrumb right above
+            already shows the current step. */}
+        <button
+          ref={expandButtonRef}
+          type="button"
+          onClick={handleToggleCollapsed}
+          title="Expand header"
+          aria-label="Expand header"
+          className="flex items-center justify-center w-[38px] h-[38px] shrink-0 rounded-lg border border-white/20 hover:bg-white/10 active:bg-white/15 transition"
+        >
+          <PanelLeftOpen className="w-4 h-4" />
+        </button>
+
+        <div className="w-8 h-px bg-white/20 my-1" />
+
+        <button
+          type="button"
+          onClick={handleQuickSave}
+          title="Save Draft"
+          aria-label="Save Draft"
+          className="flex items-center justify-center w-[38px] h-[38px] shrink-0 rounded-lg hover:bg-white/10 active:bg-white/15 transition"
+        >
+          <Save className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* ─── FULL HEADER ────────────────────────────────────────────────────
+          Collapsing wipes it toward the left with clip-path (no text
+          squashing, no layout shift). The negative insets leave room for
+          the card's shadow when expanded. lg+ only: below that nothing
+          collapses, and clip-path would also clip the fixed mobile tab bar. */}
+      <div
+        aria-hidden={isCollapsed}
+        inert={isCollapsed || undefined}
+        className={`transition-[clip-path,opacity] duration-300 ease-in-out motion-reduce:transition-none ${
+          isCollapsed
+            ? "lg:[clip-path:inset(-12px_100%_-12px_-12px)] lg:opacity-0"
+            : "lg:[clip-path:inset(-12px_-12px_-12px_-12px)] opacity-100"
+        }`}
+      >
       {/* ─── BLUE HEADER CARD ─────────────────────────────────────────────── */}
       <div
         className={`rounded-xl bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] shadow-sm px-3 py-3 sm:px-4 sm:py-4 md:px-6 2xl:px-8 flex flex-col gap-3 sm:gap-4 ${!isProjectIdentityPage ? "sm:rounded-t-2xl sm:rounded-b-none" : "sm:rounded-2xl"}`}
@@ -690,8 +776,8 @@ export function HeaderCalculationPage() {
             ) : null}
           </div>
 
-          {/* SAVE DRAFT */}
-          <div className="flex-1 flex justify-end relative">
+          {/* SAVE DRAFT + MINIMIZE */}
+          <div className="flex-1 flex items-center justify-end gap-2 relative">
             <button
               type="button"
               onClick={handleQuickSave}
@@ -703,6 +789,28 @@ export function HeaderCalculationPage() {
 
               <span className="sm:hidden">Save</span>
             </button>
+
+            {/* Minimize — only offered once the header is stuck over the
+                content (appears together with the scroll-to-top button).
+                Kept on the right, away from Back, where window "minimize"
+                controls usually live, and labelled so it can't be mistaken
+                for navigation. */}
+            {canCollapse && (
+              <>
+                <div className="hidden lg:block w-px h-6 bg-white/20" />
+                <button
+                  ref={minimizeButtonRef}
+                  type="button"
+                  onClick={handleToggleCollapsed}
+                  title="Minimize header"
+                  aria-label="Minimize header"
+                  className="hidden lg:flex items-center justify-center gap-2 px-3 py-2 shrink-0 text-white/80 hover:text-white hover:bg-white/10 active:bg-white/15 rounded-lg text-sm font-medium transition"
+                >
+                  <PanelLeftClose className="w-4 h-4 shrink-0" />
+                  <span>Minimize</span>
+                </button>
+              </>
+            )}
           </div>
         </div>
 
@@ -918,6 +1026,7 @@ export function HeaderCalculationPage() {
           </div>
         </div>
       )}
+      </div>
 
     </div>
 
