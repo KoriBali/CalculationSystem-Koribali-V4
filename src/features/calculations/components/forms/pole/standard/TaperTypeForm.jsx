@@ -9,38 +9,43 @@ import { FormSelect } from "../../../../../../shared/components/FormSelect";
 // === IMAGES (12 cases: 6 pole types × 2 ground positions) ===
 const DIAGRAM_IMAGE_MAP = {
   IS: {
-    onGL: "/images/IS-Type-OnGL.svg",
-    underGL: "/images/IS-Type-UnderGL.svg",
+    onGL: "/images/IS_OnGL.svg",
+    underGL: "/images/IS_UnderGL.svg",
   },
   IA: {
-    onGL: "/images/IA-Type-OnGL.svg",
-    underGL: "/images/IA-Type-UnderGL.svg",
+    onGL: "/images/IA_OnGL.svg",
+    underGL: "/images/IA_UnderGL.svg",
   },
   LS: {
-    onGL: "/images/LS-Type-OnGL.svg",
-    underGL: "/images/LS-Type-UnderGL.svg",
+    onGL: "/images/LS_OnGL.svg",
+    underGL: "/images/LS_UnderGL.svg",
   },
   LA: {
-    onGL: "/images/LA-Type-OnGL.svg",
-    underGL: "/images/LA-Type-UnderGL.svg",
+    onGL: "/images/LA_OnGL.svg",
+    underGL: "/images/LA_UnderGL.svg",
   },
   TS: {
-    onGL: "/images/TS-Type-OnGL.svg",
-    underGL: "/images/TS-Type-UnderGL.svg",
+    onGL: "/images/TS_OnGL.svg",
+    underGL: "/images/TS_UnderGL.svg",
   },
   TA: {
-    onGL: "/images/TA-Type-OnGL.svg",
-    underGL: "/images/TA-Type-UnderGL.svg",
+    onGL: "/images/TA_OnGL.svg",
+    underGL: "/images/TA_UnderGL.svg",
   },
 };
 
 // Embedment variant (used when !isBaseplate) for each pole type
 const EMBED_IMAGE_MAP = Object.fromEntries(
-  Object.keys(DIAGRAM_IMAGE_MAP).map((type) => [type, `/images/${type}-Type-Embed.svg`])
+  Object.keys(DIAGRAM_IMAGE_MAP).map((type) => [
+    type,
+    `/images/${type}-Type-Embed.svg`,
+  ]),
 );
 
 const ALL_DIAGRAM_IMAGES = [
-  ...Object.values(DIAGRAM_IMAGE_MAP).flatMap((byGround) => Object.values(byGround)),
+  ...Object.values(DIAGRAM_IMAGE_MAP).flatMap((byGround) =>
+    Object.values(byGround),
+  ),
   ...Object.values(EMBED_IMAGE_MAP),
 ];
 
@@ -66,7 +71,13 @@ const EMPTY_POLE_STANDARD = {
   height: "",
 };
 
-export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset = false, isBaseplate = true, errors = {} }) {
+export function TaperPoleStandardForm({
+  taperPoleStandard,
+  onUpdate,
+  hideReset = false,
+  isBaseplate = true,
+  errors = {},
+}) {
   const {
     poleStandardOptions,
     heightOptionsByStandard,
@@ -82,32 +93,42 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
   const [showResetModal, setShowResetModal] = useState(false);
 
   useEffect(() => {
-    if (!isBaseplate && taperPoleStandard.poleType && taperPoleStandard.groundPosition !== "underGL") {
+    if (
+      !isBaseplate &&
+      taperPoleStandard.poleType &&
+      taperPoleStandard.groundPosition !== "underGL"
+    ) {
       onUpdate({ groundPosition: "underGL", height: "" });
     }
-  }, [isBaseplate, taperPoleStandard.poleType, taperPoleStandard.groundPosition, onUpdate]);
+  }, [
+    isBaseplate,
+    taperPoleStandard.poleType,
+    taperPoleStandard.groundPosition,
+    onUpdate,
+  ]);
 
   // Warm the browser cache with every pole diagram in the background so
   // switching pole type / ground position later never shows a blank flash.
   useEffect(() => preloadImagesWhenIdle(ALL_DIAGRAM_IMAGES), []);
   const currentHeightOptions =
-    heightOptionsByStandard[taperPoleStandard.poleType] ??
-    EMPTY_HEIGHT_OPTIONS;
+    heightOptionsByStandard[taperPoleStandard.poleType] ?? EMPTY_HEIGHT_OPTIONS;
 
   // In Embedment mode groundPosition is always forced to "underGL" (see
   // effect above) — that's only used to pick the embedment diagram/field.
   // The height list itself should stay the plain onGL values; the +0.3m
   // embedment allowance is entered separately via Embedment Length, not
   // baked into the dropdown.
-  const heightLookupKey = !isBaseplate ? "onGL" : taperPoleStandard.groundPosition;
+  const heightLookupKey = !isBaseplate
+    ? "onGL"
+    : taperPoleStandard.groundPosition;
 
   const currentImage =
     taperPoleStandard.poleType && taperPoleStandard.groundPosition
-      ? (!isBaseplate && taperPoleStandard.groundPosition === "underGL"
+      ? !isBaseplate && taperPoleStandard.groundPosition === "underGL"
         ? EMBED_IMAGE_MAP[taperPoleStandard.poleType]
-        : DIAGRAM_IMAGE_MAP[taperPoleStandard.poleType]?.[
-        taperPoleStandard.groundPosition
-        ] ?? null)
+        : (DIAGRAM_IMAGE_MAP[taperPoleStandard.poleType]?.[
+            taperPoleStandard.groundPosition
+          ] ?? null)
       : null;
 
   const isGroundDisabled = !taperPoleStandard.poleType;
@@ -129,8 +150,9 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
         {/* ── LEFT: Pole Type ── */}
         <div
           id="taperPoleStandard.poleType"
-          className={`border rounded-xl hp:rounded-lg bg-white shadow-sm overflow-hidden flex flex-col ${errors.poleType ? "border-red-300" : "border-slate-200"
-            }`}
+          className={`border rounded-xl hp:rounded-lg bg-white shadow-sm overflow-hidden flex flex-col ${
+            errors.poleType ? "border-red-300" : "border-slate-200"
+          }`}
         >
           <div className="px-4 py-3 border-b border-slate-100 bg-slate-50 flex-shrink-0">
             <p className="text-xs md:text-sm font-medium text-slate-500">
@@ -144,20 +166,22 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
                 Loading pole standard options...
               </p>
             )}
-            {!poleStandardLoading && poleStandardError && poleStandardOptions.length === 0 && (
-              <div className="col-span-2 md:col-span-1 flex items-center justify-between gap-3 px-3 py-2 rounded-lg bg-red-50 border border-red-200">
-                <p className="text-xs sm:text-sm text-red-600">
-                  Failed to load pole standard options.
-                </p>
-                <button
-                  type="button"
-                  onClick={refetchPoleStandard}
-                  className="text-xs sm:text-sm font-medium text-red-600 underline hover:text-red-700 shrink-0"
-                >
-                  Retry
-                </button>
-              </div>
-            )}
+            {!poleStandardLoading &&
+              poleStandardError &&
+              poleStandardOptions.length === 0 && (
+                <div className="col-span-2 md:col-span-1 flex items-center justify-between gap-3 px-3 py-2 rounded-lg bg-red-50 border border-red-200">
+                  <p className="text-xs sm:text-sm text-red-600">
+                    Failed to load pole standard options.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={refetchPoleStandard}
+                    className="text-xs sm:text-sm font-medium text-red-600 underline hover:text-red-700 shrink-0"
+                  >
+                    Retry
+                  </button>
+                </div>
+              )}
             {poleStandardOptions.map((option) => {
               const isActive = taperPoleStandard.poleType === option.id;
               return (
@@ -172,10 +196,11 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
                     })
                   }
                   className={`w-full rounded-lg hp:rounded-md border px-4 py-2 lg:py-2.5 text-xs md:text-sm font-medium transition-all text-left
-                  ${isActive
+                  ${
+                    isActive
                       ? "border-blue-500 bg-blue-50 text-blue-600 shadow-sm"
                       : "border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50"
-                    }`}
+                  }`}
                 >
                   {option.label}
                 </button>
@@ -191,11 +216,15 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
 
         {/* ── RIGHT: Ground Position + Diagram ── */}
         <div
-          className={`border rounded-xl hp:rounded-lg bg-white shadow-sm overflow-hidden flex flex-col ${errors.groundPosition ? "border-red-300" : "border-slate-200"
-            }`}
+          className={`border rounded-xl hp:rounded-lg bg-white shadow-sm overflow-hidden flex flex-col ${
+            errors.groundPosition ? "border-red-300" : "border-slate-200"
+          }`}
         >
           {/* ── Ground position header ── */}
-          <div id="taperPoleStandard.groundPosition" className="px-4 py-3 border-b border-slate-100 bg-slate-50 flex flex-col xl:flex-row items-start xl:items-center gap-3 xl:gap-4 flex-shrink-0">
+          <div
+            id="taperPoleStandard.groundPosition"
+            className="px-4 py-3 border-b border-slate-100 bg-slate-50 flex flex-col xl:flex-row items-start xl:items-center gap-3 xl:gap-4 flex-shrink-0"
+          >
             <p className="text-xs md:text-sm font-medium text-slate-500 flex-shrink-0">
               Ground Position
             </p>
@@ -219,12 +248,13 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
                       flex items-center gap-2
                       rounded-lg hp:rounded-md border px-4 py-2 lg:py-2.5 text-xs md:text-sm font-medium
                       transition-all duration-150 select-none
-                      ${isGroundDisabled
+                      ${
+                        isGroundDisabled
                           ? "bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed opacity-60"
                           : isActive
                             ? "border-blue-500 bg-blue-50 text-blue-600 shadow-sm cursor-pointer"
                             : "border-slate-200 text-slate-700 cursor-pointer hover:border-slate-300 hover:bg-slate-100"
-                        }
+                      }
                     `}
                     >
                       {/* Radio circle */}
@@ -232,12 +262,13 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
                         className={`
                         w-3.5 h-3.5 rounded-full border-2 flex-shrink-0
                         flex items-center justify-center transition-colors
-                        ${isGroundDisabled
+                        ${
+                          isGroundDisabled
                             ? "border-slate-300"
                             : isActive
                               ? "border-blue-500"
                               : "border-slate-400"
-                          }
+                        }
                       `}
                       >
                         {isActive && !isGroundDisabled && (
@@ -255,7 +286,10 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
                   Select a pole standard first
                 </span>
               )}
-              <ErrorStyle show={errors.groundPosition} text={errors.groundPosition} />
+              <ErrorStyle
+                show={errors.groundPosition}
+                text={errors.groundPosition}
+              />
             </div>
           </div>
 
@@ -275,7 +309,7 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
             {showDiagram ? (
               <div className="flex items-center justify-center gap-2 sm:gap-4 xl:gap-6 w-full px-4 sm:px-8 h-full">
                 {/* Kiri: Height input */}
-                <div className="xl:flex-shrink-0 w-[150px] xl:w-[140px]">
+                {/* <div className="xl:flex-shrink-0 w-[150px] xl:w-[140px]">
                   <div>
                     <span className="block text-gray-600 text-xs md:text-sm font-medium mb-2">
                       Height
@@ -284,23 +318,25 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
                       id="taperPoleStandard.height"
                       value={taperPoleStandard.height}
                       onChange={(val) => onUpdate({ height: val })}
-                      options={(currentHeightOptions[heightLookupKey] || []).map(
-                        (h) => ({ value: h.id, label: h.label }),
-                      )}
+                      options={(
+                        currentHeightOptions[heightLookupKey] || []
+                      ).map((h) => ({ value: h.id, label: h.label }))}
                       loading={poleStandardLoading}
                       hasError={!!errors.height}
                       placeholder="Select Height"
                     />
                     <ErrorStyle show={errors.height} text={errors.height} />
                   </div>
-                </div>
+                </div> */}
 
                 {/* Kanan: Diagram image — gambar yang tentukan tinggi container */}
                 <div className="xl:flex-shrink-0 relative flex items-center justify-center h-full min-w-[80px]">
                   {!isImageLoaded && (
                     <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-slate-400">
                       <Loader2 className="w-6 h-6 animate-spin" />
-                      <span className="text-[11px] md:text-xs">Loading diagram...</span>
+                      <span className="text-[11px] md:text-xs">
+                        Loading diagram...
+                      </span>
                     </div>
                   )}
                   <img
@@ -310,37 +346,45 @@ export function TaperPoleStandardForm({ taperPoleStandard, onUpdate, hideReset =
                     onLoad={() =>
                       setLoadedImages((prev) => new Set(prev).add(currentImage))
                     }
-                    className={`w-auto h-full max-h-full object-contain transition-opacity duration-300 ${isImageLoaded ? "opacity-100" : "opacity-0"
-                      }`}
+                    className={`w-auto h-full max-h-full object-contain transition-opacity duration-300 ${
+                      isImageLoaded ? "opacity-100" : "opacity-0"
+                    }`}
                   />
                 </div>
 
                 {/* Kanan Gambar: Embedment Input */}
-                {!isBaseplate && taperPoleStandard.groundPosition === "underGL" && (
-                  <div className="self-end pb-0 mb-0 -translate-y-3 xl:-translate-y-0.5 xl:flex-shrink-0 w-[110px] sm:w-[130px]">
-                    <span className="block text-gray-600 text-xs md:text-sm font-medium mb-2">
-                      Embedment Length
-                    </span>
-                    <div className="relative">
-                      <input
-                        id="taperPoleStandard.embedmentLength"
-                        type="number"
-                        min="0"
-                        value={taperPoleStandard.embedmentLength || ""}
-                        onChange={(e) => onUpdate({ embedmentLength: e.target.value })}
-                        onWheel={(e) => e.target.blur()}
-                        className={`w-full px-2 py-1.5 md:py-2 lg:py-2.5 border rounded-lg hp:rounded-md text-xs md:text-sm outline-none transition-all pr-8 md:pr-10 min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] ${errors.embedmentLength
-                            ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
-                            : "border-gray-300 focus:border-[#1D4ED8]"
-                          }`}
-                      />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs md:text-sm pointer-events-none">
-                        mm
+                {!isBaseplate &&
+                  taperPoleStandard.groundPosition === "underGL" && (
+                    <div className="self-end pb-0 mb-0 -translate-y-3 xl:-translate-y-0.5 xl:flex-shrink-0 w-[110px] sm:w-[130px]">
+                      <span className="block text-gray-600 text-xs md:text-sm font-medium mb-2">
+                        Embedment Length
                       </span>
+                      <div className="relative">
+                        <input
+                          id="taperPoleStandard.embedmentLength"
+                          type="number"
+                          min="0"
+                          value={taperPoleStandard.embedmentLength || ""}
+                          onChange={(e) =>
+                            onUpdate({ embedmentLength: e.target.value })
+                          }
+                          onWheel={(e) => e.target.blur()}
+                          className={`w-full px-2 py-1.5 md:py-2 lg:py-2.5 border rounded-lg hp:rounded-md text-xs md:text-sm outline-none transition-all pr-8 md:pr-10 min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] ${
+                            errors.embedmentLength
+                              ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
+                              : "border-gray-300 focus:border-[#1D4ED8]"
+                          }`}
+                        />
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs md:text-sm pointer-events-none">
+                          mm
+                        </span>
+                      </div>
+                      <ErrorStyle
+                        show={errors.embedmentLength}
+                        text={errors.embedmentLength}
+                      />
                     </div>
-                    <ErrorStyle show={errors.embedmentLength} text={errors.embedmentLength} />
-                  </div>
-                )}
+                  )}
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center gap-3 text-center px-8 py-10">
