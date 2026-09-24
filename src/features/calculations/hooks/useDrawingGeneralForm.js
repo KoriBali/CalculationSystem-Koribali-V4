@@ -4,6 +4,7 @@ import { validateWithYup } from "../utils/validation";
 import { DrawingGeneralSchema } from "../schemas/drawing/DrawingGeneralSchema";
 import { useProjectStorage } from "./useProjectStorage";
 import { scrollToFirstError, firstErrorMessage } from "../utils/scrollToError";
+import { setProgressFlag } from "../utils/calculationProgressEvent";
 
 const getDefaultGeneral = () => ({
   drawingType: "",
@@ -116,15 +117,15 @@ export function useDrawingGeneralForm() {
       const wasOn = prev?.additionalComponents?.[key] === true;
       const isOff = localGeneral?.additionalComponents?.[key] !== true;
       if (wasOn && isOff) {
-        sessionStorage.removeItem(`${projectType}_drawing_${storageKey}_completed`);
+        setProgressFlag(projectType, `drawing_${storageKey}_completed`, false);
         sessionStorage.removeItem(`${projectType}_drawing_${storageKey}`);
       }
     });
 
     // Cleanup coupling data if coupling was disabled
     if (prev?.useCoupling === true && localGeneral?.useCoupling !== true) {
-      sessionStorage.removeItem(`${projectType}_drawing_coupling_confirmed`);
-      sessionStorage.removeItem(`${projectType}_drawing_coupling_completed`);
+      setProgressFlag(projectType, "drawing_coupling_confirmed", false);
+      setProgressFlag(projectType, "drawing_coupling_completed", false);
       sessionStorage.removeItem(`${projectType}_drawing_coupling`);
     }
 
@@ -133,10 +134,11 @@ export function useDrawingGeneralForm() {
     setGeneral(localGeneral); // keep useProjectStorage in sync (for draft saving)
     committedRef.current = localGeneral;
 
-    sessionStorage.setItem(`${projectType}_drawing_completed`, "true");
-    sessionStorage.setItem(
-      `${projectType}_drawing_coupling_confirmed`,
-      String(localGeneral.useCoupling)
+    setProgressFlag(projectType, "drawing_completed", true);
+    setProgressFlag(
+      projectType,
+      "drawing_coupling_confirmed",
+      localGeneral.useCoupling === true,
     );
 
     // Navigate — header will re-render on new page with correct sessionStorage data

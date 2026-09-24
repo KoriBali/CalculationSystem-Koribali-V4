@@ -28,6 +28,7 @@ import {
   Pencil,
 } from "lucide-react";
 import { FieldErrorHint } from "../../../../../shared/components/FieldErrorHint";
+import { setProgressFlag } from "../../../utils/calculationProgressEvent";
 
 /**
  * HELPER COMPONENTS
@@ -199,7 +200,7 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
 
   const executeCountChange = (newCount) => {
     setCouplingCount(newCount);
-    sessionStorage.removeItem(`${projectType}_drawing_coupling_completed`);
+    setProgressFlag(projectType, "drawing_coupling_completed", false);
     setCouplings((prev) => {
       const updated = [...prev];
       if (newCount > prev.length) {
@@ -219,7 +220,7 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
   };
 
   const updateCoupling = (index, field, value) => {
-    sessionStorage.removeItem(`${projectType}_drawing_coupling_completed`);
+    setProgressFlag(projectType, "drawing_coupling_completed", false);
     setCouplings((prev) => {
       const updated = [...prev];
       updated[index] = { ...updated[index], [field]: value };
@@ -255,7 +256,7 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
                     current={location}
                     onChange={(val) => {
                       setLocation(val);
-                      sessionStorage.removeItem(`${projectType}_drawing_coupling_completed`);
+                      setProgressFlag(projectType, "drawing_coupling_completed", false);
                       setErrors((prev) => {
                         const newErrors = { ...prev };
                         delete newErrors.location;

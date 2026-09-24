@@ -22,3 +22,22 @@ export const CALCULATION_PROGRESS_EVENT = "calculation-progress-changed";
 export function notifyCalculationProgressChanged() {
   window.dispatchEvent(new Event(CALCULATION_PROGRESS_EVENT));
 }
+
+// Drawing-phase progress flags (drawing_completed, drawing_*_completed,
+// drawing_coupling_confirmed) are plain "true"/absent sessionStorage keys
+// that HeaderCalculationPage also reads to lock/unlock tabs. Writing them
+// through here keeps the header in sync the moment they change — e.g. an
+// edit that clears drawing_pole_completed re-locks the later tabs right
+// away instead of only after a reload.
+export function setProgressFlag(projectType, key, isSet) {
+  const storageKey = `${projectType}_${key}`;
+  // Edit handlers call this with `false` on every keystroke — only signal
+  // the header when the flag actually flips.
+  if ((sessionStorage.getItem(storageKey) === "true") === isSet) return;
+  if (isSet) {
+    sessionStorage.setItem(storageKey, "true");
+  } else {
+    sessionStorage.removeItem(storageKey);
+  }
+  notifyCalculationProgressChanged();
+}

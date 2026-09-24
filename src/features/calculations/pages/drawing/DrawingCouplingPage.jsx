@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { HeaderCalculationPage } from "../../components/layout/HeaderCalculationPage";
 import { CouplingForm } from "../../components/forms/drawing/CouplingForm";
 import { ToastModal } from "../../components/modals/ToastModal";
+import { setProgressFlag } from "../../utils/calculationProgressEvent";
 
 export default function DrawingCouplingPage() {
   const { type: projectType, draftId } = useParams();
@@ -24,7 +25,7 @@ export default function DrawingCouplingPage() {
   };
 
   const handleNext = () => {
-    sessionStorage.setItem(`${projectType}_drawing_coupling_completed`, "true");
+    setProgressFlag(projectType, "drawing_coupling_completed", true);
     navigate(`/calculation/${projectType}/${draftId}/drawing/surface`);
   };
 

@@ -4,6 +4,7 @@ import { useProjectStorage } from "./useProjectStorage";
 import { DrawingBaseplateSchema } from "../schemas/drawing/DrawingBaseplateSchema";
 import { validateWithYup } from "../utils/validation";
 import { scrollToFirstError, firstErrorMessage } from "../utils/scrollToError";
+import { setProgressFlag } from "../utils/calculationProgressEvent";
 
 const getDefaultBaseplate = () => ({
   baseplateType: "",
@@ -29,7 +30,7 @@ export function useDrawingBaseplateForm() {
     setLocalBaseplate(newBaseplate);
     setBaseplate(newBaseplate);
     
-    sessionStorage.removeItem(`${projectType}_drawing_baseplate_completed`);
+    setProgressFlag(projectType, "drawing_baseplate_completed", false);
     
     setErrors((prev) => {
       const cleared = { ...prev };
@@ -58,7 +59,7 @@ export function useDrawingBaseplateForm() {
       return null;
     }
     
-    sessionStorage.setItem(`${projectType}_drawing_baseplate_completed`, "true");
+    setProgressFlag(projectType, "drawing_baseplate_completed", true);
     
     // Check if foundation was used in general
     const generalDataStr = sessionStorage.getItem(`${projectType}_drawing_general`);

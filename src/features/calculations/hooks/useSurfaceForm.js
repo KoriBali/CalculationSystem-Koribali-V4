@@ -4,6 +4,7 @@ import { validateWithYup } from "../utils/validation";
 import { SurfaceSchema } from "../schemas/drawing/SurfaceSchema";
 import { useProjectStorage } from "./useProjectStorage";
 import { scrollToFirstError, firstErrorMessage } from "../utils/scrollToError";
+import { setProgressFlag } from "../utils/calculationProgressEvent";
 
 const FIELD_LABELS = {
   surfaceTreatmentType: "Pole Surface Treatment Option",
@@ -72,7 +73,7 @@ export function useSurfaceForm() {
     }
     
     setSurface(localSurface);
-    sessionStorage.setItem(`${projectType}_drawing_completed`, "true");
+    setProgressFlag(projectType, "drawing_completed", true);
     
     // Allow the view to handle the next step (e.g. Finish Modal)
     return "OPEN_FINISH";

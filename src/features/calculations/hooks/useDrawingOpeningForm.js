@@ -4,6 +4,7 @@ import { useProjectStorage } from "./useProjectStorage";
 import * as Yup from "yup";
 import { validateWithYup } from "../utils/validation";
 import { scrollToFirstError, firstErrorMessage } from "../utils/scrollToError";
+import { setProgressFlag } from "../utils/calculationProgressEvent";
 
 const DrawingOpeningSchema = Yup.object().shape({
   height: Yup.number()
@@ -39,7 +40,7 @@ export function useDrawingOpeningForm() {
     setLocalOpening(newOpening);
     setOpening(newOpening);
     
-    sessionStorage.removeItem(`${projectType}_drawing_opening_completed`);
+    setProgressFlag(projectType, "drawing_opening_completed", false);
     
     setErrors((prev) => {
       const cleared = { ...prev };
@@ -68,7 +69,7 @@ export function useDrawingOpeningForm() {
       return null;
     }
     
-    sessionStorage.setItem(`${projectType}_drawing_opening_completed`, "true");
+    setProgressFlag(projectType, "drawing_opening_completed", true);
     
     // Check if baseplate is enabled
     const rawGeneral = sessionStorage.getItem(`${projectType}_drawing_general`);

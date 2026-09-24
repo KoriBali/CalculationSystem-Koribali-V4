@@ -6,6 +6,7 @@ import { validateWithYup } from "../utils/validation";
 import { scrollToFirstError, firstErrorMessage } from "../utils/scrollToError";
 
 import * as Utils from "../utils";
+import { setProgressFlag } from "../utils/calculationProgressEvent";
 
 export function useDrawingFoundationForm() {
   const { type: projectType, draftId } = useParams();
@@ -63,7 +64,7 @@ export function useDrawingFoundationForm() {
 
   const handleFoundationTypeUpdate = (updates) => {
     Utils.updateFoundationType(foundationType, updates, setFoundationType);
-    sessionStorage.removeItem(`${projectType}_drawing_foundation_completed`);
+    setProgressFlag(projectType, "drawing_foundation_completed", false);
     setFoundationTypeErrors((prev) => {
       const cleared = { ...prev };
       Object.keys(updates).forEach((key) => delete cleared[key]);
@@ -73,7 +74,7 @@ export function useDrawingFoundationForm() {
 
   const handleSquareCaissonUpdate = (updates) => {
     Utils.updateSquareCaisson(squareCaisson, updates, setSquareCaisson);
-    sessionStorage.removeItem(`${projectType}_drawing_foundation_completed`);
+    setProgressFlag(projectType, "drawing_foundation_completed", false);
     setSquareCaissonErrors((prev) => {
       const cleared = { ...prev };
       Object.keys(updates).forEach((key) => delete cleared[key]);
@@ -83,7 +84,7 @@ export function useDrawingFoundationForm() {
 
   const handleRoundCaissonUpdate = (updates) => {
     Utils.updateRoundCaisson(roundCaisson, updates, setRoundCaisson);
-    sessionStorage.removeItem(`${projectType}_drawing_foundation_completed`);
+    setProgressFlag(projectType, "drawing_foundation_completed", false);
     setRoundCaissonErrors((prev) => {
       const cleared = { ...prev };
       Object.keys(updates).forEach((key) => delete cleared[key]);
@@ -130,7 +131,7 @@ export function useDrawingFoundationForm() {
       return null;
     }
 
-    sessionStorage.setItem(`${projectType}_drawing_foundation_completed`, "true");
+    setProgressFlag(projectType, "drawing_foundation_completed", true);
     
     // In drawing mode, Foundation is the last possible step before general or whatever, but actually
     // the tab order in Drawing Only is: General -> Pole -> Opening -> Baseplate -> Foundation -> Coupling -> Surface

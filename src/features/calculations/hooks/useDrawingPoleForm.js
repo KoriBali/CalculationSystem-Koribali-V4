@@ -4,6 +4,7 @@ import { validateWithYup } from "../utils/validation";
 import { DrawingPoleSchema } from "../schemas/drawing/DrawingPoleSchema";
 import { useProjectStorage } from "./useProjectStorage";
 import { scrollToFirstError, firstErrorMessage } from "../utils/scrollToError";
+import { setProgressFlag } from "../utils/calculationProgressEvent";
 
 const getDefaultPole = () => ({
   taperPoleStandard: { poleType: "", groundPosition: "", height: "" },
@@ -28,7 +29,7 @@ export function useDrawingPoleForm() {
     setLocalPole(newPole);
     setPole(newPole);
     
-    sessionStorage.removeItem(`${projectType}_drawing_pole_completed`);
+    setProgressFlag(projectType, "drawing_pole_completed", false);
     
     setErrors((prev) => {
       const cleared = { ...prev };
@@ -67,7 +68,7 @@ export function useDrawingPoleForm() {
       return null;
     }
     
-    sessionStorage.setItem(`${projectType}_drawing_pole_completed`, "true");
+    setProgressFlag(projectType, "drawing_pole_completed", true);
     
     // Check if opening was used in general
     const isOpeningUsed = general?.additionalComponents?.opening === true;
