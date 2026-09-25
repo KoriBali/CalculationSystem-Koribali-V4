@@ -49,6 +49,7 @@ import {
   clearActiveDraftId,
 } from "../../../utils/coreLogic";
 import { clearCalculationSession } from "../../../utils";
+import { CustomPoleModal } from "../../modals/CustomPoleModal";
 
 // ─── COMPONENT ───────────────────────────────────────────────────────────────
 
@@ -88,6 +89,7 @@ export default function PoleFormView() {
   const [showFinishModal, setShowFinishModal] = useState(false);
   const [showDbModal, setShowDbModal] = useState(false);
   const [showCoverModal, setShowCoverModal] = useState(false);
+  const [showStraightModal, setShowStraightModal] = useState(false);
 
   // ── Hooks ──
   const poleForm = usePoleForm(projectType);
@@ -196,6 +198,12 @@ export default function PoleFormView() {
         itemName="step poles"
       />
 
+      <CustomPoleModal
+        isOpen={showStraightModal}
+        onClose={() => setShowStraightModal(false)}
+        featureName="Straight Pole"
+      />
+
       <div className="flex-1 rounded-t-2xl hp:rounded-xl bg-gray-50">
         <HeaderCalculationPage />
 
@@ -296,12 +304,20 @@ export default function PoleFormView() {
                     <>
                       <div className="pt-6 hp:pt-4" />
 
-                      {!isCalculationAndDrawing && (
-                        <PoleTypeSelector
-                          poleTypeStandard={poleStandardForm.poleTypeStandard}
-                          onUpdate={poleStandardForm.updatePoleTypeStandard}
-                        />
-                      )}
+                      <PoleTypeSelector
+                        poleTypeStandard={
+                          isCalculationAndDrawing
+                            ? { type: "taper" }
+                            : poleStandardForm.poleTypeStandard
+                        }
+                        onUpdate={(val) => {
+                          if (isCalculationAndDrawing && val.type === "straight") {
+                            setShowStraightModal(true);
+                          } else {
+                            poleStandardForm.updatePoleTypeStandard(val);
+                          }
+                        }}
+                      />
 
                       {(isCalculationAndDrawing ||
                         poleStandardForm.poleTypeStandard.type === "taper") && (
