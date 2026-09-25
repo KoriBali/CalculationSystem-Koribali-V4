@@ -59,7 +59,7 @@ const ALL_DIAGRAM_IMAGES = [
 // with the first text line above it and the second below, "vertical" = text
 // rotated to read bottom-to-top, centred on the point, "bottom-center" /
 // "bottom-right" = text sits above the point, centred on / ending at it.
-// Mapped so far: IS, IA, LS and LA (On GL / Under GL); other diagrams
+// Mapped so far: IS, IA, LS, LA and TS (On GL / Under GL); other diagrams
 // simply show no labels.
 
 // The short dimension at the pole base is always 750mm — for every pole
@@ -176,7 +176,7 @@ const DIAGRAM_LABEL_LAYOUT = {
       upperDiameter: { x: 281.35, y: 53.95, anchor: "bottom-left" },
       // Arm spec: second line (material) centred under the first, as in
       // the standard drawings.
-      armSpec: { x: 256.25, y: 142.45, anchor: "leader", centered: true },
+      armSpec: { x: 256.25, y: 141, anchor: "leader", centered: true },
       poleSpec: { x: 238.25, y: 446.45, anchor: "leader" },
       // Inner dimension line x 61.5: the short 100 between the pole top
       // (y 104.3) and the arm (y 113.3) has its arrows outside, so its text
@@ -201,7 +201,7 @@ const DIAGRAM_LABEL_LAYOUT = {
       armTopDimension: { x: 223.05, y: 4.95, anchor: "bottom-center" },
       armLength: { x: 192, y: 37.95, anchor: "bottom-right" },
       upperDiameter: { x: 280.55, y: 53.95, anchor: "bottom-left" },
-      armSpec: { x: 253.45, y: 142.45, anchor: "leader", centered: true },
+      armSpec: { x: 253.45, y: 141, anchor: "leader", centered: true },
       poleSpec: { x: 237.52, y: 445.45, anchor: "leader" },
       // Inner dimension line x 61.05: 100 on the upper arrow stem, arm
       // height y 115.2 → 829.7, then the 300 below G.L. y 834.2 → 854.7.
@@ -222,7 +222,7 @@ const DIAGRAM_LABEL_LAYOUT = {
       armTopDimension: { x: 226.2, y: 5.35, anchor: "bottom-center" },
       armLength: { x: 194.5, y: 38.35, anchor: "bottom-right" },
       diameter1: { x: 283.7, y: 54.35, anchor: "bottom-left" },
-      armSpec: { x: 257.6, y: 143.85, anchor: "leader", centered: true },
+      armSpec: { x: 257.6, y: 142, anchor: "leader", centered: true },
       diameter2: { x: 250.2, y: 307.35, anchor: "bottom-left" },
       poleSpec: { x: 239.67, y: 449.85, anchor: "leader" },
       diameter3: { x: 226.7, y: 681.35, anchor: "bottom-left" },
@@ -248,7 +248,7 @@ const DIAGRAM_LABEL_LAYOUT = {
       armTopDimension: { x: 224.85, y: 5.1, anchor: "bottom-center" },
       armLength: { x: 194.5, y: 38.1, anchor: "bottom-right" },
       diameter1: { x: 282.35, y: 54.1, anchor: "bottom-left" },
-      armSpec: { x: 255.25, y: 142.6, anchor: "leader", centered: true },
+      armSpec: { x: 255.25, y: 141, anchor: "leader", centered: true },
       diameter2: { x: 248.85, y: 278.1, anchor: "bottom-left" },
       poleSpec: { x: 238.32, y: 444.6, anchor: "leader" },
       diameter3: { x: 225.35, y: 655.1, anchor: "bottom-left" },
@@ -262,6 +262,105 @@ const DIAGRAM_LABEL_LAYOUT = {
       underGroundDepth: { x: 44.35, y: 841.1, anchor: "vertical" },
       // Vertical, just left of the 750 line (x 127.31, y 764.3 → 828.9).
       baseDimension: { x: 113.81, y: 796.6, anchor: "vertical" },
+    },
+  },
+  // Taper pole (as LS) with two arms, left and right: the arm dimensions
+  // appear on both sides, each placed outside its arrows as in the
+  // standard drawings; the arm spec sits on the right-hand leader.
+  "TS.onGL": {
+    viewBox: { width: 386, height: 871 },
+    heightLineX: 8,
+    positions: {
+      // 300s on the line at y 10 (left arrow x 158, right arrow x 248);
+      // (180)s on the line at y 43 — kept outside the 300 extension lines
+      // (x 158 / 248) too, so the text never crosses them.
+      armTopDimension: { x: 150, y: 8, anchor: "bottom-right" },
+      armTopDimensionRight: { x: 256, y: 8, anchor: "bottom-left" },
+      armLength: { x: 156, y: 41, anchor: "bottom-right" },
+      armLengthRight: { x: 251, y: 41, anchor: "bottom-left" },
+      armSpec: { x: 280.47, y: 76, anchor: "leader", centered: true },
+      // Diameter line at y 144.5; extension lines come in from above and
+      // end at x 243, so the text starts just right of them.
+      upperDiameter: { x: 249, y: 141.5, anchor: "bottom-left" },
+      poleSpec: { x: 239.47, y: 452.5, anchor: "leader" },
+      // Inner dimension line x 59: 100 on the upper arrow stem (y 68 →
+      // 105.8), then the arm height y 118.2 → 857.8.
+      poleTopOffset: { x: 44.5, y: 86.9, anchor: "vertical" },
+      armHeight: { x: 44.5, y: 488, anchor: "vertical" },
+      // Vertical, just left of the 750 line (x 128, y 793.2 → 857.8).
+      baseDimension: { x: 114.5, y: 825.5, anchor: "vertical" },
+      lowerDiameter: { x: 226.5, y: 820, anchor: "bottom-left" },
+    },
+  },
+  // Same labels and values as TS On GL, plus the 300 below G.L. Texts come
+  // from the On GL entry at (height − 0.3m): the TS underGL entries store
+  // the pole top as 8400 vs the arms' 8000, which would read 400 instead
+  // of On GL's 100.
+  "TS.underGL": {
+    viewBox: { width: 386, height: 872 },
+    heightLineX: 8,
+    textsFromOnGL: true,
+    positions: {
+      armTopDimension: { x: 149.5, y: 8, anchor: "bottom-right" },
+      armTopDimensionRight: { x: 256, y: 8, anchor: "bottom-left" },
+      armLength: { x: 155.5, y: 41, anchor: "bottom-right" },
+      armLengthRight: { x: 251, y: 41, anchor: "bottom-left" },
+      armSpec: { x: 280.47, y: 76, anchor: "leader", centered: true },
+      upperDiameter: { x: 249, y: 141.5, anchor: "bottom-left" },
+      poleSpec: { x: 239.47, y: 453, anchor: "leader" },
+      // Inner dimension line x 59: 100 on the upper arrow stem, arm
+      // height y 118.2 → 834.1, then the 300 below G.L. y 838.5 → 859.1.
+      poleTopOffset: { x: 44.5, y: 87, anchor: "vertical" },
+      armHeight: { x: 44.5, y: 476, anchor: "vertical" },
+      underGroundDepth: { x: 44.5, y: 845, anchor: "vertical" },
+      // Vertical, just left of the 750 line (x 128, y 769.5 → 834.1).
+      baseDimension: { x: 114.5, y: 802, anchor: "vertical" },
+      lowerDiameter: { x: 226.5, y: 798, anchor: "bottom-left" },
+    },
+  },
+  // Taper pole (stepped like LA) with two arms (like TS)
+  "TA.onGL": {
+    viewBox: { width: 386, height: 871 },
+    heightLineX: 8.2,
+    positions: {
+      armTopDimension: { x: 149.5, y: 8, anchor: "bottom-right" },
+      armTopDimensionRight: { x: 256, y: 8, anchor: "bottom-left" },
+      armLength: { x: 155.5, y: 41, anchor: "bottom-right" },
+      armLengthRight: { x: 251.5, y: 41, anchor: "bottom-left" },
+      armSpec: { x: 280.47, y: 76, anchor: "leader", centered: true },
+      diameter1: { x: 249, y: 141.5, anchor: "bottom-left" },
+      diameter2: { x: 249, y: 309, anchor: "bottom-left" },
+      poleSpec: { x: 239.67, y: 451.85, anchor: "leader" },
+      diameter3: { x: 226.7, y: 682.8, anchor: "bottom-left" },
+      diameter4: { x: 226.7, y: 818, anchor: "bottom-left" },
+      poleTopOffset: { x: 45.7, y: 84.2, ancho: "vertical" },
+      topSectionLength: { x: 45.7, y: 193.35, anchor: "vertical" },
+      taperSectionLength: { x: 45.7, y: 495.85, anchor: "vertical" },
+      bottomSectionLength: { x: 45.7, y: 790.34, anchor: "vertical" },
+      baseDimension: { x: 114.7, y: 825, anchor: "vertical" },
+    },
+  },
+  "TA.underGL": {
+    viewBox: { width: 386, height: 872 },
+    heightLineX: 7.85,
+    textsFromOnGL: true,
+    positions: {
+      armTopDimension: { x: 149.5, y: 8, anchor: "bottom-right" },
+      armTopDimensionRight: { x: 256, y: 8, anchor: "bottom-left" },
+      armLength: { x: 155.3, y: 41, anchor: "bottom-right" },
+      armLengthRight: { x: 249.8, y: 41, anchor: "bottom-left" },
+      armSpec: { x: 277.5, y: 76, anchor: "leader", centered: true },
+      diameter1: { x: 249, y: 141.5, anchor: "bottom-left" },
+      diameter2: { x: 249, y: 281.1, anchor: "bottom-left" },
+      poleSpec: { x: 239.67, y: 451.85, anchor: "leader" },
+      diameter3: { x: 225.35, y: 661.2, anchor: "bottom-left" },
+      diameter4: { x: 225.35, y: 795.5, anchor: "bottom-left" },
+      poleTopOffset: { x: 44.35, y: 82.98, anchor: "vertical" },
+      topSectionLength: { x: 44.35, y: 177.6, anchor: "vertical" },
+      taperSectionLength: { x: 44.35, y: 468.1, anchor: "vertical" },
+      bottomSectionLength: { x: 44.35, y: 765.1, anchor: "vertical" },
+      underGroundDepth: { x: 44.35, y: 845.1, anchor: "vertical" },
+      baseDimension: { x: 113.81, y: 801.6, anchor: "vertical" },
     },
   },
 };
@@ -293,6 +392,7 @@ function getDiagramLabels(poleType, groundPosition, height) {
     STANDARD_POLE_DATA.taper?.[poleType]?.[dataGround]?.[dataHeight];
   const poles = entry?.poles;
   const arm = entry?.arms?.[0];
+  const arm2 = entry?.arms?.[1];
   const pole = poles?.[0];
   if (!pole) return null;
 
@@ -327,6 +427,11 @@ function getDiagramLabels(poleType, groundPosition, height) {
       armHeight: [`${arm.zHeight}`],
       armTopDimension: [`${ARM_TOP_DIMENSION_MM}`],
       armLength: [`(${arm.length})`],
+      // Second arm (TS / TA): mirrored dimensions on the other side.
+      ...(arm2 && {
+        armTopDimensionRight: [`${ARM_TOP_DIMENSION_MM}`],
+        armLengthRight: [`(${arm2.length})`],
+      }),
       armSpec: [
         `φ${arm.diameter}×t${Number(arm.thickness).toFixed(1)}`,
         arm.material,
@@ -727,7 +832,7 @@ export function TaperPoleStandardForm({
                   {/* Wrapper sized exactly to the rendered image, so the
                       %-positioned labels line up with the SVG's own
                       coordinates. */}
-                  <div className="relative h-full">
+                  <div className="relative flex max-w-full max-h-full">
                     {/* Height select pinned against the overall-height
                         dimension line (its right edge 8px left of it),
                         vertically centred on it. The left margin on the
@@ -751,7 +856,7 @@ export function TaperPoleStandardForm({
                           new Set(prev).add(currentImage),
                         )
                       }
-                      className={`w-auto h-full max-h-full object-contain transition-opacity duration-300 ${
+                      className={`w-auto h-auto max-w-full max-h-full object-contain transition-opacity duration-300 ${
                         isImageLoaded ? "opacity-100" : "opacity-0"
                       }`}
                     />

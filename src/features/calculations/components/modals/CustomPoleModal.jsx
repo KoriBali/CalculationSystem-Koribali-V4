@@ -1,6 +1,6 @@
 import { AlertCircle } from "lucide-react";
 
-export const CustomPoleModal = ({ isOpen, onClose }) => {
+export const CustomPoleModal = ({ isOpen, onClose, featureName = "Custom Pole" }) => {
   if (!isOpen) return null;
 
   return (
@@ -15,7 +15,7 @@ export const CustomPoleModal = ({ isOpen, onClose }) => {
         </h2>
 
         <p className="text-center text-gray-600 text-xs sm:text-sm mb-5 sm:mb-8">
-          The drawing feature for Custom Pole configurations is currently under development. We apologize for the inconvenience and appreciate your patience as we work to bring you this functionality soon.
+          The drawing feature for {featureName} configurations is currently under development. We apologize for the inconvenience and appreciate your patience as we work to bring you this functionality soon.
         </p>
 
         <div className="flex justify-center">

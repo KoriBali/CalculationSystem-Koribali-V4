@@ -1,7 +1,9 @@
 import { RotateCcw, ChevronLeft, ChevronRight, FileText, Settings2, CheckCircle, Circle } from "lucide-react";
 import { useState } from "react";
 import { TaperPoleStandardForm } from "../pole/standard/TaperTypeForm";
+import { PoleTypeSelector } from "../pole/standard/PoleType";
 import { ConfirmResetAllModal } from "../../modals/ConfirmResetAllModal";
+import { CustomPoleModal } from "../../modals/CustomPoleModal";
 
 const ErrorStyle = ({ show, text }) =>
   show ? (
@@ -63,6 +65,7 @@ const CardOption = ({ label, current, value, onChange, icon: Icon }) => {
 
 export function DrawingPoleForm({ pole, onUpdate, onReset, onBack, onNext, errors, onToast, isBaseplate, nextLabel = "Save & Continue" }) {
   const [showResetModal, setShowResetModal] = useState(false);
+  const [showStraightModal, setShowStraightModal] = useState(false);
 
   const taperErrors = {
     poleType: errors["taperPoleStandard.poleType"],
@@ -75,6 +78,17 @@ export function DrawingPoleForm({ pole, onUpdate, onReset, onBack, onNext, error
     <div className="bg-white rounded-2xl hp:rounded-xl border border-gray-200 shadow-[0_2px_10px_rgba(15,23,42,0.06)] overflow-hidden">
       <div aria-hidden="true" className="h-1.5 bg-gradient-to-r from-[#0d3b66] to-[#3399cc]" />
       <div className="p-4 md:p-6 space-y-4 md:space-y-6">
+
+        <div className="mb-4 md:mb-6 -mx-4 md:-mx-6">
+          <PoleTypeSelector
+            poleTypeStandard={{ type: "taper" }}
+            onUpdate={(val) => {
+              if (val.type === "straight") {
+                setShowStraightModal(true);
+              }
+            }}
+          />
+        </div>
 
         {/* ── Taper Pole Form — rendered the same way as the Calculation
             flow's Pole step, no extra wrapping card ── */}
@@ -132,6 +146,12 @@ export function DrawingPoleForm({ pole, onUpdate, onReset, onBack, onNext, error
         onReset={onReset}
         title="Reset all inputs on this section?"
         description="This will clear all inputs entered in this section. This action cannot be undone."
+      />
+      
+      <CustomPoleModal
+        isOpen={showStraightModal}
+        onClose={() => setShowStraightModal(false)}
+        featureName="Straight Pole"
       />
     </div>
   );
