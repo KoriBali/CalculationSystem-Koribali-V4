@@ -39,7 +39,7 @@ const DIAGRAM_IMAGE_MAP = {
 const EMBED_IMAGE_MAP = Object.fromEntries(
   Object.keys(DIAGRAM_IMAGE_MAP).map((type) => [
     type,
-    `/images/${type}-Type-Embed.svg`,
+    `/images/${type}_Embedment.svg`,
   ]),
 );
 
@@ -49,6 +49,11 @@ const ALL_DIAGRAM_IMAGES = [
   ),
   ...Object.values(EMBED_IMAGE_MAP),
 ];
+
+// Distance (px) between the Height select and the overall-height dimension
+// line. Positive = select sits to the left of the line, negative = it
+// overlaps slightly to the right. Override per layout with `heightGap`.
+const DEFAULT_HEIGHT_GAP_PX = 8;
 
 // === DIMENSION LABELS ON THE DIAGRAM ===
 // Where each dimension's text sits on a diagram, in that SVG's own viewBox
@@ -80,6 +85,7 @@ const DIAGRAM_LABEL_LAYOUT = {
     // x of the overall-height dimension line — the Height select sits
     // right up against it so it reads as that dimension's value.
     heightLineX: 11.7,
+    heightGap: 7,
     positions: {
       // Diameters sit on top of their horizontal dimension line, as in the
       // standard drawings. At the top the extension lines come in from
@@ -88,10 +94,10 @@ const DIAGRAM_LABEL_LAYOUT = {
       upperDiameter: { x: 196.2, y: 42.05, anchor: "bottom-left" },
       // Pole spec straddles the leader's horizontal line: type above,
       // standard below.
-      poleSpec: { x: 186.2, y: 349.55, anchor: "leader" },
+      poleSpec: { x: 184.6, y: 349.4, anchor: "leader" },
       // Vertical, just left of the 750 line (x 75.7, y 693 → 758).
-      baseDimension: { x: 62.7, y: 725.55, anchor: "vertical" },
-      lowerDiameter: { x: 173.2, y: 720.05, anchor: "bottom-left" },
+      baseDimension: { x: 65, y: 725, anchor: "vertical" },
+      lowerDiameter: { x: 173.2, y: 719, anchor: "bottom-left" },
     },
   },
   // Same labels as On GL (offsets from each line kept identical), plus the
@@ -100,18 +106,19 @@ const DIAGRAM_LABEL_LAYOUT = {
   "IS.underGL": {
     viewBox: { width: 363, height: 771 },
     heightLineX: 8,
+    heightGap: 7,
     positions: {
       upperDiameter: { x: 245, y: 42.5, anchor: "bottom-left" },
-      poleSpec: { x: 234.5, y: 349.5, anchor: "leader" },
+      poleSpec: { x: 232.6, y: 349.3, anchor: "leader" },
       // Between the two vertical dimension lines, just left of the inner
       // one (x 60.5, y 9 → 733).
-      aboveGroundHeight: { x: 45.5, y: 371, anchor: "vertical" },
+      aboveGroundHeight: { x: 46, y: 371, anchor: "vertical" },
       // Vertical, just left of the 750 line (x 124.5, y 667 → 734).
-      baseDimension: { x: 110.5, y: 700.5, anchor: "vertical" },
-      lowerDiameter: { x: 221.5, y: 697, anchor: "bottom-left" },
+      baseDimension: { x: 112, y: 700.5, anchor: "vertical" },
+      lowerDiameter: { x: 221.5, y: 696, anchor: "bottom-left" },
       // Vertical, in line with the above-G.L. height text, centred on the
       // short G.L. → base segment (x 60.5, y 737 → 759).
-      underGroundDepth: { x: 45.5, y: 744, anchor: "vertical" },
+      underGroundDepth: { x: 46, y: 745, anchor: "vertical" },
     },
   },
   // Stepped pole: straight top → taper → straight bottom, so four diameters
@@ -120,20 +127,21 @@ const DIAGRAM_LABEL_LAYOUT = {
   "IA.onGL": {
     viewBox: { width: 370, height: 772 },
     heightLineX: 7.75,
+    heightGap: 7,
     positions: {
       // Diameter lines at y 45.5 / 183.5 (extension lines from above) and
       // y 590 / 725 (extension lines going down).
-      diameter1: { x: 251.75, y: 42.55, anchor: "bottom-left" },
+      diameter1: { x: 251.75, y: 41.55, anchor: "bottom-left" },
       diameter2: { x: 251.75, y: 181.05, anchor: "bottom-left" },
-      poleSpec: { x: 241.15, y: 349.55, anchor: "leader" },
-      diameter3: { x: 228.25, y: 585.05, anchor: "bottom-left" },
-      diameter4: { x: 228.25, y: 721.05, anchor: "bottom-left" },
+      poleSpec: { x: 240.15, y: 349.3, anchor: "leader" },
+      diameter3: { x: 228.25, y: 585, anchor: "bottom-left" },
+      diameter4: { x: 228.25, y: 720.05, anchor: "bottom-left" },
       // Section lengths, centred on y 9→145 / 147→622 / 624→760.
-      topSectionLength: { x: 45.25, y: 77.05, anchor: "vertical" },
-      taperSectionLength: { x: 45.25, y: 384.55, anchor: "vertical" },
-      bottomSectionLength: { x: 45.25, y: 692.05, anchor: "vertical" },
+      topSectionLength: { x: 48.25, y: 77.05, anchor: "vertical" },
+      taperSectionLength: { x: 48.25, y: 384.55, anchor: "vertical" },
+      bottomSectionLength: { x: 48.25, y: 692.05, anchor: "vertical" },
       // Vertical, just left of the 750 line (x 130.2, y 693 → 760).
-      baseDimension: { x: 116.25, y: 726.55, anchor: "vertical" },
+      baseDimension: { x: 118.5, y: 726.55, anchor: "vertical" },
     },
   },
   // Same labels and values as IA On GL, plus the 300mm below G.L. Texts
@@ -143,21 +151,22 @@ const DIAGRAM_LABEL_LAYOUT = {
   "IA.underGL": {
     viewBox: { width: 364, height: 772 },
     heightLineX: 8,
+    heightGap: 7,
     textsFromOnGL: true,
     positions: {
-      diameter1: { x: 246, y: 42.7, anchor: "bottom-left" },
-      diameter2: { x: 246, y: 181.2, anchor: "bottom-left" },
-      poleSpec: { x: 235.4, y: 350.7, anchor: "leader" },
-      diameter3: { x: 223.5, y: 560.2, anchor: "bottom-left" },
-      diameter4: { x: 223.5, y: 698.2, anchor: "bottom-left" },
+      diameter1: { x: 246, y: 42.5, anchor: "bottom-left" },
+      diameter2: { x: 246, y: 181.5, anchor: "bottom-left" },
+      poleSpec: { x: 234, y: 350.3, anchor: "leader" },
+      diameter3: { x: 223.5, y: 559.5, anchor: "bottom-left" },
+      diameter4: { x: 223.5, y: 696.5, anchor: "bottom-left" },
       // Inner dimension line x 60.9: y 10.6→144.2 / 148.6→596.2 /
       // 600.6→734.2, then the 300 below G.L. at 738.6→759.2.
-      topSectionLength: { x: 46.5, y: 77.2, anchor: "vertical" },
-      taperSectionLength: { x: 46.5, y: 372.2, anchor: "vertical" },
-      bottomSectionLength: { x: 46.5, y: 667.2, anchor: "vertical" },
-      underGroundDepth: { x: 46.5, y: 745.8, anchor: "vertical" },
+      topSectionLength: { x: 48.5, y: 77.2, anchor: "vertical" },
+      taperSectionLength: { x: 48.5, y: 372.2, anchor: "vertical" },
+      bottomSectionLength: { x: 48.5, y: 667.2, anchor: "vertical" },
+      underGroundDepth: { x: 48.5, y: 746.5, anchor: "vertical" },
       // Vertical, just left of the 750 line (x 123.9, y 669.6 → 734.2).
-      baseDimension: { x: 110.5, y: 701.7, anchor: "vertical" },
+      baseDimension: { x: 114, y: 701.7, anchor: "vertical" },
     },
   },
   // Taper pole with one lighting arm at the top: pole labels as IS, plus
@@ -169,24 +178,24 @@ const DIAGRAM_LABEL_LAYOUT = {
       // Arm: 300 centred above its dimension line (y 7.3, x 201.5 → 247.5);
       // (180) above its line (y 40.3), ending just left of the arrow at
       // x 201.5 — the gap between the arrows is too narrow for the text.
-      armTopDimension: { x: 224.85, y: 4.95, anchor: "bottom-center" },
+      armTopDimension: { x: 224.8, y: 4.95, anchor: "bottom-center" },
       armLength: { x: 192, y: 37.95, anchor: "bottom-right" },
       // Diameter line at y 57.3; extension lines come up from the arm and
       // end at x 278.5, so the text starts just right of them.
-      upperDiameter: { x: 281.35, y: 53.95, anchor: "bottom-left" },
+      upperDiameter: { x: 282.35, y: 54, anchor: "bottom-left" },
       // Arm spec: second line (material) centred under the first, as in
       // the standard drawings.
-      armSpec: { x: 256.25, y: 141, anchor: "leader", centered: true },
-      poleSpec: { x: 238.25, y: 446.45, anchor: "leader" },
+      armSpec: { x: 254.5, y: 141, anchor: "leader", centered: true },
+      poleSpec: { x: 238.25, y: 446, anchor: "leader" },
       // Inner dimension line x 61.5: the short 100 between the pole top
       // (y 104.3) and the arm (y 113.3) has its arrows outside, so its text
       // runs along the upper arrow stem (y 64 → 102); then the arm height
       // (y 115.5 → 855).
-      poleTopOffset: { x: 47.35, y: 82.65, anchor: "vertical" },
-      armHeight: { x: 47.35, y: 484.95, anchor: "vertical" },
+      poleTopOffset: { x: 48, y: 82.65, anchor: "vertical" },
+      armHeight: { x: 48, y: 484.95, anchor: "vertical" },
       // Vertical, just left of the 750 line (x 126.5, y 790.5 → 855).
-      baseDimension: { x: 113.35, y: 822.45, anchor: "vertical" },
-      lowerDiameter: { x: 225.35, y: 816.95, anchor: "bottom-left" },
+      baseDimension: { x: 114, y: 822.45, anchor: "vertical" },
+      lowerDiameter: { x: 226, y: 813.95, anchor: "bottom-left" },
     },
   },
   // Same labels and values as LS On GL, plus the 300 below G.L. Texts come
@@ -198,19 +207,19 @@ const DIAGRAM_LABEL_LAYOUT = {
     heightLineX: 8.05,
     textsFromOnGL: true,
     positions: {
-      armTopDimension: { x: 223.05, y: 4.95, anchor: "bottom-center" },
-      armLength: { x: 192, y: 37.95, anchor: "bottom-right" },
-      upperDiameter: { x: 280.55, y: 53.95, anchor: "bottom-left" },
-      armSpec: { x: 253.45, y: 141, anchor: "leader", centered: true },
-      poleSpec: { x: 237.52, y: 445.45, anchor: "leader" },
+      armTopDimension: { x: 223.5, y: 4.95, anchor: "bottom-center" },
+      armLength: { x: 191, y: 37.95, anchor: "bottom-right" },
+      upperDiameter: { x: 281.55, y: 54, anchor: "bottom-left" },
+      armSpec: { x: 252.5, y: 141, anchor: "leader", centered: true },
+      poleSpec: { x: 238.2, y: 444.95, anchor: "leader" },
       // Inner dimension line x 61.05: 100 on the upper arrow stem, arm
       // height y 115.2 → 829.7, then the 300 below G.L. y 834.2 → 854.7.
-      poleTopOffset: { x: 46.55, y: 82.65, anchor: "vertical" },
-      armHeight: { x: 46.55, y: 472.45, anchor: "vertical" },
-      underGroundDepth: { x: 46.55, y: 841.1, anchor: "vertical" },
+      poleTopOffset: { x: 48, y: 82.65, anchor: "vertical" },
+      armHeight: { x: 48, y: 472.45, anchor: "vertical" },
+      underGroundDepth: { x: 48, y: 840.8, anchor: "vertical" },
       // Vertical, just left of the 750 line (x 126.05, y 765.2 → 829.7).
-      baseDimension: { x: 112.55, y: 797.45, anchor: "vertical" },
-      lowerDiameter: { x: 224.55, y: 793.95, anchor: "bottom-left" },
+      baseDimension: { x: 114, y: 797.45, anchor: "vertical" },
+      lowerDiameter: { x: 224.55, y: 791.2, anchor: "bottom-left" },
     },
   },
   // Stepped pole (as IA) with a lighting arm (as LS): the pole top sits
@@ -219,22 +228,22 @@ const DIAGRAM_LABEL_LAYOUT = {
     viewBox: { width: 386, height: 868 },
     heightLineX: 8.2,
     positions: {
-      armTopDimension: { x: 226.2, y: 5.35, anchor: "bottom-center" },
-      armLength: { x: 194.5, y: 38.35, anchor: "bottom-right" },
-      diameter1: { x: 283.7, y: 54.35, anchor: "bottom-left" },
-      armSpec: { x: 257.6, y: 142, anchor: "leader", centered: true },
-      diameter2: { x: 250.2, y: 307.35, anchor: "bottom-left" },
-      poleSpec: { x: 239.67, y: 449.85, anchor: "leader" },
-      diameter3: { x: 226.7, y: 681.35, anchor: "bottom-left" },
-      diameter4: { x: 227.7, y: 817.35, anchor: "bottom-left" },
+      armTopDimension: { x: 226.5, y: 5.35, anchor: "bottom-center" },
+      armLength: { x: 193.5, y: 38.35, anchor: "bottom-right" },
+      diameter1: { x: 284, y: 54.5, anchor: "bottom-left" },
+      armSpec: { x: 256.8, y: 142, anchor: "leader", centered: true },
+      diameter2: { x: 248.2, y: 307, anchor: "bottom-left" },
+      poleSpec: { x: 239, y: 449.4, anchor: "leader" },
+      diameter3: { x: 226.7, y: 680, anchor: "bottom-left" },
+      diameter4: { x: 226.7, y: 815, anchor: "bottom-left" },
       // Inner dimension line x 60.2: 100 on the upper arrow stem (y 65 →
       // 103), then y 116.6→270.1 / 274.6→717.1 / 721.6→855.1.
-      poleTopOffset: { x: 45.7, y: 84.2, anchor: "vertical" },
-      topSectionLength: { x: 45.7, y: 193.35, anchor: "vertical" },
-      taperSectionLength: { x: 45.7, y: 495.85, anchor: "vertical" },
-      bottomSectionLength: { x: 45.7, y: 788.34, anchor: "vertical" },
+      poleTopOffset: { x: 47.7, y: 84.2, anchor: "vertical" },
+      topSectionLength: { x: 47.7, y: 193.35, anchor: "vertical" },
+      taperSectionLength: { x: 47.7, y: 495.85, anchor: "vertical" },
+      bottomSectionLength: { x: 47.7, y: 788.34, anchor: "vertical" },
       // Vertical, just left of the 750 line (x 128.2, y 790.6 → 855.1).
-      baseDimension: { x: 114.7, y: 822.85, anchor: "vertical" },
+      baseDimension: { x: 115, y: 822.85, anchor: "vertical" },
     },
   },
   // Same labels and values as LA On GL, plus the 300 below G.L. Texts come
@@ -245,23 +254,23 @@ const DIAGRAM_LABEL_LAYOUT = {
     heightLineX: 7.85,
     textsFromOnGL: true,
     positions: {
-      armTopDimension: { x: 224.85, y: 5.1, anchor: "bottom-center" },
-      armLength: { x: 194.5, y: 38.1, anchor: "bottom-right" },
-      diameter1: { x: 282.35, y: 54.1, anchor: "bottom-left" },
-      armSpec: { x: 255.25, y: 141, anchor: "leader", centered: true },
-      diameter2: { x: 248.85, y: 278.1, anchor: "bottom-left" },
-      poleSpec: { x: 238.32, y: 444.6, anchor: "leader" },
-      diameter3: { x: 225.35, y: 655.1, anchor: "bottom-left" },
-      diameter4: { x: 226.35, y: 793.1, anchor: "bottom-left" },
+      armTopDimension: { x: 225, y: 5.1, anchor: "bottom-center" },
+      armLength: { x: 193.5, y: 38.1, anchor: "bottom-right" },
+      diameter1: { x: 284.35, y: 55.1, anchor: "bottom-left" },
+      armSpec: { x: 254.25, y: 141, anchor: "leader", centered: true },
+      diameter2: { x: 247, y: 277, anchor: "bottom-left" },
+      poleSpec: { x: 238, y: 444.3, anchor: "leader" },
+      diameter3: { x: 225.35, y: 654, anchor: "bottom-left" },
+      diameter4: { x: 225.35, y: 791, anchor: "bottom-left" },
       // Inner dimension line x 58.85: 100 on the upper arrow stem, then
       // y 114.3→240.9 / 245.3→690.9 / 695.3→828.9, and 300 at 833.3→853.9.
-      poleTopOffset: { x: 44.35, y: 82.98, anchor: "vertical" },
-      topSectionLength: { x: 44.35, y: 177.6, anchor: "vertical" },
-      taperSectionLength: { x: 44.35, y: 468.1, anchor: "vertical" },
-      bottomSectionLength: { x: 44.35, y: 762.1, anchor: "vertical" },
-      underGroundDepth: { x: 44.35, y: 841.1, anchor: "vertical" },
+      poleTopOffset: { x: 45, y: 82.98, anchor: "vertical" },
+      topSectionLength: { x: 45, y: 177.6, anchor: "vertical" },
+      taperSectionLength: { x: 45, y: 468.1, anchor: "vertical" },
+      bottomSectionLength: { x: 45, y: 762.1, anchor: "vertical" },
+      underGroundDepth: { x: 45, y: 841.1, anchor: "vertical" },
       // Vertical, just left of the 750 line (x 127.31, y 764.3 → 828.9).
-      baseDimension: { x: 113.81, y: 796.6, anchor: "vertical" },
+      baseDimension: { x: 114.81, y: 796.6, anchor: "vertical" },
     },
   },
   // Taper pole (as LS) with two arms, left and right: the arm dimensions
@@ -274,22 +283,22 @@ const DIAGRAM_LABEL_LAYOUT = {
       // 300s on the line at y 10 (left arrow x 158, right arrow x 248);
       // (180)s on the line at y 43 — kept outside the 300 extension lines
       // (x 158 / 248) too, so the text never crosses them.
-      armTopDimension: { x: 150, y: 8, anchor: "bottom-right" },
-      armTopDimensionRight: { x: 256, y: 8, anchor: "bottom-left" },
-      armLength: { x: 156, y: 41, anchor: "bottom-right" },
-      armLengthRight: { x: 251, y: 41, anchor: "bottom-left" },
-      armSpec: { x: 280.47, y: 76, anchor: "leader", centered: true },
+      armTopDimension: { x: 148.8, y: 8, anchor: "bottom-right" },
+      armTopDimensionRight: { x: 256.2, y: 8, anchor: "bottom-left" },
+      armLength: { x: 155.6, y: 41, anchor: "bottom-right" },
+      armLengthRight: { x: 251.5, y: 41, anchor: "bottom-left" },
+      armSpec: { x: 277, y: 76, anchor: "leader", centered: true },
       // Diameter line at y 144.5; extension lines come in from above and
       // end at x 243, so the text starts just right of them.
-      upperDiameter: { x: 249, y: 141.5, anchor: "bottom-left" },
-      poleSpec: { x: 239.47, y: 452.5, anchor: "leader" },
+      upperDiameter: { x: 248, y: 143, anchor: "bottom-left" },
+      poleSpec: { x: 239, y: 452.1, anchor: "leader" },
       // Inner dimension line x 59: 100 on the upper arrow stem (y 68 →
       // 105.8), then the arm height y 118.2 → 857.8.
       poleTopOffset: { x: 44.5, y: 86.9, anchor: "vertical" },
       armHeight: { x: 44.5, y: 488, anchor: "vertical" },
       // Vertical, just left of the 750 line (x 128, y 793.2 → 857.8).
-      baseDimension: { x: 114.5, y: 825.5, anchor: "vertical" },
-      lowerDiameter: { x: 226.5, y: 820, anchor: "bottom-left" },
+      baseDimension: { x: 115, y: 825.5, anchor: "vertical" },
+      lowerDiameter: { x: 225.5, y: 817, anchor: "bottom-left" },
     },
   },
   // Same labels and values as TS On GL, plus the 300 below G.L. Texts come
@@ -301,21 +310,21 @@ const DIAGRAM_LABEL_LAYOUT = {
     heightLineX: 8,
     textsFromOnGL: true,
     positions: {
-      armTopDimension: { x: 149.5, y: 8, anchor: "bottom-right" },
-      armTopDimensionRight: { x: 256, y: 8, anchor: "bottom-left" },
-      armLength: { x: 155.5, y: 41, anchor: "bottom-right" },
-      armLengthRight: { x: 251, y: 41, anchor: "bottom-left" },
-      armSpec: { x: 280.47, y: 76, anchor: "leader", centered: true },
-      upperDiameter: { x: 249, y: 141.5, anchor: "bottom-left" },
-      poleSpec: { x: 239.47, y: 453, anchor: "leader" },
+      armTopDimension: { x: 148.8, y: 8, anchor: "bottom-right" },
+      armTopDimensionRight: { x: 256.2, y: 8, anchor: "bottom-left" },
+      armLength: { x: 155.6, y: 41, anchor: "bottom-right" },
+      armLengthRight: { x: 251.5, y: 41, anchor: "bottom-left" },
+      armSpec: { x: 277, y: 76, anchor: "leader", centered: true },
+      upperDiameter: { x: 248, y: 143, anchor: "bottom-left" },
+      poleSpec: { x: 239.5, y: 453, anchor: "leader" },
       // Inner dimension line x 59: 100 on the upper arrow stem, arm
       // height y 118.2 → 834.1, then the 300 below G.L. y 838.5 → 859.1.
-      poleTopOffset: { x: 44.5, y: 87, anchor: "vertical" },
-      armHeight: { x: 44.5, y: 476, anchor: "vertical" },
-      underGroundDepth: { x: 44.5, y: 845, anchor: "vertical" },
+      poleTopOffset: { x: 43.5, y: 87, anchor: "vertical" },
+      armHeight: { x: 43.5, y: 476, anchor: "vertical" },
+      underGroundDepth: { x: 43.5, y: 845, anchor: "vertical" },
       // Vertical, just left of the 750 line (x 128, y 769.5 → 834.1).
-      baseDimension: { x: 114.5, y: 802, anchor: "vertical" },
-      lowerDiameter: { x: 226.5, y: 798, anchor: "bottom-left" },
+      baseDimension: { x: 114, y: 802, anchor: "vertical" },
+      lowerDiameter: { x: 226, y: 796, anchor: "bottom-left" },
     },
   },
   // Taper pole (stepped like LA) with two arms (like TS)
@@ -323,21 +332,21 @@ const DIAGRAM_LABEL_LAYOUT = {
     viewBox: { width: 386, height: 871 },
     heightLineX: 8.2,
     positions: {
-      armTopDimension: { x: 149.5, y: 8, anchor: "bottom-right" },
-      armTopDimensionRight: { x: 256, y: 8, anchor: "bottom-left" },
-      armLength: { x: 155.5, y: 41, anchor: "bottom-right" },
+      armTopDimension: { x: 148.8, y: 8, anchor: "bottom-right" },
+      armTopDimensionRight: { x: 256.2, y: 8, anchor: "bottom-left" },
+      armLength: { x: 155.6, y: 41, anchor: "bottom-right" },
       armLengthRight: { x: 251.5, y: 41, anchor: "bottom-left" },
-      armSpec: { x: 280.47, y: 76, anchor: "leader", centered: true },
-      diameter1: { x: 249, y: 141.5, anchor: "bottom-left" },
-      diameter2: { x: 249, y: 309, anchor: "bottom-left" },
-      poleSpec: { x: 239.67, y: 451.85, anchor: "leader" },
-      diameter3: { x: 226.7, y: 682.8, anchor: "bottom-left" },
-      diameter4: { x: 226.7, y: 818, anchor: "bottom-left" },
-      poleTopOffset: { x: 45.7, y: 84.2, ancho: "vertical" },
+      armSpec: { x: 277, y: 76, anchor: "leader", centered: true },
+      diameter1: { x: 248, y: 142.5, anchor: "bottom-left" },
+      diameter2: { x: 248, y: 310.3, anchor: "bottom-left" },
+      poleSpec: { x: 239.5, y: 452, anchor: "leader" },
+      diameter3: { x: 226, y: 682.8, anchor: "bottom-left" },
+      diameter4: { x: 226, y: 818, anchor: "bottom-left" },
+      poleTopOffset: { x: 45.7, y: 84.2, anchor: "vertical" },
       topSectionLength: { x: 45.7, y: 193.35, anchor: "vertical" },
       taperSectionLength: { x: 45.7, y: 495.85, anchor: "vertical" },
       bottomSectionLength: { x: 45.7, y: 790.34, anchor: "vertical" },
-      baseDimension: { x: 114.7, y: 825, anchor: "vertical" },
+      baseDimension: { x: 115, y: 825, anchor: "vertical" },
     },
   },
   "TA.underGL": {
@@ -345,22 +354,123 @@ const DIAGRAM_LABEL_LAYOUT = {
     heightLineX: 7.85,
     textsFromOnGL: true,
     positions: {
-      armTopDimension: { x: 149.5, y: 8, anchor: "bottom-right" },
-      armTopDimensionRight: { x: 256, y: 8, anchor: "bottom-left" },
-      armLength: { x: 155.3, y: 41, anchor: "bottom-right" },
-      armLengthRight: { x: 249.8, y: 41, anchor: "bottom-left" },
-      armSpec: { x: 277.5, y: 76, anchor: "leader", centered: true },
-      diameter1: { x: 249, y: 141.5, anchor: "bottom-left" },
-      diameter2: { x: 249, y: 281.1, anchor: "bottom-left" },
-      poleSpec: { x: 239.67, y: 451.85, anchor: "leader" },
-      diameter3: { x: 225.35, y: 661.2, anchor: "bottom-left" },
-      diameter4: { x: 225.35, y: 795.5, anchor: "bottom-left" },
-      poleTopOffset: { x: 44.35, y: 82.98, anchor: "vertical" },
-      topSectionLength: { x: 44.35, y: 177.6, anchor: "vertical" },
-      taperSectionLength: { x: 44.35, y: 468.1, anchor: "vertical" },
-      bottomSectionLength: { x: 44.35, y: 765.1, anchor: "vertical" },
-      underGroundDepth: { x: 44.35, y: 845.1, anchor: "vertical" },
-      baseDimension: { x: 113.81, y: 801.6, anchor: "vertical" },
+      armTopDimension: { x: 148, y: 8, anchor: "bottom-right" },
+      armTopDimensionRight: { x: 256.2, y: 8, anchor: "bottom-left" },
+      armLength: { x: 154.6, y: 41, anchor: "bottom-right" },
+      armLengthRight: { x: 251, y: 41, anchor: "bottom-left" },
+      armSpec: { x: 277, y: 76, anchor: "leader", centered: true },
+      diameter1: { x: 248, y: 142.5, anchor: "bottom-left" },
+      diameter2: { x: 248, y: 283, anchor: "bottom-left" },
+      poleSpec: { x: 239, y: 453.85, anchor: "leader" },
+      diameter3: { x: 224.35, y: 661.2, anchor: "bottom-left" },
+      diameter4: { x: 224.35, y: 795.5, anchor: "bottom-left" },
+      poleTopOffset: { x: 43, y: 82.98, anchor: "vertical" },
+      topSectionLength: { x: 43, y: 177.6, anchor: "vertical" },
+      taperSectionLength: { x: 43, y: 468.1, anchor: "vertical" },
+      bottomSectionLength: { x: 43, y: 765.1, anchor: "vertical" },
+      underGroundDepth: { x: 43, y: 844.8, anchor: "vertical" },
+      baseDimension: { x: 114.81, y: 801.6, anchor: "vertical" },
+    },
+  },
+  // --- EMBEDMENT LAYOUTS ---
+  // (Copied from .onGL so you can freely modify their x/y coordinates without affecting onGL)
+  "IS.embedment": {
+    viewBox: { width: 315, height: 771 },
+    heightLineX: 11.7,
+    heightGap: 7,
+    positions: {
+      upperDiameter: { x: 184.5, y: 74.05, anchor: "bottom-left" },
+      poleSpec: { x: 180.6, y: 353.3, anchor: "leader" },
+      baseDimension: { x: 65.5, y: 594.55, anchor: "vertical" },
+      lowerDiameter: { x: 166.2, y: 583.4, anchor: "bottom-left" },
+    },
+  },
+  "IA.embedment": {
+    viewBox: { width: 370, height: 772 },
+    heightLineX: 7.75,
+    heightGap: 7,
+    positions: {
+      diameter1: { x: 237.75, y: 68.55, anchor: "bottom-left" },
+      diameter2: { x: 237.75, y: 188.55, anchor: "bottom-left" },
+      poleSpec: { x: 234.15, y: 353, anchor: "leader" },
+      diameter3: { x: 220, y: 470, anchor: "bottom-left" },
+      diameter4: { x: 220, y: 588, anchor: "bottom-left" },
+      topSectionLength: { x: 49, y: 101.05, anchor: "vertical" },
+      taperSectionLength: { x: 49, y: 340, anchor: "vertical" },
+      bottomSectionLength: { x: 49, y: 566, anchor: "vertical" },
+      baseDimension: { x: 116.5, y: 599, anchor: "vertical" },
+    },
+  },
+  "LS.embedment": {
+    viewBox: { width: 385, height: 868 },
+    heightLineX: 8.85,
+    positions: {
+      armTopDimension: { x: 223, y: 21.95, anchor: "bottom-center" },
+      armLength: { x: 196, y: 55.95, anchor: "bottom-right" },
+      upperDiameter: { x: 280, y: 71, anchor: "bottom-left" },
+      armSpec: { x: 257.5, y: 151.5, anchor: "leader", centered: true },
+      poleSpec: { x: 238, y: 445.8, anchor: "leader" },
+      poleTopOffset: { x: 48, y: 96.65, anchor: "vertical" },
+      armHeight: { x: 48, y: 450, anchor: "vertical" },
+      baseDimension: { x: 118.8, y: 700, anchor: "vertical" },
+      lowerDiameter: { x: 224, y: 688.95, anchor: "bottom-left" },
+    },
+  },
+  "LA.embedment": {
+    viewBox: { width: 386, height: 868 },
+    heightLineX: 8.2,
+    positions: {
+      armTopDimension: { x: 223, y: 21.95, anchor: "bottom-center" },
+      armLength: { x: 196, y: 55.95, anchor: "bottom-right" },
+      diameter1: { x: 280, y: 70, anchor: "bottom-left" },
+      armSpec: { x: 257.5, y: 151.5, anchor: "leader", centered: true },
+      diameter2: { x: 247.2, y: 276, anchor: "bottom-left" },
+      poleSpec: { x: 239, y: 445.8, anchor: "leader" },
+      diameter3: { x: 224.7, y: 566, anchor: "bottom-left" },
+      diameter4: { x: 224.7, y: 690, anchor: "bottom-left" },
+      poleTopOffset: { x: 48, y: 95.65, anchor: "vertical" },
+      topSectionLength: { x: 48, y: 185.35, anchor: "vertical" },
+      taperSectionLength: { x: 48, y: 450, anchor: "vertical" },
+      bottomSectionLength: { x: 48, y: 668.34, anchor: "vertical" },
+      baseDimension: { x: 120, y: 701, anchor: "vertical" },
+    },
+  },
+  "TS.embedment": {
+    viewBox: { width: 386, height: 871 },
+    heightLineX: 8,
+    positions: {
+      armTopDimension: { x: 157.8, y: 29, anchor: "bottom-right" },
+      armTopDimensionRight: { x: 251.5, y: 29, anchor: "bottom-left" },
+      armLength: { x: 163.6, y: 58.95, anchor: "bottom-right" },
+      armLengthRight: { x: 246, y: 58.95, anchor: "bottom-left" },
+      armSpec: { x: 271, y: 90.5, anchor: "leader", centered: true },
+      upperDiameter: { x: 247, y: 154, anchor: "bottom-left" },
+      poleSpec: { x: 238, y: 452.1, anchor: "leader" },
+      poleTopOffset: { x: 48, y: 98.9, anchor: "vertical" },
+      armHeight: { x: 48, y: 452, anchor: "vertical" },
+      baseDimension: { x: 120, y: 705.5, anchor: "vertical" },
+      lowerDiameter: { x: 226.5, y: 694, anchor: "bottom-left" },
+    },
+  },
+  "TA.embedment": {
+    viewBox: { width: 386, height: 871 },
+    heightLineX: 8.2,
+    positions: {
+      armTopDimension: { x: 157.8, y: 29, anchor: "bottom-right" },
+      armTopDimensionRight: { x: 251.5, y: 29, anchor: "bottom-left" },
+      armLength: { x: 163.6, y: 58.95, anchor: "bottom-right" },
+      armLengthRight: { x: 246, y: 58.95, anchor: "bottom-left" },
+      armSpec: { x: 275, y: 90.5, anchor: "leader", centered: true },
+      diameter1: { x: 247, y: 154, anchor: "bottom-left" },
+      diameter2: { x: 247, y: 280, anchor: "bottom-left" },
+      poleSpec: { x: 238.5, y: 452, anchor: "leader" },
+      diameter3: { x: 226, y: 568.8, anchor: "bottom-left" },
+      diameter4: { x: 226, y: 694, anchor: "bottom-left" },
+      poleTopOffset: { x: 48, y: 99.65, anchor: "vertical" },
+      topSectionLength: { x: 48, y: 190.35, anchor: "vertical" },
+      taperSectionLength: { x: 48, y: 450, anchor: "vertical" },
+      bottomSectionLength: { x: 48, y: 670.34, anchor: "vertical" },
+      baseDimension: { x: 120, y: 706.5, anchor: "vertical" },
     },
   },
 };
@@ -384,7 +494,10 @@ function getDiagramLabels(poleType, groundPosition, height) {
   if (!layout) return null;
   // Layouts flagged textsFromOnGL read the On GL entry for the same pole
   // above G.L. (e.g. 8.3 → "8", 4.8 → "4.5").
-  const dataGround = layout.textsFromOnGL ? "onGL" : groundPosition;
+  const dataGround =
+    layout.textsFromOnGL || groundPosition === "embedment"
+      ? "onGL"
+      : groundPosition;
   const dataHeight = layout.textsFromOnGL
     ? String(Math.round((Number(height) - UNDER_GL_DEPTH_MM / 1000) * 10) / 10)
     : height;
@@ -551,7 +664,11 @@ export function TaperPoleStandardForm({
         taperPoleStandard.groundPosition,
         taperPoleStandard.height,
       )
-    : null;
+    : getDiagramLabels(
+        taperPoleStandard.poleType,
+        "embedment",
+        taperPoleStandard.height,
+      );
 
   // ── Highlight labels whose value just changed ──
   // When the Height changes, briefly flash only the labels that now read
@@ -597,7 +714,7 @@ export function TaperPoleStandardForm({
     ? DIAGRAM_LABEL_LAYOUT[
         `${taperPoleStandard.poleType}.${taperPoleStandard.groundPosition}`
       ]
-    : null;
+    : DIAGRAM_LABEL_LAYOUT[`${taperPoleStandard.poleType}.embedment`];
 
   const isGroundDisabled = !taperPoleStandard.poleType;
   const showDiagram = !!currentImage;
@@ -813,12 +930,16 @@ export function TaperPoleStandardForm({
                   </div>
                 )}
 
-                {/* Kanan: Diagram image — gambar yang tentukan tinggi container */}
+                {/* Kanan: Diagram image — gambar yang tentukan tinggi container.
+                    Untuk diagram yang sudah punya layout, kolom ini yang punya
+                    ukuran pasti (flex-1 + h-full) dan dijadikan size container
+                    ([container-type:size]), supaya wrapper gambar di dalamnya
+                    bisa dihitung murni dengan CSS pakai cqw / cqh. */}
                 <div
-                  className={`xl:flex-shrink-0 relative flex items-center justify-center h-full min-w-[80px] ${
+                  className={`relative flex items-center h-full ${
                     diagramLayout
-                      ? "ml-[120px] sm:ml-[150px] xl:ml-[160px]"
-                      : ""
+                      ? "flex-1 min-w-0 justify-start xl:justify-center ml-[120px] sm:ml-[150px] xl:ml-[160px] [container-type:size]"
+                      : "justify-center min-w-[80px] xl:flex-shrink-0"
                   }`}
                 >
                   {!isImageLoaded && (
@@ -831,8 +952,27 @@ export function TaperPoleStandardForm({
                   )}
                   {/* Wrapper sized exactly to the rendered image, so the
                       %-positioned labels line up with the SVG's own
-                      coordinates. */}
-                  <div className="relative flex max-w-full max-h-full">
+                      coordinates. For mapped diagrams the size is set by CSS
+                      to the diagram's exact aspect ratio (its viewBox), as
+                      large as fits in the stage; the image fills it edge to
+                      edge, so there is no letterboxing that could shift the
+                      % positions at any screen size. */}
+                  <div
+                    className={
+                      diagramLayout
+                        ? "relative"
+                        : "relative flex max-w-full max-h-full"
+                    }
+                    style={
+                      diagramLayout
+                        ? {
+                            width: `min(100cqw, calc(100cqh * ${diagramLayout.viewBox.width} / ${diagramLayout.viewBox.height}))`,
+                            aspectRatio: `${diagramLayout.viewBox.width} / ${diagramLayout.viewBox.height}`,
+                            flexShrink: 0,
+                          }
+                        : undefined
+                    }
+                  >
                     {/* Height select pinned against the overall-height
                         dimension line (its right edge 8px left of it),
                         vertically centred on it. The left margin on the
@@ -841,8 +981,14 @@ export function TaperPoleStandardForm({
                       <div
                         style={{
                           left: `${(diagramLayout.heightLineX / diagramLayout.viewBox.width) * 100}%`,
+                          // Shift the select left by its own width plus the gap, and centre it
+                          // vertically on the dimension line. Kept inline (not Tailwind
+                          // translate classes) so the per-layout gap can be applied.
+                          transform: `translate(calc(-100% - ${
+                            diagramLayout.heightGap ?? DEFAULT_HEIGHT_GAP_PX
+                          }px), -50%)`,
                         }}
-                        className="absolute top-1/2 z-10 -translate-y-1/2 -translate-x-[calc(100%+8px)] w-[120px] sm:w-[150px] xl:w-[160px]"
+                        className={`absolute z-10 w-[120px] sm:w-[150px] xl:w-[160px] ${!isBaseplate && ["IS", "IA"].includes(taperPoleStandard.poleType) ? "top-[42%]" : "top-1/2"}`}
                       >
                         {heightField}
                       </div>
@@ -856,10 +1002,57 @@ export function TaperPoleStandardForm({
                           new Set(prev).add(currentImage),
                         )
                       }
-                      className={`w-auto h-auto max-w-full max-h-full object-contain transition-opacity duration-300 ${
+                      className={`${
+                        diagramLayout
+                          ? "absolute inset-0 w-full h-full"
+                          : "w-auto h-auto max-w-full max-h-full"
+                      } object-contain transition-opacity duration-300 ${
                         isImageLoaded ? "opacity-100" : "opacity-0"
                       }`}
                     />
+
+                    {/* Embedment Length input pinned against the bottom vertical line */}
+                    {!isBaseplate &&
+                      diagramLayout &&
+                      taperPoleStandard.groundPosition === "underGL" && (
+                        <div
+                          style={{
+                            left: `${(diagramLayout.heightLineX / diagramLayout.viewBox.width) * 100}%`,
+                            transform: `translate(calc(-100% - ${
+                              diagramLayout.heightGap ?? DEFAULT_HEIGHT_GAP_PX
+                            }px), -50%)`,
+                          }}
+                          className={`absolute z-10 w-[120px] sm:w-[150px] xl:w-[160px] ${["IS", "IA"].includes(taperPoleStandard.poleType) ? "bottom-[5%]" : "bottom-[2%]"}`}
+                        >
+                          <span className="block text-gray-600 text-xs md:text-sm font-medium mb-2">
+                            Embedment Length
+                          </span>
+                          <div className="relative">
+                            <input
+                              id="taperPoleStandard.embedmentLength"
+                              type="number"
+                              min="0"
+                              value={taperPoleStandard.embedmentLength || ""}
+                              onChange={(e) =>
+                                onUpdate({ embedmentLength: e.target.value })
+                              }
+                              onWheel={(e) => e.target.blur()}
+                              className={`w-full px-2 py-1.5 md:py-2 lg:py-2.5 border rounded-lg hp:rounded-md text-xs md:text-sm outline-none transition-all pr-8 md:pr-10 min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] bg-white ${
+                                errors.embedmentLength
+                                  ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
+                                  : "border-gray-300 focus:border-[#1D4ED8]"
+                              }`}
+                            />
+                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs md:text-sm pointer-events-none">
+                              mm
+                            </span>
+                          </div>
+                          <ErrorStyle
+                            show={errors.embedmentLength}
+                            text={errors.embedmentLength}
+                          />
+                        </div>
+                      )}
 
                     {isImageLoaded &&
                       diagramLabels?.map((label) => (
@@ -896,40 +1089,6 @@ export function TaperPoleStandardForm({
                       ))}
                   </div>
                 </div>
-
-                {/* Kanan Gambar: Embedment Input */}
-                {!isBaseplate &&
-                  taperPoleStandard.groundPosition === "underGL" && (
-                    <div className="self-end pb-0 mb-0 -translate-y-3 xl:-translate-y-0.5 xl:flex-shrink-0 w-[110px] sm:w-[130px]">
-                      <span className="block text-gray-600 text-xs md:text-sm font-medium mb-2">
-                        Embedment Length
-                      </span>
-                      <div className="relative">
-                        <input
-                          id="taperPoleStandard.embedmentLength"
-                          type="number"
-                          min="0"
-                          value={taperPoleStandard.embedmentLength || ""}
-                          onChange={(e) =>
-                            onUpdate({ embedmentLength: e.target.value })
-                          }
-                          onWheel={(e) => e.target.blur()}
-                          className={`w-full px-2 py-1.5 md:py-2 lg:py-2.5 border rounded-lg hp:rounded-md text-xs md:text-sm outline-none transition-all pr-8 md:pr-10 min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] ${
-                            errors.embedmentLength
-                              ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
-                              : "border-gray-300 focus:border-[#1D4ED8]"
-                          }`}
-                        />
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs md:text-sm pointer-events-none">
-                          mm
-                        </span>
-                      </div>
-                      <ErrorStyle
-                        show={errors.embedmentLength}
-                        text={errors.embedmentLength}
-                      />
-                    </div>
-                  )}
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center gap-3 text-center px-8 py-10">
