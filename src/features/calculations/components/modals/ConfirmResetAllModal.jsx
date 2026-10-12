@@ -8,12 +8,13 @@ export const ConfirmResetAllModal = ({
   onReset, // fn => called when user confirms the reset
   title = "Reset All Data?",
   description = "This will remove all form inputs and calculation results. This action cannot be undone.",
+  confirmLabel = "Reset", // text on the confirm button
+  cancelLabel = "Cancel", // text on the cancel button
 }) => {
   // Don't render if modal is closed
   if (!open) return null;
 
   return createPortal(
-
     // Backdrop
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm px-4">
       {/* Modal card */}
@@ -40,7 +41,7 @@ export const ConfirmResetAllModal = ({
             onClick={onClose}
             className="flex-1 py-2 sm:py-3 font-bold text-xs sm:text-sm bg-slate-100 text-slate-600 rounded-md sm:rounded-lg hover:bg-slate-200 transition"
           >
-            Cancel
+            {cancelLabel}
           </button>
 
           {/* Confirm => resets all data then closes */}
@@ -51,11 +52,11 @@ export const ConfirmResetAllModal = ({
             }}
             className="flex-1 py-2 sm:py-3 font-bold text-xs sm:text-sm bg-red-500 text-white rounded-md sm:rounded-lg hover:bg-red-600 transition"
           >
-            Reset
+            {confirmLabel}
           </button>
         </div>
       </div>
     </div>,
-    document.body
+    document.body,
   );
 };

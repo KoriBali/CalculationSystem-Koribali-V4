@@ -39,7 +39,7 @@ export const NextStepModal = ({
           <button
             onClick={() =>
               handleNavigate(
-                `/calculation/${projectType}/${draftId}/calculation-condition`,
+                `/requests/${projectType}/${draftId}/calculation-condition`,
               )
             }
             className="w-full flex items-center gap-4 p-4  rounded-xl border border-slate-200 bg-white hover:border-blue-500 hover:bg-blue-50/50 transition-all text-left group"
@@ -62,7 +62,7 @@ export const NextStepModal = ({
           <button
             onClick={() =>
               withDrawing &&
-              handleNavigate(`/calculation/${projectType}/${draftId}/drawing`)
+              handleNavigate(`/requests/${projectType}/${draftId}/drawing`)
             }
             disabled={!withDrawing}
             className={`w-full flex items-center gap-4 p-4  rounded-xl border transition-all text-left

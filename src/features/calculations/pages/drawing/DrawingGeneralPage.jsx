@@ -42,11 +42,11 @@ export default function DrawingGeneralPage() {
     const rawConfig = sessionStorage.getItem(`${projectType}_calculation_config`);
     const config = rawConfig ? JSON.parse(rawConfig) : null;
     
-    if (config?.foundation) navigate(`/calculation/${projectType}/${draftId}/foundation`);
-    else if (config?.baseplate) navigate(`/calculation/${projectType}/${draftId}/baseplate`);
-    else if (config?.opening) navigate(`/calculation/${projectType}/${draftId}/opening`);
-    else if (config?.pole) navigate(`/calculation/${projectType}/${draftId}/pole`);
-    else navigate(`/calculation/${projectType}/${draftId}/calculation-condition`);
+    if (config?.foundation) navigate(`/requests/${projectType}/${draftId}/foundation`);
+    else if (config?.baseplate) navigate(`/requests/${projectType}/${draftId}/baseplate`);
+    else if (config?.opening) navigate(`/requests/${projectType}/${draftId}/opening`);
+    else if (config?.pole) navigate(`/requests/${projectType}/${draftId}/pole`);
+    else navigate(`/requests/${projectType}/${draftId}/calculation-condition`);
   };
 
   return (

@@ -25,6 +25,20 @@ import {
   hasDraftChanged,
 } from "../../../features/calculations/utils/coreLogic";
 import { projectTypeLabel } from "../../../features/calculations/constants/projectTypes";
+import { ConfirmResetAllModal } from "../../../features/calculations/components/modals/ConfirmResetAllModal";
+import { useLeaveNewRequest } from "../../../features/calculations/hooks/useLeaveNewRequest";
+import { clearNewRequestDraft } from "../../../features/calculations/utils/newRequestDraft";
+import {
+  findRequestOfCase,
+  getRequest,
+} from "../../../features/calculations/data/requestStore";
+import { requestNoOf } from "../../../features/calculations/constants/requestSummary";
+import { requestPathForDraft } from "../../../features/calculations/utils/requestCases";
+import {
+  forgetRequestsPath,
+  lastRequestsPath,
+  rememberRequestsPath,
+} from "../../../features/calculations/utils/requestsLastPath";
 
 // ─── HELPERS ────────────────────────────────────────────────────────────────
 
@@ -49,30 +63,62 @@ export default function Layout() {
   const [userData, setUserData] = useState({ name: "User", email: "" });
   // Set to { ptype, draftId, target } while the "save this draft?" prompt is open.
   const [draftPrompt, setDraftPrompt] = useState(null);
+  // Logo / breadcrumb out of the New Request form: "Leave this request?"
+  // first when it has entries (navigates straight away anywhere else).
+  const { leave: leaveNewRequest, confirmProps: leaveNewRequestProps } =
+    useLeaveNewRequest();
 
   // Derive current page title from route + session
   const projectType = sessionStorage.getItem("projectType");
   const formattedProjectType = formatProjectType(projectType);
-  const isCalculationRoot = location.pathname === "/calculation";
+  const isCalculationRoot = location.pathname === "/requests";
+  // Covers /requests/new (type picker) and /requests/new/:type (form).
+  const isNewRequest = /^\/requests\/new(\/|$)/.test(location.pathname);
+  // /requests/detail/:requestId — Requests > [its Request No.]
+  const requestDetailId = location.pathname.match(
+    /^\/requests\/detail\/([^/]+)/,
+  )?.[1];
+  // /requests/:type/:draftId[/…] — a case's draft (calculation / drawing).
+  const pathParts = location.pathname.split("/").filter(Boolean);
+  const draftId =
+    pathParts[0] === "requests" &&
+    !["new", "detail"].includes(pathParts[1]) &&
+    pathParts[2];
+  const draftCase = draftId ? findRequestOfCase(draftId) : null;
 
   let currentTitle;
-  if (isCalculationRoot) {
+  if (requestDetailId) {
+    const request = getRequest(requestDetailId);
+    currentTitle = {
+      global: (request && requestNoOf(request)) || "Request Detail",
+      stage: null,
+      substage: null,
+    };
+  } else if (isCalculationRoot) {
     currentTitle =
-      MENU_ITEMS.find((item) => item.path === "/calculation")?.name ??
+      MENU_ITEMS.find((item) => item.path === "/requests")?.name ??
       "Calculation";
+  } else if (isNewRequest) {
+    // Read project type directly from the URL — single source of truth.
+    // /requests/new/:type → parts[2] is the type slug.
+    const urlParts = location.pathname.split("/").filter(Boolean);
+    const typeSlug = urlParts[2]; // exists only on the form page, e.g. /requests/new/lighting-project
+    const formattedTypeFromUrl = typeSlug ? formatProjectType(typeSlug) : null;
+    if (formattedTypeFromUrl) {
+      // Requests > New Request > Lighting Project
+      currentTitle = {
+        global: "New Request",
+        stage: formattedTypeFromUrl,
+        substage: null,
+      };
+    } else {
+      // Requests > New Request
+      currentTitle = { global: "New Request", stage: null, substage: null };
+    }
   } else if (
-    location.pathname.startsWith("/calculation") &&
+    location.pathname.startsWith("/requests") &&
     formattedProjectType
   ) {
-    const pathParts = location.pathname.replace(/\/$/, "").split("/");
-    // /calculation/:type => 3 parts, /calculation/:type/:draftId => 4 parts
-    const isDraftsList = pathParts.length === 3;
-    const isDraftRoot =
-      pathParts.length === 4 &&
-      !pathParts[3]?.match(
-        /^(calculation-condition|pole|opening|baseplate|foundation|drawing|report|result)/,
-      );
-
     let substage = null;
     if (location.pathname.includes("/drawing")) {
       // "Drawing Setup" and "Pole" read fine on their own; the rest keep
@@ -109,19 +155,19 @@ export default function Layout() {
       substage = "Report";
     }
 
-    if (isDraftsList) {
-      currentTitle = {
-        global: formattedProjectType,
-        stage: null,
-        substage: null,
-      };
-    } else {
-      currentTitle = {
-        global: formattedProjectType,
-        stage: "Project Setup",
-        substage,
-      };
-    }
+    // A case: Requests > [Request No.] > Case 001 > [step]; any other
+    // draft: Requests > [Project Type] > Project Setup > [step].
+    currentTitle = draftCase
+      ? {
+          global: requestNoOf(draftCase.request) || "Request",
+          stage: `Case ${draftCase.case.no}`,
+          substage: substage ?? "Project Setup",
+        }
+      : {
+          global: formattedProjectType,
+          stage: "Project Setup",
+          substage,
+        };
   } else {
     currentTitle =
       MENU_ITEMS.find((item) => location.pathname.startsWith(item.path))
@@ -134,8 +180,8 @@ export default function Layout() {
   // away, clearing the working session behind us.
   const leaveCalculation = (target) => {
     const parts = location.pathname.split("/").filter(Boolean);
-    // /calculation/:type/:draftId[/...] → parts[1] = type, parts[2] = draftId
-    const inDraft = parts[0] === "calculation" && !!parts[1] && !!parts[2];
+    // /requests/:type/:draftId[/...] → parts[1] = type, parts[2] = draftId
+    const inDraft = parts[0] === "requests" && !!parts[1] && !!parts[2];
 
     if (inDraft) {
       const ptype = parts[1];
@@ -152,13 +198,14 @@ export default function Layout() {
         // Best-effort — never block navigation on cleanup failure.
       }
     }
-    navigate(target);
+    leaveNewRequest(target);
   };
 
   // Resolves the "save this draft?" prompt. `action` is "save" | "discard" |
   // "cancel". In every non-cancel case the working session is cleared and the
-  // active draft id removed *before* navigating, so DraftsDashboardPage's own
-  // handleSessionTransition() doesn't re-save what the user just discarded.
+  // active draft id removed *before* navigating, so the next draft opened
+  // (DraftSessionGuard's handleSessionTransition) doesn't re-save what the
+  // user just discarded.
   const resolveDraftPrompt = (action) => {
     const prompt = draftPrompt;
     setDraftPrompt(null);
@@ -175,34 +222,51 @@ export default function Layout() {
     navigate(prompt.target);
   };
 
-  // Logo → default page (project type selection).
-  const handleLogoClick = () => leaveCalculation("/calculation");
+  // Logo → default page (request list).
+  const handleLogoClick = () => leaveCalculation("/requests");
 
-  // Header breadcrumb → that project's Drafts list.
+  // Header breadcrumb — context-aware:
+  // • New-request flow: "Requests" crumb → the request list.
+  // • A draft: the Request No. crumb → that case's request.
   const handleProjectCrumbClick = () => {
-    const parts = location.pathname.split("/").filter(Boolean);
-    const ptype =
-      parts[0] === "calculation" && parts[1] ? parts[1] : projectType;
-    leaveCalculation(ptype ? `/calculation/${ptype}` : "/calculation");
+    if (isNewRequest) {
+      leaveNewRequest("/requests");
+      return;
+    }
+    leaveCalculation(requestPathForDraft(draftId));
   };
 
-  // Header breadcrumb → Project Setup page of the current draft.
+  // • New-request flow: "New Request" crumb → the type-picker page.
+  // • Calculation workflow: stage crumb → Project Setup of the current draft.
   const handleSetupCrumbClick = () => {
+    if (isNewRequest) {
+      leaveNewRequest("/requests/new");
+      return;
+    }
     const parts = location.pathname.split("/").filter(Boolean);
-    if (parts[0] === "calculation" && parts[1] && parts[2]) {
-      navigate(`/calculation/${parts[1]}/${parts[2]}`);
+    if (parts[0] === "requests" && parts[1] && parts[2]) {
+      navigate(`/requests/${parts[1]}/${parts[2]}`);
     }
   };
 
-  // Returns nav path — if projectType exists, go directly to that calculation or its active draft
+  // Remember where the user is inside Requests, for the sidebar link below.
+  useEffect(() => {
+    rememberRequestsPath(location.pathname + location.search);
+  }, [location.pathname, location.search]);
+
+  // Returns nav path. Requests: back to where the user last was in it
+  // (list, project type, new request form, a calculation …); without that,
+  // the current project type's active draft or the request list.
   const getMenuPath = (path) => {
-    if (path === "/calculation" && projectType) {
+    const lastPath = path === "/requests" ? lastRequestsPath() : null;
+    if (lastPath) return lastPath;
+    if (path === "/requests" && projectType) {
       const activeDraftId = sessionStorage.getItem(
         `${projectType}_active_draft_id`,
       );
       return activeDraftId
-        ? `/calculation/${projectType}/${activeDraftId}`
-        : `/calculation/${projectType}`;
+        ? `/requests/${projectType}/${activeDraftId}`
+        : "/requests";
     }
     return path;
   };
@@ -280,6 +344,8 @@ export default function Layout() {
     // API latency. The refresh token expires on its own if the call fails.
     clearAuthSession();
     sessionStorage.removeItem("projectType");
+    clearNewRequestDraft();
+    forgetRequestsPath();
     navigate("/login");
 
     // Fire-and-forget: invalidate token server-side in background.
@@ -303,6 +369,10 @@ export default function Layout() {
         onSave={() => resolveDraftPrompt("save")}
         onDiscard={() => resolveDraftPrompt("discard")}
       />
+
+      {/* "Leave this request?" — logo / breadcrumb out of the New Request
+          form while it has entries. */}
+      <ConfirmResetAllModal {...leaveNewRequestProps} />
 
       {/* Mobile sidebar — slide-in overlay */}
       {isMobile && (
@@ -332,8 +402,11 @@ export default function Layout() {
         <Header
           isMobile={isMobile}
           currentTitle={currentTitle}
+          rootLabel="Requests"
           userData={userData}
-          onRootCrumbClick={handleLogoClick}
+          onRootCrumbClick={
+            isNewRequest ? () => leaveNewRequest("/requests") : handleLogoClick
+          }
           onProjectCrumbClick={handleProjectCrumbClick}
           onSetupCrumbClick={handleSetupCrumbClick}
           onOpenMobileSidebar={() => setIsMobileOpen(true)}

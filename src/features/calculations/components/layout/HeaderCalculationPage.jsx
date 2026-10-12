@@ -35,6 +35,7 @@ import {
 } from "../../utils/coreLogic";
 import { CALCULATION_PROGRESS_EVENT } from "../../utils/calculationProgressEvent";
 import { useCollapsibleStickyHeader } from "../../../../hooks/useCollapsibleStickyHeader";
+import { requestPathForDraft } from "../../utils/requestCases";
 
 // ─── COMPONENT ───────────────────────────────────────────────────────────────
 export function HeaderCalculationPage() {
@@ -229,7 +230,7 @@ export function HeaderCalculationPage() {
   const navItems = [
     {
       label: "Calculation Condition",
-      path: `/calculation/${type}/${draftId}/calculation-condition`,
+      path: `/requests/${type}/${draftId}/calculation-condition`,
       icon: LayoutDashboard,
       completed: isConditionCompleted,
       disabled: false,
@@ -240,7 +241,7 @@ export function HeaderCalculationPage() {
       ? [
           {
             label: "Pole",
-            path: `/calculation/${type}/${draftId}/pole`,
+            path: `/requests/${type}/${draftId}/pole`,
             icon: TowerControl,
             completed: isPoleStepCompleted,
             disabled: !isConditionCompleted,
@@ -253,7 +254,7 @@ export function HeaderCalculationPage() {
       ? [
           {
             label: "Opening",
-            path: `/calculation/${type}/${draftId}/opening`,
+            path: `/requests/${type}/${draftId}/opening`,
             icon: DoorOpen,
             completed: isOpeningStepCompleted,
             disabled: config?.pole
@@ -270,7 +271,7 @@ export function HeaderCalculationPage() {
       ? [
           {
             label: "Baseplate",
-            path: `/calculation/${type}/${draftId}/baseplate`,
+            path: `/requests/${type}/${draftId}/baseplate`,
             icon: BaseplateIcon,
             completed: isBaseplateStepCompleted,
             disabled:
@@ -288,7 +289,7 @@ export function HeaderCalculationPage() {
       ? [
           {
             label: "Foundation",
-            path: `/calculation/${type}/${draftId}/foundation`,
+            path: `/requests/${type}/${draftId}/foundation`,
             icon: Layers,
             completed: isFoundationStepCompleted,
             disabled:
@@ -308,11 +309,11 @@ export function HeaderCalculationPage() {
 
   // ─── CURRENT PAGE ────────────────────────────────────────────────────────
   const isProjectIdentityPage =
-    location.pathname === `/calculation/${type}/${draftId}` ||
-    location.pathname === `/calculation/${type}/${draftId}/`;
+    location.pathname === `/requests/${type}/${draftId}` ||
+    location.pathname === `/requests/${type}/${draftId}/`;
 
   const isDrawingPage = location.pathname.includes(
-    `/calculation/${type}/${draftId}/drawing`,
+    `/requests/${type}/${draftId}/drawing`,
   );
 
   // ─── DRAWING COMPLETION ──────────────────────────────────────────────────
@@ -369,7 +370,7 @@ export function HeaderCalculationPage() {
   const drawingNavItems = [
     {
       label: "Drawing Setup",
-      path: `/calculation/${type}/${draftId}/drawing/drawing-setup`,
+      path: `/requests/${type}/${draftId}/drawing/drawing-setup`,
       icon: FileEdit,
       disabled: false,
       completed: isDrawingSetupCompleted,
@@ -379,7 +380,7 @@ export function HeaderCalculationPage() {
       ? [
           {
             label: "Pole",
-            path: `/calculation/${type}/${draftId}/drawing/pole`,
+            path: `/requests/${type}/${draftId}/drawing/pole`,
             icon: TowerControlIcon,
             disabled: false,
             completed: isPoleCompleted,
@@ -392,7 +393,7 @@ export function HeaderCalculationPage() {
       ? [
           {
             label: "Opening",
-            path: `/calculation/${type}/${draftId}/drawing/opening`,
+            path: `/requests/${type}/${draftId}/drawing/opening`,
             icon: DoorOpen,
             disabled: !isPoleCompleted,
             completed: isOpeningCompleted,
@@ -405,7 +406,7 @@ export function HeaderCalculationPage() {
       ? [
           {
             label: "Baseplate",
-            path: `/calculation/${type}/${draftId}/drawing/baseplate`,
+            path: `/requests/${type}/${draftId}/drawing/baseplate`,
             icon: BaseplateIcon,
             disabled:
               !isPoleCompleted || (isOpeningEnabled && !isOpeningCompleted),
@@ -421,7 +422,7 @@ export function HeaderCalculationPage() {
       ? [
           {
             label: "Foundation",
-            path: `/calculation/${type}/${draftId}/drawing/foundation`,
+            path: `/requests/${type}/${draftId}/drawing/foundation`,
             icon: Layers,
             disabled:
               !isPoleCompleted ||
@@ -441,7 +442,7 @@ export function HeaderCalculationPage() {
       ? [
           {
             label: "Coupling",
-            path: `/calculation/${type}/${draftId}/drawing/coupling`,
+            path: `/requests/${type}/${draftId}/drawing/coupling`,
             icon: Link,
             disabled:
               !isPoleCompleted ||
@@ -457,7 +458,7 @@ export function HeaderCalculationPage() {
       ? [
           {
             label: "Surface",
-            path: `/calculation/${type}/${draftId}/drawing/surface`,
+            path: `/requests/${type}/${draftId}/drawing/surface`,
             icon: PaintBucket,
             disabled:
               !isPoleCompleted ||
@@ -489,7 +490,7 @@ export function HeaderCalculationPage() {
     } else {
       // Other calculation step:
       // return to Project Setup
-      navigate(`/calculation/${type}/${draftId}`);
+      navigate(`/requests/${type}/${draftId}`);
     }
   };
 
@@ -508,12 +509,28 @@ export function HeaderCalculationPage() {
       clearCalculationSession(type);
       clearActiveDraftId(type);
 
-      navigate(`/calculation/${type}`);
+      navigate(requestPathForDraft(draftId));
     }, 2500);
   };
 
+  const readOnlyInfo = (() => {
+    try {
+      return JSON.parse(sessionStorage.getItem("case_read_only")) || null;
+    } catch {
+      return null;
+    }
+  })();
+
   // ─── QUICK SAVE ──────────────────────────────────────────────────────────
   const handleQuickSave = () => {
+    if (readOnlyInfo?.isReadOnly) {
+      setToast({
+        message: `This case is owned by ${readOnlyInfo.ownerName || "another user"}. You are viewing it in read-only mode.`,
+        type: "error",
+      });
+      return;
+    }
+
     saveWorkingSessionToDraft(type, draftId);
 
     setToast({
@@ -527,7 +544,7 @@ export function HeaderCalculationPage() {
     clearCalculationSession(type);
     clearActiveDraftId(type);
 
-    navigate(`/calculation/${type}`);
+    navigate(requestPathForDraft(draftId));
   };
 
   // ─── TAB RENDER HELPER ───────────────────────────────────────────────────
@@ -599,17 +616,21 @@ export function HeaderCalculationPage() {
   return (
     <>
     <div
-      className={`relative z-10 sm:sticky sm:top-16 sm:z-30 w-[calc(100%+2px)] -mx-[1px] transition-colors duration-300 motion-reduce:transition-none ${
+      className={`relative z-10 sm:sticky sm:top-16 sm:z-30 w-[calc(100%+2px)] -mx-[1px] px-px transition-colors duration-300 motion-reduce:transition-none ${
         isCollapsed ? "bg-transparent pointer-events-none" : "bg-[#f8fafc]"
       }`}
     >
+      {/* Same width as the content below and the New Request header:
+          max 1440px, 8px side gutter, so their edges line up (px-px above
+          takes back the 1px the background strip sticks out on each side). */}
+      <div className="relative w-full max-w-[1440px] mx-auto px-2">
       {/* ─── COLLAPSED PILL ─────────────────────────────────────────────────
           Aligned with the Back button's position in the full header, so the
           header visibly folds into the spot it collapses toward. */}
       <div
         aria-hidden={!isCollapsed}
         inert={!isCollapsed || undefined}
-        className={`hidden lg:flex absolute z-10 top-2.5 left-2.5 md:left-[18px] 2xl:left-[26px] w-[68px] flex-col items-center gap-2 px-1.5 py-3 rounded-xl bg-gradient-to-b from-[#0d3b66] to-[#1a5a92] text-white shadow-lg ring-1 ring-black/5 transition-all duration-300 ease-in-out motion-reduce:transition-none ${
+        className={`hidden lg:flex absolute z-10 top-2.5 left-[18px] md:left-[26px] 2xl:left-[34px] w-[68px] flex-col items-center gap-2 px-1.5 py-3 rounded-xl bg-gradient-to-b from-[#0d3b66] to-[#1a5a92] text-white shadow-lg ring-1 ring-black/5 transition-all duration-300 ease-in-out motion-reduce:transition-none ${
           isCollapsed
             ? "opacity-100 translate-x-0 pointer-events-auto delay-100"
             : "opacity-0 -translate-x-2 pointer-events-none"
@@ -673,7 +694,7 @@ export function HeaderCalculationPage() {
 
               <span className="truncate">
                 {isProjectIdentityPage
-                  ? "Back to Drafts"
+                  ? "Back to Request"
                   : "Back to Project Setup"}
               </span>
             </button>
@@ -693,11 +714,11 @@ export function HeaderCalculationPage() {
                   disabled={!isDrawingPage}
                   title={isDrawingPage ? "Back to Calculation" : undefined}
                   onClick={() => {
-                    if (config?.foundation) navigate(`/calculation/${type}/${draftId}/foundation`);
-                    else if (config?.baseplate) navigate(`/calculation/${type}/${draftId}/baseplate`);
-                    else if (config?.opening) navigate(`/calculation/${type}/${draftId}/opening`);
-                    else if (config?.pole) navigate(`/calculation/${type}/${draftId}/pole`);
-                    else navigate(`/calculation/${type}/${draftId}/calculation-condition`);
+                    if (config?.foundation) navigate(`/requests/${type}/${draftId}/foundation`);
+                    else if (config?.baseplate) navigate(`/requests/${type}/${draftId}/baseplate`);
+                    else if (config?.opening) navigate(`/requests/${type}/${draftId}/opening`);
+                    else if (config?.pole) navigate(`/requests/${type}/${draftId}/pole`);
+                    else navigate(`/requests/${type}/${draftId}/calculation-condition`);
                   }}
                   className={`group flex items-center gap-2 rounded-full py-1 pl-1 pr-3 transition-all duration-200
                     focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70
@@ -747,7 +768,7 @@ export function HeaderCalculationPage() {
                       } else {
                         saveCalculationSnapshot(type);
                         sessionStorage.setItem(`${type}_drawing_started`, "true");
-                        navigate(`/calculation/${type}/${draftId}/drawing/drawing-setup`);
+                        navigate(`/requests/${type}/${draftId}/drawing/drawing-setup`);
                       }
                     }
                   }}
@@ -823,11 +844,11 @@ export function HeaderCalculationPage() {
               type="button"
               disabled={!isDrawingPage}
               onClick={() => {
-                if (config?.foundation) navigate(`/calculation/${type}/${draftId}/foundation`);
-                else if (config?.baseplate) navigate(`/calculation/${type}/${draftId}/baseplate`);
-                else if (config?.opening) navigate(`/calculation/${type}/${draftId}/opening`);
-                else if (config?.pole) navigate(`/calculation/${type}/${draftId}/pole`);
-                else navigate(`/calculation/${type}/${draftId}/calculation-condition`);
+                if (config?.foundation) navigate(`/requests/${type}/${draftId}/foundation`);
+                else if (config?.baseplate) navigate(`/requests/${type}/${draftId}/baseplate`);
+                else if (config?.opening) navigate(`/requests/${type}/${draftId}/opening`);
+                else if (config?.pole) navigate(`/requests/${type}/${draftId}/pole`);
+                else navigate(`/requests/${type}/${draftId}/calculation-condition`);
               }}
               className={`flex flex-col items-center gap-0.5 flex-1 py-1 rounded-lg transition-all duration-200
                 ${!isDrawingPage ? "bg-white/15 ring-1 ring-inset ring-white/30" : "active:bg-white/10"}`}
@@ -861,7 +882,7 @@ export function HeaderCalculationPage() {
                   } else {
                     saveCalculationSnapshot(type);
                     sessionStorage.setItem(`${type}_drawing_started`, "true");
-                    navigate(`/calculation/${type}/${draftId}/drawing/drawing-setup`);
+                    navigate(`/requests/${type}/${draftId}/drawing/drawing-setup`);
                   }
                 }
               }}
@@ -881,6 +902,21 @@ export function HeaderCalculationPage() {
                 Draw
               </span>
             </button>
+          </div>
+        )}
+
+        {/* READ ONLY BANNER: "Owned by [nama] · view only" */}
+        {readOnlyInfo?.isReadOnly && (
+          <div className="flex items-center justify-between gap-2 px-3.5 py-2 rounded-lg bg-amber-400/20 border border-amber-300/40 text-amber-100 text-xs sm:text-sm animate-in fade-in duration-200">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-amber-300 animate-pulse" />
+              <span>
+                Owned by <strong className="text-white underline">{readOnlyInfo.ownerName}</strong> · view only
+              </span>
+            </div>
+            <span className="text-[11px] font-semibold bg-amber-300 text-slate-900 px-2 py-0.5 rounded shadow-xs">
+              View Only
+            </span>
           </div>
         )}
       </div>
@@ -1026,6 +1062,7 @@ export function HeaderCalculationPage() {
           </div>
         </div>
       )}
+      </div>
       </div>
 
     </div>

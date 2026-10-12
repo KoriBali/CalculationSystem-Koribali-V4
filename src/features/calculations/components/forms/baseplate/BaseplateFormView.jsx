@@ -21,6 +21,7 @@ import { clearCalculationSession } from "../../../utils";
 import { useBaseplateForm } from "../../../hooks/useBaseplateForm";
 import { useReport } from "../../../../report/hooks/useReport";
 import { useState } from "react";
+import { activeDraftRequestPath } from "../../../utils/requestCases";
 
 // Main view component for baseplate calculation form
 export default function BaseplateFormView() {
@@ -97,10 +98,12 @@ export default function BaseplateFormView() {
     // Database save logic will go here
     showToast("Project successfully saved to database!", "success");
     setShowDbModal(false);
+    // Back to the case's request — read before the session is cleared.
+    const backPath = activeDraftRequestPath(projectType);
     setTimeout(() => {
       clearCalculationSession(projectType);
       clearActiveDraftId(projectType);
-      navigate(`/calculation/${projectType}`);
+      navigate(backPath);
     }, 2500);
   };
 

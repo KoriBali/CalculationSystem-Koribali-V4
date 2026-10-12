@@ -354,7 +354,7 @@ export default function DepartmentManagement() {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-slate-500">
-                        {new Date(dept.createdAt).toLocaleDateString()}
+                        {new Date(dept.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center justify-end gap-1.5">

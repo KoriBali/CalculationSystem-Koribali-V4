@@ -12,15 +12,10 @@ import { BaseplateIcon } from "../../../../../assets/icon";
 import { useMasterData } from "../../../hooks/useMasterData";
 import { poleTypeOptions } from "../../../constants/poleTypeOptions";
 import { couplingUsageOptions } from "../../../constants/couplingUsageOptions";
+import { DRAWING_TYPE_OPTIONS } from "../../../constants/drawingTypeOptions";
 import { FormSelect } from "../../../../../shared/components/FormSelect";
 import { ConfirmResetAllModal } from "../../modals/ConfirmResetAllModal";
 
-const DRAWING_TYPE_OPTIONS = [
-  { value: "APD (Approval Drawing)", label: "APD (Approval Drawing)" },
-  { value: "MFD (Manufacturer Drawing)", label: "MFD (Manufacturer Drawing)" },
-  { value: "Order Drawing", label: "Order Drawing" },
-  { value: "Meeting Drawing", label: "Meeting Drawing" },
-];
 
 const ToggleCard = ({ label, icon, enabled, onToggle, disabled = false }) => {
   return (

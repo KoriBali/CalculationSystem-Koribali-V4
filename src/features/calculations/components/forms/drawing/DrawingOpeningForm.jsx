@@ -6,7 +6,7 @@ import { FormSelect } from "../../../../../shared/components/FormSelect";
 
 const OPENING_TYPE_OPTIONS = [
   { value: "box", label: "Box Type" },
-  { value: "r", label: "R Type" },
+  { value: "R", label: "R Type" },
 ];
 
 const OPENING_DIRECTION_OPTIONS = [

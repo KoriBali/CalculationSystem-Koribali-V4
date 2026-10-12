@@ -129,7 +129,7 @@ export function usePoleStandardData() {
     [data],
   );
   const taperEntries = useMemo(
-    () => data?.filter((item) => item.type === "taper") || [],
+    () => data?.filter((item) => item.type === "tapered") || [],
     [data],
   );
 

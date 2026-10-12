@@ -6,7 +6,7 @@ import { computeInitialIdentity } from "../utils/coverMigration";
 
 // ─── CONSTANTS ───────────────────────────────────────────────────────────────
 
-const DEFAULT_IDENTITY = {
+export const DEFAULT_IDENTITY = {
   requestNo: "",
   receiptNo: "",
   companyName: "",

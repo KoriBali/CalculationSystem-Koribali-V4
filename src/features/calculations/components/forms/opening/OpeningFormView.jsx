@@ -19,6 +19,7 @@ import { clearCalculationSession } from "../../../utils";
 import { useOpeningForm } from "../../../hooks/useOpeningForm";
 import { useReport } from "../../../../report/hooks/useReport";
 import { useState } from "react";
+import { activeDraftRequestPath } from "../../../utils/requestCases";
 
 // Main view for the opening calculation step
 export default function OpeningFormView() {
@@ -72,10 +73,12 @@ export default function OpeningFormView() {
     // Database save logic will go here
     opening.showToast("Project successfully saved to database!", "success");
     setShowDbModal(false);
+    // Back to the case's request — read before the session is cleared.
+    const backPath = activeDraftRequestPath(projectType);
     setTimeout(() => {
       clearCalculationSession(projectType);
       clearActiveDraftId(projectType);
-      navigate(`/calculation/${projectType}`);
+      navigate(backPath);
     }, 2500);
   };
 
@@ -165,7 +168,7 @@ export default function OpeningFormView() {
                   )}
 
                   {/* R type form */}
-                  {opening.openingType.type === "r" && (
+                  {opening.openingType.type === "R" && (
                     <RTypeForm
                       rType={opening.rType}
                       onUpdate={opening.updateRType}

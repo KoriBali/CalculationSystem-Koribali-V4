@@ -37,7 +37,7 @@ export function FinishCalculationModal({ open, onClose, onSaveDraft, onSaveDatab
                 clearSmartPreserveWarning(projectType);
                 saveCalculationSnapshot(projectType);
                 sessionStorage.setItem(`${projectType}_drawing_started`, "true");
-                navigate(`/calculation/${projectType}/${draftId}/drawing/drawing-setup`);
+                navigate(`/requests/${projectType}/${draftId}/drawing/drawing-setup`);
               }}
               className="w-full flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl border border-blue-200 bg-blue-50/30 hover:border-blue-500 hover:bg-blue-100 transition-all text-left group cursor-pointer"
             >

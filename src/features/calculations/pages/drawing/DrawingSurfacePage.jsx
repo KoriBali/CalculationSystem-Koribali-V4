@@ -8,6 +8,7 @@ import { useSurfaceForm } from "../../hooks/useSurfaceForm";
 import { FinishCalculationModal } from "../../components/modals/FinishCalculationModal";
 import { ConfirmSaveDatabaseModal } from "../../components/modals/ConfirmSaveDatabaseModal";
 import { saveWorkingSessionToDraft, clearCalculationSession, clearActiveDraftId } from "../../utils/coreLogic";
+import { activeDraftRequestPath } from "../../utils/requestCases";
 
 export default function DrawingSurfacePage() {
   const { type: projectType, draftId } = useParams();
@@ -38,15 +39,15 @@ export default function DrawingSurfacePage() {
     const general = JSON.parse(sessionStorage.getItem(`${projectType}_drawing_general`) || "{}");
     
     if (isCouplingUsed) {
-      navigate(`/calculation/${projectType}/${draftId}/drawing/coupling`);
+      navigate(`/requests/${projectType}/${draftId}/drawing/coupling`);
     } else if (general?.additionalComponents?.foundation) {
-      navigate(`/calculation/${projectType}/${draftId}/drawing/foundation`);
+      navigate(`/requests/${projectType}/${draftId}/drawing/foundation`);
     } else if (general?.additionalComponents?.baseplate) {
-      navigate(`/calculation/${projectType}/${draftId}/drawing/baseplate`);
+      navigate(`/requests/${projectType}/${draftId}/drawing/baseplate`);
     } else if (general?.additionalComponents?.opening) {
-      navigate(`/calculation/${projectType}/${draftId}/drawing/opening`);
+      navigate(`/requests/${projectType}/${draftId}/drawing/opening`);
     } else {
-      navigate(`/calculation/${projectType}/${draftId}/drawing/pole`);
+      navigate(`/requests/${projectType}/${draftId}/drawing/pole`);
     }
   };
 
@@ -72,10 +73,12 @@ export default function DrawingSurfacePage() {
   const handleConfirmSaveDb = () => {
     setToast({ message: "Project successfully saved to database!", type: "success" });
     setShowDbModal(false);
+    // Back to the case's request — read before the session is cleared.
+    const backPath = activeDraftRequestPath(projectType);
     setTimeout(() => {
       clearCalculationSession(projectType);
       clearActiveDraftId(projectType);
-      navigate(`/calculation/${projectType}`);
+      navigate(backPath);
     }, 2500);
   };
 

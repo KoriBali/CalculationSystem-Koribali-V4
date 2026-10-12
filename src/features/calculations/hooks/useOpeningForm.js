@@ -226,12 +226,12 @@ export function useOpeningForm() {
   const finish = () => {
     if (!isCalculated) return;
     if (isLast) return "OPEN_COVER";
-    navigate(`/calculation/${projectType}/${draftId}/${nextStep}`);
+    navigate(`/requests/${projectType}/${draftId}/${nextStep}`);
   };
 
   // Navigates back to the previous step (always "pole" for opening)
   const goBack = () => {
-    navigate(`/calculation/${projectType}/${draftId}/${prevStep}`);
+    navigate(`/requests/${projectType}/${draftId}/${prevStep}`);
   };
 
   // ── Return ──

@@ -9,16 +9,11 @@ export default function NotFoundPage() {
   const activeProject = sessionStorage.getItem("projectType");
   const activeDraftId = activeProject ? sessionStorage.getItem(`${activeProject}_active_draft_id`) : null;
 
-  let backPath = "/calculation";
-  if (activeProject) {
-    if (activeDraftId) {
-      backPath = `/calculation/${activeProject}/${activeDraftId}`;
-    } else {
-      backPath = `/calculation/${activeProject}`;
-    }
-  }
+  const backPath = activeDraftId
+    ? `/requests/${activeProject}/${activeDraftId}`
+    : "/requests";
 
-  const buttonLabel = activeProject ? "Back to Calculation" : "Back to Main Menu";
+  const buttonLabel = activeDraftId ? "Back to Calculation" : "Back to Main Menu";
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 px-6">

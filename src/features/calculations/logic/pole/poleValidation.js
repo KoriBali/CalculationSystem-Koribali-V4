@@ -31,7 +31,7 @@ const resolveData = ({
 
   const type = poleTypeStandard.type;
 
-  if (type === "taper") {
+  if (type === "tapered") {
     const isEmbedment =
       !condition.baseplateEnabled && taperPoleStandard.groundPosition === "underGL";
 

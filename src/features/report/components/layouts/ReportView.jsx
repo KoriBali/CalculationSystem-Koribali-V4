@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { EmptyReport } from "../../../../assets/icon";
 import { ConfirmSaveDatabaseModal } from "../../../calculations/components/modals/ConfirmSaveDatabaseModal";
+import { activeDraftRequestPath } from "../../../calculations/utils/requestCases";
 
 // ─── COMPONENT ───────────────────────────────────────────────────────────────
 
@@ -60,18 +61,16 @@ export function ReportView() {
 
   const onBackCalculation = () => {
     if (!projectType) {
-      navigate("/calculation");
+      navigate("/requests");
       return;
     }
 
     const activeDraftId = sessionStorage.getItem(
       `${projectType}_active_draft_id`,
     );
-    if (activeDraftId) {
-      navigate(`/calculation/${projectType}/${activeDraftId}`);
-    } else {
-      navigate(`/calculation/${projectType}`);
-    }
+    navigate(
+      activeDraftId ? `/requests/${projectType}/${activeDraftId}` : "/requests",
+    );
   };
 
   // Rename PDF filename via document.title (common browser workaround)
@@ -86,17 +85,19 @@ export function ReportView() {
     setHasReport(false);
     setShowDeleteConfirm(false);
     clearCalculationSession(projectType);
-    navigate("/calculation");
+    navigate("/requests");
   };
 
   const handleConfirmSaveDb = () => {
     // Database save logic will go here
     showToast("Project successfully saved to database!", "success");
     setShowDbModal(false);
+    // Back to the case's request — read before the session is cleared.
+    const backPath = activeDraftRequestPath(projectType);
     setTimeout(() => {
       clearCalculationSession(projectType);
       clearActiveDraftId(projectType);
-      navigate(`/calculation/${projectType}`);
+      navigate(backPath);
     }, 2500);
   };
 

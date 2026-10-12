@@ -34,6 +34,42 @@ code {
   scrollbar-width: none;
 }
 
+/* Thin rounded scrollbar in the app palette (slate → navy on hover).
+   The transparent border + padding-box clip makes the thumb look slimmer
+   than its hit area, and the track margin keeps it off rounded card corners. */
+.scrollbar-soft::-webkit-scrollbar {
+  height: 10px;
+  width: 10px;
+}
+.scrollbar-soft::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 0 12px;
+}
+.scrollbar-soft::-webkit-scrollbar-thumb {
+  background-color: rgb(203 213 225); /* slate-300 */
+  border: 3px solid transparent;
+  border-radius: 9999px;
+  background-clip: padding-box;
+}
+.scrollbar-soft:hover::-webkit-scrollbar-thumb {
+  background-color: rgb(148 163 184); /* slate-400 */
+}
+.scrollbar-soft::-webkit-scrollbar-thumb:hover,
+.scrollbar-soft::-webkit-scrollbar-thumb:active {
+  background-color: #0d3b66;
+}
+.scrollbar-soft::-webkit-scrollbar-corner {
+  background: transparent;
+}
+/* Firefox has no ::-webkit-scrollbar. Scoped with @supports because Chrome
+   121+ drops the webkit styling above as soon as scrollbar-color is set. */
+@supports not selector(::-webkit-scrollbar) {
+  .scrollbar-soft {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(203 213 225) transparent;
+  }
+}
+
 @keyframes slideIn {
   0% {
     opacity: 0;

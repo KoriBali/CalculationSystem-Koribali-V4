@@ -50,6 +50,7 @@ import {
 } from "../../../utils/coreLogic";
 import { clearCalculationSession } from "../../../utils";
 import { CustomPoleModal } from "../../modals/CustomPoleModal";
+import { activeDraftRequestPath } from "../../../utils/requestCases";
 
 // ─── COMPONENT ───────────────────────────────────────────────────────────────
 
@@ -121,8 +122,8 @@ export default function PoleFormView() {
       condition.poleType === "standard" &&
       isCalculationAndDrawing
     ) {
-      if (poleStandardForm.poleTypeStandard.type !== "taper") {
-        poleStandardForm.updatePoleTypeStandard({ type: "taper" });
+      if (poleStandardForm.poleTypeStandard.type !== "tapered") {
+        poleStandardForm.updatePoleTypeStandard({ type: "tapered" });
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -172,10 +173,12 @@ export default function PoleFormView() {
     // Database save logic will go here
     calculation.showToast("Project successfully saved to database!", "success");
     setShowDbModal(false);
+    // Back to the case's request — read before the session is cleared.
+    const backPath = activeDraftRequestPath(projectType);
     setTimeout(() => {
       clearCalculationSession(projectType);
       clearActiveDraftId(projectType);
-      navigate(`/calculation/${projectType}`);
+      navigate(backPath);
     }, 2500);
   };
 
@@ -307,7 +310,7 @@ export default function PoleFormView() {
                       <PoleTypeSelector
                         poleTypeStandard={
                           isCalculationAndDrawing
-                            ? { type: "taper" }
+                            ? { type: "tapered" }
                             : poleStandardForm.poleTypeStandard
                         }
                         onUpdate={(val) => {
@@ -320,7 +323,7 @@ export default function PoleFormView() {
                       />
 
                       {(isCalculationAndDrawing ||
-                        poleStandardForm.poleTypeStandard.type === "taper") && (
+                        poleStandardForm.poleTypeStandard.type === "tapered") && (
                         <TaperPoleStandardForm
                           taperPoleStandard={poleStandardForm.taperPoleStandard}
                           onUpdate={poleStandardForm.updateTaperPoleStandard}
@@ -1226,7 +1229,7 @@ export default function PoleFormView() {
             <button
               onClick={() =>
                 navigate(
-                  `/calculation/${projectType}/${draftId}/calculation-condition`,
+                  `/requests/${projectType}/${draftId}/calculation-condition`,
                 )
               }
               className="flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-3 hp:py-2 md:px-6

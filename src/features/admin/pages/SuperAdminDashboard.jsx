@@ -296,7 +296,7 @@ export default function SuperAdminDashboard() {
             <table className="w-full text-left text-sm whitespace-nowrap">
               <thead className="bg-slate-50/50 text-slate-500 font-medium">
                 <tr>
-                  <th className="px-6 py-4 border-b border-slate-200">Request No</th>
+                  <th className="px-6 py-4 border-b border-slate-200">Request No.</th>
                   <th className="px-6 py-4 border-b border-slate-200">Applicant</th>
                   <th className="px-6 py-4 border-b border-slate-200">Project Name</th>
                   <th className="px-6 py-4 border-b border-slate-200">Type</th>

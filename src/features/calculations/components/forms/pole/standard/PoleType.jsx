@@ -3,7 +3,7 @@ import { Triangle, RectangleVertical, CheckCircle, Circle } from "lucide-react";
 // ==== CONSTANTS ====
 // Available pole type options
 const POLE_TYPE_OPTIONS = [
-  { id: "taper", label: "Taper Pole", icon: Triangle },
+  { id: "tapered", label: "Taper Pole", icon: Triangle },
   { id: "straight", label: "Straight Pole", icon: RectangleVertical },
 ];
 

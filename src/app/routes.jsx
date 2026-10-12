@@ -8,8 +8,10 @@ import ScrollToTop from "../shared/components/ScroolTop";
 
 // Import Pages (Sesuaikan path folder barumu)
 import LoginPage from "../pages/LoginPage";
+import RequestListPage from "../features/calculations/pages/RequestListPage";
 import ProjectSelectPage from "../features/calculations/pages/ProjectSelect";
-import DraftsDashboardPage from "../features/calculations/pages/DraftsDashboardPage";
+import NewRequestFormPage from "../features/calculations/pages/NewRequestFormPage";
+import RequestDetailPage from "../features/calculations/pages/RequestDetailPage";
 import ProjectIdentityPage from "../features/calculations/pages/ProjectIdentityPage";
 import InitialInputPage from "../features/calculations/pages/InitialInputPage";
 import DrawingGeneralPage from "../features/calculations/pages/drawing/DrawingGeneralPage";
@@ -51,14 +53,34 @@ export default function AppRoutes() {
         {/* PROTECTED AREA */}
         <Route element={<ProtectedRoute />}>
           <Route element={<Layout />}>
-            {/* Base Calculation Path */}
-            <Route path="calculation">
-              <Route index element={<ProjectSelectPage />} />
+            {/* Redirect old /calculation/* links to /requests/* */}
+            <Route
+              path="calculation"
+              element={<Navigate to="/requests" replace />}
+            />
+            <Route
+              path="calculation/*"
+              element={<Navigate to="/requests" replace />}
+            />
+
+            {/* ── REQUESTS (main section) ──────────────────────── */}
+            <Route path="requests">
+              <Route index element={<RequestListPage />} />
+              {/* New request flow: pick type → fill form.
+                  Static "new" wins over :type below. */}
+              <Route path="new" element={<ProjectSelectPage />} />
+              <Route path="new/:type" element={<NewRequestFormPage />} />
+              {/* After the form: the request's summary, assignment, cases
+                  and files. Static "detail" wins over :type too. */}
+              <Route path="edit/:requestId" element={<NewRequestFormPage />} />
+              <Route path="detail/:requestId" element={<RequestDetailPage />} />
 
               {/* Dynamic Path with Multi-Guards */}
               <Route path=":type" element={<TypeGuard />}>
                 <Route element={<SessionGuard />}>
-                  <Route index element={<DraftsDashboardPage />} />
+                  {/* No drafts list: a draft is opened from its case on
+                      the Request Detail page. */}
+                  <Route index element={<Navigate to="/requests" replace />} />
                   <Route path=":draftId" element={<DraftSessionGuard />}>
                     <Route index element={<ProjectIdentityPage />} />
                     <Route
@@ -119,7 +141,7 @@ export default function AppRoutes() {
           </Route>
 
           {/* Global Redirects & 404 (Protected) */}
-          <Route path="/" element={<Navigate to="/calculation" replace />} />
+          <Route path="/" element={<Navigate to="/requests" replace />} />
           <Route path="/404" element={<NotFoundPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>

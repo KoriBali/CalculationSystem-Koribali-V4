@@ -56,7 +56,7 @@ export async function executePoleCalculation({
         arms,
       };
 
-      if (type === "taper") {
+      if (type === "tapered") {
         // Untuk taper, BE mungkin butuh selection user + data hasil resolve
         payload = {
           ...payload,

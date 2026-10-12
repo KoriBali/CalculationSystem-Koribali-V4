@@ -423,7 +423,7 @@ export function usePoleCalculation({
   const finish = () => {
     if (!isCalculated) return;
     if (isLast) return "OPEN_COVER";
-    navigate(`/calculation/${projectType}/${draftId}/${nextStep}`);
+    navigate(`/requests/${projectType}/${draftId}/${nextStep}`);
   };
 
   return {

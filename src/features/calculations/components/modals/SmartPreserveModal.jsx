@@ -17,7 +17,7 @@ export function SmartPreserveModal({ open, onClose }) {
     sessionStorage.setItem(`${projectType}_drawing_started`, "true");
     
     onClose();
-    navigate(`/calculation/${projectType}/${draftId}/drawing/drawing-setup`);
+    navigate(`/requests/${projectType}/${draftId}/drawing/drawing-setup`);
   };
 
   return (

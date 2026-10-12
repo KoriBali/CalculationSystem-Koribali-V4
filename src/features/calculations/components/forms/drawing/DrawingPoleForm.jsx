@@ -81,7 +81,7 @@ export function DrawingPoleForm({ pole, onUpdate, onReset, onBack, onNext, error
 
         <div className="mb-4 md:mb-6 -mx-4 md:-mx-6">
           <PoleTypeSelector
-            poleTypeStandard={{ type: "taper" }}
+            poleTypeStandard={{ type: "tapered" }}
             onUpdate={(val) => {
               if (val.type === "straight") {
                 setShowStraightModal(true);

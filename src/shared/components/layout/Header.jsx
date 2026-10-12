@@ -7,6 +7,7 @@ import { ProfileDropdown } from "./ProfileDropdown";
 export function Header({
   isMobile,
   currentTitle,
+  rootLabel = "Design Calculation",
   userData,
   onRootCrumbClick,
   onProjectCrumbClick,
@@ -100,7 +101,7 @@ export function Header({
                 <button
                   type="button"
                   onClick={onRootCrumbClick}
-                  title="Go to Select Project Type"
+                  title="Go to Requests"
                   className="
                     hidden sm:block
                     shrink-0
@@ -114,7 +115,7 @@ export function Header({
                     focus-visible:ring-[#3399cc]/40
                   "
                 >
-                  Design Calculation
+                  {rootLabel}
                 </button>
 
                 <ChevronRight

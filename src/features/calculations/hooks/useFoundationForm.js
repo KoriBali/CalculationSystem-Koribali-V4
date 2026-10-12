@@ -244,12 +244,12 @@ export function useFoundationForm() {
       return "OPEN_COVER";
     }
 
-    navigate(`/calculation/${projectType}/${draftId}/${nextStep}`);
+    navigate(`/requests/${projectType}/${draftId}/${nextStep}`);
   };
 
   // Navigates back to the previous step (pole, opening, or baseplate — whichever is enabled)
   const handleBack = () => {
-    navigate(`/calculation/${projectType}/${draftId}/${prevStep}`);
+    navigate(`/requests/${projectType}/${draftId}/${prevStep}`);
   };
 
   // Mapping for UI labels

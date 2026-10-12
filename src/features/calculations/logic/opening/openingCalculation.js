@@ -20,7 +20,7 @@ export async function executeOpeningCalculation({
       payload = { ...payload, ...boxType };
       break;
 
-    case "r":
+    case "R":
       payload = { ...payload, ...rType };
       break;
 

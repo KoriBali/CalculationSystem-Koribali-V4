@@ -20,6 +20,7 @@ import { clearCalculationSession } from "../../../utils";
 
 import { useFoundationForm } from "../../../hooks/useFoundationForm";
 import { useReport } from "../../../../report/hooks/useReport";
+import { activeDraftRequestPath } from "../../../utils/requestCases";
 
 // Main view component for foundation calculation form
 export default function FoundationFormView() {
@@ -95,10 +96,12 @@ export default function FoundationFormView() {
     // Database save logic will go here
     showToast("Project successfully saved to database!", "success");
     setShowDbModal(false);
+    // Back to the case's request — read before the session is cleared.
+    const backPath = activeDraftRequestPath(projectType);
     setTimeout(() => {
       clearCalculationSession(projectType);
       clearActiveDraftId(projectType);
-      navigate(`/calculation/${projectType}`);
+      navigate(backPath);
     }, 2500);
   };
 

@@ -56,7 +56,7 @@ export function ProfileDropdown({ userData, onLogout }) {
         <span
           className="
             hidden sm:block
-            text-[13px] sm:text-sm lg:text-[15px]
+            text-[13px]
             leading-[1.4]
             font-semibold
             tracking-normal

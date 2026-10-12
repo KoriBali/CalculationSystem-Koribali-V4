@@ -44,8 +44,8 @@ export async function validateOpening({
     }
   }
 
-  // Validate R Type fields when selected type is "r"
-  if (openingType.type === "r") {
+  // Validate R Type fields when selected type is "R"
+  if (openingType.type === "R") {
     const { isValid, errors } = await validateWithYup(
       RTypeSchema(isCalculationAndDrawing),
       rType,

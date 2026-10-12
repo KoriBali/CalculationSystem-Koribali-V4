@@ -16,7 +16,7 @@ const ErrorStyle = ({ show, text }) =>
 
 const OPENING_TYPE_OPTIONS = [
   { value: "box", label: "Box Type" },
-  { value: "r", label: "R Type" },
+  { value: "R", label: "R Type" },
 ];
 
 /**

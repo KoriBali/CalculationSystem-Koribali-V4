@@ -112,7 +112,7 @@ export function useConditionForm() {
     setCondition(localCondition);
 
     // 5. Navigate to pole step
-    navigate(`/calculation/${projectType}/${draftId}/pole`);
+    navigate(`/requests/${projectType}/${draftId}/pole`);
   };
 
   return {

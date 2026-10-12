@@ -14,19 +14,19 @@ export default function DrawingCouplingPage() {
   const handleBack = () => {
     const general = JSON.parse(sessionStorage.getItem(`${projectType}_drawing_general`) || "{}");
     if (general?.additionalComponents?.foundation) {
-      navigate(`/calculation/${projectType}/${draftId}/drawing/foundation`);
+      navigate(`/requests/${projectType}/${draftId}/drawing/foundation`);
     } else if (general?.additionalComponents?.baseplate) {
-      navigate(`/calculation/${projectType}/${draftId}/drawing/baseplate`);
+      navigate(`/requests/${projectType}/${draftId}/drawing/baseplate`);
     } else if (general?.additionalComponents?.opening) {
-      navigate(`/calculation/${projectType}/${draftId}/drawing/opening`);
+      navigate(`/requests/${projectType}/${draftId}/drawing/opening`);
     } else {
-      navigate(`/calculation/${projectType}/${draftId}/drawing/pole`);
+      navigate(`/requests/${projectType}/${draftId}/drawing/pole`);
     }
   };
 
   const handleNext = () => {
     setProgressFlag(projectType, "drawing_coupling_completed", true);
-    navigate(`/calculation/${projectType}/${draftId}/drawing/surface`);
+    navigate(`/requests/${projectType}/${draftId}/drawing/surface`);
   };
 
   return (

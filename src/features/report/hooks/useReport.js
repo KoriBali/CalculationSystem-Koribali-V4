@@ -78,7 +78,7 @@ export function useReport(projectType) {
     const type = openingType?.type;
 
     // Pilih input detail sesuai tipe yang dipilih user
-    const detailInput = type === "box" ? boxType : type === "r" ? rType : {};
+    const detailInput = type === "box" ? boxType : type === "R" ? rType : {};
 
     return {
       openingType, // tipe opening yang dipilih (box / r)

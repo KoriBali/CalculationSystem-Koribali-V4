@@ -19,6 +19,9 @@ export function FormSelect({
   options,
   placeholder = "Select...",
   hasError = false,
+  // Value came from an auto-fill source (e.g. a cover) and hasn't been
+  // changed — dashed blue border, same as auto-filled inputs.
+  autoFilled = false,
   disabled = false,
   loading = false,
   loadingText = "Loading...",
@@ -156,7 +159,9 @@ export function FormSelect({
             ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
             : isOpen
               ? "border-[#3399cc] bg-white ring-1 ring-[#3399cc]"
-              : "border-gray-300 bg-white hover:border-[#3399cc]"
+              : autoFilled
+                ? "border-dashed border-blue-300 bg-blue-50/40 hover:border-[#3399cc]"
+                : "border-gray-300 bg-white hover:border-[#3399cc]"
         } ${!selectedOption ? "text-slate-400" : "text-slate-900"}`}
       >
         <span className="truncate">

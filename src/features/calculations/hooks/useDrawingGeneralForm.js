@@ -143,14 +143,14 @@ export function useDrawingGeneralForm() {
 
     // Navigate — header will re-render on new page with correct sessionStorage data
     if (workflow.projectMode === "drawing") {
-      navigate(`/calculation/${projectType}/${draftId}/drawing/pole`);
+      navigate(`/requests/${projectType}/${draftId}/drawing/pole`);
       return;
     }
 
     if (localGeneral.useCoupling) {
-      navigate(`/calculation/${projectType}/${draftId}/drawing/coupling`);
+      navigate(`/requests/${projectType}/${draftId}/drawing/coupling`);
     } else {
-      navigate(`/calculation/${projectType}/${draftId}/drawing/surface`);
+      navigate(`/requests/${projectType}/${draftId}/drawing/surface`);
     }
   };
 

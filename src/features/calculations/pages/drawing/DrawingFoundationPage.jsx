@@ -40,9 +40,9 @@ export default function DrawingFoundationPage() {
     if (result) {
       const isCouplingUsed = sessionStorage.getItem(`${projectType}_drawing_coupling_confirmed`) === "true";
       if (isCouplingUsed) {
-        navigate(`/calculation/${projectType}/${draftId}/drawing/coupling`);
+        navigate(`/requests/${projectType}/${draftId}/drawing/coupling`);
       } else {
-        navigate(`/calculation/${projectType}/${draftId}/drawing/surface`);
+        navigate(`/requests/${projectType}/${draftId}/drawing/surface`);
       }
     }
   };
@@ -50,11 +50,11 @@ export default function DrawingFoundationPage() {
   const onBack = () => {
     const general = JSON.parse(sessionStorage.getItem(`${projectType}_drawing_general`) || "{}");
     if (general?.additionalComponents?.baseplate) {
-      navigate(`/calculation/${projectType}/${draftId}/drawing/baseplate`);
+      navigate(`/requests/${projectType}/${draftId}/drawing/baseplate`);
     } else if (general?.additionalComponents?.opening) {
-      navigate(`/calculation/${projectType}/${draftId}/drawing/opening`);
+      navigate(`/requests/${projectType}/${draftId}/drawing/opening`);
     } else {
-      navigate(`/calculation/${projectType}/${draftId}/drawing/pole`);
+      navigate(`/requests/${projectType}/${draftId}/drawing/pole`);
     }
   };
 
