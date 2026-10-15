@@ -3,7 +3,7 @@
 // its cases (each opens a calculation or drawing draft) and its files.
 import { useNavigate, useParams } from "react-router-dom";
 import { Helmet } from "react-helmet";
-import { ArrowLeft, SearchX, Check, X, AlertCircle } from "lucide-react";
+import { ArrowLeft, SearchX } from "lucide-react";
 import { useState, useRef } from "react";
 import InitialAssignment from "../components/requests/InitialAssignment";
 import { RequestCases } from "../components/requests/detail/RequestCases";
@@ -76,25 +76,11 @@ export default function RequestDetailPage() {
   const navigate = useNavigate();
   const { requestId } = useParams();
   const [request, update] = useRequestRecord(requestId);
-  const [toastMessage, setToastMessage] = useState(null);
   const [toastModal, setToastModal] = useState(null);
   const [isEditingConditions, setIsEditingConditions] = useState(false);
   const designConditionsRef = useRef(null);
-  const toastTimeoutRef = useRef(null);
 
-  const showToast = (toast) => {
-    if (toastTimeoutRef.current) {
-      clearTimeout(toastTimeoutRef.current);
-    }
-    const payload =
-      typeof toast === "string"
-        ? { message: toast, type: "success" }
-        : { message: toast?.message || "", type: toast?.type || "success" };
-    setToastMessage(payload);
-    toastTimeoutRef.current = setTimeout(() => {
-      setToastMessage(null);
-    }, 3200);
-  };
+  const showToast = () => {};
 
   const handleBeforeAddCase = () => {
     const isUnsaved =
@@ -107,7 +93,8 @@ export default function RequestDetailPage() {
         (designConditionsRef.current &&
           designConditionsRef.current.triggerValidation()?.firstMsg) ||
         "Please save Design Conditions first before adding calculation cases.";
-      showToast({
+      setToastModal({
+        title: "Design Conditions Required",
         message: msg,
         type: "warning",
       });
@@ -177,7 +164,8 @@ export default function RequestDetailPage() {
       designConditionsRef.current?.isEditing;
 
     if (isUnsaved) {
-      showToast({
+      setToastModal({
+        title: "Design Conditions Required",
         message:
           "Please save Design Conditions first before opening calculation cases.",
         type: "warning",
@@ -399,50 +387,7 @@ export default function RequestDetailPage() {
         <title>{requestNo || "Project"} - KORI BALI</title>
       </Helmet>
 
-      {/* ── Floating Toast Notification Banner ── */}
-      {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-[9999] pointer-events-none flex flex-col items-end">
-          <div
-            className={`pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl border backdrop-blur-md transition-all duration-300 animate-in fade-in slide-in-from-bottom-4 max-w-sm sm:max-w-md ${
-              toastMessage.type === "warning"
-                ? "bg-slate-900/95 text-white border-amber-500/40"
-                : toastMessage.type === "error"
-                  ? "bg-slate-900/95 text-white border-rose-500/40"
-                  : "bg-slate-900/95 text-white border-slate-700/80"
-            }`}
-          >
-            <div
-              className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${
-                toastMessage.type === "warning"
-                  ? "bg-amber-500/20 text-amber-400"
-                  : toastMessage.type === "error"
-                    ? "bg-rose-500/20 text-rose-400"
-                    : "bg-emerald-500/20 text-emerald-400"
-              }`}
-            >
-              {toastMessage.type === "warning" || toastMessage.type === "error" ? (
-                <AlertCircle className="w-4 h-4 stroke-[2.5]" />
-              ) : (
-                <Check className="w-4 h-4 stroke-[2.5]" />
-              )}
-            </div>
-            <span className="text-xs sm:text-sm font-medium leading-snug">
-              {toastMessage.message}
-            </span>
-            <button
-              type="button"
-              onClick={() => {
-                if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
-                setToastMessage(null);
-              }}
-              className="ml-auto text-slate-400 hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors"
-              aria-label="Close notification"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        </div>
-      )}
+
 
       <div className="flex-1 rounded-t-2xl hp:rounded-t-xl bg-gray-50">
         {/* ── Header: same blue card and width as the New Request form ── */}

@@ -87,11 +87,16 @@ export const ToastModal = ({
             ) : (
               <>
                 <div className="flex flex-col sm:flex-row items-center sm:items-start gap-3 sm:gap-4 mb-4 sm:mb-6 text-center sm:text-left">
-                  <div className="flex-shrink-0 flex items-center justify-center border w-12 h-12 sm:w-12 sm:h-12 rounded-xl bg-yellow-50 text-yellow-500 border-yellow-300 mx-auto sm:mx-0">
+                  <div className="flex-shrink-0 flex items-center justify-center border w-12 h-12 rounded-xl bg-amber-50 text-amber-500 border-amber-300 mx-auto sm:mx-0">
                     <AlertCircle className="w-6 h-6 sm:w-7 sm:h-7" />
                   </div>
                   <div className="flex flex-col justify-center min-h-[48px]">
-                    <p className="text-gray-700 font-semibold leading-snug text-sm sm:text-base">
+                    {toast.title && (
+                      <h4 className="text-slate-900 font-bold text-sm sm:text-base mb-1">
+                        {toast.title}
+                      </h4>
+                    )}
+                    <p className="text-slate-700 font-medium leading-relaxed text-xs sm:text-sm">
                       {toast.message}
                     </p>
                   </div>
@@ -99,7 +104,7 @@ export const ToastModal = ({
                 <div className="flex justify-center sm:justify-end mt-2">
                   <button
                     onClick={onClose}
-                    className="w-full sm:w-auto px-6 py-2.5 sm:px-8 sm:py-2.5 rounded-lg border text-sm font-semibold transition-all shadow-sm active:scale-95 bg-blue-50 border-blue-500 text-blue-700 hover:bg-blue-100"
+                    className="w-full sm:w-auto px-6 py-2.5 sm:px-8 sm:py-2 rounded-lg text-sm font-semibold transition-all shadow-sm active:scale-95 bg-[#0d3b66] text-white hover:bg-[#092b4d] cursor-pointer"
                   >
                     OK
                   </button>
