@@ -165,6 +165,15 @@ export function useBaseplateForm() {
     false
   );
 
+  // If there are no calculated results yet, isCalculated must be false
+  useEffect(() => {
+    if ((!calculatedBaseplate || Object.keys(calculatedBaseplate).length === 0) && isCalculated) {
+      setIsCalculated(false);
+      sessionStorage.removeItem(`${projectType}_isCalculatedBp`);
+      notifyCalculationProgressChanged();
+    }
+  }, [calculatedBaseplate, isCalculated, setIsCalculated, projectType]);
+
   // Toast notification state
   const [toast, setToast] = useState(null);
 

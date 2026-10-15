@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useProjectStorage } from "./useProjectStorage";
 
@@ -110,6 +110,15 @@ export function useFoundationForm() {
     "isCalculatedFd",
     false
   );
+
+  // If there are no calculated results yet, isCalculated must be false
+  useEffect(() => {
+    if ((!calculatedFoundation || Object.keys(calculatedFoundation).length === 0) && isCalculated) {
+      setIsCalculated(false);
+      sessionStorage.removeItem(`${projectType}_isCalculatedFd`);
+      notifyCalculationProgressChanged();
+    }
+  }, [calculatedFoundation, isCalculated, setIsCalculated, projectType]);
 
   // Toast notification state
   const [toast, setToast] = useState(null);

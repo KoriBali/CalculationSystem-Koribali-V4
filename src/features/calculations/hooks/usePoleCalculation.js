@@ -2,10 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useProjectStorage } from "./useProjectStorage";
 
-import {
-  validatePoleForm,
-  validatePoleReport,
-} from "../logic/pole/poleValidation";
+import { validatePoleForm } from "../logic/pole/poleValidation";
 import { executePoleCalculation } from "../logic/pole/poleCalculation";
 import { scrollToFirstError, scrollToFirstNestedError } from "../utils/scrollToError";
 import { notifyCalculationProgressChanged } from "../utils/calculationProgressEvent";
@@ -95,6 +92,15 @@ export function usePoleCalculation({
   const [toast, setToast] = useState(null);
 
   const showToast = (message, type = "error") => setToast({ message, type });
+
+  // If there are no results yet (fresh case or reset), isCalculated must be false
+  useEffect(() => {
+    if ((!results || results.length === 0) && isCalculated) {
+      setIsCalculated(false);
+      sessionStorage.removeItem(`${projectType}_isCalculatedPole`);
+      notifyCalculationProgressChanged();
+    }
+  }, [results, isCalculated, setIsCalculated, projectType]);
 
   // Any edit to the underlying pole/object/wire/arm/standard/config data
   // after a calculation invalidates it — Calculate should go back to being

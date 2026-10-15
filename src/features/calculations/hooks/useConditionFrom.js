@@ -113,7 +113,16 @@ export function useConditionForm() {
     // (Steps the user just *disabled* in this condition change are handled
     // separately by cleanupDisabledComponents() above, which does wipe their
     // data since they're no longer part of the calculation at all.)
-    if (JSON.stringify(condition) !== JSON.stringify(localCondition)) {
+    const hasPoleResults = (() => {
+      try {
+        const r = JSON.parse(sessionStorage.getItem(`${projectType}_results`) || "[]");
+        return Array.isArray(r) && r.length > 0;
+      } catch {
+        return false;
+      }
+    })();
+
+    if (JSON.stringify(condition) !== JSON.stringify(localCondition) || !hasPoleResults) {
       sessionStorage.removeItem(`${projectType}_isCalculatedPole`);
       sessionStorage.removeItem(`${projectType}_isCalculatedOp`);
       sessionStorage.removeItem(`${projectType}_isCalculatedBp`);

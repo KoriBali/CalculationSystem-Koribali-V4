@@ -32,7 +32,6 @@ import {
   hasDraftChanged,
   checkSmartPreserveWarning,
   saveCalculationSnapshot,
-  clearSmartPreserveWarning,
 } from "../../utils/coreLogic";
 import { CALCULATION_PROGRESS_EVENT } from "../../utils/calculationProgressEvent";
 import { useCollapsibleStickyHeader } from "../../../../hooks/useCollapsibleStickyHeader";
@@ -185,26 +184,6 @@ export function HeaderCalculationPage() {
   // checking data presence alone would let a user reach Drawing with
   // out-of-date calculations. Checking the flag keeps this in sync with
   // "has this step actually been calculated against its current inputs".
-  const isProjectComplete = () => {
-    if (!config) return false;
-
-    const isFlagSet = (key) => sessionStorage.getItem(`${type}_${key}`) === "true";
-
-    const hasPole = config.pole ? isFlagSet("isCalculatedPole") : true;
-
-    const hasOpening = config.opening ? isFlagSet("isCalculatedOp") : true;
-
-    const hasBaseplate = config.baseplate
-      ? isFlagSet("isCalculatedBp")
-      : true;
-
-    const hasFoundation = config.foundation
-      ? isFlagSet("isCalculatedFd")
-      : true;
-
-    return hasPole && hasOpening && hasBaseplate && hasFoundation;
-  };
-
   // ─── CONDITION ───────────────────────────────────────────────────────────
   const rawCondition = sessionStorage.getItem(`${type}_condition`);
   const condition = rawCondition ? JSON.parse(rawCondition) : null;
@@ -216,17 +195,58 @@ export function HeaderCalculationPage() {
   const isConditionCompleted = !!condition?.designStandard;
   const isPoleStepCompleted = (() => {
     if (!config?.pole) return false;
-    return sessionStorage.getItem(`${type}_isCalculatedPole`) === "true";
+    if (sessionStorage.getItem(`${type}_isCalculatedPole`) !== "true") return false;
+    try {
+      const res = JSON.parse(sessionStorage.getItem(`${type}_results`) || "[]");
+      if (!Array.isArray(res) || res.length === 0) return false;
+    } catch {
+      return false;
+    }
+    return true;
   })();
-  const isOpeningStepCompleted = config?.opening
-    ? sessionStorage.getItem(`${type}_isCalculatedOp`) === "true"
-    : false;
-  const isBaseplateStepCompleted = config?.baseplate
-    ? sessionStorage.getItem(`${type}_isCalculatedBp`) === "true"
-    : false;
-  const isFoundationStepCompleted = config?.foundation
-    ? sessionStorage.getItem(`${type}_isCalculatedFd`) === "true"
-    : false;
+  const isOpeningStepCompleted = (() => {
+    if (!config?.opening) return false;
+    if (sessionStorage.getItem(`${type}_isCalculatedOp`) !== "true") return false;
+    try {
+      const op = JSON.parse(sessionStorage.getItem(`${type}_calculatedOp`) || "null");
+      if (!op || Object.keys(op).length === 0) return false;
+    } catch {
+      return false;
+    }
+    return true;
+  })();
+  const isBaseplateStepCompleted = (() => {
+    if (!config?.baseplate) return false;
+    if (sessionStorage.getItem(`${type}_isCalculatedBp`) !== "true") return false;
+    try {
+      const bp = JSON.parse(sessionStorage.getItem(`${type}_calculatedBaseplate`) || "null");
+      if (!bp || Object.keys(bp).length === 0) return false;
+    } catch {
+      return false;
+    }
+    return true;
+  })();
+  const isFoundationStepCompleted = (() => {
+    if (!config?.foundation) return false;
+    if (sessionStorage.getItem(`${type}_isCalculatedFd`) !== "true") return false;
+    try {
+      const fd = JSON.parse(sessionStorage.getItem(`${type}_calculatedFoundation`) || "null");
+      if (!fd || Object.keys(fd).length === 0) return false;
+    } catch {
+      return false;
+    }
+    return true;
+  })();
+
+  // ─── CHECK CALCULATION COMPLETION ────────────────────────────────────────
+  const isProjectComplete = () => {
+    if (!config) return false;
+    const hasPole = config.pole ? isPoleStepCompleted : true;
+    const hasOpening = config.opening ? isOpeningStepCompleted : true;
+    const hasBaseplate = config.baseplate ? isBaseplateStepCompleted : true;
+    const hasFoundation = config.foundation ? isFoundationStepCompleted : true;
+    return hasPole && hasOpening && hasBaseplate && hasFoundation;
+  };
 
   // ─── CALCULATION NAVIGATION ──────────────────────────────────────────────
   const navItems = [

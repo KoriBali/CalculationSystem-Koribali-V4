@@ -134,6 +134,15 @@ export function useOpeningForm() {
   );
   const [toast, setToast] = useState(null);
 
+  // If there are no calculated results yet, isCalculated must be false
+  useEffect(() => {
+    if ((!calculatedOp || Object.keys(calculatedOp).length === 0) && isCalculated) {
+      setIsCalculated(false);
+      sessionStorage.removeItem(`${projectType}_isCalculatedOp`);
+      notifyCalculationProgressChanged();
+    }
+  }, [calculatedOp, isCalculated, setIsCalculated, projectType]);
+
   // ── Navigation ──
 
   // Determines button label, next step path, and whether this is the last step

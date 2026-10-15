@@ -61,6 +61,10 @@ export const DATA_KEYS = [
   "drawing_surface",
   "drawing_coupling_confirmed",
   "schematic_data",
+  "isCalculatedPole",
+  "isCalculatedOp",
+  "isCalculatedBp",
+  "isCalculatedFd",
 ];
 
 /**
@@ -185,6 +189,10 @@ export const clearCalculationSession = (projectType) => {
   keys.forEach((key) => sessionStorage.removeItem(`${projectType}_${key}`));
 
   sessionStorage.removeItem(`${projectType}_calculation_config`);
+  sessionStorage.removeItem(`${projectType}_isCalculatedPole`);
+  sessionStorage.removeItem(`${projectType}_isCalculatedOp`);
+  sessionStorage.removeItem(`${projectType}_isCalculatedBp`);
+  sessionStorage.removeItem(`${projectType}_isCalculatedFd`);
 };
 
 
