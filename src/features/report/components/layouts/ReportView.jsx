@@ -1,4 +1,10 @@
-import React, { useState, useRef, useEffect, useMemo, useCallback } from "react";
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useMemo,
+  useCallback,
+} from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import LightingPoleReport from "../templates/lighting-pole/LightingPoleReport";
@@ -64,7 +70,9 @@ export function ReportView() {
     try {
       let snap = location.state || null;
       if (!snap) {
-        const sessionSnap = sessionStorage.getItem(`${projectType}_reportSnapshot`);
+        const sessionSnap = sessionStorage.getItem(
+          `${projectType}_reportSnapshot`,
+        );
         if (sessionSnap) snap = JSON.parse(sessionSnap);
       }
       if (!snap && draftId) {
@@ -96,18 +104,22 @@ export function ReportView() {
       // Check if user selected or changed the pole standard in the form
       const isPoleChanged = Boolean(
         storedPole?.poleType &&
-          (
-            storedSnapshot?.condition?.standardPoleType !== storedPole.poleType ||
-            storedSnapshot?.taperPoleStandard?.poleType !== storedPole.poleType ||
-            storedSnapshot?.taperPoleStandard?.groundPosition !== storedPole.groundPosition ||
-            String(storedSnapshot?.taperPoleStandard?.height || "") !== String(storedPole?.height || "")
-          )
+        (storedSnapshot?.condition?.standardPoleType !== storedPole.poleType ||
+          storedSnapshot?.taperPoleStandard?.poleType !== storedPole.poleType ||
+          storedSnapshot?.taperPoleStandard?.groundPosition !==
+            storedPole.groundPosition ||
+          String(storedSnapshot?.taperPoleStandard?.height || "") !==
+            String(storedPole?.height || "")),
       );
 
-      const hasOldDummyCover = storedSnapshot.cover?.calculationNumber === "KB-2026-001";
+      const hasOldDummyCover =
+        storedSnapshot.cover?.calculationNumber === "KB-2026-001";
       if (isPoleChanged || hasOldDummyCover) {
         const fresh = getDummyReportPayload(projectType, storedPole);
-        sessionStorage.setItem(`${projectType}_reportSnapshot`, JSON.stringify(fresh));
+        sessionStorage.setItem(
+          `${projectType}_reportSnapshot`,
+          JSON.stringify(fresh),
+        );
         return fresh;
       }
       return storedSnapshot;
@@ -119,7 +131,10 @@ export function ReportView() {
     }
 
     const fresh = getDummyReportPayload(projectType, storedPole);
-    sessionStorage.setItem(`${projectType}_reportSnapshot`, JSON.stringify(fresh));
+    sessionStorage.setItem(
+      `${projectType}_reportSnapshot`,
+      JSON.stringify(fresh),
+    );
     return fresh;
   }, [storedSnapshot, projectType, draftId]);
 
@@ -202,16 +217,23 @@ export function ReportView() {
 
   const handleSaveCover = (updatedCover) => {
     setEditedCover(updatedCover);
-    sessionStorage.setItem(`${projectType}_cover`, JSON.stringify(updatedCover));
+    sessionStorage.setItem(
+      `${projectType}_cover`,
+      JSON.stringify(updatedCover),
+    );
 
     try {
       const snap = JSON.parse(
-        sessionStorage.getItem(`${projectType}_reportSnapshot`) || "{}"
+        sessionStorage.getItem(`${projectType}_reportSnapshot`) || "{}",
       );
-      const updatedSnap = { ...snap, ...(reportData || {}), cover: updatedCover };
+      const updatedSnap = {
+        ...snap,
+        ...(reportData || {}),
+        cover: updatedCover,
+      };
       sessionStorage.setItem(
         `${projectType}_reportSnapshot`,
-        JSON.stringify(updatedSnap)
+        JSON.stringify(updatedSnap),
       );
     } catch (e) {
       console.error("Failed to update snapshot with cover:", e);
@@ -248,7 +270,8 @@ export function ReportView() {
   // Rename PDF filename via document.title (common browser workaround)
   const handlePrint = () => {
     const oldTitle = document.title;
-    document.title = cover?.calculationNumber || cover?.reportNumber || "Calculation Report";
+    document.title =
+      cover?.calculationNumber || cover?.reportNumber || "Calculation Report";
     window.print();
     document.title = oldTitle;
   };
@@ -324,9 +347,10 @@ export function ReportView() {
     }
     const isStandardChanged = Boolean(
       schematicData?.standardId &&
-      schematicData.standardId !== schematicParams.standardId
+      schematicData.standardId !== schematicParams.standardId,
     );
-    if (lastRequestedStandardIdRef.current === schematicParams.standardId) return;
+    if (lastRequestedStandardIdRef.current === schematicParams.standardId)
+      return;
     lastRequestedStandardIdRef.current = schematicParams.standardId;
 
     sendParameters(schematicParams.payload, {
@@ -482,10 +506,10 @@ export function ReportView() {
               <button
                 onClick={onBackRequest}
                 className="flex justify-center items-center gap-2 px-5 py-2.5 hp:px-3 hp:py-2 md:px-6 rounded-lg hp:rounded-md font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] text-xs sm:text-sm ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm transition-colors cursor-pointer"
-                title="Back to Project"
+                title="Back to Project Detail"
               >
                 <ArrowLeft className="w-4 h-4 shrink-0" />
-                <span className="hp:hidden">Back to Project</span>
+                <span className="hp:hidden">Back to Project Detail</span>
               </button>
 
               {draftId && (
@@ -524,8 +548,6 @@ export function ReportView() {
           </div>
         </div>
       </div>
-
-
 
       {/* Delete confirmation modal */}
       {showDeleteConfirm && (
