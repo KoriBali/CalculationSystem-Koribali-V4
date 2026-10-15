@@ -47,6 +47,7 @@ import { CoverFormModal } from "../../modals/CoverFormModal";
 import {
   saveWorkingSessionToDraft,
   clearActiveDraftId,
+  hasCoverData,
 } from "../../../utils/coreLogic";
 import { clearCalculationSession } from "../../../utils";
 import { CustomPoleModal } from "../../modals/CustomPoleModal";
@@ -150,12 +151,25 @@ export default function PoleFormView() {
     }
   };
 
-  const handleConfirmCover = () => {
-    setShowCoverModal(false);
-    report.makeReport({
+  const handleConfirmCover = async (overrideCover) => {
+    const success = await report.makeReport({
       isCalculated: calculation.isCalculated,
       showToast: calculation.showToast,
+      coverOverride: overrideCover,
+      draftIdOverride: draftId,
     });
+    if (success) {
+      setShowCoverModal(false);
+    }
+  };
+
+  const handleGenerateReportClick = () => {
+    setShowFinishModal(false);
+    if (hasCoverData(projectType)) {
+      handleConfirmCover();
+    } else {
+      setShowCoverModal(true);
+    }
   };
 
   const handleSaveDraft = () => {
@@ -1229,7 +1243,7 @@ export default function PoleFormView() {
             <button
               onClick={() =>
                 navigate(
-                  `/requests/${projectType}/${draftId}/calculation-condition`,
+                  `/requests/${projectType}/${draftId}/initial`,
                 )
               }
               className="flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-3 hp:py-2 md:px-6
@@ -1307,10 +1321,7 @@ export default function PoleFormView() {
         onClose={() => setShowFinishModal(false)}
         onSaveDraft={handleSaveDraft}
         onSaveDatabase={handleSaveDatabaseClick}
-        onGenerateReport={() => {
-          setShowFinishModal(false);
-          setShowCoverModal(true);
-        }}
+        onGenerateReport={handleGenerateReportClick}
       />
       <ConfirmSaveDatabaseModal
         open={showDbModal}

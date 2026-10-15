@@ -1,3 +1,4 @@
+import { DateInput } from "../../../../shared/components/DateInput";
 import { isInvalidRange } from "../../utils/requestDateFilters";
 
 // From / To date range: two bordered date inputs with "to" between them.
@@ -8,7 +9,7 @@ import { isInvalidRange } from "../../utils/requestDateFilters";
 const inputClass =
   "h-10 w-full min-w-0 px-3 rounded-lg hp:rounded-md border text-sm text-slate-700 outline-none transition-all focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]";
 
-export default function RequestDateFilter({ value, onChange }) {
+export default function RequestDateFilter({ value = { from: "", to: "" }, onChange }) {
   const invalid = isInvalidRange(value);
 
   // Red when the range is inverted, navy tint once a date is picked (same
@@ -23,20 +24,20 @@ export default function RequestDateFilter({ value, onChange }) {
   return (
     <div>
       <div className="flex items-center gap-2">
-        <input
-          type="date"
-          value={value.from}
-          onChange={(e) => onChange({ ...value, from: e.target.value })}
+        <DateInput
+          value={value?.from || ""}
+          onChange={(val) => onChange({ ...value, from: val || "" })}
           aria-label="From"
-          className={`${inputClass} ${tone(!!value.from)}`}
+          placeholder="yyyy-mm-dd"
+          className={`${inputClass} ${tone(Boolean(value?.from))}`}
         />
         <span className="shrink-0 text-sm text-slate-400">to</span>
-        <input
-          type="date"
-          value={value.to}
-          onChange={(e) => onChange({ ...value, to: e.target.value })}
+        <DateInput
+          value={value?.to || ""}
+          onChange={(val) => onChange({ ...value, to: val || "" })}
           aria-label="To"
-          className={`${inputClass} ${tone(!!value.to)}`}
+          placeholder="yyyy-mm-dd"
+          className={`${inputClass} ${tone(Boolean(value?.to))}`}
         />
       </div>
       {invalid && (

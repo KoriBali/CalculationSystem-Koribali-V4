@@ -1,5 +1,17 @@
 // src/app/routes.jsx
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useParams } from "react-router-dom";
+
+// Helper component to redirect draft index directly to calculation or drawing step
+function DraftIndexRedirect() {
+  const { type, draftId } = useParams();
+  const rawWorkflow = sessionStorage.getItem(`${type}_workflow`);
+  const workflow = rawWorkflow ? JSON.parse(rawWorkflow) : {};
+  const isDrawing = workflow.projectMode === "drawing";
+  const target = isDrawing
+    ? `/requests/${type}/${draftId}/drawing/drawing-setup`
+    : `/requests/${type}/${draftId}/initial`;
+  return <Navigate to={target} replace />;
+}
 
 // Import Shared/Layout
 import Layout from "../shared/components/layout/Layout";
@@ -12,7 +24,6 @@ import RequestListPage from "../features/calculations/pages/RequestListPage";
 import ProjectSelectPage from "../features/calculations/pages/ProjectSelect";
 import NewRequestFormPage from "../features/calculations/pages/NewRequestFormPage";
 import RequestDetailPage from "../features/calculations/pages/RequestDetailPage";
-import ProjectIdentityPage from "../features/calculations/pages/ProjectIdentityPage";
 import InitialInputPage from "../features/calculations/pages/InitialInputPage";
 import DrawingGeneralPage from "../features/calculations/pages/drawing/DrawingGeneralPage";
 import DrawingPolePage from "../features/calculations/pages/drawing/DrawingPolePage";
@@ -82,10 +93,14 @@ export default function AppRoutes() {
                       the Request Detail page. */}
                   <Route index element={<Navigate to="/requests" replace />} />
                   <Route path=":draftId" element={<DraftSessionGuard />}>
-                    <Route index element={<ProjectIdentityPage />} />
+                    <Route index element={<DraftIndexRedirect />} />
+                    <Route
+                      path="initial"
+                      element={<InitialInputPage />}
+                    />
                     <Route
                       path="calculation-condition"
-                      element={<InitialInputPage />}
+                      element={<Navigate to="../initial" replace />}
                     />
                     <Route
                       path="drawing"
@@ -120,12 +135,13 @@ export default function AppRoutes() {
                     <Route path="opening" element={<OpeningFormPage />} />
                     <Route path="baseplate" element={<BaseplateFormPage />} />
                     <Route path="foundation" element={<FoundationFormPage />} />
+                    <Route path="report" element={<ReportPage />} />
                   </Route>
                 </Route>
               </Route>
             </Route>
 
-            <Route path="report" element={<ReportPage />} />
+            <Route path="report" element={<Navigate to="/requests" replace />} />
             <Route path="database" element={<ProjectDatabasePage />} />
 
             {/* Super Admin Routes */}

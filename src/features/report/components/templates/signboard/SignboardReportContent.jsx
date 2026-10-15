@@ -1,5 +1,9 @@
 import React from "react";
-import { formatDateYP } from "../../../utils/reportFormatters";
+import {
+  formatDateYP,
+  formatCalculationNumber,
+  formatManagementCode,
+} from "../../../utils/reportFormatters";
 import "../../../styles/report.css";
 
 export default function SignboardReportContent({
@@ -17,12 +21,12 @@ export default function SignboardReportContent({
             {/* Header cover: management mark & calculation number */}
             <div className="flex justify-between">
               <p className="cover-row-1 ml-[10px] tracking-[0.05em]">
-                <span className="jp">管理記号:</span>
-                <span> {cover?.managementCode ?? ""}</span>
+                <span className="jp">管理記号 : </span>
+                <span>{formatManagementCode(cover?.managementCode)}</span>
               </p>
               <div className="cover-row-1 mr-[10px] flex justify-center items-center">
-                <span className="tracking-[0.05em] jp">計算書番号:</span>
-                <span> {cover?.calculationNumber ?? ""}</span>
+                <span className="tracking-[0.05em] jp">計算書番号 : </span>
+                <span>{formatCalculationNumber(cover?.calculationNumber)}</span>
               </div>
             </div>
 

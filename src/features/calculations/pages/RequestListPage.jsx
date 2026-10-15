@@ -256,9 +256,9 @@ export default function RequestListPage() {
 
   const optionsFor = (options) => [{ key: "all", label: "All" }, ...options];
 
-  // Prefix inside the trigger ("Line: All") — no separate label needed.
+  // Prefix inside the trigger ("Discipline: All") — no separate label needed.
   const quickFilters = [
-    { key: "line", prefix: "Line", options: optionsFor(LINES) },
+    // { key: "line", prefix: "Line", options: optionsFor(LINES) },
     {
       key: "work_type",
       prefix: "Discipline",
@@ -410,13 +410,13 @@ export default function RequestListPage() {
       td: () => "text-slate-600 whitespace-nowrap",
       render: (r) => r.requesterPicName,
     },
-    {
-      key: "line",
-      label: "Line",
-      th: "w-[1%]",
-      td: () => "whitespace-nowrap text-slate-700",
-      render: (r) => lineLabel(r.brandLine),
-    },
+    // {
+    //   key: "line",
+    //   label: "Line",
+    //   th: "w-[1%]",
+    //   td: () => "whitespace-nowrap text-slate-700",
+    //   render: (r) => lineLabel(r.brandLine),
+    // },
     {
       key: "requestType",
       label: "Request type",

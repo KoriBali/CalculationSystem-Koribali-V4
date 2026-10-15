@@ -1,5 +1,5 @@
-import React from "react";
-import { FileText, RotateCcw, ChevronRight } from "lucide-react";
+import React, { useEffect } from "react";
+import { FileText, FileEdit, RotateCcw, ChevronRight } from "lucide-react";
 import { useCoverForm } from "../../hooks/useCoverForm";
 import { useProjectIdentityForm } from "../../hooks/useProjectIdentityForm";
 import { useMasterData } from "../../hooks/useMasterData";
@@ -16,11 +16,36 @@ import { FormSelect } from "../../../../shared/components/FormSelect";
 const toCodeSelectOptions = (opts) =>
   opts.map((o) => ({ value: o.value, label: `${o.value} - ${o.label}` }));
 
-export function CoverFormModal({ open, onClose, projectType, onConfirm }) {
+export function CoverFormModal({
+  open,
+  onClose,
+  projectType,
+  onConfirm,
+  isEditMode = false,
+  submitText,
+  titleText,
+}) {
   const coverForm = useCoverForm(projectType);
+
+  useEffect(() => {
+    if (open) {
+      try {
+        const raw = sessionStorage.getItem(`${projectType}_cover`);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          coverForm.updateCover(parsed);
+        }
+      } catch (e) {
+        console.error("Failed to sync cover data:", e);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, projectType]);
+
   const {
     regionOptions,
     authorOptions,
+    departmentOptions,
     loading: masterDataLoading,
     error: masterDataError,
     refetch: refetchMasterData,
@@ -29,14 +54,29 @@ export function CoverFormModal({ open, onClose, projectType, onConfirm }) {
     masterDataError &&
     !masterDataLoading &&
     regionOptions.length === 0 &&
-    authorOptions.length === 0;
+    authorOptions.length === 0 &&
+    departmentOptions.length === 0;
 
   if (!open) return null;
 
   const handleGenerate = async () => {
     const isValid = await coverForm.validate();
     if (isValid) {
-      onConfirm();
+      const mgmtParts = [
+        coverData.region,
+        coverData.author,
+        coverData.responsibleDepartment,
+      ].filter(Boolean);
+      const computedMgmtCode =
+        mgmtParts.length > 0 ? mgmtParts.join(" ― ") : "";
+      const updatedCover = {
+        ...coverData,
+        managementCode: computedMgmtCode,
+        calculationNumber: coverData.reportNumber,
+      };
+      coverForm.updateCover(updatedCover);
+      sessionStorage.setItem(`${projectType}_cover`, JSON.stringify(updatedCover));
+      onConfirm(updatedCover);
     }
   };
 
@@ -46,9 +86,9 @@ export function CoverFormModal({ open, onClose, projectType, onConfirm }) {
       title1: "",
       title2: "",
       title3: "",
-      designRequestManagementNo: "",
       region: "",
       author: "",
+      responsibleDepartment: "",
     });
     coverForm.setCoverErrors({});
   };
@@ -66,21 +106,28 @@ export function CoverFormModal({ open, onClose, projectType, onConfirm }) {
         {/* Header */}
         <div className="bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] px-6 py-6 flex items-center justify-between shrink-0 rounded-t-2xl">
           <div className="flex items-center gap-2 text-white">
-            <FileText className="w-4.5 h-4.5" />
-            <h2 className="text-base font-bold">Report Cover Information</h2>
+            {isEditMode ? (
+              <FileEdit className="w-4.5 h-4.5" />
+            ) : (
+              <FileText className="w-4.5 h-4.5" />
+            )}
+            <h2 className="text-base font-bold">
+              {titleText || (isEditMode ? "Edit Report Cover Information" : "Report Cover Information")}
+            </h2>
           </div>
         </div>
 
         {/* Content */}
         <div className="p-6 overflow-y-auto">
           <p className="text-slate-600 mb-6 text-sm">
-            Please fill in the project details below. This information will be
-            used as the cover page for your generated report.
+            {isEditMode
+              ? "Update the project details below to refresh your report cover page."
+              : "Please fill in the project details below. This information will be used as the cover page for your generated report."}
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6 md:gap-y-8">
             {/* Report Number */}
-            <div className="relative">
+            <div className="relative md:col-span-2">
               <Label>Report Number</Label>
               <input
                 type="text"
@@ -92,24 +139,6 @@ export function CoverFormModal({ open, onClose, projectType, onConfirm }) {
               <ErrorStyle
                 show={coverErrors.reportNumber}
                 text={coverErrors.reportNumber}
-              />
-            </div>
-
-            {/* Design Request Management No */}
-            <div className="relative">
-              <Label>Design Request Management No.</Label>
-              <input
-                type="text"
-                value={coverData.designRequestManagementNo}
-                onChange={(e) =>
-                  updateCover({ designRequestManagementNo: e.target.value })
-                }
-                className={inputStyle(coverErrors.designRequestManagementNo)}
-                placeholder="Ex: DR-2023"
-              />
-              <ErrorStyle
-                show={coverErrors.designRequestManagementNo}
-                text={coverErrors.designRequestManagementNo}
               />
             </div>
 
@@ -164,7 +193,7 @@ export function CoverFormModal({ open, onClose, projectType, onConfirm }) {
               {masterDataFailed && (
                 <div className="flex items-center justify-between gap-3 mb-4 px-3 py-2 rounded-lg bg-red-50 border border-red-200">
                   <p className="text-xs sm:text-sm text-red-600">
-                    Failed to load Region / Author options.
+                    Failed to load Region / Author / Department options.
                   </p>
                   <button
                     type="button"
@@ -176,7 +205,7 @@ export function CoverFormModal({ open, onClose, projectType, onConfirm }) {
                 </div>
               )}
 
-              <div className="grid grid-cols-2 gap-4 border border-slate-200 p-5 rounded-xl bg-slate-50/50">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border border-slate-200 p-5 rounded-xl bg-slate-50/50">
                 {/* Region */}
                 <div className="relative">
                   <Label>Region</Label>
@@ -210,6 +239,28 @@ export function CoverFormModal({ open, onClose, projectType, onConfirm }) {
                   />
                   <ErrorStyle show={coverErrors.author} text={coverErrors.author} />
                 </div>
+
+                {/* Responsible Department */}
+                <div className="relative">
+                  <Label>Responsible Department</Label>
+                  <FormSelect
+                    value={coverData.responsibleDepartment}
+                    onChange={(val) =>
+                      updateCover({ responsibleDepartment: val })
+                    }
+                    options={toCodeSelectOptions(departmentOptions)}
+                    loading={masterDataLoading}
+                    disabled={masterDataFailed}
+                    hasError={!!coverErrors.responsibleDepartment}
+                    placeholder={
+                      masterDataFailed ? "Failed to load" : "Select Department"
+                    }
+                  />
+                  <ErrorStyle
+                    show={coverErrors.responsibleDepartment}
+                    text={coverErrors.responsibleDepartment}
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -233,9 +284,9 @@ export function CoverFormModal({ open, onClose, projectType, onConfirm }) {
             </button>
             <button
               onClick={handleGenerate}
-              className="w-full sm:w-auto flex justify-center items-center gap-2 px-6 py-2.5 rounded-lg font-medium text-sm bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm transition-all"
+              className="w-full sm:w-auto flex justify-center items-center gap-2 px-6 py-2.5 rounded-lg font-medium text-sm bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm transition-all cursor-pointer"
             >
-              Generate Report
+              {submitText || (isEditMode ? "Save Changes" : "Generate Report")}
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>

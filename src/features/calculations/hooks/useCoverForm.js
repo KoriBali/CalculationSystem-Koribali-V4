@@ -12,9 +12,9 @@ const DEFAULT_COVER = {
   title1: "",
   title2: "",
   title3: "",
-  designRequestManagementNo: "",
   region: "",
   author: "",
+  responsibleDepartment: "",
 };
 
 // ─── HOOK ────────────────────────────────────────────────────────────────────

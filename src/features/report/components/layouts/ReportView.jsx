@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import React, { useState, useRef, useEffect, useMemo, useCallback } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import LightingPoleReport from "../templates/lighting-pole/LightingPoleReport";
 import AcemastReport from "../templates/acemast/AcemastReport";
@@ -12,6 +12,7 @@ import {
   Download,
   Trash2,
   FileText,
+  FileEdit,
   AlertCircle,
   Calculator,
   Database,
@@ -19,29 +20,174 @@ import {
 import { EmptyReport } from "../../../../assets/icon";
 import { ConfirmSaveDatabaseModal } from "../../../calculations/components/modals/ConfirmSaveDatabaseModal";
 import { activeDraftRequestPath } from "../../../calculations/utils/requestCases";
+import { SchematicEditorModal } from "../../../calculations/components/schematic/SchematicEditorModal";
+import {
+  useSchematicBridge,
+  DEFAULT_SCHEMATIC_URL,
+} from "../../../calculations/hooks/useSchematicBridge";
+import { getStandardPoleSchematicParameters } from "../../../calculations/utils/standardPoleSchematicMapper";
+import { getDummyReportPayload } from "../../utils/dummyReportPayload";
+import {
+  getDraftData,
+  deserializeWorkingSession,
+  saveWorkingSessionToDraft,
+} from "../../../calculations/utils/coreLogic";
+import { CoverFormModal } from "../../../calculations/components/modals/CoverFormModal";
 
 // ─── COMPONENT ───────────────────────────────────────────────────────────────
 
 export function ReportView() {
   const navigate = useNavigate();
   const location = useLocation();
-  const projectType = sessionStorage.getItem("projectType");
+  const params = useParams();
+
+  const projectType =
+    params.type || sessionStorage.getItem("projectType") || "lighting-project";
+  const draftId =
+    params.draftId || sessionStorage.getItem(`${projectType}_active_draft_id`);
+
+  // If opened via /requests/:type/:draftId/report, ensure draft data is restored to session
+  useEffect(() => {
+    if (params.type && params.draftId) {
+      sessionStorage.setItem("projectType", params.type);
+      sessionStorage.setItem(`${params.type}_active_draft_id`, params.draftId);
+      const draftData = getDraftData(params.type, params.draftId);
+      if (draftData) {
+        deserializeWorkingSession(params.type, draftData);
+      }
+    }
+  }, [params.type, params.draftId]);
 
   // ── Load report data ──
-  // Prioritize route state (fresh navigation), fallback to sessionStorage snapshot (reload)
-  const reportData =
-    location.state ||
-    JSON.parse(
-      sessionStorage.getItem(`${projectType}_reportSnapshot`) || "null",
-    );
+  // Prioritize route state (fresh navigation), fallback to sessionStorage snapshot (reload),
+  // fallback to draft data snapshot, fallback to dummy simulation payload if no draftId specified.
+  const storedSnapshot = useMemo(() => {
+    try {
+      let snap = location.state || null;
+      if (!snap) {
+        const sessionSnap = sessionStorage.getItem(`${projectType}_reportSnapshot`);
+        if (sessionSnap) snap = JSON.parse(sessionSnap);
+      }
+      if (!snap && draftId) {
+        const draftData = getDraftData(projectType, draftId);
+        if (draftData?.reportSnapshot) {
+          snap =
+            typeof draftData.reportSnapshot === "string"
+              ? JSON.parse(draftData.reportSnapshot)
+              : draftData.reportSnapshot;
+        }
+      }
+      return snap;
+    } catch {
+      return location.state || null;
+    }
+  }, [location.state, projectType, draftId]);
 
-  // ── Destructure all fields from merged reportPayload ──
-  // results, resultsDo, resultsOhw, resultsArm already contain merged input + BE calculation
-  const results = reportData?.results || [];
-  const resultsDo = reportData?.resultsDo || [];
+  const reportData = useMemo(() => {
+    let storedPole = null;
+    try {
+      storedPole = JSON.parse(
+        sessionStorage.getItem(`${projectType}_taperPoleStandard`) || "null",
+      );
+    } catch {
+      storedPole = null;
+    }
+
+    if (storedSnapshot && storedSnapshot.results?.length > 0) {
+      // Check if user selected or changed the pole standard in the form
+      const isPoleChanged = Boolean(
+        storedPole?.poleType &&
+          (
+            storedSnapshot?.condition?.standardPoleType !== storedPole.poleType ||
+            storedSnapshot?.taperPoleStandard?.poleType !== storedPole.poleType ||
+            storedSnapshot?.taperPoleStandard?.groundPosition !== storedPole.groundPosition ||
+            String(storedSnapshot?.taperPoleStandard?.height || "") !== String(storedPole?.height || "")
+          )
+      );
+
+      const hasOldDummyCover = storedSnapshot.cover?.calculationNumber === "KB-2026-001";
+      if (isPoleChanged || hasOldDummyCover) {
+        const fresh = getDummyReportPayload(projectType, storedPole);
+        sessionStorage.setItem(`${projectType}_reportSnapshot`, JSON.stringify(fresh));
+        return fresh;
+      }
+      return storedSnapshot;
+    }
+
+    // If looking at a specific draft that hasn't calculated yet, return null (trigger empty state)
+    if (draftId) {
+      return null;
+    }
+
+    const fresh = getDummyReportPayload(projectType, storedPole);
+    sessionStorage.setItem(`${projectType}_reportSnapshot`, JSON.stringify(fresh));
+    return fresh;
+  }, [storedSnapshot, projectType, draftId]);
+
+  const isSimulation = Boolean(reportData?.isSimulation);
+
+  const num = (v, fallback = 0) => {
+    if (v === undefined || v === null || v === "") return fallback;
+    const n = Number(v);
+    return isNaN(n) ? fallback : n;
+  };
+
+  // ── Normalize results to ensure all numeric fields are numbers ──
+  const results = useMemo(() => {
+    return (reportData?.results || []).map((r, idx) => {
+      if (!r) return {};
+      return {
+        ...r,
+        lowerDiameter: num(r.lowerDiameter, 165),
+        upperDiameter: num(r.upperDiameter, 75),
+        lowerThickness: num(r.lowerThickness, 4),
+        upperThickness: num(r.upperThickness, 4),
+        sectionModulus: num(r.sectionModulus, 30),
+        sectionArea: num(r.sectionArea, 15),
+        crossSectionArea: num(r.crossSectionArea || r.sectionArea, 15),
+        momentInertia: num(r.momentInertia, 100),
+        radiusGyration: num(r.radiusGyration, 3.5),
+        fixLoad: num(r.fixLoad, 50),
+        zHeight: num(r.zHeight, 10000),
+        heightSection: num(r.heightSection, 1000),
+        fb: num(r.fb, 120),
+        stb: num(r.stb, 100),
+        sts: num(r.sts, 85),
+        stc: num(r.stc, 75),
+        bendingMoment: num(r.bendingMoment, 1200 * (idx + 1)),
+        shearStress: num(r.shearStress, 15),
+        bendingStress: num(r.bendingStress, 55),
+        combinedStress: num(r.combinedStress, 60),
+        safetyRatio: num(r.safetyRatio, 0.65),
+      };
+    });
+  }, [reportData]);
+
+  const resultsDo = useMemo(() => {
+    return (reportData?.resultsDo || []).map((d) => {
+      if (!d) return {};
+      return {
+        ...d,
+        weight: num(d.weight, 14),
+        fixLoad: num(d.fixLoad || d.weight, 14),
+        frontArea: num(d.frontArea, 0.1),
+        sideArea: num(d.sideArea, 0.1),
+        cf: num(d.cf, 1.1),
+        windLoadAreaFront: num(d.windLoadAreaFront, 60),
+        windLoadAreaSide: num(d.windLoadAreaSide, 40),
+        zHeight: num(d.zHeight, 10000),
+      };
+    });
+  }, [reportData]);
   const resultsOhw = reportData?.resultsOhw || [];
   const resultsArm = reportData?.resultsArm || [];
-  const cover = reportData?.cover || {};
+  const [editedCover, setEditedCover] = useState(null);
+  const [showEditCoverModal, setShowEditCoverModal] = useState(false);
+
+  const cover = useMemo(() => {
+    return editedCover || reportData?.cover || {};
+  }, [editedCover, reportData]);
+
   const condition = reportData?.condition || {};
   const poleConfig = reportData?.poleConfig || {};
 
@@ -53,30 +199,59 @@ export function ReportView() {
   // ── UI state ──
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showDbModal, setShowDbModal] = useState(false);
-  const [hasReport, setHasReport] = useState(
-    sessionStorage.getItem(`${projectType}_hasReport`) === "true",
-  );
+  const [hasReport, setHasReport] = useState(true);
 
   // ── Handlers ──
 
-  const onBackCalculation = () => {
-    if (!projectType) {
-      navigate("/requests");
-      return;
+  const handleSaveCover = (updatedCover) => {
+    setEditedCover(updatedCover);
+    sessionStorage.setItem(`${projectType}_cover`, JSON.stringify(updatedCover));
+
+    try {
+      const snap = JSON.parse(
+        sessionStorage.getItem(`${projectType}_reportSnapshot`) || "{}"
+      );
+      const updatedSnap = { ...snap, ...(reportData || {}), cover: updatedCover };
+      sessionStorage.setItem(
+        `${projectType}_reportSnapshot`,
+        JSON.stringify(updatedSnap)
+      );
+    } catch (e) {
+      console.error("Failed to update snapshot with cover:", e);
     }
 
-    const activeDraftId = sessionStorage.getItem(
-      `${projectType}_active_draft_id`,
-    );
-    navigate(
-      activeDraftId ? `/requests/${projectType}/${activeDraftId}` : "/requests",
-    );
+    if (draftId) {
+      saveWorkingSessionToDraft(projectType, draftId);
+    }
+    setShowEditCoverModal(false);
+  };
+
+  const onBackCalculation = () => {
+    if (projectType && draftId) {
+      navigate(`/requests/${projectType}/${draftId}/initial`);
+      return;
+    }
+    const backPath = activeDraftRequestPath(projectType);
+    if (backPath && backPath !== "/requests") {
+      navigate(backPath);
+      return;
+    }
+    navigate("/requests");
+  };
+
+  const onBackRequest = () => {
+    const backPath = activeDraftRequestPath(projectType);
+    if (backPath && backPath !== "/requests") {
+      navigate(backPath);
+      return;
+    }
+    navigate(`/requests/${projectType}`);
   };
 
   // Rename PDF filename via document.title (common browser workaround)
   const handlePrint = () => {
     const oldTitle = document.title;
-    document.title = cover?.calculationNumber || "Calculation Report";
+    document.title = cover?.calculationNumber || cover?.reportNumber || "Calculation Report";
     window.print();
     document.title = oldTitle;
   };
@@ -101,6 +276,89 @@ export function ReportView() {
     }, 2500);
   };
 
+  // ── Schematic setup (Standard Pole IA, IS, LA, LS, TA, TS) ──
+  const taperPoleStandard = useMemo(() => {
+    if (reportData?.taperPoleStandard) return reportData.taperPoleStandard;
+    try {
+      return (
+        JSON.parse(
+          sessionStorage.getItem(`${projectType}_taperPoleStandard`) || "null",
+        ) || {}
+      );
+    } catch {
+      return {};
+    }
+  }, [reportData, projectType]);
+
+  const schematicParams = useMemo(() => {
+    return getStandardPoleSchematicParameters({ taperPoleStandard, condition });
+  }, [taperPoleStandard, condition]);
+
+  const iframeRef = useRef(null);
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
+
+  const {
+    isReady,
+    isGenerating,
+    schematicData,
+    finalSvg,
+    sendParameters,
+    resetToDefault,
+    openEditor,
+  } = useSchematicBridge({
+    iframeRef,
+    schematicUrl: DEFAULT_SCHEMATIC_URL,
+    projectType,
+    onApplied: () => {
+      setIsEditorOpen(false);
+    },
+  });
+
+  const lastRequestedStandardIdRef = useRef("");
+  useEffect(() => {
+    if (!schematicParams || !isReady) return;
+    if (
+      schematicData?.generatedSvg &&
+      schematicData?.standardId === schematicParams.standardId
+    ) {
+      return;
+    }
+    const isStandardChanged = Boolean(
+      schematicData?.standardId &&
+      schematicData.standardId !== schematicParams.standardId
+    );
+    if (lastRequestedStandardIdRef.current === schematicParams.standardId) return;
+    lastRequestedStandardIdRef.current = schematicParams.standardId;
+
+    sendParameters(schematicParams.payload, {
+      standardId: schematicParams.standardId,
+      replaceManualEdit: isStandardChanged,
+    });
+  }, [isReady, schematicParams, schematicData, sendParameters]);
+
+  const handleEditSchematic = useCallback(() => {
+    setIsEditorOpen(true);
+    openEditor();
+  }, [openEditor]);
+
+  const handleRegenerateSchematic = useCallback(() => {
+    if (schematicParams) {
+      resetToDefault(schematicParams.payload, {
+        standardId: schematicParams.standardId,
+      });
+    }
+  }, [resetToDefault, schematicParams]);
+
+  const isMatchingSchematic =
+    schematicData?.standardId &&
+    schematicParams?.standardId &&
+    schematicData.standardId === schematicParams.standardId;
+
+  const reportSchematicSvg =
+    (isMatchingSchematic ? finalSvg : null) ||
+    finalSvg ||
+    reportData?.schematicSvg;
+
   // ── Render report by project type ──
   // Each template receives only the props it needs.
   // Optional sections (calculatedOp, etc.) are passed through — templates
@@ -114,6 +372,11 @@ export function ReportView() {
       resultsDo,
       resultsOhw,
       resultsArm,
+      schematicSvg: reportSchematicSvg,
+      isSchematicEdited: Boolean(schematicData?.editedSvg),
+      isSchematicGenerating: isGenerating,
+      onEditSchematic: handleEditSchematic,
+      onRegenerateSchematic: handleRegenerateSchematic,
     };
 
     switch (projectType) {
@@ -215,39 +478,69 @@ export function ReportView() {
       <div className="bg-white print:hidden sticky top-[64px] z-30 shadow-sm border-b border-[#0d3b66]">
         <div className="mx-auto px-6 py-4 hp:px-4 hp:py-2.5">
           <div className="flex items-center justify-between">
-            {/* Back */}
-            <button
-              onClick={onBackCalculation}
-              className="flex items-center gap-2 px-5 py-2.5 text-sm bg-white text-[#0d3b66] border border-[#0d3b66] rounded-lg hover:bg-blue-50 transition-colors hp:px-3 hp:py-2"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span className="hp:hidden">Back to Calculator</span>
-            </button>
+            {/* Back Buttons */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={onBackRequest}
+                className="flex items-center gap-1.5 px-4 py-2 text-sm bg-white text-slate-700 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors hp:px-3 hp:py-1.5 cursor-pointer"
+                title="Back to Request Detail"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span className="hp:hidden">Request Detail</span>
+              </button>
+
+              {draftId && (
+                <button
+                  onClick={onBackCalculation}
+                  className="flex items-center gap-1.5 px-4 py-2 text-sm bg-white text-[#0d3b66] border border-[#0d3b66] rounded-lg hover:bg-blue-50 transition-colors hp:px-3 hp:py-1.5 cursor-pointer"
+                  title="Back to Calculation Form"
+                >
+                  <Calculator className="w-4 h-4" />
+                  <span className="hp:hidden">Calculation</span>
+                </button>
+              )}
+            </div>
 
             {/* Actions */}
             <div className="flex items-center gap-3 hp:gap-2">
+              {/* Delete button hidden as requested */}
+              {false && (
+                <button
+                  onClick={() => setShowDeleteConfirm(true)}
+                  title="Delete Report"
+                  className="flex items-center gap-2 px-5 py-2.5 text-sm bg-white text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition-colors hp:px-3 hp:py-2 cursor-pointer"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span className="hp:hidden">Delete Report</span>
+                </button>
+              )}
+
+              {/* Edit Cover Information Button */}
               <button
-                onClick={() => setShowDeleteConfirm(true)}
-                title="Delete Report"
-                className="flex items-center gap-2 px-5 py-2.5 text-sm bg-white text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition-colors hp:px-3 hp:py-2"
+                onClick={() => setShowEditCoverModal(true)}
+                title="Edit Report Cover Information"
+                className="flex items-center gap-2 px-4 py-2.5 text-sm bg-white text-[#0d3b66] border border-[#0d3b66] rounded-lg hover:bg-blue-50 transition-all shadow-sm hp:px-3 hp:py-2 cursor-pointer font-medium"
               >
-                <Trash2 className="w-4 h-4" />
-                <span className="hp:hidden">Delete Report</span>
+                <FileEdit className="w-4 h-4 text-[#0d3b66]" />
+                <span className="hp:hidden">Edit Cover Information</span>
               </button>
 
-              <button
-                onClick={() => setShowDbModal(true)}
-                title="Save to Database"
-                className="flex items-center gap-2 px-5 py-2.5 text-sm bg-white text-[#3399cc] border border-[#3399cc] rounded-lg hover:bg-blue-50 transition-all shadow-sm hp:px-3 hp:py-2"
-              >
-                <Database className="w-4 h-4" />
-                <span className="hp:hidden">Save to Database</span>
-              </button>
+              {/* Save to Database — hidden for now, re-enable when ready */}
+              {false && (
+                <button
+                  onClick={() => setShowDbModal(true)}
+                  title="Save to Database"
+                  className="flex items-center gap-2 px-5 py-2.5 text-sm bg-white text-[#3399cc] border border-[#3399cc] rounded-lg hover:bg-blue-50 transition-all shadow-sm hp:px-3 hp:py-2"
+                >
+                  <Database className="w-4 h-4" />
+                  <span className="hp:hidden">Save to Database</span>
+                </button>
+              )}
 
               <button
                 onClick={handlePrint}
                 title="Export PDF"
-                className="flex items-center gap-2 px-5 py-2.5 text-sm bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white rounded-lg hover:brightness-110 transition-all shadow-sm hp:px-3 hp:py-2"
+                className="flex items-center gap-2 px-5 py-2.5 text-sm bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white rounded-lg hover:brightness-110 transition-all shadow-sm hp:px-3 hp:py-2 cursor-pointer"
               >
                 <Download className="w-4 h-4" />
                 <span className="hp:hidden">Export PDF</span>
@@ -256,6 +549,8 @@ export function ReportView() {
           </div>
         </div>
       </div>
+
+
 
       {/* Delete confirmation modal */}
       {showDeleteConfirm && (
@@ -300,6 +595,26 @@ export function ReportView() {
         open={showDbModal}
         onClose={() => setShowDbModal(false)}
         onConfirm={handleConfirmSaveDb}
+      />
+
+      {/* Schematic SVG-Edit Modal (Iframe always mounted & ready) */}
+      <SchematicEditorModal
+        isOpen={isEditorOpen}
+        onClose={() => setIsEditorOpen(false)}
+        iframeRef={iframeRef}
+        schematicUrl={DEFAULT_SCHEMATIC_URL}
+        onOpenEditor={openEditor}
+        onReset={handleRegenerateSchematic}
+        isEdited={Boolean(schematicData?.editedSvg)}
+      />
+
+      {/* Cover Form Modal for editing report cover information */}
+      <CoverFormModal
+        open={showEditCoverModal}
+        onClose={() => setShowEditCoverModal(false)}
+        projectType={projectType}
+        onConfirm={handleSaveCover}
+        isEditMode={true}
       />
     </div>
   );

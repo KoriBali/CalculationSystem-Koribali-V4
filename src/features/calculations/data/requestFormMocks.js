@@ -33,7 +33,7 @@ export const MOCK_COVER_EXTRACT = {
   projectName: "Yokohama Bay Street Light Pole",
   // Standard is picked from this project type's list at auto-fill time.
   standard: "",
-  windSpeed: "34",
+  windSpeed: "60",
   foundation: "Square",
   foundationWidth: "800",
   foundationLength: "800",

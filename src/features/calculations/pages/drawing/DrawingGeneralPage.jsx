@@ -8,6 +8,8 @@ import { CustomPoleModal } from "../../components/modals/CustomPoleModal";
 import { ConfirmDisableModal } from "../../components/modals/ConfirmDisableModal";
 import { useDrawingGeneralForm } from "../../hooks/useDrawingGeneralForm";
 
+import { requestPathForDraft } from "../../utils/requestCases";
+
 export default function DrawingGeneralPage() {
   const { type: projectType, draftId } = useParams();
   const navigate = useNavigate();
@@ -39,14 +41,7 @@ export default function DrawingGeneralPage() {
   };
 
   const onBackStep = () => {
-    const rawConfig = sessionStorage.getItem(`${projectType}_calculation_config`);
-    const config = rawConfig ? JSON.parse(rawConfig) : null;
-    
-    if (config?.foundation) navigate(`/requests/${projectType}/${draftId}/foundation`);
-    else if (config?.baseplate) navigate(`/requests/${projectType}/${draftId}/baseplate`);
-    else if (config?.opening) navigate(`/requests/${projectType}/${draftId}/opening`);
-    else if (config?.pole) navigate(`/requests/${projectType}/${draftId}/pole`);
-    else navigate(`/requests/${projectType}/${draftId}/calculation-condition`);
+    navigate(requestPathForDraft(draftId));
   };
 
   return (

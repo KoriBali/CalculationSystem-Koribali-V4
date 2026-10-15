@@ -501,8 +501,9 @@ function getDiagramLabels(poleType, groundPosition, height) {
   const dataHeight = layout.textsFromOnGL
     ? String(Math.round((Number(height) - UNDER_GL_DEPTH_MM / 1000) * 10) / 10)
     : height;
+  const dataTaper = STANDARD_POLE_DATA.tapered || STANDARD_POLE_DATA.taper;
   const entry =
-    STANDARD_POLE_DATA.taper?.[poleType]?.[dataGround]?.[dataHeight];
+    dataTaper?.[poleType]?.[dataGround]?.[dataHeight];
   const poles = entry?.poles;
   const arm = entry?.arms?.[0];
   const arm2 = entry?.arms?.[1];
@@ -794,13 +795,24 @@ export function TaperPoleStandardForm({
                 <button
                   key={option.id}
                   type="button"
-                  onClick={() =>
+                  onClick={() => {
+                    const nextGround = !isBaseplate
+                      ? "underGL"
+                      : taperPoleStandard.groundPosition || "onGL";
+                    const optList =
+                      heightOptionsByStandard[option.id]?.[nextGround] || [];
+                    const hasSameHeight = optList.some(
+                      (h) => h.id === taperPoleStandard.height,
+                    );
+                    const nextHeight = hasSameHeight
+                      ? taperPoleStandard.height
+                      : optList[0]?.id || "";
                     onUpdate({
                       poleType: option.id,
-                      groundPosition: !isBaseplate ? "underGL" : "",
-                      height: "",
-                    })
-                  }
+                      groundPosition: nextGround,
+                      height: nextHeight,
+                    });
+                  }}
                   className={`w-full rounded-lg hp:rounded-md border px-4 py-2 lg:py-2.5 text-xs md:text-sm font-medium transition-all text-left
                   ${
                     isActive
@@ -848,7 +860,20 @@ export function TaperPoleStandardForm({
                       disabled={isGroundDisabled}
                       onClick={() => {
                         if (isGroundDisabled) return;
-                        onUpdate({ groundPosition: option.id, height: "" });
+                        const optList =
+                          heightOptionsByStandard[taperPoleStandard.poleType]?.[
+                            option.id
+                          ] || [];
+                        const hasSameHeight = optList.some(
+                          (h) => h.id === taperPoleStandard.height,
+                        );
+                        const nextHeight = hasSameHeight
+                          ? taperPoleStandard.height
+                          : optList[0]?.id || "";
+                        onUpdate({
+                          groundPosition: option.id,
+                          height: nextHeight,
+                        });
                       }}
                       className={`
                       flex items-center gap-2

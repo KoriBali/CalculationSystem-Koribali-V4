@@ -15,6 +15,7 @@ import { CoverFormModal } from "../../modals/CoverFormModal";
 import {
   saveWorkingSessionToDraft,
   clearActiveDraftId,
+  hasCoverData,
 } from "../../../utils/coreLogic";
 import { clearCalculationSession } from "../../../utils";
 
@@ -78,9 +79,25 @@ export default function BaseplateFormView() {
     }
   };
 
-  const handleConfirmCover = () => {
-    setShowCoverModal(false);
-    makeReport({ isCalculated, showToast });
+  const handleConfirmCover = async (overrideCover) => {
+    const success = await makeReport({
+      isCalculated,
+      showToast,
+      coverOverride: overrideCover,
+      draftIdOverride: draftId,
+    });
+    if (success) {
+      setShowCoverModal(false);
+    }
+  };
+
+  const handleGenerateReportClick = () => {
+    setShowFinishModal(false);
+    if (hasCoverData(projectType)) {
+      handleConfirmCover();
+    } else {
+      setShowCoverModal(true);
+    }
   };
 
   const handleSaveDraft = () => {
@@ -228,10 +245,7 @@ export default function BaseplateFormView() {
         onClose={() => setShowFinishModal(false)}
         onSaveDraft={handleSaveDraft}
         onSaveDatabase={handleSaveDatabaseClick}
-        onGenerateReport={() => {
-          setShowFinishModal(false);
-          setShowCoverModal(true);
-        }}
+        onGenerateReport={handleGenerateReportClick}
       />
       <ConfirmSaveDatabaseModal
         open={showDbModal}

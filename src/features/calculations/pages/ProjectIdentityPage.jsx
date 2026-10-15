@@ -30,8 +30,8 @@ export default function ProjectIdentityPage() {
     if (mode === "drawing") {
       navigate(`/requests/${projectType}/${draftId}/drawing`);
     } else {
-      // Both 'calculation' and 'both' start at the calculation condition
-      navigate(`/requests/${projectType}/${draftId}/calculation-condition`);
+      // Both 'calculation' and 'both' start at the initial step
+      navigate(`/requests/${projectType}/${draftId}/initial`);
     }
   };
 

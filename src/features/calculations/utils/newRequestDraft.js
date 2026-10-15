@@ -14,7 +14,7 @@ let coverFileInMemory = null;
 // What a fresh form starts with. Saved drafts are merged over this, so a
 // field added later simply starts empty in an older draft.
 const freshForm = () => ({
-  coverType: null,
+  coverType: "ys",
   yp: YP_EMPTY,
   ys: YS_EMPTY,
   requestNotes: { yp: "", ys: "" },

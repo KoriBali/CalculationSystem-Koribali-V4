@@ -45,8 +45,9 @@ const resolveData = ({
       ? (Number(taperPoleStandard.height) + 0.3).toFixed(1)
       : taperPoleStandard.height;
 
+    const dataTaper = STANDARD_POLE_DATA?.tapered || STANDARD_POLE_DATA?.taper;
     const selectedPole =
-      STANDARD_POLE_DATA?.taper?.[taperPoleStandard.poleType]?.[
+      dataTaper?.[taperPoleStandard.poleType]?.[
         taperPoleStandard.groundPosition
       ]?.[heightKey];
 

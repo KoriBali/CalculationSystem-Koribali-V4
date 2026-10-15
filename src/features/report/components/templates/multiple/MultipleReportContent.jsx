@@ -2,7 +2,10 @@ import React from "react";
 import {
   formatDateYP,
   getDesignStandardTextMultiple,
+  formatCalculationNumber,
+  formatManagementCode,
 } from "../../../utils/reportFormatters";
+import { SchematicReportPage } from "../../pages/SchematicReportPage";
 import "../../../styles/report.css";
 
 export default function MultipleReportContent({
@@ -10,6 +13,11 @@ export default function MultipleReportContent({
   condition = {},
   results = [],
   pages = [],
+  schematicSvg = null,
+  isSchematicEdited = false,
+  isSchematicGenerating = false,
+  onEditSchematic = null,
+  onRegenerateSchematic = null,
 }) {
   return (
     <>
@@ -20,12 +28,12 @@ export default function MultipleReportContent({
             {/* Header cover: management mark & calculation number */}
             <div className="flex justify-between">
               <p className="cover-row-1 ml-[10px] tracking-[0.05em]">
-                <span className="jp">管理記号:</span>
-                <span> {cover?.managementCode ?? ""}</span>
+                <span className="jp">管理記号 : </span>
+                <span>{formatManagementCode(cover?.managementCode)}</span>
               </p>
               <div className="cover-row-1 mr-[10px] flex justify-center items-center">
-                <span className="tracking-[0.05em] jp">計算書番号:</span>
-                <span> {cover?.calculationNumber ?? ""}</span>
+                <span className="tracking-[0.05em] jp">計算書番号 : </span>
+                <span>{formatCalculationNumber(cover?.calculationNumber)}</span>
               </div>
             </div>
 
@@ -320,11 +328,24 @@ export default function MultipleReportContent({
         </div>
       </div>
 
+      {/* ============================= PAGE 2 (SCHEMATIC) ============================= */}
+      {schematicSvg && (
+        <SchematicReportPage
+          svg={schematicSvg}
+          calculationNumber={cover?.calculationNumber ?? ""}
+          pageNumber={2}
+          onEdit={onEditSchematic}
+          onRegenerate={onRegenerateSchematic}
+          isEdited={isSchematicEdited}
+          isGenerating={isSchematicGenerating}
+        />
+      )}
+
       {/* =================================== PAGE 2 =================================== */}
       <div className="page-preview">
         <div className="page-a4">
           <div className="page-header">
-            No. {cover?.calculationNumber ?? ""} P-2
+            No. {cover?.calculationNumber ?? ""} P-{schematicSvg ? 3 : 2}
           </div>
 
           <div className="page1-content">
@@ -830,7 +851,7 @@ export default function MultipleReportContent({
         <div className="page-preview" key={i}>
           <div className="page-a4">
             <div className="page-header">
-              No. {cover?.calculationNumber ?? ""} P-{i + 3}
+              No. {cover?.calculationNumber ?? ""} P-{i + (schematicSvg ? 4 : 3)}
             </div>
             <div className="page1-content">{pageBlocks}</div>
           </div>

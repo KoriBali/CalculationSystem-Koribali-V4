@@ -10,6 +10,11 @@ export default function LightingPoleReport({
   poleConfig,
   results,
   resultsDo,
+  schematicSvg,
+  isSchematicEdited,
+  isSchematicGenerating,
+  onEditSchematic,
+  onRegenerateSchematic,
 }) {
   // 1. blocks memo
   const blocks = useMemo(
@@ -57,6 +62,11 @@ export default function LightingPoleReport({
       condition={condition}
       results={results}
       pages={pages}
+      schematicSvg={schematicSvg}
+      isSchematicEdited={isSchematicEdited}
+      isSchematicGenerating={isSchematicGenerating}
+      onEditSchematic={onEditSchematic}
+      onRegenerateSchematic={onRegenerateSchematic}
     />
   );
 }

@@ -18,7 +18,30 @@ const fileBlobs = new Map();
 
 const readAll = () => {
   try {
-    return JSON.parse(sessionStorage.getItem(STORAGE_KEY)) ?? {};
+    const raw = JSON.parse(sessionStorage.getItem(STORAGE_KEY)) ?? {};
+    let changed = false;
+    for (const key of Object.keys(raw)) {
+      const item = raw[key];
+      if (item) {
+        if (item.fields && (item.fields.windSpeed === "34" || !item.fields.windSpeed)) {
+          item.fields.windSpeed = "60";
+          changed = true;
+        }
+        if (!item.designConditions || typeof item.designConditions.isSaved !== "boolean") {
+          item.designConditions = {
+            standard: "",
+            airDensity: "",
+            windSpeed: "",
+            isSaved: false,
+          };
+          changed = true;
+        }
+      }
+    }
+    if (changed) {
+      writeAll(raw);
+    }
+    return raw;
   } catch {
     return {};
   }
@@ -53,7 +76,7 @@ const mockToRecord = (mock) => {
           requestType: mock.requestType || "general",
           receptionNo: mock.receiptNo || "R-2609-001",
           pic: mock.requesterPicName || "Tanaka",
-          standard: "v60",
+          standard: "jil",
           windSpeed: "60",
           airDensity: "1.23",
         }
@@ -66,7 +89,7 @@ const mockToRecord = (mock) => {
           requestDate: mock.requestDate || "2026-10-01",
           dueDate: mock.dueDate || "2026-10-20",
           requestType: mock.requestType || "general",
-          standard: "v60",
+          standard: "jil",
           windSpeed: "60",
           airDensity: "1.23",
         };
@@ -136,10 +159,10 @@ const mockToRecord = (mock) => {
     createdAt: mock.createdAt || new Date().toISOString(),
     createdBy: mock.createdByName || "Bintarjo Agus Priyadi",
     designConditions: {
-      standard: "v60",
-      airDensity: "1.23",
-      windSpeed: "60",
-      reasonForChange: "",
+      standard: "",
+      airDensity: "",
+      windSpeed: "",
+      isSaved: false,
     },
   };
 };
@@ -173,6 +196,12 @@ export const createRequest = (data) => {
     cases: [],
     files: {},
     createdAt: new Date().toISOString(),
+    designConditions: data?.designConditions || {
+      standard: "",
+      airDensity: "",
+      windSpeed: "",
+      isSaved: false,
+    },
     ...data,
   };
   writeAll({ ...readAll(), [request.id]: request });

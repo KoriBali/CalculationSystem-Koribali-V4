@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate, Outlet } from "react-router-dom";
+import { Eye } from "lucide-react";
 
 import { MobileSidebar, DesktopSidebar } from "./Sidebar";
 import { Header } from "./Header";
@@ -85,6 +86,12 @@ export default function Layout() {
     !["new", "detail"].includes(pathParts[1]) &&
     pathParts[2];
   const draftCase = draftId ? findRequestOfCase(draftId) : null;
+  const isReadOnlyCase = Boolean(
+    draftCase &&
+      (sessionStorage.getItem("case_read_only") === "true" ||
+        (draftCase.case?.owner &&
+          draftCase.case.owner !== (userData?.name || "Rani Putri"))),
+  );
 
   let currentTitle;
   if (requestDetailId) {
@@ -138,8 +145,11 @@ export default function Layout() {
         location.pathname.includes(`/drawing/${k}`),
       );
       substage = drawingMatch ? drawingSegments[drawingMatch] : "Drawing";
-    } else if (location.pathname.includes("/calculation-condition")) {
-      substage = "Calculation Condition";
+    } else if (
+      location.pathname.includes("/initial") ||
+      location.pathname.includes("/calculation-condition")
+    ) {
+      substage = "Initial";
     } else if (location.pathname.includes("/pole")) {
       substage = "Pole";
     } else if (location.pathname.includes("/opening")) {
@@ -161,11 +171,11 @@ export default function Layout() {
       ? {
           global: requestNoOf(draftCase.request) || "Request",
           stage: `Case ${draftCase.case.no}`,
-          substage: substage ?? "Project Setup",
+          substage: substage ?? "Initial",
         }
       : {
           global: formattedProjectType,
-          stage: "Project Setup",
+          stage: "Initial",
           substage,
         };
   } else {
@@ -245,7 +255,15 @@ export default function Layout() {
     }
     const parts = location.pathname.split("/").filter(Boolean);
     if (parts[0] === "requests" && parts[1] && parts[2]) {
-      navigate(`/requests/${parts[1]}/${parts[2]}`);
+      const ptype = parts[1];
+      const draftId = parts[2];
+      const rawWorkflow = sessionStorage.getItem(`${ptype}_workflow`);
+      const workflow = rawWorkflow ? JSON.parse(rawWorkflow) : {};
+      const target =
+        workflow.projectMode === "drawing"
+          ? `/requests/${ptype}/${draftId}/drawing/drawing-setup`
+          : `/requests/${ptype}/${draftId}/initial`;
+      navigate(target);
     }
   };
 
@@ -414,6 +432,29 @@ export default function Layout() {
             setShowLogoutModal(true);
           }}
         />
+
+        {/* Read-Only Notice Banner */}
+        {isReadOnlyCase && (
+          <div className="bg-amber-50/95 border-b border-amber-200 px-4 py-2.5 sm:px-8 flex items-center justify-between gap-3 text-xs sm:text-sm text-amber-900 shadow-xs animate-in fade-in slide-in-from-top-1 duration-200">
+            <div className="flex items-center gap-2 min-w-0">
+              <Eye className="w-4 h-4 text-amber-600 shrink-0" />
+              <span className="truncate">
+                <span className="font-semibold">Read-Only Mode:</span> This case is assigned to{" "}
+                <span className="font-semibold text-amber-950 underline decoration-amber-300">
+                  {draftCase?.case?.owner || "another member"}
+                </span>
+                . You are viewing in read-only mode to prevent edit conflicts.
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={handleProjectCrumbClick}
+              className="shrink-0 inline-flex items-center gap-1 px-3 py-1 rounded-md text-xs font-medium bg-amber-100 hover:bg-amber-200 text-amber-800 border border-amber-200/80 transition-colors"
+            >
+              Back to Request
+            </button>
+          </div>
+        )}
 
         {/* Page content */}
         <main className="flex-1 p-4 lg:p-8">

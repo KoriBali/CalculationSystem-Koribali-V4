@@ -1,3 +1,5 @@
+import React from "react";
+
 // Function to convert a "YYYY-MM-DD" date string into Japanese format "YYYY年M月D日"
 export const formatDateYS = (dateString) => {
   if (!dateString) return "";
@@ -59,6 +61,38 @@ export const getDesignStandardText = (value) => {
     default:
       return "";
   }
+};
+
+// Formats calculation number as "No. {number}" (e.g. "No. 12345")
+export const formatCalculationNumber = (num) => {
+  if (!num) return "";
+  const trimmed = String(num).trim();
+  if (/^no\.?\s*/i.test(trimmed)) {
+    return trimmed.replace(/^no\.?\s*/i, "No. ");
+  }
+  return `No. ${trimmed}`;
+};
+
+// Formats management mark: e.g. "A - V - R" -> letters in .latin, dash "―" in .jp
+export const formatManagementCode = (code) => {
+  if (!code) return "";
+  const parts = String(code)
+    .split(/\s*[―\-－–—]\s*/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+
+  if (parts.length === 0) return "";
+
+  return (
+    <>
+      {parts.map((part, index) => (
+        <React.Fragment key={index}>
+          {index > 0 && <span className="jp"> ― </span>}
+          <span className="latin">{part}</span>
+        </React.Fragment>
+      ))}
+    </>
+  );
 };
 
 export const getDesignStandardTextMultiple = (value) => {

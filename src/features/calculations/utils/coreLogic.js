@@ -60,6 +60,7 @@ export const DATA_KEYS = [
   "drawing_coupling_completed",
   "drawing_surface",
   "drawing_coupling_confirmed",
+  "schematic_data",
 ];
 
 /**
@@ -107,6 +108,23 @@ export const hasCalculationData = (projectType) => {
   return deepKeys.some(
     (key) => sessionStorage.getItem(`${projectType}_${key}`) !== null,
   );
+};
+
+/**
+ * Checks whether the user has already filled in the report cover information for this projectType.
+ */
+export const hasCoverData = (projectType) => {
+  try {
+    const raw = sessionStorage.getItem(`${projectType}_cover`);
+    if (!raw) return false;
+    const data = JSON.parse(raw);
+    return Boolean(
+      data &&
+      (data.reportNumber?.trim() || data.calculationNumber?.trim() || data.title1?.trim())
+    );
+  } catch {
+    return false;
+  }
 };
 
 export const isProjectComplete = (projectType) => {
@@ -210,6 +228,9 @@ export const deserializeWorkingSession = (projectType, draftData) => {
 
 // Saves the current working session to a specific draft ID
 export const saveWorkingSessionToDraft = (projectType, draftId, defaultTitle = "Untitled") => {
+  if (sessionStorage.getItem("case_read_only") === "true") {
+    return null;
+  }
   const data = serializeWorkingSession(projectType);
   
   // Extract title/subtitle/details from identity data if available
@@ -283,6 +304,9 @@ export const deleteDraft = (projectType, draftId) => {
 // this ensures the unsaved changes are preserved in that draft before loading a new one.
 
 export const hasDraftChanged = (projectType, draftId) => {
+  if (sessionStorage.getItem("case_read_only") === "true") {
+    return false;
+  }
   const currentSession = serializeWorkingSession(projectType);
   const savedDraft = getDraftData(projectType, draftId);
   

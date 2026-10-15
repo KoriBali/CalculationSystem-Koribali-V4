@@ -31,7 +31,7 @@ export function CoverForm({
   const nextStepLabel =
     projectMode === "drawing"
       ? "Next: Drawing Setup"
-      : "Next: Calculation Condition";
+      : "Next: Initial";
 
   return (
     <div className="relative">

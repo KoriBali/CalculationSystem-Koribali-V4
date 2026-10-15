@@ -5,12 +5,13 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { ArrowLeft, SearchX } from "lucide-react";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import InitialAssignment from "../components/requests/InitialAssignment";
 import { RequestCases } from "../components/requests/detail/RequestCases";
 import { RequestFiles } from "../components/requests/detail/RequestFiles";
 import { RequestSummary } from "../components/requests/detail/RequestSummary";
 import { DesignConditionsSection } from "../components/requests/detail/DesignConditionsSection";
+import { ToastModal } from "../components/modals/ToastModal";
 import {
   SectionCard,
   SectionTitle,
@@ -25,6 +26,7 @@ import { MOCK_WORKERS } from "../data/requestFormMocks";
 import { fileRecord, forgetFileBlob } from "../data/requestStore";
 import { useRequestRecord } from "../hooks/useRequestRecord";
 import { createCase } from "../utils/requestCases";
+import { deserializeWorkingSession } from "../utils/coreLogic";
 import { getUser } from "../../../utils/auth";
 import { Check, X } from "lucide-react";
 
@@ -71,12 +73,39 @@ export default function RequestDetailPage() {
   const { requestId } = useParams();
   const [request, update] = useRequestRecord(requestId);
   const [toastMessage, setToastMessage] = useState(null);
+  const [toastModal, setToastModal] = useState(null);
+  const designConditionsRef = useRef(null);
 
   const showToast = (msg) => {
     setToastMessage(msg);
     setTimeout(() => {
       setToastMessage((prev) => (prev === msg ? null : prev));
     }, 3000);
+  };
+
+  const handleBeforeAddCase = () => {
+    if (designConditionsRef.current) {
+      const { isValid, firstMsg } =
+        designConditionsRef.current.triggerValidation();
+      if (!isValid) {
+        if (firstMsg) {
+          setToastModal({ message: firstMsg });
+        }
+        const section = document.getElementById("design-conditions-section");
+        if (section) {
+          section.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+        return false;
+      }
+    } else if (!request.designConditions?.isSaved) {
+      setToastModal({ message: "Design Standard is required" });
+      const section = document.getElementById("design-conditions-section");
+      if (section) {
+        section.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+      return false;
+    }
+    return true;
   };
 
   if (!request) return <NotFound onBack={() => navigate("/requests")} />;
@@ -89,7 +118,11 @@ export default function RequestDetailPage() {
   const handleAddCase = (workType, details = {}) => {
     let createdId = null;
     update((r) => {
-      const newCase = createCase(r, workType, details);
+      const newCase = createCase(r, workType, {
+        ...details,
+        owner: details.owner || me,
+        createdBy: me,
+      });
       createdId = newCase.id;
       return {
         ...r,
@@ -104,7 +137,14 @@ export default function RequestDetailPage() {
     update((r) => ({
       ...r,
       cases: (r.cases || []).map((c) =>
-        c.id === caseId ? { ...c, ...updates, lastEdited: new Date().toISOString() } : c,
+        c.id === caseId
+          ? {
+              ...c,
+              ...updates,
+              lastEdited: updates.lastEdited || new Date().toISOString(),
+              lastEditedBy: updates.lastEditedBy || me,
+            }
+          : c,
       ),
     }));
   };
@@ -119,38 +159,128 @@ export default function RequestDetailPage() {
 
   // Open Case draft
   const handleOpenCase = (c) => {
+    if (!request.designConditions?.isSaved) {
+      setToastMessage("Please configure and save Design Conditions before opening a calculation case.");
+      return;
+    }
     sessionStorage.setItem("projectType", request.projectType);
     const isOwner = c.owner === me;
-    if (!isOwner) {
+    if (isOwner) {
+      sessionStorage.removeItem("case_read_only");
+    } else {
+      sessionStorage.setItem("case_read_only", "true");
+    }
+
+    // Ensure draft data in sessionStorage contains designConditions and poleType
+    const draftKey = `${request.projectType}_draft_data_${c.id}`;
+    const rawDraft = sessionStorage.getItem(draftKey);
+    let draftObj = null;
+    if (rawDraft) {
+      try {
+        draftObj = JSON.parse(rawDraft);
+      } catch {
+        draftObj = null;
+      }
+    }
+    const designConditions = request.designConditions || {};
+    const poleKind = c.poleKind || (request.projectType === "lighting-project" ? "standard" : "custom");
+    const isStandard = poleKind === "standard";
+
+    if (!draftObj) {
+      const initialCondition = {
+        designStandard: designConditions.standard || "jil",
+        designWindSpeed: designConditions.windSpeed || "60",
+        designAirDensity: designConditions.airDensity || "1.23",
+        poleType: poleKind,
+        openingEnabled: isStandard ? true : false,
+        baseplateEnabled: isStandard ? true : false,
+        foundationEnabled: false,
+      };
+      const initialDrawingGeneral = {
+        drawingType: c.drawingType || (c.workType === "drawing" ? "Approval" : ""),
+        drawingNumber: "",
+        partNumber: "",
+        openingDirection: "",
+        lightingCompanyName: "",
+        poleType: isStandard ? "Standard Pole" : "Custom Pole",
+        additionalComponents: {
+          opening: isStandard ? true : false,
+          baseplate: isStandard ? true : false,
+          foundation: false,
+        },
+        useCoupling: null,
+      };
       sessionStorage.setItem(
-        "case_read_only",
-        JSON.stringify({ isReadOnly: true, ownerName: c.owner || "Colleague" }),
+        draftKey,
+        JSON.stringify({
+          workflow: JSON.stringify({
+            projectMode: c.workType === "drawing" ? "drawing" : "calculation",
+            withReport: false,
+          }),
+          projectIdentity: JSON.stringify({
+            projectName: request.fields?.projectName || "",
+            subject: request.fields?.subject || "",
+          }),
+          condition: JSON.stringify(initialCondition),
+          drawing_general: JSON.stringify(initialDrawingGeneral),
+        }),
       );
     } else {
-      sessionStorage.removeItem("case_read_only");
+      try {
+        const curCond = draftObj.condition ? JSON.parse(draftObj.condition) : {};
+        curCond.designStandard = curCond.designStandard || designConditions.standard || "jil";
+        curCond.designWindSpeed = curCond.designWindSpeed || designConditions.windSpeed || "60";
+        curCond.designAirDensity = curCond.designAirDensity || designConditions.airDensity || "1.23";
+        curCond.poleType = curCond.poleType || poleKind;
+        if (curCond.poleType === "standard") {
+          curCond.openingEnabled = true;
+          curCond.baseplateEnabled = true;
+        }
+        draftObj.condition = JSON.stringify(curCond);
+        sessionStorage.setItem(draftKey, JSON.stringify(draftObj));
+      } catch {
+        // ignore
+      }
     }
-    navigate(`/requests/${request.projectType}/${c.id}`);
+
+    const targetPath =
+      c.workType === "drawing"
+        ? `/requests/${request.projectType}/${c.id}/drawing/drawing-setup`
+        : `/requests/${request.projectType}/${c.id}/initial`;
+    navigate(targetPath);
+  };
+
+  const handleViewCaseReport = (c) => {
+    sessionStorage.setItem("projectType", request.projectType);
+    sessionStorage.setItem(`${request.projectType}_active_draft_id`, c.id);
+    const draftKey = `${request.projectType}_draft_data_${c.id}`;
+    const rawDraft = sessionStorage.getItem(draftKey);
+    if (rawDraft) {
+      try {
+        const draftObj = JSON.parse(rawDraft);
+        deserializeWorkingSession(request.projectType, draftObj);
+      } catch (err) {
+        console.error("Failed to deserialize draft for report:", err);
+      }
+    }
+    navigate(`/requests/${request.projectType}/${c.id}/report`);
   };
 
   // Save Design Conditions handler
   const handleSaveDesignConditions = (conditions) => {
-    update((r) => {
-      const updatedNote = conditions.reasonForChange
-        ? `${r.note ? r.note + "\n" : ""}[${new Date().toLocaleDateString()} Design condition updated]: ${conditions.reasonForChange}`
-        : r.note;
-
-      return {
-        ...r,
-        designConditions: conditions,
-        note: updatedNote,
-        fields: {
-          ...(r.fields || {}),
-          standard: conditions.standard,
-          airDensity: conditions.airDensity,
-          windSpeed: conditions.windSpeed,
-        },
-      };
-    });
+    update((r) => ({
+      ...r,
+      designConditions: {
+        ...conditions,
+        isSaved: true,
+      },
+      fields: {
+        ...(r.fields || {}),
+        standard: conditions.standard,
+        airDensity: conditions.airDensity,
+        windSpeed: conditions.windSpeed,
+      },
+    }));
   };
 
   const uploadFiles = (tabKey, files) =>
@@ -179,7 +309,7 @@ export default function RequestDetailPage() {
   const hasCalc = Boolean(request.workTypes?.calc);
 
   const chips = [
-    labelOf(COVER_TYPE_OPTIONS, request.coverType, "id"),
+    request.coverType !== "yp" && labelOf(COVER_TYPE_OPTIONS, request.coverType, "id"),
     projectTypeLabel(request.projectType),
     [
       request.workTypes?.calc && "Calculation",
@@ -196,8 +326,8 @@ export default function RequestDetailPage() {
         <title>{requestNo || "Request"} - KORI BALI</title>
       </Helmet>
 
-      {/* ── Toast notification banner ── */}
-      {toastMessage && (
+      {/* ── Toast notification banner (Temporarily hidden as requested) ── */}
+      {/* {toastMessage && (
         <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-3 rounded-xl bg-slate-900 text-white text-xs sm:text-sm font-medium shadow-2xl border border-slate-700 animate-in fade-in slide-in-from-bottom-3 duration-200">
           <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
             <Check className="w-3.5 h-3.5" />
@@ -211,7 +341,7 @@ export default function RequestDetailPage() {
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
-      )}
+      )} */}
 
       <div className="flex-1 rounded-t-2xl hp:rounded-t-xl bg-gray-50">
         {/* ── Header: same blue card and width as the New Request form ── */}
@@ -258,13 +388,19 @@ export default function RequestDetailPage() {
 
           {/* ── Section 1: Design Conditions (Only if calculation is on) ── */}
           {hasCalc && (
-            <div>
-              <SectionTitle>Design Conditions</SectionTitle>
-              <DesignConditionsSection
-                request={request}
-                onSave={handleSaveDesignConditions}
-                onToast={showToast}
-              />
+            <div id="design-conditions-section">
+              <SectionTitle>
+                Design Conditions for Calculation Cases
+              </SectionTitle>
+              <SectionCard>
+                <DesignConditionsSection
+                  ref={designConditionsRef}
+                  request={request}
+                  onSave={handleSaveDesignConditions}
+                  onToast={showToast}
+                  onShowToastModal={(msg) => setToastModal({ message: msg })}
+                />
+              </SectionCard>
             </div>
           )}
 
@@ -293,7 +429,9 @@ export default function RequestDetailPage() {
                 onUpdateCase={handleUpdateCase}
                 onDeleteCase={handleDeleteCase}
                 onOpenCase={handleOpenCase}
+                onViewReport={handleViewCaseReport}
                 onToast={showToast}
+                onBeforeAddCase={handleBeforeAddCase}
               />
             </SectionCard>
           </div>
@@ -311,6 +449,9 @@ export default function RequestDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Toast Modal (Warning Alert Popup like in Gambar 2) */}
+      <ToastModal toast={toastModal} onClose={() => setToastModal(null)} />
     </div>
   );
 }

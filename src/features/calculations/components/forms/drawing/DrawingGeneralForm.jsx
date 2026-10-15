@@ -10,7 +10,6 @@ import {
 import { useState } from "react";
 import { BaseplateIcon } from "../../../../../assets/icon";
 import { useMasterData } from "../../../hooks/useMasterData";
-import { poleTypeOptions } from "../../../constants/poleTypeOptions";
 import { couplingUsageOptions } from "../../../constants/couplingUsageOptions";
 import { DRAWING_TYPE_OPTIONS } from "../../../constants/drawingTypeOptions";
 import { FormSelect } from "../../../../../shared/components/FormSelect";
@@ -273,95 +272,59 @@ export function DrawingGeneralForm({
         </div>
 
         {projectMode === "drawing" && (
-          <>
-            {/* ── Select Pole Type ── */}
-            <div>
-              <SectionTitle>Pole Type</SectionTitle>
-              <SectionCard>
-                <div id="poleType" className="relative pb-2">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {poleTypeOptions.map((option) => (
-                      <CardOption
-                        key={option.id}
-                        label={option.title}
-                        desc={option.desc}
-                        icon={option.icon}
-                        value={option.title}
-                        current={general.poleType}
-                        onChange={(val) => {
-                          onUpdate({
-                            poleType: val,
-                            ...(option.id === "standard" && {
-                              additionalComponents: {
-                                ...(general.additionalComponents || {}),
-                                opening: true,
-                              },
-                            }),
-                          });
-                        }}
-                      />
-                    ))}
-                  </div>
-                  <ErrorStyle show={errors.poleType} text={errors.poleType} />
-                </div>
-              </SectionCard>
-            </div>
-
-            {/* ── Additional Component ── */}
-            <div>
-              <SectionTitle>Additional Components</SectionTitle>
-              <SectionCard>
-                <div className="grid xl:grid-cols-3 gap-6">
-                  <ToggleCard
-                    label="Opening"
-                    icon={<DoorOpen size={16} />}
-                    enabled={general.additionalComponents?.opening || false}
-                    disabled={general.poleType === "Standard Pole"}
-                    onToggle={() =>
-                      onUpdate({
-                        additionalComponents: {
-                          ...(general.additionalComponents || {}),
-                          opening: !(
-                            general.additionalComponents?.opening || false
-                          ),
-                        },
-                      })
-                    }
-                  />
-                  <ToggleCard
-                    label="Baseplate"
-                    icon={<BaseplateIcon size={18} />}
-                    enabled={general.additionalComponents?.baseplate || false}
-                    onToggle={() =>
-                      onUpdate({
-                        additionalComponents: {
-                          ...(general.additionalComponents || {}),
-                          baseplate: !(
-                            general.additionalComponents?.baseplate || false
-                          ),
-                        },
-                      })
-                    }
-                  />
-                  <ToggleCard
-                    label="Foundation"
-                    icon={<Layers size={16} />}
-                    enabled={general.additionalComponents?.foundation || false}
-                    onToggle={() =>
-                      onUpdate({
-                        additionalComponents: {
-                          ...(general.additionalComponents || {}),
-                          foundation: !(
-                            general.additionalComponents?.foundation || false
-                          ),
-                        },
-                      })
-                    }
-                  />
-                </div>
-              </SectionCard>
-            </div>
-          </>
+          <div>
+            <SectionTitle>Additional Components</SectionTitle>
+            <SectionCard>
+              <div className="grid xl:grid-cols-3 gap-6">
+                <ToggleCard
+                  label="Opening"
+                  icon={<DoorOpen size={16} />}
+                  enabled={general.additionalComponents?.opening || false}
+                  disabled={general.poleType === "Standard Pole"}
+                  onToggle={() =>
+                    onUpdate({
+                      additionalComponents: {
+                        ...(general.additionalComponents || {}),
+                        opening: !(
+                          general.additionalComponents?.opening || false
+                        ),
+                      },
+                    })
+                  }
+                />
+                <ToggleCard
+                  label="Baseplate"
+                  icon={<BaseplateIcon size={18} />}
+                  enabled={general.additionalComponents?.baseplate || false}
+                  onToggle={() =>
+                    onUpdate({
+                      additionalComponents: {
+                        ...(general.additionalComponents || {}),
+                        baseplate: !(
+                          general.additionalComponents?.baseplate || false
+                        ),
+                      },
+                    })
+                  }
+                />
+                <ToggleCard
+                  label="Foundation"
+                  icon={<Layers size={16} />}
+                  enabled={general.additionalComponents?.foundation || false}
+                  onToggle={() =>
+                    onUpdate({
+                      additionalComponents: {
+                        ...(general.additionalComponents || {}),
+                        foundation: !(
+                          general.additionalComponents?.foundation || false
+                        ),
+                      },
+                    })
+                  }
+                />
+              </div>
+            </SectionCard>
+          </div>
         )}
 
         {/* ── Coupling Configuration ── */}
@@ -398,7 +361,7 @@ export function DrawingGeneralForm({
             className="flex items-center gap-2 px-5 py-2.5 md:px-6 rounded-lg hp:rounded-md bg-white text-slate-600 font-medium text-xs md:text-sm hover:bg-slate-50 hover:text-[#0d3b66] transition-colors border border-slate-300"
           >
             <ChevronLeft className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-            <span className="hidden sm:inline">Back to Calculation</span>
+            <span className="hidden sm:inline">Back to Request</span>
             <span className="sm:hidden">Back</span>
           </button>
 

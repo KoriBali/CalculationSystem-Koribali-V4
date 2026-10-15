@@ -158,11 +158,57 @@ export default function NewRequestFormPage() {
         docNoTouched: true,
       };
     }
-    return loadNewRequestDraft(projectType);
+
+    const defaultStandard = standardOptions[0]?.value || "jil";
+    const defaultExtract = {
+      ...MOCK_COVER_EXTRACT,
+      deliveryQty: "1",
+      standard: defaultStandard,
+      windSpeed: "60",
+      coatingType: "",
+    };
+    const { discipline: defaultDiscipline, ...defaultFields } = defaultExtract;
+
+    const saved = loadNewRequestDraft(projectType);
+
+    // If draft is fresh, not populated, or has windSpeed not 60, initialize with default auto-filled data
+    if (
+      !saved ||
+      !saved.coverType ||
+      saved.coverType === "yp" ||
+      !saved.ys?.projectName ||
+      saved.ys?.windSpeed !== "60"
+    ) {
+      return {
+        coverType: "ys",
+        coverFile: null,
+        lostCover: null,
+        ys: {
+          ...YS_EMPTY,
+          ...defaultFields,
+          windSpeed: "60",
+        },
+        yp: YP_EMPTY,
+        requestNotes: { yp: "", ys: "" },
+        autoFillStatus: "done",
+        extracted: defaultExtract,
+        workTypes: workTypesFrom(defaultDiscipline || "both"),
+        showDesignRef: true,
+        docNoTouched: true,
+      };
+    }
+
+    return {
+      ...saved,
+      coverType: "ys",
+      ys: {
+        ...saved.ys,
+        windSpeed: "60",
+      },
+    };
   });
-  // No default: the cover type decides the whole form, so the user picks it.
-  // null until then — everything below Cover Type stays hidden.
-  const [coverType, setCoverType] = useState(initial.coverType);
+  // Auto-select YS cover type
+  const [coverType, setCoverType] = useState(initial.coverType || "ys");
   // Cover PDF picked for auto-fill. Extraction is simulated on the FE
   // (MOCK_COVER_EXTRACT) until the BE endpoint exists.
   const [coverFile, setCoverFile] = useState(initial.coverFile);
@@ -626,13 +672,20 @@ export default function NewRequestFormPage() {
 
     // On to the new request's page (summary, assignment, cases, files).
     // The cover PDF goes with it, into Brief & References.
+    const activeFields = { yp, ys }[coverType];
     const request = createRequest({
       projectType,
       coverType,
-      fields: { yp, ys }[coverType],
+      fields: activeFields,
       workTypes,
       note: requestNotes[coverType],
       members: [creatorMember()],
+      designConditions: {
+        standard: "",
+        airDensity: "",
+        windSpeed: "",
+        isSaved: false,
+      },
       files:
         isYs && coverFile
           ? { brief: [fileRecord(coverFile, creatorMember().name)] }
@@ -731,80 +784,74 @@ export default function NewRequestFormPage() {
             />
 
             <div key={formKey} className="p-4 md:p-6 space-y-4 md:space-y-6">
-              {/* ── Cover Type ──────────────────────────────────────── */}
-              <div>
-                <SectionTitle tag="Required" required>
-                  Cover Type
-                </SectionTitle>
-                <SectionCard>
-                  {/* Same radio-card style as the Taper / Straight pole picker.
-                      Stays 50/50 full width at every size: it switches the
-                      whole form, and sits with full-width neighbours (the
-                      info box, Cover Upload). */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {COVER_TYPE_OPTIONS.map((option) => {
-                      const Icon = option.icon;
-                      const isActive = coverType === option.id;
+              {/* ── Cover Type (Hidden per user request) ──────────────── */}
+              {false && (
+                <div>
+                  <SectionTitle tag="Required" required>
+                    Cover Type
+                  </SectionTitle>
+                  <SectionCard>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {COVER_TYPE_OPTIONS.filter((option) => option.id !== "yp").map((option) => {
+                        const Icon = option.icon;
+                        const isActive = coverType === option.id;
 
-                      return (
-                        <button
-                          key={option.id}
-                          type="button"
-                          onClick={() => selectCoverType(option.id)}
-                          className={`group w-full flex items-center justify-between px-3 xl:px-4 py-2 lg:py-3 rounded-lg hp:rounded-md border text-left transition-all duration-300 cursor-pointer active:scale-[0.98]
-                            ${
-                              isActive
-                                ? "border-blue-500 bg-blue-50 shadow-sm ring-1 ring-blue-50"
-                                : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
-                            }`}
-                        >
-                          <div className="flex items-center gap-3 min-w-0">
-                            <div
-                              className={`p-1.5 rounded-md shrink-0 ${isActive ? "bg-blue-100 text-blue-600" : "bg-slate-100 text-slate-500"}`}
-                            >
-                              <Icon size={16} />
-                            </div>
-                            <div className="min-w-0">
-                              <p
-                                className={`text-[12px] md:text-sm font-medium ${isActive ? "text-slate-900" : "text-slate-700"}`}
+                        return (
+                          <button
+                            key={option.id}
+                            type="button"
+                            onClick={() => selectCoverType(option.id)}
+                            className={`group w-full flex items-center justify-between px-3 xl:px-4 py-2 lg:py-3 rounded-lg hp:rounded-md border text-left transition-all duration-300 cursor-pointer active:scale-[0.98]
+                              ${
+                                isActive
+                                  ? "border-blue-500 bg-blue-50 shadow-sm ring-1 ring-blue-50"
+                                  : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+                              }`}
+                          >
+                            <div className="flex items-center gap-3 min-w-0">
+                              <div
+                                className={`p-1.5 rounded-md shrink-0 ${isActive ? "bg-blue-100 text-blue-600" : "bg-slate-100 text-slate-500"}`}
                               >
-                                {option.label}
-                              </p>
-                              <p
-                                lang="ja"
-                                className="text-[10px] md:text-[11px] text-slate-500 truncate"
-                              >
-                                {option.docTitle}
-                              </p>
+                                <Icon size={16} />
+                              </div>
+                              <div className="min-w-0">
+                                <p
+                                  className={`text-[12px] md:text-sm font-medium ${isActive ? "text-slate-900" : "text-slate-700"}`}
+                                >
+                                  {option.label}
+                                </p>
+                                <p
+                                  lang="ja"
+                                  className="text-[10px] md:text-[11px] text-slate-500 truncate"
+                                >
+                                  {option.docTitle}
+                                </p>
+                              </div>
                             </div>
-                          </div>
-                          <div className="shrink-0 ml-2 flex items-center">
-                            {isActive ? (
-                              <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-blue-500" />
-                            ) : (
-                              <Circle className="w-4 h-4 md:w-5 md:h-5 text-slate-300 group-hover:text-slate-400" />
-                            )}
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                  {/* Grey info-box style used across this form. */}
-                  <div className="mt-3 flex items-start gap-2 bg-gray-50 border border-gray-200 rounded-lg hp:rounded-md px-4 py-2.5 text-xs md:text-sm text-gray-500">
-                    <Info className="w-4 h-4 shrink-0 mt-0.5 text-gray-400" />
-                    {coverType
-                      ? "The request fields below and the brand line follow the cover type you select."
-                      : "Select the cover type to show the request fields."}
-                  </div>
-                </SectionCard>
-              </div>
+                            <div className="shrink-0 ml-2 flex items-center">
+                              {isActive ? (
+                                <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-blue-500" />
+                              ) : (
+                                <Circle className="w-4 h-4 md:w-5 md:h-5 text-slate-300 group-hover:text-slate-400" />
+                              )}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {/* Grey info-box style used across this form. */}
+                    <div className="mt-3 flex items-start gap-2 bg-gray-50 border border-gray-200 rounded-lg hp:rounded-md px-4 py-2.5 text-xs md:text-sm text-gray-500">
+                      <Info className="w-4 h-4 shrink-0 mt-0.5 text-gray-400" />
+                      <span>
+                        The request fields below follow the Yamada Shomei (YS) cover specifications.
+                      </span>
+                    </div>
+                  </SectionCard>
+                </div>
+              )}
 
-              {/* ── Cover Upload ────────────────────────────────────── */}
-              {/* Only for auto-filling the fields below from the cover; the
-                  request's reference files live on the request detail page.
-                  Optional: every field can still be typed by hand.
-                  YS only — auto-fill for YP covers isn't ready yet. */}
-              {coverType === "ys" && (
+              {/* ── Cover Upload (Hidden per user request) ── */}
+              {false && coverType === "ys" && (
                 <div>
                   <SectionTitle tag="Optional">Cover Upload</SectionTitle>
                   <SectionCard>

@@ -9,6 +9,7 @@ import {
 import { executePoleCalculation } from "../logic/pole/poleCalculation";
 import { scrollToFirstError, scrollToFirstNestedError } from "../utils/scrollToError";
 import { notifyCalculationProgressChanged } from "../utils/calculationProgressEvent";
+import { saveWorkingSessionToDraft } from "../utils/coreLogic";
 import * as Utils from "../utils";
 
 // Orchestrates pole calculation — validates, calls API, maps errors back to UI
@@ -408,14 +409,23 @@ export function usePoleCalculation({
       cover,
       condition,
       poleConfig: poleConfigForm.poleConfig,
+      taperPoleStandard: poleStandardForm.taperPoleStandard,
+      straightPoleStandard: poleStandardForm.straightPoleStandard,
     };
 
+    sessionStorage.setItem(`${projectType}_hasReport`, "true");
     sessionStorage.setItem(
       `${projectType}_reportSnapshot`,
       JSON.stringify(reportPayload),
     );
 
-    navigate("/report", { state: reportPayload });
+    const activeDraft = draftId || sessionStorage.getItem(`${projectType}_active_draft_id`);
+    if (activeDraft) {
+      saveWorkingSessionToDraft(projectType, activeDraft);
+      navigate(`/requests/${projectType}/${activeDraft}/report`, { state: reportPayload });
+    } else {
+      navigate(`/requests/${projectType}`, { state: reportPayload });
+    }
   };
 
   // ── Finish ──

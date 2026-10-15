@@ -64,12 +64,41 @@ export const createCase = (request, workType, options = {}) => {
     projectMode: CASE_WORK_TYPES[workType].projectMode,
     withReport: false,
   };
+  const designConditions = request.designConditions || {};
+  const poleKind = options.poleKind || (request.projectType === "lighting-project" ? "standard" : "custom");
+  const isStandard = poleKind === "standard";
+  const initialCondition = {
+    designStandard: designConditions.standard || "",
+    designWindSpeed: designConditions.windSpeed || "",
+    designAirDensity: designConditions.airDensity || "",
+    poleType: poleKind,
+    openingEnabled: isStandard ? true : false,
+    baseplateEnabled: isStandard ? true : false,
+    foundationEnabled: false,
+  };
+  const initialDrawingGeneral = {
+    drawingType: options.drawingType || (workType === "drawing" ? "Approval" : ""),
+    drawingNumber: "",
+    partNumber: "",
+    openingDirection: "",
+    lightingCompanyName: "",
+    poleType: isStandard ? "Standard Pole" : "Custom Pole",
+    additionalComponents: {
+      opening: isStandard ? true : false,
+      baseplate: isStandard ? true : false,
+      foundation: false,
+    },
+    useCoupling: null,
+  };
+
   // Draft data keeps each value as its raw stored (JSON) string.
   sessionStorage.setItem(
     `${request.projectType}_draft_data_${id}`,
     JSON.stringify({
       workflow: JSON.stringify(workflow),
       projectIdentity: JSON.stringify(setupIdentityFrom(request)),
+      condition: JSON.stringify(initialCondition),
+      drawing_general: JSON.stringify(initialDrawingGeneral),
     }),
   );
   const nextNo = nextCaseNo(request.cases || []);
@@ -88,6 +117,7 @@ export const createCase = (request, workType, options = {}) => {
       options.drawingType || (workType === "drawing" ? "Approval" : ""),
     workType,
     owner: options.owner || request.createdBy || "Unassigned",
+    createdBy: options.createdBy || options.owner || request.createdBy || "Unassigned",
     status: options.status || "Not started",
     createdAt: new Date().toISOString(),
     lastEdited: null,

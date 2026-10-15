@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { saveWorkingSessionToDraft } from "../../calculations/utils/coreLogic";
 
 // ─── HOOK ────────────────────────────────────────────────────────────────────
 
@@ -141,20 +142,41 @@ export function useReport(projectType) {
   const makeReport = async ({
     isCalculated,
     showToast,
-  }) => {
+    coverOverride = null,
+    draftIdOverride = null,
+  } = {}) => {
     // Pole calculation must have been run
     if (!isCalculated) {
-      showToast("Please calculate first.");
-      return;
+      if (showToast) showToast("Please calculate first.");
+      return false;
     }
+
+    // Read live condition at call time to ensure accurate step flags
+    const liveCondition = read("condition", {}) || {};
+    const { openingEnabled, baseplateEnabled, foundationEnabled } = liveCondition;
 
     // Read all results from sessionStorage at call time
     const results = read("results", []);
     const resultsDo = read("resultsDo", []);
     const resultsOhw = read("resultsOhw", []);
     const resultsArm = read("resultsArm", []);
-    const poleConfig = read("poleConfig", {});
-    const cover = read("cover", {});
+    const rawCover = coverOverride || read("cover", {}) || {};
+    const mgmtParts = [
+      rawCover?.region,
+      rawCover?.author,
+      rawCover?.responsibleDepartment,
+    ].filter(Boolean);
+    const computedMgmtCode =
+      mgmtParts.length > 0
+        ? mgmtParts.join(" ― ")
+        : rawCover?.managementCode
+          ? String(rawCover.managementCode).replace(/\s*-\s*/g, " ― ")
+          : "";
+    const cover = {
+      ...rawCover,
+      managementCode: computedMgmtCode,
+      calculationNumber: rawCover?.reportNumber || rawCover?.calculationNumber || "",
+    };
 
     // Read calculated results for optional steps
     const calculatedOp = read("calculatedOp", {});
@@ -169,8 +191,10 @@ export function useReport(projectType) {
       calculatedFoundation,
       showToast,
     );
-    if (!isResultsValid) return;
+    if (!isResultsValid) return false;
 
+    // Read poleConfig from storage
+    const poleConfig = read("poleConfig", {}) || {};
 
     // Build report payload
     const reportPayload = {
@@ -179,8 +203,10 @@ export function useReport(projectType) {
       resultsOhw,
       resultsArm,
       cover,
-      condition,
+      condition: liveCondition,
       poleConfig,
+      taperPoleStandard: read("taperPoleStandard", null),
+      straightPoleStandard: read("straightPoleStandard", null),
       ...(openingEnabled && {
         calculatedOp: mergeOpening(
           read("openingType", {}),
@@ -205,16 +231,28 @@ export function useReport(projectType) {
           calculatedFoundation,
         ),
       }),
+      schematicSvg: (() => {
+        const data = read("schematic_data", null);
+        return data?.editedSvg || data?.generatedSvg || null;
+      })(),
     };
 
     // Persist snapshot so report page can access it on reload
+    sessionStorage.setItem(`${projectType}_hasReport`, "true");
     sessionStorage.setItem(
       `${projectType}_reportSnapshot`,
       JSON.stringify(reportPayload),
     );
+    sessionStorage.setItem(`${projectType}_cover`, JSON.stringify(cover));
 
-    // Navigate to report page with payload as route state
-    navigate("/report", { state: reportPayload });
+    const activeDraftId = draftIdOverride || sessionStorage.getItem(`${projectType}_active_draft_id`);
+    if (activeDraftId) {
+      saveWorkingSessionToDraft(projectType, activeDraftId);
+      navigate(`/requests/${projectType}/${activeDraftId}/report`, { state: reportPayload });
+    } else {
+      navigate(`/requests/${projectType}`, { state: reportPayload });
+    }
+    return true;
   };
 
   return { makeReport };

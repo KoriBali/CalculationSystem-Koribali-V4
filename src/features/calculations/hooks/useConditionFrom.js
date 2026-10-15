@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { validateCondition } from "../logic/initial-setup/conditionValidation";
@@ -18,9 +18,9 @@ const getDefaultCondition = (projectType) => ({
   designStandard: "",
   designWindSpeed: "",
   designAirDensity: "",
-  poleType: projectType === "lighting-project" ? "" : "custom",
-  openingEnabled: false,
-  baseplateEnabled: false,
+  poleType: projectType === "lighting-project" ? "standard" : "custom",
+  openingEnabled: projectType === "lighting-project",
+  baseplateEnabled: projectType === "lighting-project",
   foundationEnabled: false,
 });
 
@@ -38,11 +38,36 @@ export function useConditionForm() {
   );
 
   // Local draft — tidak langsung persist, hanya commit saat proceed
-  const [localCondition, setLocalCondition] = useState(condition);
+  const [localCondition, setLocalCondition] = useState(() => {
+    if (condition?.poleType === "standard") {
+      return {
+        ...condition,
+        openingEnabled: true,
+        baseplateEnabled: true,
+      };
+    }
+    return condition;
+  });
   const [prevCondition, setPrevCondition] = useState(condition);
   const [errors, setErrors] = useState({});
   const [toast, setToast] = useState(null);
   const [confirmDisable, setConfirmDisable] = useState(null);
+
+  // Auto-enable opening and baseplate if poleType is standard
+  useEffect(() => {
+    if (condition?.poleType === "standard" && (!condition.openingEnabled || !condition.baseplateEnabled)) {
+      setLocalCondition((prev) => ({
+        ...prev,
+        openingEnabled: true,
+        baseplateEnabled: true,
+      }));
+      setCondition((prev) => ({
+        ...prev,
+        openingEnabled: true,
+        baseplateEnabled: true,
+      }));
+    }
+  }, [condition?.poleType]);
 
   // Update local draft + auto-fill defaults + clear related errors
   const handleUpdate = (updates) => {

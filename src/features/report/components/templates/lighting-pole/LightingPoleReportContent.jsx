@@ -2,14 +2,28 @@ import React from "react";
 import {
   formatDateYS,
   getDesignStandardText,
+  formatCalculationNumber,
+  formatManagementCode,
 } from "../../../utils/reportFormatters";
+import { SchematicReportPage } from "../../pages/SchematicReportPage";
 import "../../../styles/report.css";
+
+const toNumFixed = (val, digits = 1) => {
+  if (val === undefined || val === null || val === "") return "";
+  const n = Number(val);
+  return isNaN(n) ? "" : n.toFixed(digits);
+};
 
 export default function LightingPoleReportContent({
   cover = {},
   condition = {},
   results = [],
   pages = [],
+  schematicSvg = null,
+  isSchematicEdited = false,
+  isSchematicGenerating = false,
+  onEditSchematic = null,
+  onRegenerateSchematic = null,
 }) {
   return (
     <>
@@ -20,12 +34,12 @@ export default function LightingPoleReportContent({
             {/* Header cover: management mark & calculation number */}
             <div className="flex justify-between">
               <p className="cover-row-1 ml-[10px] tracking-[0.1em]">
-                <span className="jp">管理記号:</span>
-                <span> {cover?.managementCode ?? ""}</span>
+                <span className="jp">管理記号 : </span>
+                <span>{formatManagementCode(cover?.managementCode)}</span>
               </p>
               <div className="cover-row-1 mr-[10px] flex justify-center items-center">
-                <span className="tracking-[0.1em] jp">計算書番号:</span>
-                <span> {cover?.calculationNumber ?? ""}</span>
+                <span className="tracking-[0.1em] jp">計算書番号 : </span>
+                <span>{formatCalculationNumber(cover?.calculationNumber)}</span>
               </div>
             </div>
 
@@ -196,11 +210,11 @@ export default function LightingPoleReportContent({
                         </span>
                         <span className="jp">φ</span>
                         <span className="tracking-[0.05em]">
-                          {r?.lowerDiameter?.toFixed(1) ?? ""}
+                          {toNumFixed(r?.lowerDiameter, 1)}
                         </span>
                         <span className="text-[10.5pt] mx-[1.5px]">×</span>
                         <span className="tracking-[0.05em]">
-                          t{r?.lowerThickness?.toFixed(1) ?? ""}
+                          t{toNumFixed(r?.lowerThickness, 1)}
                         </span>
                       </div>
                       <div className="flex justify-start">
@@ -216,13 +230,13 @@ export default function LightingPoleReportContent({
                         </div>
                         <div className="flex flex-col">
                           <div className="tracking-[0.05em]">
-                            {r?.fixLoad?.toFixed(2) ?? ""} kg/m
+                            {toNumFixed(r?.fixLoad, 2)} kg/m
                           </div>
                           <div className="tracking-[0.05em]">
-                            {r?.momentInertia?.toFixed(2) ?? ""} cm<sup>4</sup>
+                            {toNumFixed(r?.momentInertia, 2)} cm<sup>4</sup>
                           </div>
                           <div className="tracking-[0.05em]">
-                            {r?.radiusGyration?.toFixed(2) ?? ""} cm
+                            {toNumFixed(r?.radiusGyration, 2)} cm
                           </div>
                         </div>
                       </div>
@@ -240,11 +254,11 @@ export default function LightingPoleReportContent({
                         </div>
                         <div className="flex flex-col">
                           <div className="tracking-[0.05em]">
-                            {r?.crossSectionArea?.toFixed(2) ?? ""} cm
+                            {toNumFixed(r?.crossSectionArea ?? r?.sectionArea, 2)} cm
                             <sup>2</sup>
                           </div>
                           <div className="tracking-[0.05em]">
-                            {r?.sectionModulus?.toFixed(2) ?? ""} cm<sup>3</sup>
+                            {toNumFixed(r?.sectionModulus, 2)} cm<sup>3</sup>
                           </div>
                         </div>
                       </div>
@@ -257,12 +271,25 @@ export default function LightingPoleReportContent({
         </div>
       </div>
 
+      {/* ============================= PAGE 2 (SCHEMATIC) ============================= */}
+      {schematicSvg && (
+        <SchematicReportPage
+          svg={schematicSvg}
+          calculationNumber={cover?.calculationNumber ?? ""}
+          pageNumber={2}
+          onEdit={onEditSchematic}
+          onRegenerate={onRegenerateSchematic}
+          isEdited={isSchematicEdited}
+          isGenerating={isSchematicGenerating}
+        />
+      )}
+
       {/* =================================== PAGE ++ =================================== */}
       {pages?.map((pageBlocks, i) => (
         <div className="page-preview" key={i}>
           <div className="page-a4">
             <div className="page-header">
-              No. {cover?.calculationNumber ?? ""} P-{i + 2}
+              No. {cover?.calculationNumber ?? ""} P-{i + (schematicSvg ? 3 : 2)}
             </div>
             <div className="page1-content">{pageBlocks}</div>
           </div>

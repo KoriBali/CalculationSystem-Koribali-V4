@@ -1,331 +1,413 @@
-import { useState, useMemo } from "react";
-import { Edit3, AlertTriangle, Check, Info, ArrowRight } from "lucide-react";
+import {
+  useState,
+  useMemo,
+  useEffect,
+  forwardRef,
+  useImperativeHandle,
+} from "react";
+import { Edit3, Info } from "lucide-react";
 import { designStandardOptions } from "../../../constants/designStandards";
+import { FormSelect } from "../../../../../shared/components/FormSelect";
 
-const STANDARD_REFERENCES = {
-  v60: "Wind speed 60 m/s · Air density 1.23 N·sec²/m⁴",
-  jil: "Wind speed 60 m/s · Air density 1.23 N·sec²/m⁴",
-  act: "Air density 1.23 N·sec²/m⁴ · Wind speed per regional building code",
-  tower: "Air density 1.23 N·sec²/m⁴ · Wind speed based on tower specifications",
-  haiden: "Air density 1.23 N·sec²/m⁴ · Wind speed per Haiden utility guideline",
-  signboard: "Air density 1.23 N·sec²/m⁴ · Wind speed per structure location criteria",
-};
+const inputStyle = (hasError = false) =>
+  `w-full px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border
+  ${
+    hasError
+      ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
+      : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
+  }`;
 
-export function DesignConditionsSection({
-  request,
-  onSave, // (updatedConditions, reason) => void
-  onToast, // (message) => void
-}) {
-  const [isEditing, setIsEditing] = useState(false);
+// Renders a red error message below an invalid field (matching Gambar 3)
+const ErrorStyle = ({ show, text }) =>
+  show ? (
+    <div className="flex items-center gap-1 text-[11px] text-red-500 mt-1 font-medium">
+      <span>*{text}</span>
+    </div>
+  ) : null;
 
-  // Standard options for this request's project pole type
-  const activeOptions = useMemo(
-    () => designStandardOptions[request.projectType] || [],
-    [request.projectType],
-  );
+export const DesignConditionsSection = forwardRef(
+  function DesignConditionsSection(
+    {
+      request,
+      onSave, // (updatedConditions) => void
+      onToast, // (message) => void
+      onShowToastModal, // (message) => void
+    },
+    ref,
+  ) {
+    // Check if conditions have been manually saved by user
+    const isSaved = Boolean(request.designConditions?.isSaved);
 
-  // Saved / current conditions
-  const currentStandard =
-    request.designConditions?.standard ||
-    request.fields?.standard ||
-    activeOptions[0]?.value ||
-    "";
-  const currentAirDensity =
-    request.designConditions?.airDensity ??
-    request.fields?.airDensity ??
-    "1.23";
-  const currentWindSpeed =
-    request.designConditions?.windSpeed ??
-    request.fields?.windSpeed ??
-    "";
+    const [isEditing, setIsEditing] = useState(!isSaved);
+    const [errors, setErrors] = useState({});
 
-  // Form states in edit mode
-  const [standard, setStandard] = useState(currentStandard);
-  const [airDensity, setAirDensity] = useState(currentAirDensity);
-  const [windSpeed, setWindSpeed] = useState(currentWindSpeed);
-  const [reason, setReason] = useState("");
+    // Sync edit mode if isSaved status changes
+    useEffect(() => {
+      if (!isSaved) {
+        setIsEditing(true);
+      }
+    }, [isSaved]);
 
-  const handleStartEdit = () => {
-    setStandard(currentStandard);
-    setAirDensity(currentAirDensity);
-    setWindSpeed(currentWindSpeed);
-    setReason("");
-    setIsEditing(true);
-  };
+    // Standard options for this request's project pole type
+    const activeOptions = useMemo(
+      () => designStandardOptions[request.projectType] || [],
+      [request.projectType],
+    );
 
-  const handleCancel = () => {
-    setStandard(currentStandard);
-    setAirDensity(currentAirDensity);
-    setWindSpeed(currentWindSpeed);
-    setReason("");
-    setIsEditing(false);
-  };
+    // Reference values from cover information
+    const rawStandard = request.fields?.standard;
+    const coverStandardCode =
+      (rawStandard === "v60" && request.projectType === "lighting-project") || !rawStandard
+        ? "jil"
+        : rawStandard;
 
-  const isDirty =
-    standard !== currentStandard ||
-    String(airDensity) !== String(currentAirDensity) ||
-    String(windSpeed) !== String(currentWindSpeed) ||
-    reason.trim() !== "";
+    const coverStandardLabel =
+      activeOptions.find((o) => o.value?.toLowerCase() === coverStandardCode?.toLowerCase())?.label ||
+      (coverStandardCode?.toLowerCase() === "jil" ? "JIL" : coverStandardCode?.toUpperCase() || "JIL");
 
-  const isValid =
-    standard.trim() !== "" &&
-    String(airDensity).trim() !== "" &&
-    !isNaN(Number(airDensity)) &&
-    Number(airDensity) > 0;
+    const coverWindSpeed = request.fields?.windSpeed || "60";
+    const coverAirDensity = request.fields?.airDensity || "1.23";
 
-  const canSave = isDirty && isValid;
+    // Saved / current conditions
+    const currentStandard = request.designConditions?.standard || "";
+    const currentAirDensity = request.designConditions?.airDensity || "";
+    const currentWindSpeed = request.designConditions?.windSpeed || "";
 
-  const handleSave = (e) => {
-    e?.preventDefault();
-    if (!canSave) return;
+    // Form states in edit mode
+    const [standard, setStandard] = useState(currentStandard);
+    const [airDensity, setAirDensity] = useState(currentAirDensity);
+    const [windSpeed, setWindSpeed] = useState(currentWindSpeed);
 
-    onSave({
-      standard,
-      airDensity: String(airDensity),
-      windSpeed: windSpeed ? String(windSpeed) : "",
-      reasonForChange: reason.trim(),
-    });
+    // Expose triggerValidation so that clicking "Add Case" validates this section
+    useImperativeHandle(ref, () => ({
+      triggerValidation: () => {
+        setIsEditing(true);
+        const errs = {};
+        if (!standard || !standard.trim()) {
+          errs.standard = "Design Standard is required";
+        }
+        if (
+          !windSpeed ||
+          String(windSpeed).trim() === "" ||
+          isNaN(Number(windSpeed)) ||
+          Number(windSpeed) <= 0
+        ) {
+          errs.windSpeed = "Design Wind Speed is required";
+        }
+        if (
+          !airDensity ||
+          String(airDensity).trim() === "" ||
+          isNaN(Number(airDensity)) ||
+          Number(airDensity) <= 0
+        ) {
+          errs.airDensity = "Air Density is required";
+        }
 
-    setIsEditing(false);
-    if (onToast) {
-      onToast("Design conditions updated successfully.");
-    }
-  };
+        setErrors(errs);
+        const isValid = Object.keys(errs).length === 0 && isSaved;
+        // Prioritize standard first, then wind speed, then air density
+        const firstMsg =
+          errs.standard || errs.windSpeed || errs.airDensity || null;
+        return { isValid, firstMsg, errors: errs };
+      },
+    }));
 
-  const standardLabel =
-    activeOptions.find((o) => o.value === currentStandard)?.label ||
-    currentStandard ||
-    "—";
+    // When standard changes, auto-fill wind speed & air density for JIL or V60
+    const handleStandardChange = (val) => {
+      setStandard(val);
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next.standard;
+        return next;
+      });
 
-  const referenceText =
-    STANDARD_REFERENCES[standard] ||
-    "Wind speed 60 m/s · Air density 1.23 N·sec²/m⁴";
+      if (val === "jil" || val === "v60") {
+        setWindSpeed("60");
+        setAirDensity("1.23");
+        setErrors((prev) => {
+          const next = { ...prev };
+          delete next.standard;
+          delete next.windSpeed;
+          delete next.airDensity;
+          return next;
+        });
+      } else if (val) {
+        if (!airDensity) setAirDensity("1.23");
+      }
+    };
 
-  return (
-    <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs overflow-hidden transition-all">
-      {/* Header bar */}
-      <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 bg-slate-50/70 border-b border-slate-100">
-        <div className="flex items-center gap-2">
-          <h3 className="text-sm sm:text-base font-medium text-slate-800">
-            Design Conditions
-          </h3>
-          <span className="text-[11px] font-normal text-slate-500 bg-slate-200/60 px-2 py-0.5 rounded-full">
-            Calculation
-          </span>
-        </div>
+    const handleWindSpeedChange = (val) => {
+      setWindSpeed(val);
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next.windSpeed;
+        return next;
+      });
+    };
 
-        {!isEditing && (
-          <button
-            type="button"
-            onClick={handleStartEdit}
-            className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs font-medium text-[#0d3b66] bg-[#eef2f6] hover:bg-[#e2e8f0] ring-1 ring-inset ring-[#d0d7e2] transition-colors active:scale-95"
-          >
-            <Edit3 className="w-3.5 h-3.5 text-[#0d3b66]" />
-            Edit
-          </button>
-        )}
-      </div>
+    const handleAirDensityChange = (val) => {
+      setAirDensity(val);
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next.airDensity;
+        return next;
+      });
+    };
 
-      {/* Content Area */}
-      <div className="p-4 sm:p-6">
-        {!isEditing ? (
-          /* ── VIEW MODE ── */
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {/* Design Standard */}
-              <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-100 flex flex-col justify-between">
-                <span className="text-xs font-normal text-slate-500">
-                  Design Standard
-                </span>
-                <span className="mt-1 text-sm sm:text-base font-medium text-slate-800 break-words">
-                  {standardLabel}
-                </span>
-              </div>
+    const handleStartEdit = () => {
+      setStandard(currentStandard);
+      setAirDensity(currentAirDensity);
+      setWindSpeed(currentWindSpeed);
+      setErrors({});
+      setIsEditing(true);
+    };
 
-              {/* Air Density */}
-              <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-100 flex flex-col justify-between">
-                <span className="text-xs font-normal text-slate-500">
-                  Air Density
-                </span>
-                <span className="mt-1 text-sm sm:text-base font-medium text-slate-800">
-                  {currentAirDensity ? (
-                    <>
-                      {currentAirDensity}{" "}
-                      <span className="text-xs font-normal text-slate-500">
-                        N·sec²/m⁴
-                      </span>
-                    </>
-                  ) : (
-                    "—"
-                  )}
-                </span>
-              </div>
+    const handleCancel = () => {
+      setStandard(currentStandard);
+      setAirDensity(currentAirDensity);
+      setWindSpeed(currentWindSpeed);
+      setErrors({});
+      setIsEditing(false);
+    };
 
-              {/* Wind Speed */}
-              <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-100 flex flex-col justify-between">
-                <span className="text-xs font-normal text-slate-500">
-                  Wind Speed
-                </span>
-                <div className="mt-1 flex items-center gap-2">
-                  {currentWindSpeed ? (
-                    <span className="text-sm sm:text-base font-medium text-slate-800">
-                      {currentWindSpeed}{" "}
-                      <span className="text-xs font-normal text-slate-500">
-                        m/s
-                      </span>
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
-                      <AlertTriangle className="w-3 h-3 text-amber-500" />
-                      Not set
-                    </span>
-                  )}
-                </div>
-              </div>
+    const handleSave = (e) => {
+      e?.preventDefault();
+      const errs = {};
+      if (!standard || !standard.trim()) {
+        errs.standard = "Design Standard is required";
+      }
+      if (
+        !windSpeed ||
+        String(windSpeed).trim() === "" ||
+        isNaN(Number(windSpeed)) ||
+        Number(windSpeed) <= 0
+      ) {
+        errs.windSpeed = "Design Wind Speed is required";
+      }
+      if (
+        !airDensity ||
+        String(airDensity).trim() === "" ||
+        isNaN(Number(airDensity)) ||
+        Number(airDensity) <= 0
+      ) {
+        errs.airDensity = "Air Density is required";
+      }
+
+      if (Object.keys(errs).length > 0) {
+        setErrors(errs);
+        const firstMsg = errs.standard || errs.windSpeed || errs.airDensity;
+        if (onShowToastModal) {
+          onShowToastModal(firstMsg);
+        }
+        return;
+      }
+
+      onSave({
+        standard,
+        airDensity: String(airDensity),
+        windSpeed: String(windSpeed),
+        isSaved: true,
+      });
+
+      setErrors({});
+      setIsEditing(false);
+      // Temporarily hide successfully toast as requested
+      // if (onToast) {
+      //   onToast("Design conditions saved successfully.");
+      // }
+    };
+
+    const standardLabel =
+      activeOptions.find((o) => o.value === currentStandard)?.label ||
+      currentStandard ||
+      "—";
+
+    return (
+      <div className="space-y-3">
+        {!isEditing && isSaved ? (
+          /* ── VIEW MODE (Matching Gambar 1 without compass/wind/gauge icons) ── */
+          <div className="space-y-3">
+            {/* Top Bar inside SectionCard */}
+            <div className="flex flex-wrap items-center justify-between gap-3 pb-2.5 border-b border-gray-100">
+              <p className="text-[14px] text-gray-500">
+                Structural criteria applied across all calculation cases in this request.
+              </p>
+
+              {/* Slightly enlarged Edit button */}
+              <button
+                type="button"
+                onClick={handleStartEdit}
+                className="inline-flex items-center gap-1.5 h-8.5 px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-xs active:scale-95 transition-all"
+              >
+                <Edit3 className="w-3.5 h-3.5 text-[#0d3b66]" />
+                Edit
+              </button>
             </div>
 
-            {/* Warning if Wind speed is not set */}
-            {!currentWindSpeed && (
-              <div className="flex items-start gap-2.5 p-3 rounded-lg bg-amber-50/80 border border-amber-200/90 text-amber-800 text-xs sm:text-sm">
-                <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                <span>
-                  <strong>Wind speed isn't set yet.</strong> Calculation cases cannot be executed until wind speed is provided.
+            {/* Metrics Grid: Standard, Wind Speed, Air Density (No icons) */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
+              {/* 1. Design Standard */}
+              <div className="px-3.5 py-2.5 rounded-lg bg-gray-50/70 border border-gray-200/80 flex flex-col justify-between transition-colors">
+                <span className="text-xs font-medium text-gray-500">
+                  Design Standard
                 </span>
-              </div>
-            )}
-          </div>
-        ) : (
-          /* ── EDIT MODE (Inline in card, no modal) ── */
-          <form onSubmit={handleSave} className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {/* Field: Design standard */}
-              <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1.5">
-                  Design Standard <span className="text-red-500">*</span>
-                </label>
-                <select
-                  value={standard}
-                  onChange={(e) => setStandard(e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-lg text-xs sm:text-sm bg-white border border-slate-300 text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#0d3b66]/20 focus:border-[#0d3b66] transition-all"
-                  required
-                >
-                  <option value="" disabled>
-                    Select standard
-                  </option>
-                  {activeOptions.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Field: Air density */}
-              <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1.5">
-                  Air Density <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={airDensity}
-                    onChange={(e) => setAirDensity(e.target.value)}
-                    placeholder="1.23"
-                    className="w-full pl-3.5 pr-20 py-2 rounded-lg text-xs sm:text-sm bg-white border border-slate-300 text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#0d3b66]/20 focus:border-[#0d3b66] transition-all"
-                    required
-                  />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-slate-400 pointer-events-none">
-                    N·sec²/m⁴
+                <div className="mt-1">
+                  <span className="text-sm sm:text-base font-semibold text-gray-800 break-words">
+                    {standardLabel}
                   </span>
                 </div>
               </div>
 
-              {/* Field: Wind speed */}
-              <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1.5">
-                  Wind Speed{" "}
-                  <span className="text-slate-400 font-normal">
-                    (Optional)
+              {/* 2. Wind Speed (Wind speed first) */}
+              <div className="px-3.5 py-2.5 rounded-lg bg-gray-50/70 border border-gray-200/80 flex flex-col justify-between transition-colors">
+                <span className="text-xs font-medium text-gray-500">
+                  Wind Speed
+                </span>
+                <div className="mt-1 flex items-baseline">
+                  <span className="text-sm sm:text-base font-semibold text-gray-800">
+                    {currentWindSpeed}
                   </span>
-                </label>
-                <div className="relative">
-                  <input
-                    type="number"
-                    step="0.5"
-                    min="0"
-                    value={windSpeed}
-                    onChange={(e) => setWindSpeed(e.target.value)}
-                    placeholder="e.g. 60"
-                    className="w-full pl-3.5 pr-12 py-2 rounded-lg text-xs sm:text-sm bg-white border border-slate-300 text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#0d3b66]/20 focus:border-[#0d3b66] transition-all"
-                  />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-slate-400 pointer-events-none">
+                  <span className="ml-1 text-xs text-gray-500 font-normal">
                     m/s
                   </span>
                 </div>
               </div>
+
+              {/* 3. Air Density */}
+              <div className="px-3.5 py-2.5 rounded-lg bg-gray-50/70 border border-gray-200/80 flex flex-col justify-between transition-colors">
+                <span className="text-xs font-medium text-gray-500">
+                  Air Density
+                </span>
+                <div className="mt-1 flex items-baseline">
+                  <span className="text-sm sm:text-base font-semibold text-gray-800">
+                    {currentAirDensity}
+                  </span>
+                  <span className="ml-1 text-xs text-gray-500 font-normal">
+                    N·sec²/m⁴
+                  </span>
+                </div>
+              </div>
             </div>
 
-            {/* Helper: Reference for this standard */}
-            <div className="flex items-center gap-1.5 text-xs text-slate-500 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200/60">
-              <Info className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+            {/* Simple Reference Info Box (Matching Gambar 1 without bold text) */}
+            <div className="flex items-start sm:items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg hp:rounded-md px-4 py-2.5 text-xs md:text-sm text-gray-500">
+              <Info className="w-4 h-4 shrink-0 text-gray-400 mt-0.5 sm:mt-0" />
               <span>
-                <strong>Reference for this standard:</strong> {referenceText}
+                Reference from Cover Information Request: Standard {coverStandardLabel} · Wind speed {coverWindSpeed} m/s · Air density {coverAirDensity} N·sec²/m⁴
+              </span>
+            </div>
+          </div>
+        ) : (
+          /* ── EDIT / INITIAL INPUT MODE (Mandatory First Input) ── */
+          <form onSubmit={handleSave} className="space-y-3">
+            <div className="pb-2.5 border-b border-gray-100 flex items-center justify-between">
+              <div>
+                <h4 className="text-xs sm:text-sm font-semibold text-slate-800">
+                  {isSaved
+                    ? "Edit Design Conditions for Calculation Cases"
+                    : "Design Conditions for Calculation Cases"}
+                </h4>
+                <p className="text-[14px] text-gray-500 mt-0.5">
+                  Structural criteria applied across all calculation cases in this request.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {/* 1. Field: Design standard */}
+              <div>
+                <label className="block text-xs md:text-sm text-gray-700 mb-1.5">
+                  Design Standard <span className="text-red-500 font-normal">*</span>
+                </label>
+                <FormSelect
+                  id="designStandard"
+                  value={standard}
+                  onChange={handleStandardChange}
+                  options={activeOptions}
+                  hasError={!!errors.standard}
+                  placeholder="Select standard..."
+                />
+                <ErrorStyle show={errors.standard} text={errors.standard} />
+              </div>
+
+              {/* 2. Field: Wind speed (Required) */}
+              <div>
+                <label className="block text-xs md:text-sm text-gray-700 mb-1.5">
+                  Design Wind Speed <span className="text-red-500 font-normal">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    inputMode="decimal"
+                    step="0.5"
+                    min="0"
+                    value={windSpeed}
+                    onChange={(e) => handleWindSpeedChange(e.target.value)}
+                    onWheel={(e) => e.target.blur()}
+                    placeholder="e.g. 60"
+                    className={`${inputStyle(!!errors.windSpeed)} pr-10 xl:pr-10`}
+                  />
+                  <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
+                    m/s
+                  </span>
+                </div>
+                <ErrorStyle show={errors.windSpeed} text={errors.windSpeed} />
+              </div>
+
+              {/* 3. Field: Air density (Required) */}
+              <div>
+                <label className="block text-xs md:text-sm text-gray-700 mb-1.5">
+                  Air Density <span className="text-red-500 font-normal">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    inputMode="decimal"
+                    step="0.01"
+                    min="0"
+                    value={airDensity}
+                    onChange={(e) => handleAirDensityChange(e.target.value)}
+                    onWheel={(e) => e.target.blur()}
+                    placeholder="1.23"
+                    className={`${inputStyle(!!errors.airDensity)} pr-[88px] xl:pr-[88px]`}
+                  />
+                  <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
+                    N・sec<sup>2</sup>/m<sup>4</sup>
+                  </span>
+                </div>
+                <ErrorStyle show={errors.airDensity} text={errors.airDensity} />
+              </div>
+            </div>
+
+            {/* Simple Reference Info Box (Matching Gambar 1) */}
+            <div className="flex items-start sm:items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg hp:rounded-md px-4 py-2.5 text-xs md:text-sm text-gray-500">
+              <Info className="w-4 h-4 shrink-0 text-gray-400 mt-0.5 sm:mt-0" />
+              <span>
+                Reference from Cover Information Request: Standard {coverStandardLabel} · Wind speed {coverWindSpeed} m/s · Air density {coverAirDensity} N·sec²/m⁴
               </span>
             </div>
 
-            {/* Warning if Wind speed is empty */}
-            {!windSpeed && (
-              <div className="flex items-start gap-2 p-2.5 rounded-lg bg-amber-50 text-amber-700 text-xs border border-amber-200">
-                <AlertTriangle className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
-                <span>
-                  Perhitungan belum bisa dijalankan jika wind speed kosong. Anda tetap bisa menyimpan dan melengkapinya nanti.
-                </span>
-              </div>
-            )}
-
-            {/* Field: Reason for change */}
-            <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1.5">
-                Reason for change{" "}
-                <span className="text-slate-400 font-normal">(Optional)</span>
-              </label>
-              <input
-                type="text"
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                placeholder="e.g. Adjusted to local regional wind regulations"
-                className="w-full px-3.5 py-2 rounded-lg text-xs sm:text-sm bg-white border border-slate-300 text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#0d3b66]/20 focus:border-[#0d3b66] transition-all"
-              />
-            </div>
-
-            {/* Footer with note & action buttons */}
-            <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <p className="text-xs text-slate-500 italic">
-                Applies to all calculation cases in this request.
-              </p>
-
-              <div className="flex items-center gap-2.5 self-end sm:self-auto">
+            {/* Footer buttons (Without "Applies to all calculation cases" text) */}
+            <div className="pt-2 flex justify-end items-center gap-2.5">
+              {isSaved && (
                 <button
                   type="button"
                   onClick={handleCancel}
-                  className="px-4 py-2 rounded-lg text-xs font-medium bg-[#eef2f6] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:bg-[#e2e8f0] transition-colors"
+                  className="px-4 py-2 rounded-lg hp:rounded-md text-xs sm:text-sm font-medium bg-[#eef2f6] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:bg-[#e2e8f0] transition-colors"
                 >
                   Cancel
                 </button>
-                <button
-                  type="submit"
-                  disabled={!canSave}
-                  className="px-4 py-2 rounded-lg text-xs font-medium text-white bg-gradient-to-r from-[#0d3b66] to-[#3399cc] hover:brightness-110 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                >
-                  Save changes
-                </button>
-              </div>
+              )}
+              <button
+                type="submit"
+                className="px-5 py-2 rounded-lg hp:rounded-md text-xs sm:text-sm font-medium text-white bg-gradient-to-r from-[#0d3b66] to-[#3399cc] hover:brightness-110 shadow-sm active:scale-95 transition-all"
+              >
+                {isSaved ? "Save changes" : "Save Design Conditions"}
+              </button>
             </div>
           </form>
         )}
       </div>
-    </div>
-  );
-}
+    );
+  },
+);

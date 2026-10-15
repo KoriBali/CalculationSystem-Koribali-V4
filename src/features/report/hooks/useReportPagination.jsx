@@ -21,9 +21,9 @@ function paginateA4({ blocks, measureRef, ptValue, pageHeader }) {
   // Build a lookup map for fast block access by id
   const blockMap = new Map(blocks.map((b) => [b.id, b]));
 
-  // Measure the container to get the available page zHeight
+  // Measure the container to get the available page height
   const measureRect = measureRef.current.getBoundingClientRect();
-  const pageHeight = measureRect.zHeight;
+  const pageHeight = measureRect.height;
 
   // Convert mm margins to px
   const paddingBottomPx = mmToPx(15);
@@ -39,13 +39,13 @@ function paginateA4({ blocks, measureRef, ptValue, pageHeader }) {
   let pageNum = 1;
 
   console.log(
-    `%c START PAGINATION | Limit: ${pageLimit.toFixed(2)}px `,
+    `%c START PAGINATION | Limit: ${pageLimit?.toFixed ? pageLimit.toFixed(2) : pageLimit}px `,
     "background: #222; color: #bada55; font-weight: bold;",
   );
 
   // Pre-measure all children heights in one pass to avoid layout thrashing
   const heights = children.map(
-    (child) => child.getBoundingClientRect().zHeight,
+    (child) => child.getBoundingClientRect().height,
   );
 
   children.forEach((child, index) => {
@@ -80,10 +80,10 @@ function paginateA4({ blocks, measureRef, ptValue, pageHeader }) {
 
     // Log block placement details for debugging pagination
     console.log(
-      `[P${pageNum}] ID: %c${child.dataset.id.padEnd(8)}%c | ` +
-        `H-Asli: ${h.toFixed(2)}px | ` +
-        `H-Efektif: %c${effectiveHeight.toFixed(2)}px%c | ` +
-        `Total: %c${currentHeight.toFixed(2)}px%c / ${pageLimit.toFixed(2)}px`,
+      `[P${pageNum}] ID: %c${(child.dataset.id || "").padEnd(8)}%c | ` +
+        `H-Asli: ${(Number(h) || 0).toFixed(2)}px | ` +
+        `H-Efektif: %c${(Number(effectiveHeight) || 0).toFixed(2)}px%c | ` +
+        `Total: %c${(Number(currentHeight) || 0).toFixed(2)}px%c / ${(Number(pageLimit) || 0).toFixed(2)}px`,
       "color: #2196F3; font-weight: bold;",
       "color: inherit;",
       "color: #4CAF50; font-weight: bold;",

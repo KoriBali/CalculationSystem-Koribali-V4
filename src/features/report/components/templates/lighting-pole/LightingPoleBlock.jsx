@@ -1,6 +1,12 @@
 import React from "react";
 import { getRowsForStep } from "../../../utils/reportFormatters";
 
+const toNumFixed = (val, digits = 1) => {
+  if (val === undefined || val === null || val === "") return "";
+  const n = Number(val);
+  return isNaN(n) ? "" : n.toFixed(digits);
+};
+
 export const createBlocks = (results = [], resultsDo = [], poleConfig = {}) => {
   const blocks = [];
   let sectionCounter = 0;
@@ -23,15 +29,15 @@ export const createBlocks = (results = [], resultsDo = [], poleConfig = {}) => {
             </span>
             <span className="page1-text ml-[18px] jp">φ</span>
             <span className="page1-text">
-              {r?.lowerDiameter?.toFixed(1) ?? ""}
+              {toNumFixed(r?.lowerDiameter, 1)}
             </span>
             <span className="page1-text px-[2px] text-[10.5pt]">×</span>
             <span className="page1-text">
-              t{r?.lowerThickness?.toFixed(1) ?? ""}
+              t{toNumFixed(r?.lowerThickness, 1)}
             </span>
             <span className="page1-text ml-[20px]">{r?.material ?? ""}</span>
             <span className="page1-text ml-[20px]">
-              Z = {r?.sectionModulus?.toFixed(2) ?? ""} cm<sup>3</sup>
+              Z = {toNumFixed(r?.sectionModulus, 2)} cm<sup>3</sup>
             </span>
           </h2>
 
@@ -110,29 +116,29 @@ export const createBlocks = (results = [], resultsDo = [], poleConfig = {}) => {
                             {row.data.name ?? ""}
                           </td>
                           <td className="col-left">
-                            {row.data.fixLoad?.toFixed(1) ?? ""}
+                            {toNumFixed(row.data.fixLoad, 1)}
                           </td>
                           <td className="col-left">
                             {row.data.quantity ?? ""}
                           </td>
                           <td className="col-left">
-                            {row.data.fixLoad?.toFixed(1) ?? ""}
+                            {toNumFixed(row.data.fixLoad, 1)}
                           </td>
                           <td className="col-gap"></td>
                           <td className="col-right">
-                            {row.data.frontArea?.toFixed(1) ?? ""}
+                            {toNumFixed(row.data.frontArea, 1)}
                           </td>
                           <td className="col-right">
-                            {row.data.cf?.toFixed(1) ?? ""}
+                            {toNumFixed(row.data.cf, 1)}
                           </td>
                           <td className="col-right">
-                            {row.data.windLoadAreaFront?.toFixed(1) ?? ""}
+                            {toNumFixed(row.data.windLoadAreaFront, 1)}
                           </td>
                           <td className="col-right">
                             {row.data.quantity ?? ""}
                           </td>
                           <td className="col-right">
-                            {row.data.windLoadAreaFront?.toFixed(1) ?? ""}
+                            {toNumFixed(row.data.windLoadAreaFront, 1)}
                           </td>
                         </>
                       )}

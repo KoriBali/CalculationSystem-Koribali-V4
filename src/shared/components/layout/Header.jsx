@@ -179,7 +179,7 @@ export function Header({
                         <button
                           type="button"
                           onClick={onSetupCrumbClick}
-                          title="Go to Project Setup"
+                          title="Go to case start"
                           className="
                             hidden sm:block
                             shrink-0

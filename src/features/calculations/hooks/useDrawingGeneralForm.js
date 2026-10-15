@@ -178,9 +178,11 @@ export function useDrawingGeneralForm() {
   };
 
   const handleReset = () => {
-    // Reset local UI only — does NOT touch sessionStorage
-    const empty = getDefaultGeneral();
-    setLocalGeneral(empty);
+    // Reset local UI only — does NOT touch sessionStorage, preserving case poleType
+    setLocalGeneral((prev) => ({
+      ...getDefaultGeneral(),
+      poleType: prev?.poleType || committedRef.current?.poleType || "Standard Pole",
+    }));
     setErrors({});
   };
 

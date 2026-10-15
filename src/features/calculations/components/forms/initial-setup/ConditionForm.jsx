@@ -1,40 +1,16 @@
 import {
   RotateCcw,
   ChevronRight,
-  Circle,
   DoorOpen,
-  CheckCircle,
   Layers,
-  FileText,
 } from "lucide-react";
 import { useState } from "react";
 import { BaseplateIcon } from "../../../../../assets/icon";
-import { designStandardOptions } from "../../../constants/designStandards";
-import { poleTypeOptions } from "../../../constants/poleTypeOptions";
 import { ConfirmResetAllModal } from "../../modals/ConfirmResetAllModal";
-import { FormSelect } from "../../../../../shared/components/FormSelect";
 
 /**
  * HELPER COMPONENTS & FUNCTIONS
- * Defined outside to prevent re-creation on every component re-render
  */
-// Returns input className based on validation state
-const inputStyle = (hasError) =>
-  `w-full px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border
-  ${
-    hasError
-      ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
-      : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
-  }`;
-
-// Renders a red error message below an invalid field
-const ErrorStyle = ({ show, text }) =>
-  show ? (
-    <div className="absolute left-0 -bottom-4 md:-bottom-5 flex items-center gap-1 text-[9px] md:text-[11px] text-red-500">
-      <span>*{text}</span>
-    </div>
-  ) : null;
-
 // Reusable section title with left accent bar
 const SectionTitle = ({ children }) => (
   <h3 className="text-[#0d3b66] mb-4 flex items-center gap-1 md:gap-2 text-xs md:text-sm font-medium">
@@ -51,20 +27,6 @@ const SectionCard = ({ children }) => (
 );
 
 /**
- * Constants
- */
-// Empty state used when resetting the form
-const EMPTY_CONDITION = {
-  designStandard: "",
-  designWindSpeed: "",
-  designAirDensity: "",
-  poleType: "",
-  openingEnabled: false,
-  baseplateEnabled: false,
-  foundationEnabled: false,
-};
-
-/**
  * MAIN COMPONENT: ConditionForm
  */
 export function ConditionForm({
@@ -78,8 +40,15 @@ export function ConditionForm({
   // State for reset confirmation modal
   const [showResetModal, setShowResetModal] = useState(false);
 
-  // Resets all fields back to empty
-  const handleReset = () => onUpdate(EMPTY_CONDITION);
+  // Resets only additional components toggles, preserving request design conditions and pole type
+  const handleReset = () => {
+    const isStandard = condition?.poleType === "standard";
+    onUpdate({
+      openingEnabled: isStandard ? true : false,
+      baseplateEnabled: isStandard ? true : false,
+      foundationEnabled: false,
+    });
+  };
 
   return (
     <div className="relative">
@@ -102,163 +71,6 @@ export function ConditionForm({
         />
 
         <div className="p-4 md:p-6 space-y-4 md:space-y-6">
-          {/* ── Standard and Condition ── */}
-          <div>
-            <SectionTitle>Design Parameters</SectionTitle>
-            <SectionCard>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-6 md:gap-y-8">
-                {/* Design Standard */}
-                <div className="relative">
-                  <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">
-                    Design Standard
-                  </label>
-                  <FormSelect
-                    id="designStandard"
-                    value={condition.designStandard}
-                    onChange={(val) => onUpdate({ designStandard: val })}
-                    options={designStandardOptions[projectType] || []}
-                    hasError={!!errors.designStandard}
-                    placeholder="Select Design Standard"
-                  />
-                  <ErrorStyle
-                    show={errors.designStandard}
-                    text={errors.designStandard}
-                  />
-                </div>
-
-                {/* Design Wind Speed */}
-                <div className="relative">
-                  <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">
-                    Design Wind Speed
-                  </label>
-                  <div className="relative">
-                    <input
-                      id="designWindSpeed"
-                      type="number"
-                      inputMode="decimal"
-                      min={0}
-                      value={condition.designWindSpeed}
-                      onChange={(e) =>
-                        onUpdate({ designWindSpeed: e.target.value })
-                      }
-                      onWheel={(e) => e.target.blur()}
-                      className={`${inputStyle(errors.designWindSpeed)} pr-10 xl:pr-10`}
-                    />
-                    <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
-                      m/s
-                    </span>
-                  </div>
-                  <ErrorStyle
-                    show={errors.designWindSpeed}
-                    text={errors.designWindSpeed}
-                  />
-                </div>
-
-                {/* Air Density */}
-                <div className="relative">
-                  <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">
-                    Air Density
-                  </label>
-                  <div className="relative">
-                    <input
-                      id="designAirDensity"
-                      type="number"
-                      inputMode="decimal"
-                      min={0}
-                      step="0.01"
-                      value={condition.designAirDensity}
-                      onChange={(e) =>
-                        onUpdate({ designAirDensity: e.target.value })
-                      }
-                      onWheel={(e) => e.target.blur()}
-                      className={`${inputStyle(errors.designAirDensity)} pr-[88px] xl:pr-[88px]`}
-                    />
-                    <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
-                      N・sec<sup>2</sup>/m<sup>4</sup>
-                    </span>
-                  </div>
-                  <ErrorStyle
-                    show={errors.designAirDensity}
-                    text={errors.designAirDensity}
-                  />
-                </div>
-              </div>
-            </SectionCard>
-          </div>
-
-          {/* ── Select Pole Type (lighting-project only) ── */}
-          {projectType === "lighting-project" && (
-            <div id="poleType">
-              <SectionTitle>Pole Type</SectionTitle>
-              <SectionCard>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {poleTypeOptions.map((option) => {
-                    const Icon = option.icon;
-                    const isActive = condition.poleType === option.id;
-
-                    return (
-                      <button
-                        key={option.id}
-                        type="button"
-                        title={option.desc}
-                        onClick={() => {
-                          if (
-                            projectMode === "both" &&
-                            option.id === "standard"
-                          ) {
-                            onUpdate({
-                              poleType: option.id,
-                              openingEnabled: true,
-                            });
-                          } else {
-                            onUpdate({ poleType: option.id });
-                          }
-                        }}
-                        className={`group w-full flex items-center justify-between px-3 xl:px-4 py-2 lg:py-3 relative overflow-hidden rounded-lg border transition-all duration-300 cursor-pointer active:scale-[0.98]
-                        ${
-                          isActive
-                            ? "border-blue-500 bg-blue-50 shadow-sm ring-1 ring-blue-50"
-                            : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={`p-1.5 rounded-md ${isActive ? "bg-blue-100 text-blue-600" : "bg-slate-100 text-slate-500"}`}
-                          >
-                            <Icon size={16} />
-                          </div>
-                          <div className="flex flex-col items-start">
-                            <p
-                              className={`text-[12px] md:text-sm font-medium ${isActive ? "text-slate-900" : "text-slate-700"}`}
-                            >
-                              {option.title}
-                            </p>
-                            <p
-                              className={`text-[11px] md:text-xs mt-0.5 ${isActive ? "text-slate-500" : "text-slate-400"}`}
-                            >
-                              {option.desc}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="shrink-0 ml-2 flex items-center">
-                          {isActive ? (
-                            <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-blue-500" />
-                          ) : (
-                            <Circle className="w-4 h-4 md:w-5 md:h-5 text-slate-300 group-hover:text-slate-400" />
-                          )}
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </SectionCard>
-              {errors.poleType && (
-                <div className="mt-1 text-[11px] text-red-500">
-                  {errors.poleType}
-                </div>
-              )}
-            </div>
-          )}
 
           {/* ── Additional Component (toggles) ── */}
           <div>

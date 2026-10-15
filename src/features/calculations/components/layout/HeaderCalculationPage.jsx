@@ -16,6 +16,7 @@ import {
   TowerControl as TowerControlIcon,
   PanelLeftClose,
   PanelLeftOpen,
+  Eye,
 } from "lucide-react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 
@@ -42,6 +43,7 @@ export function HeaderCalculationPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { type, draftId } = useParams();
+  const isReadOnly = sessionStorage.getItem("case_read_only") === "true";
 
   const [showDraftModal, setShowDraftModal] = useState(false);
   const [toast, setToast] = useState(null);
@@ -229,8 +231,8 @@ export function HeaderCalculationPage() {
   // ─── CALCULATION NAVIGATION ──────────────────────────────────────────────
   const navItems = [
     {
-      label: "Calculation Condition",
-      path: `/requests/${type}/${draftId}/calculation-condition`,
+      label: "Initial",
+      path: `/requests/${type}/${draftId}/initial`,
       icon: LayoutDashboard,
       completed: isConditionCompleted,
       disabled: false,
@@ -245,7 +247,7 @@ export function HeaderCalculationPage() {
             icon: TowerControl,
             completed: isPoleStepCompleted,
             disabled: !isConditionCompleted,
-            disabledMessage: "Complete Calculation Condition first",
+            disabledMessage: "Complete Initial first",
           },
         ]
       : []),
@@ -262,7 +264,7 @@ export function HeaderCalculationPage() {
               : !isConditionCompleted,
             disabledMessage: config?.pole
               ? 'Click "Calculate Result" in Pole first'
-              : "Complete Calculation Condition first",
+              : "Complete Initial first",
           },
         ]
       : []),
@@ -308,9 +310,7 @@ export function HeaderCalculationPage() {
   ];
 
   // ─── CURRENT PAGE ────────────────────────────────────────────────────────
-  const isProjectIdentityPage =
-    location.pathname === `/requests/${type}/${draftId}` ||
-    location.pathname === `/requests/${type}/${draftId}/`;
+  const isProjectIdentityPage = false;
 
   const isDrawingPage = location.pathname.includes(
     `/requests/${type}/${draftId}/drawing`,
@@ -480,22 +480,24 @@ export function HeaderCalculationPage() {
 
   // ─── BACK ────────────────────────────────────────────────────────────────
   const handleBackClick = () => {
-    if (isProjectIdentityPage) {
-      // Check if draft actually changed before showing modal
-      if (!hasDraftChanged(type, draftId)) {
-        handleDiscard();
-      } else {
-        setShowDraftModal(true);
-      }
+    // Check if draft actually changed before showing modal
+    if (!hasDraftChanged(type, draftId)) {
+      handleDiscard();
     } else {
-      // Other calculation step:
-      // return to Project Setup
-      navigate(`/requests/${type}/${draftId}`);
+      setShowDraftModal(true);
     }
   };
 
   // ─── SAVE AND LEAVE ──────────────────────────────────────────────────────
   const handleSaveAndLeave = () => {
+    if (isReadOnly) {
+      setShowDraftModal(false);
+      clearCalculationSession(type);
+      clearActiveDraftId(type);
+      navigate(requestPathForDraft(draftId));
+      return;
+    }
+
     saveWorkingSessionToDraft(type, draftId);
 
     setToast({
@@ -513,20 +515,13 @@ export function HeaderCalculationPage() {
     }, 2500);
   };
 
-  const readOnlyInfo = (() => {
-    try {
-      return JSON.parse(sessionStorage.getItem("case_read_only")) || null;
-    } catch {
-      return null;
-    }
-  })();
 
   // ─── QUICK SAVE ──────────────────────────────────────────────────────────
   const handleQuickSave = () => {
-    if (readOnlyInfo?.isReadOnly) {
+    if (isReadOnly) {
       setToast({
-        message: `This case is owned by ${readOnlyInfo.ownerName || "another user"}. You are viewing it in read-only mode.`,
-        type: "error",
+        message: "This case is currently opened in Read-Only mode. Changes cannot be saved.",
+        type: "warning",
       });
       return;
     }
@@ -655,11 +650,15 @@ export function HeaderCalculationPage() {
         <button
           type="button"
           onClick={handleQuickSave}
-          title="Save Draft"
-          aria-label="Save Draft"
+          title={isReadOnly ? "Read-Only Case" : "Save Draft"}
+          aria-label={isReadOnly ? "Read-Only Case" : "Save Draft"}
           className="flex items-center justify-center w-[38px] h-[38px] shrink-0 rounded-lg hover:bg-white/10 active:bg-white/15 transition"
         >
-          <Save className="w-4 h-4" />
+          {isReadOnly ? (
+            <Eye className="w-4 h-4 text-amber-300" />
+          ) : (
+            <Save className="w-4 h-4" />
+          )}
         </button>
       </div>
 
@@ -692,11 +691,7 @@ export function HeaderCalculationPage() {
             >
               <ArrowLeft className="w-4 h-4 shrink-0" />
 
-              <span className="truncate">
-                {isProjectIdentityPage
-                  ? "Back to Request"
-                  : "Back to Project Setup"}
-              </span>
+              <span className="truncate">Back to Request</span>
             </button>
           </div>
 
@@ -718,7 +713,7 @@ export function HeaderCalculationPage() {
                     else if (config?.baseplate) navigate(`/requests/${type}/${draftId}/baseplate`);
                     else if (config?.opening) navigate(`/requests/${type}/${draftId}/opening`);
                     else if (config?.pole) navigate(`/requests/${type}/${draftId}/pole`);
-                    else navigate(`/requests/${type}/${draftId}/calculation-condition`);
+                    else navigate(`/requests/${type}/${draftId}/initial`);
                   }}
                   className={`group flex items-center gap-2 rounded-full py-1 pl-1 pr-3 transition-all duration-200
                     focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70
@@ -802,13 +797,25 @@ export function HeaderCalculationPage() {
             <button
               type="button"
               onClick={handleQuickSave}
-              className="flex items-center justify-center gap-1 sm:gap-2 px-3 py-2 sm:px-4 shrink-0 whitespace-nowrap bg-white/10 hover:bg-white/20 active:bg-white/25 border border-white/20 text-white rounded-lg hp:rounded-md text-xs sm:text-sm font-medium transition"
+              className={`flex items-center justify-center gap-1 sm:gap-2 px-3 py-2 sm:px-4 shrink-0 whitespace-nowrap border rounded-lg hp:rounded-md text-xs sm:text-sm font-medium transition ${
+                isReadOnly
+                  ? "bg-amber-500/20 hover:bg-amber-500/30 border-amber-300/40 text-amber-200"
+                  : "bg-white/10 hover:bg-white/20 active:bg-white/25 border-white/20 text-white"
+              }`}
             >
-              <Save className="w-4 h-4 shrink-0" />
-
-              <span className="hidden sm:inline">Save Draft</span>
-
-              <span className="sm:hidden">Save</span>
+              {isReadOnly ? (
+                <>
+                  <Eye className="w-4 h-4 shrink-0 text-amber-300" />
+                  <span className="hidden sm:inline text-amber-100">Read-Only</span>
+                  <span className="sm:hidden text-amber-100">View</span>
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4 shrink-0" />
+                  <span className="hidden sm:inline">Save Draft</span>
+                  <span className="sm:hidden">Save</span>
+                </>
+              )}
             </button>
 
             {/* Minimize — only offered once the header is stuck over the
@@ -848,7 +855,7 @@ export function HeaderCalculationPage() {
                 else if (config?.baseplate) navigate(`/requests/${type}/${draftId}/baseplate`);
                 else if (config?.opening) navigate(`/requests/${type}/${draftId}/opening`);
                 else if (config?.pole) navigate(`/requests/${type}/${draftId}/pole`);
-                else navigate(`/requests/${type}/${draftId}/calculation-condition`);
+                else navigate(`/requests/${type}/${draftId}/initial`);
               }}
               className={`flex flex-col items-center gap-0.5 flex-1 py-1 rounded-lg transition-all duration-200
                 ${!isDrawingPage ? "bg-white/15 ring-1 ring-inset ring-white/30" : "active:bg-white/10"}`}
@@ -905,20 +912,7 @@ export function HeaderCalculationPage() {
           </div>
         )}
 
-        {/* READ ONLY BANNER: "Owned by [nama] · view only" */}
-        {readOnlyInfo?.isReadOnly && (
-          <div className="flex items-center justify-between gap-2 px-3.5 py-2 rounded-lg bg-amber-400/20 border border-amber-300/40 text-amber-100 text-xs sm:text-sm animate-in fade-in duration-200">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-amber-300 animate-pulse" />
-              <span>
-                Owned by <strong className="text-white underline">{readOnlyInfo.ownerName}</strong> · view only
-              </span>
-            </div>
-            <span className="text-[11px] font-semibold bg-amber-300 text-slate-900 px-2 py-0.5 rounded shadow-xs">
-              View Only
-            </span>
-          </div>
-        )}
+
       </div>
 
       {/* ─── STEP NAVIGATION — DESKTOP (separate section, no gap) ─────────── */}

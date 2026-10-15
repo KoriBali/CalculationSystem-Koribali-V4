@@ -304,12 +304,20 @@ export const formatFileSize = (bytes) =>
     ? `${Math.max(1, Math.round(bytes / 1024))} KB`
     : `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 
-export const formatShortDate = (iso) =>
-  new Date(`${iso}T00:00:00`).toLocaleDateString("en-GB", {
+export const formatShortDate = (iso) => {
+  if (!iso) return "—";
+  const str = String(iso).trim();
+  const d =
+    str.includes("T") || str.includes(" ")
+      ? new Date(str)
+      : new Date(`${str}T00:00:00`);
+  if (isNaN(d.getTime())) return str;
+  return d.toLocaleDateString("en-GB", {
     day: "2-digit",
     month: "short",
     year: "numeric",
   });
+};
 
 // A cover value as the user would read it (for the "Use cover value"
 // tooltip): one formatter per field that needs one, the raw value otherwise.
