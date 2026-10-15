@@ -5,7 +5,7 @@ export const REQUEST_FILE_TABS = [
   {
     key: "brief",
     label: "Brief & References",
-    hint: "The cover and the reference material that came with the request.",
+    hint: "The cover and the reference material that came with the project.",
   },
   {
     key: "calculation",
@@ -20,16 +20,16 @@ export const REQUEST_FILE_TABS = [
   {
     key: "files",
     label: "Files",
-    hint: "Any other file of this request.",
+    hint: "Any other files related to this project.",
   },
   {
     key: "notes",
     label: "Notes History",
-    hint: "Notes and correspondence about the request, e.g. revision requests.",
+    hint: "Notes and correspondence about the project, e.g. revision requests.",
   },
   {
     key: "output",
     label: "Output Package",
-    hint: "The final documents delivered for this request.",
+    hint: "The final documents delivered for this project.",
   },
 ];

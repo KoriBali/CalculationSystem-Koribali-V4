@@ -232,7 +232,7 @@ export function HeaderCalculationPage() {
   const navItems = [
     {
       label: "Initial",
-      path: `/requests/${type}/${draftId}/initial`,
+      path: `/projects/${type}/${draftId}/initial`,
       icon: LayoutDashboard,
       completed: isConditionCompleted,
       disabled: false,
@@ -243,7 +243,7 @@ export function HeaderCalculationPage() {
       ? [
           {
             label: "Pole",
-            path: `/requests/${type}/${draftId}/pole`,
+            path: `/projects/${type}/${draftId}/pole`,
             icon: TowerControl,
             completed: isPoleStepCompleted,
             disabled: !isConditionCompleted,
@@ -256,7 +256,7 @@ export function HeaderCalculationPage() {
       ? [
           {
             label: "Opening",
-            path: `/requests/${type}/${draftId}/opening`,
+            path: `/projects/${type}/${draftId}/opening`,
             icon: DoorOpen,
             completed: isOpeningStepCompleted,
             disabled: config?.pole
@@ -273,7 +273,7 @@ export function HeaderCalculationPage() {
       ? [
           {
             label: "Baseplate",
-            path: `/requests/${type}/${draftId}/baseplate`,
+            path: `/projects/${type}/${draftId}/baseplate`,
             icon: BaseplateIcon,
             completed: isBaseplateStepCompleted,
             disabled:
@@ -291,7 +291,7 @@ export function HeaderCalculationPage() {
       ? [
           {
             label: "Foundation",
-            path: `/requests/${type}/${draftId}/foundation`,
+            path: `/projects/${type}/${draftId}/foundation`,
             icon: Layers,
             completed: isFoundationStepCompleted,
             disabled:
@@ -312,9 +312,9 @@ export function HeaderCalculationPage() {
   // ─── CURRENT PAGE ────────────────────────────────────────────────────────
   const isProjectIdentityPage = false;
 
-  const isDrawingPage = location.pathname.includes(
-    `/requests/${type}/${draftId}/drawing`,
-  );
+  const isDrawingPage =
+    location.pathname.includes(`/projects/${type}/${draftId}/drawing`) ||
+    location.pathname.includes(`/requests/${type}/${draftId}/drawing`);
 
   // ─── DRAWING COMPLETION ──────────────────────────────────────────────────
   const isDrawingCompleted =
@@ -370,7 +370,7 @@ export function HeaderCalculationPage() {
   const drawingNavItems = [
     {
       label: "Drawing Setup",
-      path: `/requests/${type}/${draftId}/drawing/drawing-setup`,
+      path: `/projects/${type}/${draftId}/drawing/drawing-setup`,
       icon: FileEdit,
       disabled: false,
       completed: isDrawingSetupCompleted,
@@ -380,7 +380,7 @@ export function HeaderCalculationPage() {
       ? [
           {
             label: "Pole",
-            path: `/requests/${type}/${draftId}/drawing/pole`,
+            path: `/projects/${type}/${draftId}/drawing/pole`,
             icon: TowerControlIcon,
             disabled: false,
             completed: isPoleCompleted,
@@ -393,7 +393,7 @@ export function HeaderCalculationPage() {
       ? [
           {
             label: "Opening",
-            path: `/requests/${type}/${draftId}/drawing/opening`,
+            path: `/projects/${type}/${draftId}/drawing/opening`,
             icon: DoorOpen,
             disabled: !isPoleCompleted,
             completed: isOpeningCompleted,
@@ -406,7 +406,7 @@ export function HeaderCalculationPage() {
       ? [
           {
             label: "Baseplate",
-            path: `/requests/${type}/${draftId}/drawing/baseplate`,
+            path: `/projects/${type}/${draftId}/drawing/baseplate`,
             icon: BaseplateIcon,
             disabled:
               !isPoleCompleted || (isOpeningEnabled && !isOpeningCompleted),
@@ -422,7 +422,7 @@ export function HeaderCalculationPage() {
       ? [
           {
             label: "Foundation",
-            path: `/requests/${type}/${draftId}/drawing/foundation`,
+            path: `/projects/${type}/${draftId}/drawing/foundation`,
             icon: Layers,
             disabled:
               !isPoleCompleted ||
@@ -442,7 +442,7 @@ export function HeaderCalculationPage() {
       ? [
           {
             label: "Coupling",
-            path: `/requests/${type}/${draftId}/drawing/coupling`,
+            path: `/projects/${type}/${draftId}/drawing/coupling`,
             icon: Link,
             disabled:
               !isPoleCompleted ||
@@ -458,7 +458,7 @@ export function HeaderCalculationPage() {
       ? [
           {
             label: "Surface",
-            path: `/requests/${type}/${draftId}/drawing/surface`,
+            path: `/projects/${type}/${draftId}/drawing/surface`,
             icon: PaintBucket,
             disabled:
               !isPoleCompleted ||
@@ -691,7 +691,7 @@ export function HeaderCalculationPage() {
             >
               <ArrowLeft className="w-4 h-4 shrink-0" />
 
-              <span className="truncate">Back to Request</span>
+              <span className="truncate">Back to Project</span>
             </button>
           </div>
 
@@ -709,11 +709,11 @@ export function HeaderCalculationPage() {
                   disabled={!isDrawingPage}
                   title={isDrawingPage ? "Back to Calculation" : undefined}
                   onClick={() => {
-                    if (config?.foundation) navigate(`/requests/${type}/${draftId}/foundation`);
-                    else if (config?.baseplate) navigate(`/requests/${type}/${draftId}/baseplate`);
-                    else if (config?.opening) navigate(`/requests/${type}/${draftId}/opening`);
-                    else if (config?.pole) navigate(`/requests/${type}/${draftId}/pole`);
-                    else navigate(`/requests/${type}/${draftId}/initial`);
+                    if (config?.foundation) navigate(`/projects/${type}/${draftId}/foundation`);
+                    else if (config?.baseplate) navigate(`/projects/${type}/${draftId}/baseplate`);
+                    else if (config?.opening) navigate(`/projects/${type}/${draftId}/opening`);
+                    else if (config?.pole) navigate(`/projects/${type}/${draftId}/pole`);
+                    else navigate(`/projects/${type}/${draftId}/initial`);
                   }}
                   className={`group flex items-center gap-2 rounded-full py-1 pl-1 pr-3 transition-all duration-200
                     focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70
@@ -763,7 +763,7 @@ export function HeaderCalculationPage() {
                       } else {
                         saveCalculationSnapshot(type);
                         sessionStorage.setItem(`${type}_drawing_started`, "true");
-                        navigate(`/requests/${type}/${draftId}/drawing/drawing-setup`);
+                        navigate(`/projects/${type}/${draftId}/drawing/drawing-setup`);
                       }
                     }
                   }}
@@ -851,11 +851,11 @@ export function HeaderCalculationPage() {
               type="button"
               disabled={!isDrawingPage}
               onClick={() => {
-                if (config?.foundation) navigate(`/requests/${type}/${draftId}/foundation`);
-                else if (config?.baseplate) navigate(`/requests/${type}/${draftId}/baseplate`);
-                else if (config?.opening) navigate(`/requests/${type}/${draftId}/opening`);
-                else if (config?.pole) navigate(`/requests/${type}/${draftId}/pole`);
-                else navigate(`/requests/${type}/${draftId}/initial`);
+                if (config?.foundation) navigate(`/projects/${type}/${draftId}/foundation`);
+                else if (config?.baseplate) navigate(`/projects/${type}/${draftId}/baseplate`);
+                else if (config?.opening) navigate(`/projects/${type}/${draftId}/opening`);
+                else if (config?.pole) navigate(`/projects/${type}/${draftId}/pole`);
+                else navigate(`/projects/${type}/${draftId}/initial`);
               }}
               className={`flex flex-col items-center gap-0.5 flex-1 py-1 rounded-lg transition-all duration-200
                 ${!isDrawingPage ? "bg-white/15 ring-1 ring-inset ring-white/30" : "active:bg-white/10"}`}
@@ -889,7 +889,7 @@ export function HeaderCalculationPage() {
                   } else {
                     saveCalculationSnapshot(type);
                     sessionStorage.setItem(`${type}_drawing_started`, "true");
-                    navigate(`/requests/${type}/${draftId}/drawing/drawing-setup`);
+                    navigate(`/projects/${type}/${draftId}/drawing/drawing-setup`);
                   }
                 }
               }}

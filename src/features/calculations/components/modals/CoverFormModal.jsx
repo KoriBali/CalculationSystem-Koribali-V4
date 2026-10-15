@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { FileText, FileEdit, RotateCcw, ChevronRight } from "lucide-react";
-import { useCoverForm } from "../../hooks/useCoverForm";
-import { useProjectIdentityForm } from "../../hooks/useProjectIdentityForm";
+import { useCoverForm, DEFAULT_COVER } from "../../hooks/useCoverForm";
 import { useMasterData } from "../../hooks/useMasterData";
 import {
   inputStyle,
@@ -33,7 +32,38 @@ export function CoverFormModal({
         const raw = sessionStorage.getItem(`${projectType}_cover`);
         if (raw) {
           const parsed = JSON.parse(raw);
-          coverForm.updateCover(parsed);
+          const isTestDraft =
+            parsed.reportNumber === "1111" &&
+            (parsed.title1 === "1" || !parsed.title1);
+
+          coverForm.updateCover({
+            reportNumber:
+              !isTestDraft && parsed.reportNumber
+                ? parsed.reportNumber
+                : DEFAULT_COVER.reportNumber,
+            title1:
+              !isTestDraft && parsed.title1
+                ? parsed.title1
+                : DEFAULT_COVER.title1,
+            title2:
+              !isTestDraft && parsed.title2 !== undefined
+                ? parsed.title2
+                : DEFAULT_COVER.title2,
+            title3: parsed.title3 || "",
+            region: parsed.region || DEFAULT_COVER.region,
+            author:
+              !isTestDraft && parsed.author && parsed.author !== "V"
+                ? parsed.author
+                : DEFAULT_COVER.author,
+            responsibleDepartment:
+              !isTestDraft &&
+              parsed.responsibleDepartment &&
+              parsed.responsibleDepartment !== "R"
+                ? parsed.responsibleDepartment
+                : DEFAULT_COVER.responsibleDepartment,
+          });
+        } else {
+          coverForm.updateCover(DEFAULT_COVER);
         }
       } catch (e) {
         console.error("Failed to sync cover data:", e);
@@ -81,15 +111,7 @@ export function CoverFormModal({
   };
 
   const handleReset = () => {
-    coverForm.updateCover({
-      reportNumber: "",
-      title1: "",
-      title2: "",
-      title3: "",
-      region: "",
-      author: "",
-      responsibleDepartment: "",
-    });
+    coverForm.updateCover(DEFAULT_COVER);
     coverForm.setCoverErrors({});
   };
 
@@ -134,7 +156,7 @@ export function CoverFormModal({
                 value={coverData.reportNumber}
                 onChange={(e) => updateCover({ reportNumber: e.target.value })}
                 className={inputStyle(coverErrors.reportNumber)}
-                placeholder="Ex: REP-001"
+                placeholder="WSXXXXX-XXX"
               />
               <ErrorStyle
                 show={coverErrors.reportNumber}

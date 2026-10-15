@@ -31,7 +31,7 @@ export const EightRibTypeSchema = yup.object({
   bpThickness: numberField("Baseplate Thickness"),
   ribHeight: numberField("Rib Plate Height"),
   ribScallop: numberField("Rib Plate Scallop"),
-  weldLeg: numberField("Weld Leg Length"),
+  weldLeg: numberField("Welding Length"),
   ribLength: numberField("Rib Plate Length"),
   ribThickness: numberField("Rib Plate Thickness"),
 });

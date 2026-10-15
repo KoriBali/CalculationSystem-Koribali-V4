@@ -23,20 +23,20 @@ export default function DrawingBaseplatePage() {
   const onNextStep = async () => {
     const result = await handleNext();
     if (result === "GO_FOUNDATION") {
-      navigate(`/requests/${projectType}/${draftId}/drawing/foundation`);
+      navigate(`/projects/${projectType}/${draftId}/drawing/foundation`);
     } else if (result === "GO_COUPLING") {
-      navigate(`/requests/${projectType}/${draftId}/drawing/coupling`);
+      navigate(`/projects/${projectType}/${draftId}/drawing/coupling`);
     } else if (result === "GO_SURFACE") {
-      navigate(`/requests/${projectType}/${draftId}/drawing/surface`);
+      navigate(`/projects/${projectType}/${draftId}/drawing/surface`);
     }
   };
 
   const onBack = () => {
     const general = JSON.parse(sessionStorage.getItem(`${projectType}_drawing_general`) || "{}");
     if (general?.additionalComponents?.opening) {
-      navigate(`/requests/${projectType}/${draftId}/drawing/opening`);
+      navigate(`/projects/${projectType}/${draftId}/drawing/opening`);
     } else {
-      navigate(`/requests/${projectType}/${draftId}/drawing/pole`);
+      navigate(`/projects/${projectType}/${draftId}/drawing/pole`);
     }
   };
 

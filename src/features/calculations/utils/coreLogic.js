@@ -120,7 +120,11 @@ export const hasCoverData = (projectType) => {
     const data = JSON.parse(raw);
     return Boolean(
       data &&
-      (data.reportNumber?.trim() || data.calculationNumber?.trim() || data.title1?.trim())
+        (data.reportNumber?.trim() || data.calculationNumber?.trim()) &&
+        data.author?.trim() &&
+        (data.responsibleDepartment?.trim() ||
+          data.region?.trim() ||
+          data.managementCode?.trim())
     );
   } catch {
     return false;
@@ -268,6 +272,39 @@ export const saveWorkingSessionToDraft = (projectType, draftId, defaultTitle = "
 
   if (fromIdentity?.projectNo) projectNo = fromIdentity.projectNo;
   else if (fromLegacyCover?.projectNo) projectNo = fromLegacyCover.projectNo;
+
+  // Cleanse incomplete reports: report must only exist if all calculation steps and cover info are complete
+  try {
+    const cond = data.condition ? JSON.parse(data.condition) : {};
+    const hasPole = Boolean(data.results && data.results !== "null");
+    const hasOp = !cond.openingEnabled || Boolean(data.calculatedOp && data.calculatedOp !== "null");
+    const hasBp = !cond.baseplateEnabled || Boolean(data.calculatedBaseplate && data.calculatedBaseplate !== "null");
+    const hasFd = !cond.foundationEnabled || Boolean(data.calculatedFoundation && data.calculatedFoundation !== "null");
+
+    let rawCover = null;
+    if (data.cover) {
+      try {
+        rawCover = typeof data.cover === "string" ? JSON.parse(data.cover) : data.cover;
+      } catch {
+        rawCover = null;
+      }
+    }
+    const hasCoverInfo = Boolean(
+      rawCover &&
+        (rawCover.reportNumber?.trim() || rawCover.calculationNumber?.trim()) &&
+        rawCover.author?.trim() &&
+        (rawCover.responsibleDepartment?.trim() ||
+          rawCover.region?.trim() ||
+          rawCover.managementCode?.trim())
+    );
+
+    if (!hasPole || !hasOp || !hasBp || !hasFd || !hasCoverInfo) {
+      delete data.reportSnapshot;
+      delete data.hasReport;
+    }
+  } catch {
+    // ignore
+  }
 
   // Save the draft data payload
   sessionStorage.setItem(`${projectType}_draft_data_${draftId}`, JSON.stringify(data));

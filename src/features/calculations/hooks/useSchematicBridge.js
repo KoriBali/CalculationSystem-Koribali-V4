@@ -13,6 +13,7 @@ export function useSchematicBridge({
   schematicUrl = DEFAULT_SCHEMATIC_URL,
   projectType,
   onApplied,
+  onCancel,
   onError,
 }) {
   const [isReady, setIsReady] = useState(false);
@@ -25,7 +26,9 @@ export function useSchematicBridge({
     try {
       const saved = sessionStorage.getItem(`${projectType}_schematic_data`);
       if (saved) return JSON.parse(saved);
-    } catch (_) {}
+    } catch (e) {
+      void e;
+    }
     return { generatedSvg: "", editedSvg: null, isStale: false, standardId: null };
   });
 
@@ -137,10 +140,50 @@ export function useSchematicBridge({
         return;
       }
 
+      // Check for cancel / close signals from iframe
+      const rawData = event.data;
+      const rawType = typeof rawData === "string" ? rawData : rawData?.type;
+      const rawAction = rawData?.action || rawData?.payload?.action;
+      const isCancel =
+        rawType === "SCHEMATIC_EDITOR_CANCELLED" ||
+        rawType === "SCHEMATIC_CANCEL" ||
+        rawType === "SCHEMATIC_CANCELLED" ||
+        rawType === "SCHEMATIC_CANCELED" ||
+        rawType === "SCHEMATIC_CLOSE" ||
+        rawType === "CLOSE_EDITOR" ||
+        rawType === "CANCEL_EDITOR" ||
+        rawType === "EDITOR_CANCEL" ||
+        rawType === "EDITOR_CANCELLED" ||
+        rawType === "EDITOR_CLOSED" ||
+        rawType === "CANCEL" ||
+        rawType === "CLOSE" ||
+        rawAction === "cancel" ||
+        rawAction === "close" ||
+        (typeof rawType === "string" &&
+          (rawType.toLowerCase().includes("cancel") || rawType.toLowerCase().includes("close")));
+
+      if (isCancel) {
+        if (onCancel) onCancel();
+        return;
+      }
+
       const { version, type, requestId, payload } = event.data || {};
       if (version !== 1) return;
 
       switch (type) {
+        case "SCHEMATIC_EDITOR_CANCELLED":
+        case "SCHEMATIC_CANCEL":
+        case "SCHEMATIC_CANCELLED":
+        case "SCHEMATIC_CANCELED":
+        case "SCHEMATIC_CLOSE":
+        case "CLOSE_EDITOR":
+        case "CANCEL_EDITOR":
+        case "EDITOR_CANCEL":
+        case "EDITOR_CANCELLED":
+        case "EDITOR_CLOSED": {
+          if (onCancel) onCancel();
+          break;
+        }
         case "SCHEMATIC_READY": {
           setIsReady(true);
           break;
@@ -205,7 +248,7 @@ export function useSchematicBridge({
 
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
-  }, [iframeRef, targetOrigin, updateData, onApplied, onError]);
+  }, [iframeRef, targetOrigin, updateData, onApplied, onCancel, onError]);
 
   // Command: REGENERATE / RESET TO ORIGINAL
   const resetToDefault = useCallback(

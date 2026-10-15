@@ -190,7 +190,6 @@ export const REQUIRED_KEYS = {
   ys: [
     "projectNo",
     "projectName",
-    "mgmtNo",
     "requestNo",
     "companyName",
     "classification",
@@ -203,7 +202,6 @@ export const REQUIRED_KEYS = {
     "department",
     "documentNo", // must also be a valid Request No.
     "subject",
-    "mgmtNo",
     "classification",
     "requestDate",
     "dueDate",

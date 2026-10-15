@@ -422,9 +422,9 @@ export function usePoleCalculation({
     const activeDraft = draftId || sessionStorage.getItem(`${projectType}_active_draft_id`);
     if (activeDraft) {
       saveWorkingSessionToDraft(projectType, activeDraft);
-      navigate(`/requests/${projectType}/${activeDraft}/report`, { state: reportPayload });
+      navigate(`/projects/${projectType}/${activeDraft}/report`, { state: reportPayload });
     } else {
-      navigate(`/requests/${projectType}`, { state: reportPayload });
+      navigate(`/projects/${projectType}`, { state: reportPayload });
     }
   };
 
@@ -433,7 +433,7 @@ export function usePoleCalculation({
   const finish = () => {
     if (!isCalculated) return;
     if (isLast) return "OPEN_COVER";
-    navigate(`/requests/${projectType}/${draftId}/${nextStep}`);
+    navigate(`/projects/${projectType}/${draftId}/${nextStep}`);
   };
 
   return {

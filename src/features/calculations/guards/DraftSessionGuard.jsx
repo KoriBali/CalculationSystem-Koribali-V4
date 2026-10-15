@@ -22,7 +22,7 @@ export default function DraftSessionGuard() {
 
   // Ensure draftId is present
   if (!draftId) {
-    return <Navigate to="/requests" replace />;
+    return <Navigate to="/projects" replace />;
   }
 
   return <Outlet />;

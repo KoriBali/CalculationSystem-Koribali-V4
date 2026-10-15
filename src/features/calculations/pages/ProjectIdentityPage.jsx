@@ -28,10 +28,10 @@ export default function ProjectIdentityPage() {
 
     const mode = workflowForm.workflowData.projectMode || "calculation";
     if (mode === "drawing") {
-      navigate(`/requests/${projectType}/${draftId}/drawing`);
+      navigate(`/projects/${projectType}/${draftId}/drawing`);
     } else {
       // Both 'calculation' and 'both' start at the initial step
-      navigate(`/requests/${projectType}/${draftId}/initial`);
+      navigate(`/projects/${projectType}/${draftId}/initial`);
     }
   };
 

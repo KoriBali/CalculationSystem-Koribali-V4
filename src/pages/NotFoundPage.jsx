@@ -10,8 +10,8 @@ export default function NotFoundPage() {
   const activeDraftId = activeProject ? sessionStorage.getItem(`${activeProject}_active_draft_id`) : null;
 
   const backPath = activeDraftId
-    ? `/requests/${activeProject}/${activeDraftId}`
-    : "/requests";
+    ? `/projects/${activeProject}/${activeDraftId}`
+    : "/projects";
 
   const buttonLabel = activeDraftId ? "Back to Calculation" : "Back to Main Menu";
 

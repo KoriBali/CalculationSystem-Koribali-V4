@@ -171,12 +171,13 @@ export default function NewRequestFormPage() {
 
     const saved = loadNewRequestDraft(projectType);
 
-    // If draft is fresh, not populated, or has windSpeed not 60, initialize with default auto-filled data
+    // If draft is fresh, not populated, or has old project data, initialize with default auto-filled data
     if (
       !saved ||
       !saved.coverType ||
       saved.coverType === "yp" ||
       !saved.ys?.projectName ||
+      saved.ys?.projectName !== "宮下児童遊園" ||
       saved.ys?.windSpeed !== "60"
     ) {
       return {
@@ -609,7 +610,7 @@ export default function NewRequestFormPage() {
   const disciplineSection = (
     <div>
       <SectionTitle tag="Required" required>
-        Discipline
+        Work Type
       </SectionTitle>
       <SectionCard>
         <DisciplineCards
@@ -648,7 +649,7 @@ export default function NewRequestFormPage() {
       note: requestNotes[coverType],
     }));
     setShowSaveConfirmModal(false);
-    navigate(`/requests/detail/${requestId}`);
+    navigate(`/projects/detail/${requestId}`);
   };
 
   // Save: if a required field is empty, mark them all and bring the first
@@ -693,7 +694,7 @@ export default function NewRequestFormPage() {
       createdBy: creatorMember().name,
     });
     clearNewRequestDraft();
-    navigate(`/requests/detail/${request.id}`);
+    navigate(`/projects/detail/${request.id}`);
   };
 
   const currentRequestNo = isEditMode
@@ -704,7 +705,7 @@ export default function NewRequestFormPage() {
     <div className="flex flex-col h-full min-h-screen">
       <Helmet>
         <title>
-          {isEditMode ? `Edit ${currentRequestNo} - KORI BALI` : "New Request - KORI BALI"}
+          {isEditMode ? `Edit ${currentRequestNo} - KORI BALI` : "New Project - KORI BALI"}
         </title>
       </Helmet>
 
@@ -722,20 +723,20 @@ export default function NewRequestFormPage() {
               type="button"
               onClick={() => {
                 if (isEditMode) {
-                  navigate(`/requests/detail/${requestId}`);
+                  navigate(`/projects/detail/${requestId}`);
                 } else {
-                  leave("/requests/new");
+                  leave("/projects/new");
                 }
               }}
               className="self-start md:self-auto flex shrink-0 items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap text-white px-3 py-2 sm:px-4 rounded-lg hp:rounded-md text-xs sm:text-sm font-medium border border-white/20 hover:bg-white/10 active:bg-white/15 transition"
             >
               <ArrowLeft className="w-4 h-4 shrink-0" />
-              {isEditMode ? "Back to Request Detail" : "Back to Project Type"}
+              {isEditMode ? "Back to Project Detail" : "Back to Project Type"}
             </button>
 
             {isEditMode && (
               <div className="flex items-center gap-2">
-                <span className="text-white/70 text-xs sm:text-sm">Editing Request:</span>
+                <span className="text-white/70 text-xs sm:text-sm">Editing Project:</span>
                 <span className="text-white font-bold text-xs sm:text-sm bg-white/15 px-2.5 py-0.5 rounded-full border border-white/20">
                   {currentRequestNo}
                 </span>
@@ -767,7 +768,7 @@ export default function NewRequestFormPage() {
                   }`}
                 >
                   {hasDiscipline ? <Check className="w-3.5 h-3.5" /> : null}
-                  Discipline
+                  Work Type
                 </span>
               </div>
             )}
@@ -1061,26 +1062,10 @@ export default function NewRequestFormPage() {
                       Request Identity
                     </SectionTitle>
                     <SectionCard>
-                      {/* xl: the shared 4-column grid — Mgmt No. · Request
-                          No. · Company Name · Classification, then the two
-                          dates and Request Type. Below xl: pairs. */}
+                      {/* xl: the shared 4-column grid — Request No. · Company
+                          Name · Classification, then the two dates and
+                          Request Type. Below xl: pairs. */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-x-6 gap-y-6 md:gap-y-8">
-                        <div className="relative">
-                          <Label
-                            jp="設計依頼管理No"
-                            action={ysRestore("mgmtNo")}
-                            required
-                          >
-                            Design Request Management No.
-                          </Label>
-                          <input
-                            type="text"
-                            {...ysInput("mgmtNo")}
-                            placeholder="e.g. 2609-0418"
-                          />
-                          {ysMissing("mgmtNo")}
-                          {requiredHint("mgmtNo")}
-                        </div>
                         <div className="relative">
                           <Label
                             jp="依頼No"
@@ -1343,9 +1328,9 @@ export default function NewRequestFormPage() {
                                   Opening Height
                                 </Label>
                                 <input
-                                  type="number"
+                                  type="text"
                                   {...ysInput("openingHeight")}
-                                  placeholder="e.g. 500"
+                                  placeholder="e.g. 500 or GL＋750"
                                 />
                                 {ysMissing("openingHeight")}
                               </div>
@@ -1648,12 +1633,11 @@ export default function NewRequestFormPage() {
                           the 4-column rows of the other sections; to fit one
                           column, Classification's buttons use tight padding.
                           Subject spans all four.
-                          sm–lg — 6 columns: Subject (6); Mgmt No. ·
-                          Classification and the dates 3 + 3 (50/50, so the
-                          long Mgmt No. label stays on one line).
+                          sm — 2 columns: Subject (2); Classification,
+                          Request Date, Expected Completion Date, and Request Type (1 each).
                           Mobile: one column. */}
-                      <div className="mt-6 md:mt-8 grid grid-cols-1 sm:grid-cols-6 xl:grid-cols-4 items-end gap-x-6 gap-y-6 md:gap-y-8">
-                        <div className="relative sm:col-span-6 xl:col-span-4">
+                      <div className="mt-6 md:mt-8 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 items-end gap-x-6 gap-y-6 md:gap-y-8">
+                        <div className="relative sm:col-span-2 xl:col-span-4">
                           <Label jp="依頼件名" required>
                             Subject
                           </Label>
@@ -1664,20 +1648,9 @@ export default function NewRequestFormPage() {
                           />
                           {requiredHint("subject")}
                         </div>
-                        <div className="relative sm:col-span-3 xl:col-span-1">
-                          <Label jp="設計依頼管理No" required>
-                            Design Request Management No.
-                          </Label>
-                          <input
-                            type="text"
-                            {...ypInput("mgmtNo")}
-                            placeholder="e.g. 202601-004"
-                          />
-                          {requiredHint("mgmtNo")}
-                        </div>
                         <div
                           data-field="classification"
-                          className="relative sm:col-span-3 xl:col-span-1"
+                          className="relative sm:col-span-1 xl:col-span-1"
                         >
                           <Label jp="分類" required>
                             Classification
@@ -1692,7 +1665,7 @@ export default function NewRequestFormPage() {
                           />
                           {requiredHint("classification")}
                         </div>
-                        <div className="relative sm:col-span-3 xl:col-span-1">
+                        <div className="relative sm:col-span-1 xl:col-span-1">
                           <Label jp="依頼年月日" required>
                             Request Date
                           </Label>
@@ -1705,7 +1678,7 @@ export default function NewRequestFormPage() {
                         {/* 完成希望日: the requester's deadline. Named as on
                             the YP cover, but it's the same due date the
                             Request List tracks (YS: Requested Due Date). */}
-                        <div className="relative sm:col-span-3 xl:col-span-1">
+                        <div className="relative sm:col-span-1 xl:col-span-1">
                           <Label jp="完成希望日" required>
                             Expected Completion Date
                           </Label>
@@ -1717,7 +1690,7 @@ export default function NewRequestFormPage() {
                         </div>
                         <div
                           data-field="requestType"
-                          className="relative sm:col-span-3 xl:col-span-1"
+                          className="relative sm:col-span-1 xl:col-span-1"
                         >
                           <Label jp="依頼種別" required>
                             Request Type
@@ -2331,7 +2304,7 @@ export default function NewRequestFormPage() {
                   {isEditMode && (
                     <button
                       type="button"
-                      onClick={() => navigate(`/requests/detail/${requestId}`)}
+                      onClick={() => navigate(`/projects/detail/${requestId}`)}
                       className="px-5 py-2.5 md:px-6 rounded-lg hp:rounded-md bg-white text-slate-700 font-medium text-xs md:text-sm hover:bg-slate-50 transition-colors border border-slate-300"
                     >
                       Cancel
@@ -2395,38 +2368,37 @@ export default function NewRequestFormPage() {
 
       {/* ── Edit Mode Save Confirmation Modal ── */}
       {showSaveConfirmModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="w-full max-w-md bg-white border border-slate-200 rounded-2xl shadow-2xl p-6 space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="p-3 rounded-full bg-blue-100 text-blue-600 shrink-0">
-                <Check className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="text-base font-bold text-slate-900">
-                  Save Changes?
-                </h3>
-                <p className="text-xs text-slate-500">
-                  Confirm changes to this request
-                </p>
-              </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm px-4">
+          <div className="w-full max-w-xs sm:max-w-md bg-white border border-gray-200 rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-8 transform transition-all animate-fadeIn">
+            {/* Icon */}
+            <div className="mx-auto mb-3 flex items-center justify-center w-10 h-10 sm:w-16 sm:h-16 bg-blue-50 rounded-full border border-blue-100">
+              <Check className="w-5 h-5 sm:w-8 sm:h-8 text-[#0d3b66]" />
             </div>
 
-            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed bg-slate-50 p-3.5 rounded-xl border border-slate-200">
-              Apakah Anda yakin ingin menyimpan perubahan pada request ini? Data request yang telah diedit akan disimpan dan Anda akan dialihkan kembali ke halaman Request Detail.
+            {/* Title */}
+            <h2 className="text-center font-bold text-sm sm:text-base text-gray-900 mb-1 sm:mb-2">
+              Save Changes?
+            </h2>
+
+            {/* Description */}
+            <p className="text-center text-gray-600 text-xs sm:text-sm mb-4 sm:mb-6 leading-relaxed">
+              Are you sure you want to save changes to this project? Your updates will be saved and you will be redirected to the Project Detail page.
             </p>
 
-            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+            {/* Actions */}
+            <div className="flex gap-2 sm:gap-3">
               <button
                 type="button"
                 onClick={() => setShowSaveConfirmModal(false)}
-                className="px-4 py-2 rounded-lg text-xs sm:text-sm font-medium text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 transition-colors"
+                className="flex-1 py-2 sm:py-3 font-bold text-xs sm:text-sm bg-slate-100 text-slate-600 rounded-md sm:rounded-lg hover:bg-slate-200 transition"
               >
                 Keep Editing
               </button>
+
               <button
                 type="button"
                 onClick={handleConfirmSaveEdit}
-                className="px-5 py-2 rounded-lg text-xs sm:text-sm font-semibold text-white bg-[#0d3b66] hover:bg-[#0b3157] shadow-sm transition-all"
+                className="flex-1 py-2 sm:py-3 font-bold text-xs sm:text-sm bg-[#0d3b66] text-white rounded-md sm:rounded-lg hover:bg-[#154c80] transition"
               >
                 Yes, Save Changes
               </button>

@@ -70,7 +70,7 @@ export function RTypeForm({
             {/* Opening Width — tengah tengah */}
             <div className="absolute top-[50%] left-[20%] sm:left-[9%] 2xl:left-[14%] -translate-x-1/2 -translate-y-1/2">
               <label className="block text-xs md:text-sm text-gray-700 mb-1">
-                Opening Width
+                Cut Width
               </label>
               <div className="relative w-fit">
                 <input
@@ -98,7 +98,7 @@ export function RTypeForm({
               {/* 1. Opening Surface Height Input */}
               <div className="relative">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1">
-                  Opening Surface Height
+                  Opening Cut Length
                 </label>
                 <div className="relative">
                   <input
@@ -155,7 +155,7 @@ export function RTypeForm({
             {/* 3. Opening Length Input */}
             <div className="relative mt-[80px] sm:mt-[150px] w-[100px] sm:w-[120px] xl:w-[140px]">
               <label className="block text-xs md:text-sm text-gray-700 mb-1">
-                Opening Length
+                Opening Center Height
               </label>
               <div className="relative">
                 <input

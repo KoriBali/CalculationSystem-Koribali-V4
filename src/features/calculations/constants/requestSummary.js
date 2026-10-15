@@ -105,11 +105,6 @@ export const REQUEST_SUMMARY = {
           wide: true,
         },
         {
-          label: "Design Request Management No.",
-          jp: "設計依頼管理No",
-          value: text("mgmtNo"),
-        },
-        {
           label: "Classification",
           jp: "分類",
           value: option("classification", CLASSIFICATION_OPTIONS),
@@ -125,7 +120,7 @@ export const REQUEST_SUMMARY = {
           jp: "依頼種別",
           value: option("requestType", REQUEST_TYPE_OPTIONS),
         },
-        { label: "Discipline", value: discipline },
+        { label: "Work Type", value: discipline },
       ],
     },
     {
@@ -244,11 +239,6 @@ export const REQUEST_SUMMARY = {
     {
       title: "Request Identity",
       fields: [
-        {
-          label: "Design Request Management No.",
-          jp: "設計依頼管理No",
-          value: text("mgmtNo"),
-        },
         { label: "Request No.", jp: "依頼No", value: text("requestNo") },
         { label: "Company Name", jp: "会社名", value: text("companyName") },
         {
@@ -267,7 +257,7 @@ export const REQUEST_SUMMARY = {
           jp: "依頼種別",
           value: option("requestType", REQUEST_TYPE_OPTIONS),
         },
-        { label: "Discipline", value: discipline },
+        { label: "Work Type", value: discipline },
       ],
     },
     {

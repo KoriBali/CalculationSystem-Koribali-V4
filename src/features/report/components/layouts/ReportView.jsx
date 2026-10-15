@@ -10,12 +10,10 @@ import { clearCalculationSession } from "../../../calculations/utils";
 import {
   ArrowLeft,
   Download,
-  Trash2,
   FileText,
   FileEdit,
   AlertCircle,
   Calculator,
-  Database,
 } from "lucide-react";
 import { EmptyReport } from "../../../../assets/icon";
 import { ConfirmSaveDatabaseModal } from "../../../calculations/components/modals/ConfirmSaveDatabaseModal";
@@ -31,6 +29,7 @@ import {
   getDraftData,
   deserializeWorkingSession,
   saveWorkingSessionToDraft,
+  clearActiveDraftId,
 } from "../../../calculations/utils/coreLogic";
 import { CoverFormModal } from "../../../calculations/components/modals/CoverFormModal";
 
@@ -123,8 +122,6 @@ export function ReportView() {
     sessionStorage.setItem(`${projectType}_reportSnapshot`, JSON.stringify(fresh));
     return fresh;
   }, [storedSnapshot, projectType, draftId]);
-
-  const isSimulation = Boolean(reportData?.isSimulation);
 
   const num = (v, fallback = 0) => {
     if (v === undefined || v === null || v === "") return fallback;
@@ -228,24 +225,24 @@ export function ReportView() {
 
   const onBackCalculation = () => {
     if (projectType && draftId) {
-      navigate(`/requests/${projectType}/${draftId}/initial`);
+      navigate(`/projects/${projectType}/${draftId}/initial`);
       return;
     }
     const backPath = activeDraftRequestPath(projectType);
-    if (backPath && backPath !== "/requests") {
+    if (backPath && backPath !== "/projects") {
       navigate(backPath);
       return;
     }
-    navigate("/requests");
+    navigate("/projects");
   };
 
   const onBackRequest = () => {
     const backPath = activeDraftRequestPath(projectType);
-    if (backPath && backPath !== "/requests") {
+    if (backPath && backPath !== "/projects") {
       navigate(backPath);
       return;
     }
-    navigate(`/requests/${projectType}`);
+    navigate(`/projects/${projectType}`);
   };
 
   // Rename PDF filename via document.title (common browser workaround)
@@ -260,12 +257,11 @@ export function ReportView() {
     setHasReport(false);
     setShowDeleteConfirm(false);
     clearCalculationSession(projectType);
-    navigate("/requests");
+    navigate("/projects");
   };
 
   const handleConfirmSaveDb = () => {
     // Database save logic will go here
-    showToast("Project successfully saved to database!", "success");
     setShowDbModal(false);
     // Back to the case's request — read before the session is cleared.
     const backPath = activeDraftRequestPath(projectType);
@@ -273,7 +269,7 @@ export function ReportView() {
       clearCalculationSession(projectType);
       clearActiveDraftId(projectType);
       navigate(backPath);
-    }, 2500);
+    }, 1000);
   };
 
   // ── Schematic setup (Standard Pole IA, IS, LA, LS, TA, TS) ──
@@ -310,6 +306,9 @@ export function ReportView() {
     schematicUrl: DEFAULT_SCHEMATIC_URL,
     projectType,
     onApplied: () => {
+      setIsEditorOpen(false);
+    },
+    onCancel: () => {
       setIsEditorOpen(false);
     },
   });
@@ -482,11 +481,11 @@ export function ReportView() {
             <div className="flex items-center gap-2">
               <button
                 onClick={onBackRequest}
-                className="flex items-center gap-1.5 px-4 py-2 text-sm bg-white text-slate-700 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors hp:px-3 hp:py-1.5 cursor-pointer"
-                title="Back to Request Detail"
+                className="flex justify-center items-center gap-2 px-5 py-2.5 hp:px-3 hp:py-2 md:px-6 rounded-lg hp:rounded-md font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] text-xs sm:text-sm ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm transition-colors cursor-pointer"
+                title="Back to Project"
               >
-                <ArrowLeft className="w-4 h-4" />
-                <span className="hp:hidden">Request Detail</span>
+                <ArrowLeft className="w-4 h-4 shrink-0" />
+                <span className="hp:hidden">Back to Project</span>
               </button>
 
               {draftId && (
@@ -503,18 +502,6 @@ export function ReportView() {
 
             {/* Actions */}
             <div className="flex items-center gap-3 hp:gap-2">
-              {/* Delete button hidden as requested */}
-              {false && (
-                <button
-                  onClick={() => setShowDeleteConfirm(true)}
-                  title="Delete Report"
-                  className="flex items-center gap-2 px-5 py-2.5 text-sm bg-white text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition-colors hp:px-3 hp:py-2 cursor-pointer"
-                >
-                  <Trash2 className="w-4 h-4" />
-                  <span className="hp:hidden">Delete Report</span>
-                </button>
-              )}
-
               {/* Edit Cover Information Button */}
               <button
                 onClick={() => setShowEditCoverModal(true)}
@@ -524,18 +511,6 @@ export function ReportView() {
                 <FileEdit className="w-4 h-4 text-[#0d3b66]" />
                 <span className="hp:hidden">Edit Cover Information</span>
               </button>
-
-              {/* Save to Database — hidden for now, re-enable when ready */}
-              {false && (
-                <button
-                  onClick={() => setShowDbModal(true)}
-                  title="Save to Database"
-                  className="flex items-center gap-2 px-5 py-2.5 text-sm bg-white text-[#3399cc] border border-[#3399cc] rounded-lg hover:bg-blue-50 transition-all shadow-sm hp:px-3 hp:py-2"
-                >
-                  <Database className="w-4 h-4" />
-                  <span className="hp:hidden">Save to Database</span>
-                </button>
-              )}
 
               <button
                 onClick={handlePrint}

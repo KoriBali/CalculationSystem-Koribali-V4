@@ -210,7 +210,7 @@ export default function InitialAssignment({
       {/* ── Confirmation Modal: Remove Member (matches screenshot) ── */}
       {memberToRemove &&
         createPortal(
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm px-4 animate-in fade-in duration-200">
+          <div className="fixed inset-0 z-[999] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm px-4 animate-in fade-in duration-200">
             <div className="w-full max-w-xs sm:max-w-md bg-white border border-gray-200 rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-8 text-center animate-in zoom-in-95 duration-200">
               {/* Danger icon */}
               <div className="mx-auto mb-3 flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-red-100 rounded-full">
@@ -259,7 +259,7 @@ export default function InitialAssignment({
       {/* ── Modal: Assign Member (Fullscreen Overlay, Candidates Only) ── */}
       {modalOpen &&
         createPortal(
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
             <div className="w-full max-w-md sm:max-w-lg h-[520px] sm:h-[560px] lg:h-[580px] 2xl:h-[640px] max-h-[90vh] bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
               {/* Modal Header */}
               <div className="bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] px-6 py-5 flex items-center justify-between shrink-0 rounded-t-2xl">

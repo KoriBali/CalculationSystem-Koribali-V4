@@ -77,13 +77,13 @@ export default function ProjectSelectPage() {
       navigate("/404");
       return;
     }
-    navigate(`/requests/new/${projectId}`);
+    navigate(`/projects/new/${projectId}`);
   };
 
   return (
     <div className="min-h-screen bg-slate-50/50">
       <Helmet>
-        <title>Select Project Type — New Request · KORI BALI</title>
+        <title>Select Project Type — New Project · KORI BALI</title>
       </Helmet>
       <div className="mx-auto w-full max-w-[1600px] px-6 hp:px-3 py-4 sm:py-6 lg:py-8">
         {/* ── Page header ── */}
@@ -103,11 +103,11 @@ export default function ProjectSelectPage() {
 
           {/* Same Back style as the calculation steps. */}
           <button
-            onClick={() => navigate("/requests")}
+            onClick={() => navigate("/projects")}
             className="flex shrink-0 items-center justify-center gap-2 whitespace-nowrap px-5 py-2.5 md:px-6 rounded-lg hp:rounded-md font-medium text-xs sm:text-sm bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm transition-colors"
           >
             <ChevronLeft className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-            Back to Requests
+            Back to Projects
           </button>
         </motion.div>
 
@@ -123,11 +123,11 @@ export default function ProjectSelectPage() {
               </div>
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-slate-800">
-                  You have an unfinished request
+                  You have an unfinished project
                 </p>
                 <p className="mt-0.5 text-xs sm:text-sm text-slate-600 leading-relaxed">
                   Your <span className="font-medium">{unfinishedTitle}</span>{" "}
-                  request hasn&apos;t been saved yet. Continue where you left
+                  project hasn&apos;t been saved yet. Continue where you left
                   off, or discard it. Opening another project type also discards
                   it.
                 </p>
@@ -143,7 +143,7 @@ export default function ProjectSelectPage() {
               </button>
               <button
                 type="button"
-                onClick={() => navigate(`/requests/new/${unfinishedType}`)}
+                onClick={() => navigate(`/projects/new/${unfinishedType}`)}
                 className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg hp:rounded-md text-xs sm:text-sm font-medium bg-[#0d3b66] text-white hover:bg-[#0b3157] shadow-sm transition-colors"
               >
                 Continue

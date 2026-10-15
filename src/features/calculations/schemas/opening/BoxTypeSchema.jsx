@@ -14,10 +14,10 @@ const numberField = (label) =>
 export const BoxTypeSchema = (requireDirection) =>
   yup.object({
     boxWidth: numberField("Box Width"),
-    opWidth: numberField("Opening Width"),
+    opWidth: numberField("Cut Width"),
     boxHeight: numberField("Box Thickness"),
-    opSurfaceHeight: numberField("Opening Surface Height"),
-    opLength: numberField("Opening Length"),
+    opSurfaceHeight: numberField("Opening Cut Length"),
+    opLength: numberField("Opening Center Height"),
     openingDirection: requireDirection
       ? yup.string().required("Opening Direction is required")
       : yup.string(),

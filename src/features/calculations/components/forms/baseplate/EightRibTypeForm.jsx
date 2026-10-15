@@ -350,7 +350,7 @@ export function EightRibTypeForm({
               {/* Weld Leg Length */}
               <div className="absolute top-1 sm:-top-4 xl:-top-1 -right-[38px] sm:-right-[37px] xl:-right-[49px] 2xl:-right-[49px]">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1">
-                  Weld Leg Length
+                  Welding Length
                 </label>
                 <div className="relative w-fit">
                   <input

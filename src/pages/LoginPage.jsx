@@ -33,7 +33,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (isAuthenticated()) {
-      navigate("/requests");
+      navigate("/projects");
     }
   }, []);
 
@@ -101,7 +101,7 @@ export default function LoginPage() {
         const user = await getMe();
         setUser(user);
 
-        navigate("/requests");
+        navigate("/projects");
       } catch (error) {
         setLoginError(
           error.response?.data?.detail ||
@@ -339,7 +339,7 @@ export default function LoginPage() {
                     refreshToken: "guest-session-token",
                     user: { name: "Guest User", email: "guest@koribali.com" },
                   });
-                  navigate("/requests");
+                  navigate("/projects");
                 }}
                 className="w-full bg-white border-2 border-slate-200 text-slate-600 hover:text-slate-800 font-medium py-3.5 px-6 rounded-full hover:border-slate-300 hover:bg-slate-50 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-sm md:text-base"
               >

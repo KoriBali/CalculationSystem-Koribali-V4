@@ -248,9 +248,9 @@ export function useReport(projectType) {
     const activeDraftId = draftIdOverride || sessionStorage.getItem(`${projectType}_active_draft_id`);
     if (activeDraftId) {
       saveWorkingSessionToDraft(projectType, activeDraftId);
-      navigate(`/requests/${projectType}/${activeDraftId}/report`, { state: reportPayload });
+      navigate(`/projects/${projectType}/${activeDraftId}/report`, { state: reportPayload });
     } else {
-      navigate(`/requests/${projectType}`, { state: reportPayload });
+      navigate(`/projects/${projectType}`, { state: reportPayload });
     }
     return true;
   };

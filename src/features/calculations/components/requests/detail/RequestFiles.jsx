@@ -109,6 +109,18 @@ export function RequestFiles({ files, onUpload, onRemove }) {
 
   return (
     <div>
+      {/* ── Section Explanation Header ── */}
+      <div className="pb-3 mb-3.5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div>
+          <p className="text-xs sm:text-sm text-slate-700 font-medium">
+            Project References & Supporting Documents
+          </p>
+          <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
+            There are several file category tabs below. You can organize and adjust your uploads by selecting the corresponding tab according to the file type.
+          </p>
+        </div>
+      </div>
+
       {/* Folder tabs */}
       <div
         role="tablist"

@@ -66,7 +66,6 @@ const SUBMITTERS = [
   "Amiril Mukminin",
   "Muhammad Rifa Alfadli",
   "Ni Nyoman Kayika Manuhita",
-  "Nurul Balqis Apriany",
   "Azzachra Caesyafitri",
   "Bryant",
 ];
@@ -79,7 +78,7 @@ const ARCHIVE = [
     "11902",
     "Tsukuba science park lighting",
     "Ibaraki Denki",
-    "Rani Putri",
+    "M. Ramdan Purnama",
     12,
   ],
   [
@@ -88,7 +87,7 @@ const ARCHIVE = [
     "T-100120",
     "Kobe harbor signboard pole",
     "Hanshin Signs",
-    "Dimas Pratama",
+    "Pijar Eko Saktiaji",
     15,
   ],
   [
@@ -97,7 +96,7 @@ const ARCHIVE = [
     "11870",
     "Sendai station plaza lighting",
     "Tohoku Lighting",
-    "Rani Putri",
+    "Ajie Jodi Sumarno",
     18,
   ],
   [
@@ -106,7 +105,7 @@ const ARCHIVE = [
     "T-100098",
     "Osaka ring road speaker pole",
     "Kansai Bousai",
-    "Ayu Lestari",
+    "Mediani Utami",
     22,
   ],
   [
@@ -115,7 +114,7 @@ const ARCHIVE = [
     "11833",
     "Kanazawa castle park lighting",
     "Hokuriku Lighting",
-    "Rani Putri",
+    "Nawid Ahmad",
     26,
   ],
   [
@@ -124,7 +123,7 @@ const ARCHIVE = [
     "T-100071",
     "Nagoya expressway signboard pole",
     "Chubu Sign Co.",
-    "Dimas Pratama",
+    "Muhammad Fitra Romadhon",
     30,
   ],
   [
@@ -133,7 +132,7 @@ const ARCHIVE = [
     "11790",
     "Hiroshima riverside lighting",
     "Setouchi Denko",
-    "Rani Putri",
+    "Vannto",
     35,
   ],
   [
@@ -142,7 +141,7 @@ const ARCHIVE = [
     "T-100054",
     "Fukuoka airport floodlight pole",
     "Kyushu Infra",
-    "Ayu Lestari",
+    "Raden Nur Afrisya",
     41,
   ],
   [
@@ -151,7 +150,7 @@ const ARCHIVE = [
     "11752",
     "Matsumoto city street lighting",
     "Shinano Denki",
-    "Rani Putri",
+    "Bintarjo Agus Priyadi",
     47,
   ],
   [
@@ -160,7 +159,7 @@ const ARCHIVE = [
     "T-100030",
     "Sapporo snow festival lighting",
     "Hokkaido Lights",
-    "Dimas Pratama",
+    "Cece Saepurrohman",
     54,
   ],
   [
@@ -169,7 +168,7 @@ const ARCHIVE = [
     "11708",
     "Kyoto temple path lighting",
     "Rakuto Lighting",
-    "Rani Putri",
+    "M. Ramdan Purnama",
     60,
   ],
   [
@@ -178,7 +177,7 @@ const ARCHIVE = [
     "T-100012",
     "Okinawa coastal warning pole",
     "Ryukyu Bousai",
-    "Ayu Lestari",
+    "Ricki Harmon",
     68,
   ],
 ];
@@ -205,7 +204,7 @@ export const MOCK_REQUESTS = [
     updatedAt: hoursAgo(2),
     createdByName: "Bintarjo Agus Priyadi",
     createdAt: hoursAgo(288),
-    picName: "Rani Putri",
+    picName: "M. Ramdan Purnama",
     items: [
       { caseNo: "001", work_type: "calc", status: S.READY_CHECK },
       { caseNo: "002", work_type: "calc", status: S.INTERNAL_CORRECTION },
@@ -233,7 +232,7 @@ export const MOCK_REQUESTS = [
     createdByName: "Ricki Harmon",
     createdAt: hoursAgo(480),
     submittedByName: "Muhammad Rifa Alfadli",
-    picName: "Rani Putri",
+    picName: "Pijar Eko Saktiaji",
     items: [
       {
         caseNo: "001",
@@ -264,7 +263,7 @@ export const MOCK_REQUESTS = [
     updatedAt: hoursAgo(26),
     createdByName: "Pijar Eko Saktiaji",
     createdAt: hoursAgo(192),
-    picName: "Rani Putri",
+    picName: "Muhammad Fitra Romadhon",
     items: [
       { caseNo: "001", work_type: "calc", status: S.READY_CHECK },
       { caseNo: "002", work_type: "calc", status: S.IN_PROGRESS },
@@ -293,7 +292,7 @@ export const MOCK_REQUESTS = [
     updatedAt: hoursAgo(74),
     createdByName: "M. Ramdan Purnama",
     createdAt: hoursAgo(360),
-    picName: "Rani Putri",
+    picName: "Ajie Jodi Sumarno",
     items: [
       { caseNo: "001", work_type: "calc", status: S.IN_PROGRESS },
       { caseNo: "002", work_type: "calc", status: S.IN_PROGRESS },
@@ -322,7 +321,7 @@ export const MOCK_REQUESTS = [
     updatedAt: hoursAgo(6),
     createdByName: "Ajie Jodi Sumarno",
     createdAt: hoursAgo(144),
-    picName: "Rani Putri",
+    picName: "Vannto",
     items: [
       { caseNo: "001", work_type: "calc", status: S.READY_CHECK },
       { caseNo: "002", work_type: "calc", status: S.READY_CHECK },
@@ -349,7 +348,7 @@ export const MOCK_REQUESTS = [
     updatedAt: hoursAgo(50),
     createdByName: "Muhammad Fitra Romadhon",
     createdAt: hoursAgo(432),
-    picName: "Rani Putri",
+    picName: "Raden Nur Afrisya",
     items: [{ caseNo: "001", work_type: "drawing", status: S.READY_SUBMIT }],
   },
   {
@@ -374,7 +373,7 @@ export const MOCK_REQUESTS = [
     createdByName: "Nawid Ahmad",
     createdAt: hoursAgo(600),
     submittedByName: "Bryant",
-    picName: "Rani Putri",
+    picName: "Nawid Ahmad",
     items: [
       { caseNo: "001", work_type: "calc", status: S.SUBMITTED },
       { caseNo: "001", work_type: "drawing", status: S.SUBMITTED },
@@ -402,7 +401,7 @@ export const MOCK_REQUESTS = [
     createdByName: "Cece Saepurrohman",
     createdAt: hoursAgo(960),
     submittedByName: "Amiril Mukminin",
-    picName: "Rani Putri",
+    picName: "Cece Saepurrohman",
     closedAt: daysFromNow(-6),
     items: [
       { caseNo: "001", work_type: "calc", status: S.CLEARED },

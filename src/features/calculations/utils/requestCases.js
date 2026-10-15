@@ -6,6 +6,12 @@ import { findRequestOfCase } from "../data/requestStore";
 import { DEFAULT_IDENTITY } from "../hooks/useProjectIdentityForm";
 import { getDraftsIndex } from "./coreLogic";
 import { parseDocumentNo } from "./requestForm";
+import {
+  STANDARD_OPENING_TYPE,
+  STANDARD_BOX_TYPE,
+  STANDARD_BASEPLATE_TYPE,
+  STANDARD_FOUR_RIB_TYPE,
+} from "../constants/standardPoleDefaults";
 
 // Discipline of a case: its label and the draft workflow mode it opens in.
 export const CASE_WORK_TYPES = {
@@ -92,14 +98,23 @@ export const createCase = (request, workType, options = {}) => {
   };
 
   // Draft data keeps each value as its raw stored (JSON) string.
+  const draftData = {
+    workflow: JSON.stringify(workflow),
+    projectIdentity: JSON.stringify(setupIdentityFrom(request)),
+    condition: JSON.stringify(initialCondition),
+    drawing_general: JSON.stringify(initialDrawingGeneral),
+  };
+
+  if (isStandard) {
+    draftData.openingType = JSON.stringify(STANDARD_OPENING_TYPE);
+    draftData.boxType = JSON.stringify(STANDARD_BOX_TYPE);
+    draftData.baseplateType = JSON.stringify(STANDARD_BASEPLATE_TYPE);
+    draftData.fourRibType = JSON.stringify(STANDARD_FOUR_RIB_TYPE);
+  }
+
   sessionStorage.setItem(
     `${request.projectType}_draft_data_${id}`,
-    JSON.stringify({
-      workflow: JSON.stringify(workflow),
-      projectIdentity: JSON.stringify(setupIdentityFrom(request)),
-      condition: JSON.stringify(initialCondition),
-      drawing_general: JSON.stringify(initialDrawingGeneral),
-    }),
+    JSON.stringify(draftData),
   );
   const nextNo = nextCaseNo(request.cases || []);
   const fallbackTitle =
@@ -134,7 +149,7 @@ export const caseLastEdited = (projectType, caseId) =>
 // draft that isn't a case.
 export const requestPathForDraft = (draftId) => {
   const found = draftId ? findRequestOfCase(draftId) : null;
-  return found ? `/requests/detail/${found.request.id}` : "/requests";
+  return found ? `/projects/detail/${found.request.id}` : "/projects";
 };
 // Same, for the draft open in this project type — read it before the
 // session is cleared.

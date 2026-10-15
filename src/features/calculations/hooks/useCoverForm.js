@@ -5,16 +5,15 @@ import { CoverSchema } from "../schemas/cover/CoverSchema";
 
 // ─── CONSTANTS ───────────────────────────────────────────────────────────────
 
-// Default empty cover state — report-cover fields only (identity and
-// workflow flags live in useProjectIdentityForm / useWorkflowMode).
-const DEFAULT_COVER = {
-  reportNumber: "",
-  title1: "",
-  title2: "",
+// Default prefilled cover state — temporary auto-fill defaults
+export const DEFAULT_COVER = {
+  reportNumber: "WS76509-001",
+  title1: "江戸川フラワーガーデン",
+  title2: "強度検討",
   title3: "",
-  region: "",
-  author: "",
-  responsibleDepartment: "",
+  region: "A",
+  author: "X",
+  responsibleDepartment: "S",
 };
 
 // ─── HOOK ────────────────────────────────────────────────────────────────────

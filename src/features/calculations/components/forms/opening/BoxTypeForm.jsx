@@ -125,7 +125,7 @@ export function BoxTypeForm({
             {/* Opening Width — tengah tengah */}
             <div className="absolute top-[27.6%] sm:top-[62%] xl:top-[61%] left-[95px] sm:left-[34%] xl:left-[37%] 2xl:left-[30%] -translate-x-1/2 -translate-y-1/2">
               <label className="block text-xs md:text-sm text-gray-700 mb-1">
-                Opening Width
+                Cut Width
               </label>
               <div className="relative w-fit">
                 <input
@@ -153,7 +153,7 @@ export function BoxTypeForm({
               {/* 1. Opening Surface Height Input */}
               <div className="relative">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1">
-                  Opening Surface Height
+                  Opening Cut Length
                 </label>
                 <div className="relative">
                   <input
@@ -210,7 +210,7 @@ export function BoxTypeForm({
             {/* 3. Opening Length Input */}
             <div className="relative mt-[150px] w-[100px] sm:w-[120px] xl:w-[140px]">
               <label className="block text-xs md:text-sm text-gray-700 mb-1">
-                Opening Length
+                Opening Center Height
               </label>
               <div className="relative">
                 <input

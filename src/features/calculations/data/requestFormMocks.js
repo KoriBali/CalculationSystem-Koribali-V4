@@ -2,35 +2,103 @@
 
 // Workers who can be added to a request (users API).
 export const MOCK_WORKERS = [
-  { id: "u-rina", name: "Rina S.", department: "Structural Dept." },
   {
     id: "u-bintarjo",
     name: "Bintarjo Agus Priyadi",
     department: "Lighting Design Dept.",
   },
-  { id: "u-ricki", name: "Ricki Harmon", department: "Lighting Design Dept." },
-  { id: "u-rani", name: "Rani Putri", department: "Structural Dept." },
-  { id: "u-dimas", name: "Dimas P.", department: "Drafting Dept." },
-  { id: "u-cece", name: "Cece Saepurrohman", department: "Drafting Dept." },
-  { id: "u-amiril", name: "Amiril Mukminin", department: "Signboard Dept." },
+  {
+    id: "u-ramdan",
+    name: "M. Ramdan Purnama",
+    department: "Lighting Design Dept.",
+  },
+  {
+    id: "u-ajie",
+    name: "Ajie Jodi Sumarno",
+    department: "Lighting Design Dept.",
+  },
+  {
+    id: "u-nawid",
+    name: "Nawid Ahmad",
+    department: "Lighting Design Dept.",
+  },
+  {
+    id: "u-vannto",
+    name: "Vannto",
+    department: "Lighting Design Dept.",
+  },
+  {
+    id: "u-ricki",
+    name: "Ricki Harmon",
+    department: "Structural Dept.",
+  },
+  {
+    id: "u-pijar",
+    name: "Pijar Eko Saktiaji",
+    department: "Structural Dept.",
+  },
+  {
+    id: "u-fitra",
+    name: "Muhammad Fitra Romadhon",
+    department: "Structural Dept.",
+  },
+  {
+    id: "u-cece",
+    name: "Cece Saepurrohman",
+    department: "Drafting Dept.",
+  },
+  {
+    id: "u-mediani",
+    name: "Mediani Utami",
+    department: "Drafting Dept.",
+  },
+  {
+    id: "u-afrisya",
+    name: "Raden Nur Afrisya",
+    department: "Drafting Dept.",
+  },
+  {
+    id: "u-amiril",
+    name: "Amiril Mukminin",
+    department: "Development Dept.",
+  },
+  {
+    id: "u-rifa",
+    name: "Muhammad Rifa Alfadli",
+    department: "Development Dept.",
+  },
+  {
+    id: "u-kayika",
+    name: "Ni Nyoman Kayika Manuhita",
+    department: "Development Dept.",
+  },
+  {
+    id: "u-azzachra",
+    name: "Azzachra Caesyafitri",
+    department: "Development Dept.",
+  },
+  {
+    id: "u-bryant",
+    name: "Bryant",
+    department: "Development Dept.",
+  },
 ];
 
 // What the extraction API will return for a YS cover. `null` = not found on
 // the cover (one required and one optional field are left out on purpose so
 // both "not found" states can be seen).
 export const MOCK_COVER_EXTRACT = {
-  mgmtNo: "2609-0418",
-  requestNo: "26-1187",
-  receptionNo: "U-55310",
-  classification: "reuse_new",
+  requestNo: "YSC-26-0107",
+  receptionNo: "26-0311",
+  classification: "new",
   requestType: "general",
-  deliveryDate: "2026-11-30",
-  requestDate: "2026-10-01",
-  requestedDate: "2026-11-15",
+  deliveryDate: "2026-03-26",
+  requestDate: "2026-01-26",
+  requestedDate: "2026-01-30",
   deliveryQty: null,
-  companyName: "Minato Lighting Co., Ltd.",
-  projectNo: "66003",
-  projectName: "Yokohama Bay Street Light Pole",
+  companyName: "YSポール(東京営業所－YSPOLE)",
+  projectNo: "77732",
+  projectName: "宮下児童遊園",
   // Standard is picked from this project type's list at auto-fill time.
   standard: "",
   windSpeed: "60",
@@ -38,12 +106,12 @@ export const MOCK_COVER_EXTRACT = {
   foundationWidth: "800",
   foundationLength: "800",
   foundationDepth: "1500",
-  openingHeight: "500",
-  openingDirection: "Road side",
+  openingHeight: "GL＋750",
+  openingDirection: "A",
   drawingType: "APD (Approval Drawing)",
   surfaceTreatment: "HDZ55",
   coatingType: null,
-  pic: "Tanaka H.",
+  pic: "花村　勇佑",
   // Fills the Discipline cards (workTypes), not a `ys` field.
   discipline: "both",
 };

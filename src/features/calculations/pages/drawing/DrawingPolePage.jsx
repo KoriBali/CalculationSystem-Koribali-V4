@@ -24,18 +24,18 @@ export default function DrawingPolePage() {
   const onNextStep = async () => {
     const result = await handleNext();
     if (result === "GO_OPENING") {
-      navigate(`/requests/${projectType}/${draftId}/drawing/opening`);
+      navigate(`/projects/${projectType}/${draftId}/drawing/opening`);
     } else if (result === "GO_BASEPLATE") {
-      navigate(`/requests/${projectType}/${draftId}/drawing/baseplate`);
+      navigate(`/projects/${projectType}/${draftId}/drawing/baseplate`);
     } else if (result === "GO_COUPLING") {
-      navigate(`/requests/${projectType}/${draftId}/drawing/coupling`);
+      navigate(`/projects/${projectType}/${draftId}/drawing/coupling`);
     } else if (result === "GO_SURFACE") {
-      navigate(`/requests/${projectType}/${draftId}/drawing/surface`);
+      navigate(`/projects/${projectType}/${draftId}/drawing/surface`);
     }
   };
 
   const onBack = () => {
-    navigate(`/requests/${projectType}/${draftId}/drawing/drawing-setup`);
+    navigate(`/projects/${projectType}/${draftId}/drawing/drawing-setup`);
   };
 
   return (

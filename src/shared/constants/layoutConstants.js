@@ -5,7 +5,7 @@ export const MENU_ITEMS = [
   { name: "Users", icon: "Users", path: "/superadmin/users", roles: ["superadmin"] },
 
   // Shared routes
-  { name: "Requests", icon: "Calculator", path: "/requests", roles: ["superadmin", "admin", "drafter"] },
+  { name: "Projects", icon: "Calculator", path: "/projects", roles: ["superadmin", "admin", "drafter"] },
   { name: "Project Database", icon: "Database", path: "/database", roles: ["superadmin", "admin", "drafter"] },
 ];
 

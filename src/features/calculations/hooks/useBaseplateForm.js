@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useProjectStorage } from "./useProjectStorage";
 
@@ -6,6 +6,10 @@ import { validateBaseplate } from "../logic/baseplate/baseplateValidation";
 import { executeBaseplateCalculation } from "../logic/baseplate/baseplateCalculation";
 import { scrollToFirstError, firstErrorMessage } from "../utils/scrollToError";
 import { notifyCalculationProgressChanged } from "../utils/calculationProgressEvent";
+import {
+  STANDARD_BASEPLATE_TYPE,
+  STANDARD_FOUR_RIB_TYPE,
+} from "../constants/standardPoleDefaults";
 
 import * as Utils from "../utils";
 
@@ -26,6 +30,7 @@ export function useBaseplateForm() {
   };
 
   const condition = getCondition();
+  const isStandard = condition?.poleType === "standard";
 
   // Read workflow flags from sessionStorage
   const workflow = (() => {
@@ -45,31 +50,68 @@ export function useBaseplateForm() {
   const [baseplateType, setBaseplateType] = useProjectStorage(
     projectType,
     "baseplateType",
-    {
-      type: "",
-    },
+    isStandard ? STANDARD_BASEPLATE_TYPE : { type: "" },
   );
 
   // 4 Rib type input state
   const [fourRibType, setFourRibType] = useProjectStorage(
     projectType,
     "fourRibType",
-    {
-      bpWidthEW: "",
-      bpWidthNS: "",
-      anchorPitchEW: "",
-      anchorPitchNS: "",
-      anchorDia: "",
-      anchorCount: "",
-      anchorCountTension: "",
-      bpThickness: "",
-      ribHeight: "",
-      ribScallop: "",
-      weldLeg: "",
-      ribLength: "",
-      ribThickness: "",
-    },
+    isStandard
+      ? STANDARD_FOUR_RIB_TYPE
+      : {
+          bpWidthEW: "",
+          bpWidthNS: "",
+          anchorPitchEW: "",
+          anchorPitchNS: "",
+          anchorDia: "",
+          anchorCount: "",
+          anchorCountTension: "",
+          bpThickness: "",
+          ribHeight: "",
+          ribScallop: "",
+          weldLeg: "",
+          ribLength: "",
+          ribThickness: "",
+        },
   );
+
+  // Auto-select 4 Rib and auto-fill defaults for Standard Pole
+  useEffect(() => {
+    if (isStandard) {
+      setBaseplateType((prev) =>
+        !prev?.type ? STANDARD_BASEPLATE_TYPE : prev,
+      );
+      setFourRibType((prev) => {
+        if (!prev?.bpWidthEW && !prev?.anchorPitchEW) {
+          return {
+            ...prev,
+            bpWidthEW: prev?.bpWidthEW || STANDARD_FOUR_RIB_TYPE.bpWidthEW,
+            bpWidthNS: prev?.bpWidthNS || STANDARD_FOUR_RIB_TYPE.bpWidthNS,
+            anchorPitchEW:
+              prev?.anchorPitchEW || STANDARD_FOUR_RIB_TYPE.anchorPitchEW,
+            anchorPitchNS:
+              prev?.anchorPitchNS || STANDARD_FOUR_RIB_TYPE.anchorPitchNS,
+            anchorDia: prev?.anchorDia || STANDARD_FOUR_RIB_TYPE.anchorDia,
+            anchorCount:
+              prev?.anchorCount || STANDARD_FOUR_RIB_TYPE.anchorCount,
+            anchorCountTension:
+              prev?.anchorCountTension ||
+              STANDARD_FOUR_RIB_TYPE.anchorCountTension,
+            bpThickness:
+              prev?.bpThickness || STANDARD_FOUR_RIB_TYPE.bpThickness,
+            ribHeight: prev?.ribHeight || STANDARD_FOUR_RIB_TYPE.ribHeight,
+            weldLeg: prev?.weldLeg || STANDARD_FOUR_RIB_TYPE.weldLeg,
+            ribScallop: prev?.ribScallop || STANDARD_FOUR_RIB_TYPE.ribScallop,
+            ribLength: prev?.ribLength || STANDARD_FOUR_RIB_TYPE.ribLength,
+            ribThickness:
+              prev?.ribThickness || STANDARD_FOUR_RIB_TYPE.ribThickness,
+          };
+        }
+        return prev;
+      });
+    }
+  }, [isStandard, setBaseplateType, setFourRibType]);
 
   // 8 Rib type input state
   const [eightRibType, setEightRibType] = useProjectStorage(
@@ -246,12 +288,12 @@ export function useBaseplateForm() {
       return "OPEN_COVER";
     }
 
-    navigate(`/requests/${projectType}/${draftId}/${nextStep}`);
+    navigate(`/projects/${projectType}/${draftId}/${nextStep}`);
   };
 
   // Navigates back to the previous step (pole, or opening if enabled)
   const handleBack = () => {
-    navigate(`/requests/${projectType}/${draftId}/${prevStep}`);
+    navigate(`/projects/${projectType}/${draftId}/${prevStep}`);
   };
 
   // Mapping for UI labels

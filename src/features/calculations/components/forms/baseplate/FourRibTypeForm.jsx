@@ -322,7 +322,7 @@ export function FourRibTypeForm({
               {/* Weld Leg Length */}
               <div className="absolute top-2 sm:-top-3 xl:-top-1 -right-[38px] sm:-right-[52px] xl:-right-[65px] 2xl:-right-[65px]">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1">
-                  Weld Leg Length
+                  Welding Length
                 </label>
                 <div className="relative w-fit">
                   <input

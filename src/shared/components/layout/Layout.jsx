@@ -72,17 +72,17 @@ export default function Layout() {
   // Derive current page title from route + session
   const projectType = sessionStorage.getItem("projectType");
   const formattedProjectType = formatProjectType(projectType);
-  const isCalculationRoot = location.pathname === "/requests";
-  // Covers /requests/new (type picker) and /requests/new/:type (form).
-  const isNewRequest = /^\/requests\/new(\/|$)/.test(location.pathname);
-  // /requests/detail/:requestId — Requests > [its Request No.]
+  const isCalculationRoot = location.pathname === "/projects" || location.pathname === "/requests";
+  // Covers /projects/new (type picker) and /projects/new/:type (form).
+  const isNewRequest = /^\/(projects|requests)\/new(\/|$)/.test(location.pathname);
+  // /projects/detail/:requestId — Projects > [its Request No.]
   const requestDetailId = location.pathname.match(
-    /^\/requests\/detail\/([^/]+)/,
-  )?.[1];
-  // /requests/:type/:draftId[/…] — a case's draft (calculation / drawing).
+    /^\/(projects|requests)\/detail\/([^/]+)/,
+  )?.[2];
+  // /projects/:type/:draftId[/…] — a case's draft (calculation / drawing).
   const pathParts = location.pathname.split("/").filter(Boolean);
   const draftId =
-    pathParts[0] === "requests" &&
+    (pathParts[0] === "projects" || pathParts[0] === "requests") &&
     !["new", "detail"].includes(pathParts[1]) &&
     pathParts[2];
   const draftCase = draftId ? findRequestOfCase(draftId) : null;
@@ -90,40 +90,40 @@ export default function Layout() {
     draftCase &&
       (sessionStorage.getItem("case_read_only") === "true" ||
         (draftCase.case?.owner &&
-          draftCase.case.owner !== (userData?.name || "Rani Putri"))),
+          draftCase.case.owner !== (userData?.name || "Bintarjo Agus Priyadi"))),
   );
 
   let currentTitle;
   if (requestDetailId) {
     const request = getRequest(requestDetailId);
     currentTitle = {
-      global: (request && requestNoOf(request)) || "Request Detail",
+      global: (request && requestNoOf(request)) || "Project Detail",
       stage: null,
       substage: null,
     };
   } else if (isCalculationRoot) {
     currentTitle =
-      MENU_ITEMS.find((item) => item.path === "/requests")?.name ??
-      "Calculation";
+      MENU_ITEMS.find((item) => item.path === "/projects")?.name ??
+      "Projects";
   } else if (isNewRequest) {
     // Read project type directly from the URL — single source of truth.
-    // /requests/new/:type → parts[2] is the type slug.
+    // /projects/new/:type → parts[2] is the type slug.
     const urlParts = location.pathname.split("/").filter(Boolean);
-    const typeSlug = urlParts[2]; // exists only on the form page, e.g. /requests/new/lighting-project
+    const typeSlug = urlParts[2]; // exists only on the form page, e.g. /projects/new/lighting-project
     const formattedTypeFromUrl = typeSlug ? formatProjectType(typeSlug) : null;
     if (formattedTypeFromUrl) {
-      // Requests > New Request > Lighting Project
+      // Projects > New Project > Lighting Project
       currentTitle = {
-        global: "New Request",
+        global: "New Project",
         stage: formattedTypeFromUrl,
         substage: null,
       };
     } else {
-      // Requests > New Request
-      currentTitle = { global: "New Request", stage: null, substage: null };
+      // Projects > New Project
+      currentTitle = { global: "New Project", stage: null, substage: null };
     }
   } else if (
-    location.pathname.startsWith("/requests") &&
+    (location.pathname.startsWith("/projects") || location.pathname.startsWith("/requests")) &&
     formattedProjectType
   ) {
     let substage = null;
@@ -165,11 +165,11 @@ export default function Layout() {
       substage = "Report";
     }
 
-    // A case: Requests > [Request No.] > Case 001 > [step]; any other
-    // draft: Requests > [Project Type] > Project Setup > [step].
+    // A case: Projects > [Request No.] > Case 001 > [step]; any other
+    // draft: Projects > [Project Type] > Project Setup > [step].
     currentTitle = draftCase
       ? {
-          global: requestNoOf(draftCase.request) || "Request",
+          global: requestNoOf(draftCase.request) || "Project",
           stage: `Case ${draftCase.case.no}`,
           substage: substage ?? "Initial",
         }
@@ -190,8 +190,11 @@ export default function Layout() {
   // away, clearing the working session behind us.
   const leaveCalculation = (target) => {
     const parts = location.pathname.split("/").filter(Boolean);
-    // /requests/:type/:draftId[/...] → parts[1] = type, parts[2] = draftId
-    const inDraft = parts[0] === "requests" && !!parts[1] && !!parts[2];
+    // /projects/:type/:draftId[/...] → parts[1] = type, parts[2] = draftId
+    const inDraft =
+      (parts[0] === "projects" || parts[0] === "requests") &&
+      !!parts[1] &&
+      !!parts[2];
 
     if (inDraft) {
       const ptype = parts[1];
@@ -232,59 +235,64 @@ export default function Layout() {
     navigate(prompt.target);
   };
 
-  // Logo → default page (request list).
-  const handleLogoClick = () => leaveCalculation("/requests");
+  // Logo → default page (project list).
+  const handleLogoClick = () => leaveCalculation("/projects");
 
   // Header breadcrumb — context-aware:
-  // • New-request flow: "Requests" crumb → the request list.
-  // • A draft: the Request No. crumb → that case's request.
+  // • New-project flow: "Projects" crumb → the project list.
+  // • A draft: the Request No. crumb → that case's project.
   const handleProjectCrumbClick = () => {
     if (isNewRequest) {
-      leaveNewRequest("/requests");
+      leaveNewRequest("/projects");
       return;
     }
     leaveCalculation(requestPathForDraft(draftId));
   };
 
-  // • New-request flow: "New Request" crumb → the type-picker page.
+  // • New-project flow: "New Project" crumb → the type-picker page.
   // • Calculation workflow: stage crumb → Project Setup of the current draft.
   const handleSetupCrumbClick = () => {
     if (isNewRequest) {
-      leaveNewRequest("/requests/new");
+      leaveNewRequest("/projects/new");
       return;
     }
     const parts = location.pathname.split("/").filter(Boolean);
-    if (parts[0] === "requests" && parts[1] && parts[2]) {
+    if (
+      (parts[0] === "projects" || parts[0] === "requests") &&
+      parts[1] &&
+      parts[2]
+    ) {
       const ptype = parts[1];
       const draftId = parts[2];
       const rawWorkflow = sessionStorage.getItem(`${ptype}_workflow`);
       const workflow = rawWorkflow ? JSON.parse(rawWorkflow) : {};
       const target =
         workflow.projectMode === "drawing"
-          ? `/requests/${ptype}/${draftId}/drawing/drawing-setup`
-          : `/requests/${ptype}/${draftId}/initial`;
+          ? `/projects/${ptype}/${draftId}/drawing/drawing-setup`
+          : `/projects/${ptype}/${draftId}/initial`;
       navigate(target);
     }
   };
 
-  // Remember where the user is inside Requests, for the sidebar link below.
+  // Remember where the user is inside Projects, for the sidebar link below.
   useEffect(() => {
     rememberRequestsPath(location.pathname + location.search);
   }, [location.pathname, location.search]);
 
-  // Returns nav path. Requests: back to where the user last was in it
-  // (list, project type, new request form, a calculation …); without that,
-  // the current project type's active draft or the request list.
+  // Returns nav path. Projects: back to where the user last was in it
+  // (list, project type, new project form, a calculation …); without that,
+  // the current project type's active draft or the project list.
   const getMenuPath = (path) => {
-    const lastPath = path === "/requests" ? lastRequestsPath() : null;
+    const isProjMenu = path === "/projects" || path === "/requests";
+    const lastPath = isProjMenu ? lastRequestsPath() : null;
     if (lastPath) return lastPath;
-    if (path === "/requests" && projectType) {
+    if (isProjMenu && projectType) {
       const activeDraftId = sessionStorage.getItem(
         `${projectType}_active_draft_id`,
       );
       return activeDraftId
-        ? `/requests/${projectType}/${activeDraftId}`
-        : "/requests";
+        ? `/projects/${projectType}/${activeDraftId}`
+        : "/projects";
     }
     return path;
   };
@@ -420,10 +428,10 @@ export default function Layout() {
         <Header
           isMobile={isMobile}
           currentTitle={currentTitle}
-          rootLabel="Requests"
+          rootLabel="Projects"
           userData={userData}
           onRootCrumbClick={
-            isNewRequest ? () => leaveNewRequest("/requests") : handleLogoClick
+            isNewRequest ? () => leaveNewRequest("/projects") : handleLogoClick
           }
           onProjectCrumbClick={handleProjectCrumbClick}
           onSetupCrumbClick={handleSetupCrumbClick}
@@ -451,7 +459,7 @@ export default function Layout() {
               onClick={handleProjectCrumbClick}
               className="shrink-0 inline-flex items-center gap-1 px-3 py-1 rounded-md text-xs font-medium bg-amber-100 hover:bg-amber-200 text-amber-800 border border-amber-200/80 transition-colors"
             >
-              Back to Request
+              Back to Project
             </button>
           </div>
         )}

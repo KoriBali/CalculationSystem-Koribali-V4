@@ -199,7 +199,7 @@ export default function RequestFilterBar({
             <span className="font-semibold text-slate-700 tabular-nums">
               {resultCount}
             </span>{" "}
-            {resultCount === 1 ? "request" : "requests"}
+            {resultCount === 1 ? "project" : "projects"}
           </p>
           {legend}
         </div>

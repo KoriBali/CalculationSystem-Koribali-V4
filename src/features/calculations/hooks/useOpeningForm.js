@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useProjectStorage } from "./useProjectStorage";
 
@@ -7,6 +7,10 @@ import { executeOpeningCalculation } from "../logic/opening/openingCalculation";
 import * as Utils from "../utils";
 import { scrollToFirstError, firstErrorMessage } from "../utils/scrollToError";
 import { notifyCalculationProgressChanged } from "../utils/calculationProgressEvent";
+import {
+  STANDARD_OPENING_TYPE,
+  STANDARD_BOX_TYPE,
+} from "../constants/standardPoleDefaults";
 
 // ─── CONSTANTS ───────────────────────────────────────────────────────────────
 
@@ -33,6 +37,8 @@ export function useOpeningForm() {
     }
   })();
 
+  const isStandard = condition?.poleType === "standard";
+
   // Read workflow flags from sessionStorage
   const workflow = (() => {
     try {
@@ -51,18 +57,45 @@ export function useOpeningForm() {
   const [openingType, setOpeningType] = useProjectStorage(
     projectType,
     "openingType",
-    { type: "" },
+    isStandard ? STANDARD_OPENING_TYPE : { type: "" },
   );
 
   // Box type dimension inputs
-  const [boxType, setBoxType] = useProjectStorage(projectType, "boxType", {
-    boxWidth: "",
-    opWidth: "",
-    boxHeight: "",
-    opSurfaceHeight: "",
-    opLength: "",
-    openingDirection: "",
-  });
+  const [boxType, setBoxType] = useProjectStorage(
+    projectType,
+    "boxType",
+    isStandard
+      ? STANDARD_BOX_TYPE
+      : {
+          boxWidth: "",
+          opWidth: "",
+          boxHeight: "",
+          opSurfaceHeight: "",
+          opLength: "",
+          openingDirection: "",
+        },
+  );
+
+  // Auto-select Box Type and auto-fill defaults for Standard Pole
+  useEffect(() => {
+    if (isStandard) {
+      setOpeningType((prev) => (!prev?.type ? STANDARD_OPENING_TYPE : prev));
+      setBoxType((prev) => {
+        if (!prev?.boxHeight && !prev?.boxWidth && !prev?.opWidth) {
+          return {
+            ...prev,
+            boxHeight: prev?.boxHeight || STANDARD_BOX_TYPE.boxHeight,
+            boxWidth: prev?.boxWidth || STANDARD_BOX_TYPE.boxWidth,
+            opWidth: prev?.opWidth || STANDARD_BOX_TYPE.opWidth,
+            opSurfaceHeight:
+              prev?.opSurfaceHeight || STANDARD_BOX_TYPE.opSurfaceHeight,
+            opLength: prev?.opLength || STANDARD_BOX_TYPE.opLength,
+          };
+        }
+        return prev;
+      });
+    }
+  }, [isStandard, setOpeningType, setBoxType]);
 
   // R type dimension inputs
   const [rType, setRType] = useProjectStorage(projectType, "rType", {
@@ -226,12 +259,12 @@ export function useOpeningForm() {
   const finish = () => {
     if (!isCalculated) return;
     if (isLast) return "OPEN_COVER";
-    navigate(`/requests/${projectType}/${draftId}/${nextStep}`);
+    navigate(`/projects/${projectType}/${draftId}/${nextStep}`);
   };
 
   // Navigates back to the previous step (always "pole" for opening)
   const goBack = () => {
-    navigate(`/requests/${projectType}/${draftId}/${prevStep}`);
+    navigate(`/projects/${projectType}/${draftId}/${prevStep}`);
   };
 
   // ── Return ──

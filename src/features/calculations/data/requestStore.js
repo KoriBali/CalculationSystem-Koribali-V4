@@ -102,7 +102,7 @@ const mockToRecord = (mock) => {
     poleKind: mock.poleKind || "standard",
     drawingType: it.work_type === "drawing" ? "Approval" : "",
     workType: it.work_type || (isCalc ? "calc" : "drawing"),
-    owner: mock.picName || mock.createdByName || "Rani Putri",
+    owner: mock.picName || mock.createdByName || "Bintarjo Agus Priyadi",
     status:
       typeof it.status === "object" && it.status?.label
         ? it.status.label
@@ -122,7 +122,7 @@ const mockToRecord = (mock) => {
       poleKind: mock.poleKind || "standard",
       drawingType: isDrawing ? "Approval" : "",
       workType: isCalc ? "calc" : "drawing",
-      owner: mock.picName || mock.createdByName || "Rani Putri",
+      owner: mock.picName || mock.createdByName || "Bintarjo Agus Priyadi",
       status: "In progress",
       createdAt: mock.createdAt || new Date().toISOString(),
       lastEdited: mock.updatedAt || null,

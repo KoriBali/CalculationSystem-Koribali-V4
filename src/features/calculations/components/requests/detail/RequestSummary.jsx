@@ -7,33 +7,30 @@ function Field({ label, jp, value, wide }) {
 
   return (
     <div
-      className={`px-3.5 py-2.5 rounded-lg border transition-all ${
-        wide ? "sm:col-span-2 xl:col-span-4" : ""
-      } ${
-        isFilled
+      className={`px-3.5 py-2.5 rounded-lg border transition-all ${wide ? "sm:col-span-2 xl:col-span-4" : ""
+        } ${isFilled
           ? "bg-gray-50/70 hover:bg-gray-50 border-gray-200/80"
           : "bg-gray-50/30 border-dashed border-gray-200/80"
-      }`}
+        }`}
     >
       <dt className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
-        <span className="text-xs font-medium text-gray-500">
+        <span className="text-[13px] font-medium text-gray-500">
           {label}
         </span>
         {jp && (
           <>
-            <span aria-hidden="true" className="text-gray-300">
+            <span aria-hidden="true" className="text-gray-400">
               ·
             </span>
-            <span lang="ja" className="text-[11px] text-gray-400">
+            <span lang="ja" className="text-xs font-medium text-gray-500">
               {jp}
             </span>
           </>
         )}
       </dt>
       <dd
-        className={`mt-1 text-xs sm:text-sm break-words whitespace-pre-line leading-relaxed ${
-          isFilled ? "font-semibold text-gray-800" : "text-gray-400 italic"
-        }`}
+        className={`mt-1 text-xs sm:text-sm break-words whitespace-pre-line leading-relaxed ${isFilled ? "font-medium text-gray-800" : "text-gray-400 italic"
+          }`}
       >
         {value || "—"}
       </dd>
@@ -76,7 +73,7 @@ export function RequestSummary({ request, onEdit }) {
       {/* ── Top Bar (No Cover Type) ── */}
       <div className="flex flex-wrap items-center justify-between gap-3 pb-2.5 border-b border-gray-100">
         <p className="text-xs sm:text-sm text-gray-500">
-          General project identity and parameters submitted for this request.
+          General project identity and parameters submitted for this project.
         </p>
 
         {onEdit && (
@@ -86,7 +83,7 @@ export function RequestSummary({ request, onEdit }) {
             className="inline-flex items-center gap-1.5 h-8.5 px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-xs active:scale-95 transition-all shrink-0"
           >
             <Pencil className="w-3.5 h-3.5 text-[#0d3b66]" />
-            <span>Edit Request</span>
+            <span>Edit Project</span>
           </button>
         )}
       </div>
@@ -120,9 +117,8 @@ export function RequestSummary({ request, onEdit }) {
                 : `Show all details (${rest.length} more sections)`}
             </span>
             <ChevronDown
-              className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                showAll ? "rotate-180" : ""
-              }`}
+              className={`w-3.5 h-3.5 transition-transform duration-200 ${showAll ? "rotate-180" : ""
+                }`}
             />
           </button>
         </div>

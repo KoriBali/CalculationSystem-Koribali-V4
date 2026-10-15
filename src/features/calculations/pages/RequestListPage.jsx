@@ -105,9 +105,9 @@ const requestTypeLabel = (key) =>
 
 const EMPTY_COPY = {
   mine: "Nothing to work on right now.",
-  waiting: "No requests are waiting on anyone else.",
-  done: "No finished requests yet.",
-  all: "You don't have any requests yet.",
+  waiting: "No projects are waiting on anyone else.",
+  done: "No finished projects yet.",
+  all: "You don't have any projects yet.",
 };
 
 const EMPTY_FILTERS = {
@@ -256,12 +256,12 @@ export default function RequestListPage() {
 
   const optionsFor = (options) => [{ key: "all", label: "All" }, ...options];
 
-  // Prefix inside the trigger ("Discipline: All") — no separate label needed.
+  // Prefix inside the trigger ("Work Type: All") — no separate label needed.
   const quickFilters = [
     // { key: "line", prefix: "Line", options: optionsFor(LINES) },
     {
       key: "work_type",
-      prefix: "Discipline",
+      prefix: "Work Type",
       options: optionsFor([
         ...DISCIPLINES,
         { key: "both", label: "Calculation & Drawing" },
@@ -352,9 +352,9 @@ export default function RequestListPage() {
   const detailFor = (r) =>
     r.tab === "waiting" ? `Waiting on ${r.view.detail}` : r.view.detail;
 
-  // Open request detail
+  // Open project detail
   const handleOpenRequest = (r) => {
-    navigate(`/requests/detail/${r.id}`);
+    navigate(`/projects/detail/${r.id}`);
   };
 
   // One value per column. `th`/`td` add classes on top of the shared CELL
@@ -550,7 +550,7 @@ export default function RequestListPage() {
   return (
     <div className="min-h-full flex flex-col">
       <Helmet>
-        <title>Requests - KORI BALI</title>
+        <title>Projects - KORI BALI</title>
       </Helmet>
 
       {/* A wide data table, so the page uses the full content width instead
@@ -564,20 +564,20 @@ export default function RequestListPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div className="min-w-0">
             <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
-              Requests
+              Projects
             </h1>
             <p className="text-slate-500 mt-1.5 text-sm">
-              Manage your calculation and drawing requests, from action required
+              Manage your calculation and drawing projects, from action required
               to completion.
             </p>
           </div>
 
           <button
-            onClick={() => navigate("/requests/new")}
+            onClick={() => navigate("/projects/new")}
             className="flex shrink-0 items-center justify-center gap-2 whitespace-nowrap px-5 py-2.5 bg-[#0d3b66] text-white rounded-lg hp:rounded-md font-medium text-sm hover:bg-[#0a2c4c] active:scale-[0.98] transition-all shadow-sm"
           >
             <Plus className="w-4.5 h-4.5" />
-            New Request
+            New Project
           </button>
         </div>
 
@@ -639,7 +639,7 @@ export default function RequestListPage() {
             // The box searches every field in SEARCH_FIELDS; listing them all
             // in the placeholder gets cut off, so it stays generic and the
             // tooltip spells them out.
-            placeholder: "Search requests…",
+            placeholder: "Search projects…",
             hint: `Searches ${SEARCH_FIELDS.map((f) => f.label).join(", ")}`,
           }}
           quick={quickFilters}
@@ -704,7 +704,7 @@ export default function RequestListPage() {
               )}
               <p className="text-sm">
                 {isFiltered
-                  ? "No requests match your search or filters."
+                  ? "No projects match your search or filters."
                   : EMPTY_COPY[activeTab]}
               </p>
             </div>

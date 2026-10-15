@@ -190,19 +190,19 @@ export const RESET_COPY = {
   },
 };
 
-// Leaving the New Request form inside the Requests menu (useLeaveNewRequest).
+// Leaving the New Project form inside the Projects menu (useLeaveNewRequest).
 export const LEAVE_NEW_REQUEST_COPY = {
-  title: "Leave this request?",
+  title: "Leave this project?",
   description:
-    "Your entries haven't been saved and will be discarded if you leave. Save the request first to keep them.",
+    "Your entries haven't been saved and will be discarded if you leave. Save the project first to keep them.",
   confirmLabel: "Discard & Leave",
   cancelLabel: "Keep Editing",
 };
 
-// Discarding the unfinished request from the Project Type page.
+// Discarding the unfinished project from the Project Type page.
 export const DISCARD_NEW_REQUEST_COPY = {
-  title: "Discard this request?",
+  title: "Discard this project?",
   description:
-    "All entries of the unfinished request will be cleared. This action cannot be undone.",
+    "All entries of the unfinished project will be cleared. This action cannot be undone.",
   confirmLabel: "Discard",
 };

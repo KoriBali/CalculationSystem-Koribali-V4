@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { AlertCircle, Check } from "lucide-react";
 import { createPortal } from "react-dom";
+// eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
 
 // Displays a dismissible alert message overlaying the screen.
@@ -21,7 +22,7 @@ export const ToastModal = ({
   return createPortal(
     <AnimatePresence>
       {toast && (
-        <div className="fixed z-[60] flex inset-0 items-center justify-center px-4">
+        <div className="fixed z-[1000] flex inset-0 items-center justify-center px-4">
           {/* Blurred backdrop — click anywhere to close */}
           <motion.div
             initial={{ opacity: 0 }}

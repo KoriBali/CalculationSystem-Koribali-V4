@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from "react";
+import { createPortal } from "react-dom";
 import {
   Calculator,
   ChevronDown,
@@ -22,12 +23,13 @@ import {
   FileText,
   Users,
   User,
+  RotateCcw,
 } from "lucide-react";
-import { designStandardOptions } from "../../../constants/designStandards";
 import { poleTypeOptions } from "../../../constants/poleTypeOptions";
 import { formatShortDate } from "../../../utils/requestForm";
 import { getUser } from "../../../../../utils/auth";
 import { FormSelect } from "../../../../../shared/components/FormSelect";
+import RequestFilterDropdown from "../RequestFilterDropdown";
 
 
 const DRAWING_TYPE_OPTIONS = [
@@ -83,7 +85,7 @@ function StatusChip({ status }) {
   );
 }
 
-function DisciplineDisplay({ workType }) {
+function WorkTypeDisplay({ workType }) {
   if (workType === "drawing") {
     return (
       <span className="inline-flex items-center gap-2 text-xs md:text-sm text-slate-700 font-normal">
@@ -108,9 +110,10 @@ export function RequestCases({
   onOpenCase, // (caseItem) => void
   onViewReport, // (caseItem) => void
   onToast, // (message) => void
+  onShowToastModal, // (message) => void
   onBeforeAddCase, // () => boolean
 }) {
-  const me = getUser()?.name || "Rani Putri";
+  const me = getUser()?.name || "Bintarjo Agus Priyadi";
   const userRole = getUser()?.role || "drafter";
   const isAdmin =
     userRole === "admin" ||
@@ -164,7 +167,7 @@ export function RequestCases({
 
   // Filter states
   const [scopeFilter, setScopeFilter] = useState("all"); // 'all' | 'mine'
-  const [disciplineFilter, setDisciplineFilter] = useState("all"); // 'all' | 'calc' | 'drawing'
+  const [workTypeFilter, setWorkTypeFilter] = useState("all"); // 'all' | 'calc' | 'drawing'
 
   const myCasesCount = useMemo(() => {
     return cases.filter(
@@ -183,6 +186,25 @@ export function RequestCases({
     return cases.filter((c) => c.workType === "drawing").length;
   }, [cases]);
 
+  const scopeOptions = useMemo(
+    () => [
+      { key: "all", label: `All (${cases.length})` },
+      { key: "mine", label: `My Cases (${myCasesCount})` },
+    ],
+    [cases.length, myCasesCount],
+  );
+
+  const workTypeOptions = useMemo(
+    () => [
+      { key: "all", label: `All (${cases.length})` },
+      { key: "calc", label: `Calculation (${calcCount})` },
+      { key: "drawing", label: `Drawing (${drawingCount})` },
+    ],
+    [cases.length, calcCount, drawingCount],
+  );
+
+  const isFiltered = scopeFilter !== "all" || workTypeFilter !== "all";
+
   const filteredCases = useMemo(() => {
     return cases.filter((c) => {
       if (scopeFilter === "mine") {
@@ -192,12 +214,12 @@ export function RequestCases({
           c.owner === me;
         if (!isMine) return false;
       }
-      if (disciplineFilter !== "all") {
-        if (c.workType !== disciplineFilter) return false;
+      if (workTypeFilter !== "all") {
+        if (c.workType !== workTypeFilter) return false;
       }
       return true;
     });
-  }, [cases, scopeFilter, disciplineFilter, me]);
+  }, [cases, scopeFilter, workTypeFilter, me]);
 
   // Handler for adding case from modal
   const handleCreateCaseSubmit = (workType, details) => {
@@ -218,7 +240,7 @@ export function RequestCases({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-100">
         <p className="text-xs sm:text-sm text-gray-500">
           {allowedWorkTypes.length === 1
-            ? `This request is ${allowedWorkTypes[0] === "calc" ? "calculation" : "drawing"} only. Open a case to work on it.`
+            ? `This project is ${allowedWorkTypes[0] === "calc" ? "calculation" : "drawing"} only. Open a case to work on it.`
             : "Each case is a calculation or a drawing. Open a case to work on it."}
         </p>
 
@@ -230,7 +252,7 @@ export function RequestCases({
               disabled={isLocked}
               title={
                 isLocked
-                  ? "Cannot add cases to locked / completed requests"
+                  ? "Cannot add cases to locked / completed projects"
                   : undefined
               }
               onClick={() => {
@@ -249,7 +271,7 @@ export function RequestCases({
                 disabled={isLocked}
                 title={
                   isLocked
-                    ? "Cannot add cases to locked / completed requests"
+                    ? "Cannot add cases to locked / completed projects"
                     : undefined
                 }
                 onClick={() => {
@@ -300,79 +322,32 @@ export function RequestCases({
 
       {/* ── Filters Toolbar (when there are cases in the request) ── */}
       {cases.length > 0 && (
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-0.5">
-          {/* Scope filter: All Cases vs My Cases */}
-          <div className="inline-flex items-center p-1 bg-slate-100 rounded-lg border border-slate-200/80 self-start">
+        <div className="relative z-20 flex flex-wrap items-center gap-2.5 pt-0.5">
+          <RequestFilterDropdown
+            prefix="Cases"
+            options={scopeOptions}
+            selected={scopeFilter}
+            onChange={setScopeFilter}
+          />
+          <RequestFilterDropdown
+            prefix="Work Type"
+            options={workTypeOptions}
+            selected={workTypeFilter}
+            onChange={setWorkTypeFilter}
+          />
+          {isFiltered && (
             <button
               type="button"
-              onClick={() => setScopeFilter("all")}
-              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-                scopeFilter === "all"
-                  ? "bg-[#0d3b66] text-white shadow-xs font-semibold"
-                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/50"
-              }`}
+              onClick={() => {
+                setScopeFilter("all");
+                setWorkTypeFilter("all");
+              }}
+              className="h-10 inline-flex items-center gap-1.5 px-3 rounded-lg hp:rounded-md text-xs sm:text-sm text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors"
             >
-              All Cases ({cases.length})
+              <RotateCcw className="w-3.5 h-3.5" />
+              Reset filters
             </button>
-            <button
-              type="button"
-              onClick={() => setScopeFilter("mine")}
-              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-                scopeFilter === "mine"
-                  ? "bg-[#0d3b66] text-white shadow-xs font-semibold"
-                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/50"
-              }`}
-            >
-              My Cases ({myCasesCount})
-            </button>
-          </div>
-
-          {/* Discipline filter: All / Calculation / Drawing */}
-          <div className="inline-flex items-center p-1 bg-slate-100 rounded-lg border border-slate-200/80 self-start sm:self-auto">
-            <button
-              type="button"
-              onClick={() => setDisciplineFilter("all")}
-              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-                disciplineFilter === "all"
-                  ? "bg-[#0d3b66] text-white shadow-xs font-semibold"
-                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/50"
-              }`}
-            >
-              All Disciplines
-            </button>
-            <button
-              type="button"
-              onClick={() => setDisciplineFilter("calc")}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-                disciplineFilter === "calc"
-                  ? "bg-[#0d3b66] text-white shadow-xs font-semibold"
-                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/50"
-              }`}
-            >
-              <Calculator
-                className={`w-3.5 h-3.5 ${
-                  disciplineFilter === "calc" ? "text-cyan-200" : "text-[#3399cc]"
-                }`}
-              />
-              Calculation ({calcCount})
-            </button>
-            <button
-              type="button"
-              onClick={() => setDisciplineFilter("drawing")}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-                disciplineFilter === "drawing"
-                  ? "bg-[#0d3b66] text-white shadow-xs font-semibold"
-                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/50"
-              }`}
-            >
-              <PencilRuler
-                className={`w-3.5 h-3.5 ${
-                  disciplineFilter === "drawing" ? "text-purple-200" : "text-purple-600"
-                }`}
-              />
-              Drawing ({drawingCount})
-            </button>
-          </div>
+          )}
         </div>
       )}
 
@@ -383,7 +358,7 @@ export function RequestCases({
             <FolderPlus className="w-5 h-5" />
           </span>
           <span className="mt-3 text-sm font-medium text-slate-700">
-            No cases yet in this request
+            No cases yet in this project
           </span>
           <span className="mt-1 text-xs md:text-sm text-slate-500 max-w-sm">
             Create a calculation or drawing case to start drafting structural
@@ -396,13 +371,13 @@ export function RequestCases({
             No cases match the selected filters
           </p>
           <p className="mt-1 text-xs text-slate-500">
-            Try switching back to "All Cases" or "All Disciplines".
+            Try switching back to "All Cases" or "All Work Types".
           </p>
           <button
             type="button"
             onClick={() => {
               setScopeFilter("all");
-              setDisciplineFilter("all");
+              setWorkTypeFilter("all");
             }}
             className="mt-3 px-3.5 py-1.5 rounded-md text-xs font-medium bg-[#eef2f6] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:bg-[#e2e8f0] transition-colors"
           >
@@ -415,7 +390,7 @@ export function RequestCases({
             <thead className="bg-gray-50 text-gray-500 border-b border-gray-200">
               <tr>
                 <th className={TH}>Case No.</th>
-                <th className={TH}>Discipline</th>
+                <th className={TH}>Work Type</th>
                 <th className={TH}>Pole Type</th>
                 <th className={TH}>Status</th>
                 <th className={TH}>Owner</th>
@@ -436,6 +411,13 @@ export function RequestCases({
                 const canDelete = isOwner || isAdmin;
                 const caseNumDisplay =
                   c.case_label || c.no || String(index + 1).padStart(3, "0");
+                const caseNoForNotice =
+                  c.case_label ||
+                  (c.no
+                    ? c.no.toLowerCase().includes("case")
+                      ? c.no
+                      : `Case ${c.no}`
+                    : `Case ${String(index + 1).padStart(2, "0")}`);
                 const creatorName =
                   c.createdBy || c.owner || request.createdBy || "—";
 
@@ -447,14 +429,95 @@ export function RequestCases({
                     );
                     if (!raw) return false;
                     const data = JSON.parse(raw);
-                    return Boolean(
-                      data.reportSnapshot ||
-                        (data.results &&
-                          data.results !== "[]" &&
-                          data.results !== "null") ||
-                        data.hasReport === "true" ||
-                        data.hasReport === true
+
+                    // 1. Report snapshot must exist (generated when user clicks Generate Report at the end)
+                    if (!data.reportSnapshot) return false;
+                    const snapshot =
+                      typeof data.reportSnapshot === "string"
+                        ? JSON.parse(data.reportSnapshot)
+                        : data.reportSnapshot;
+                    if (!snapshot || typeof snapshot !== "object") return false;
+
+                    // 2. Cover Report Information must be filled (reportNumber + author + department/region)
+                    const cover =
+                      snapshot.cover ||
+                      (data.cover
+                        ? typeof data.cover === "string"
+                          ? JSON.parse(data.cover)
+                          : data.cover
+                        : null);
+                    const hasValidCover = Boolean(
+                      cover &&
+                        (cover.reportNumber?.trim() ||
+                          cover.calculationNumber?.trim()) &&
+                        cover.author?.trim() &&
+                        (cover.responsibleDepartment?.trim() ||
+                          cover.region?.trim() ||
+                          cover.managementCode?.trim())
                     );
+                    if (!hasValidCover) return false;
+
+                    // 3. Calculation must have finished all required steps up to the final step
+                    const cond =
+                      snapshot.condition ||
+                      (data.condition
+                        ? typeof data.condition === "string"
+                          ? JSON.parse(data.condition)
+                          : data.condition
+                        : {});
+
+                    const poleResults =
+                      snapshot.results ||
+                      (data.results
+                        ? typeof data.results === "string"
+                          ? JSON.parse(data.results)
+                          : data.results
+                        : null);
+                    const hasPole = Array.isArray(poleResults) && poleResults.length > 0;
+                    if (!hasPole) return false;
+
+                    if (cond.openingEnabled) {
+                      const opRes =
+                        snapshot.calculatedOp ||
+                        (data.calculatedOp
+                          ? typeof data.calculatedOp === "string"
+                            ? JSON.parse(data.calculatedOp)
+                            : data.calculatedOp
+                          : null);
+                      if (!opRes || Object.keys(opRes).length === 0) return false;
+                    }
+
+                    if (cond.baseplateEnabled) {
+                      const bpRes =
+                        snapshot.calculatedBaseplate ||
+                        (data.calculatedBaseplate
+                          ? typeof data.calculatedBaseplate === "string"
+                            ? JSON.parse(data.calculatedBaseplate)
+                            : data.calculatedBaseplate
+                          : null);
+                      if (!bpRes || Object.keys(bpRes).length === 0) return false;
+                    }
+
+                    if (cond.foundationEnabled) {
+                      const fdRes =
+                        snapshot.calculatedFoundation ||
+                        (data.calculatedFoundation
+                          ? typeof data.calculatedFoundation === "string"
+                            ? JSON.parse(data.calculatedFoundation)
+                            : data.calculatedFoundation
+                          : null);
+                      if (!fdRes || Object.keys(fdRes).length === 0) return false;
+                    }
+
+                    // 4. Report generation flag
+                    const hasReportFlag =
+                      data.hasReport === true ||
+                      data.hasReport === "true" ||
+                      snapshot.hasReport === true ||
+                      snapshot.hasReport === "true";
+                    if (!hasReportFlag) return false;
+
+                    return true;
                   } catch {
                     return false;
                   }
@@ -474,9 +537,9 @@ export function RequestCases({
                       {caseNumDisplay}
                     </td>
 
-                    {/* Discipline */}
+                    {/* Work Type */}
                     <td className={TD}>
-                      <DisciplineDisplay workType={c.workType} />
+                      <WorkTypeDisplay workType={c.workType} />
                     </td>
 
                     {/* Pole Type */}
@@ -493,12 +556,12 @@ export function RequestCases({
 
                     {/* Owner */}
                     <td className={`${TD} font-medium text-slate-800`}>
-                      <span className="truncate max-w-[130px] block">{c.owner || "Unassigned"}</span>
+                      <span>{c.owner || "Unassigned"}</span>
                     </td>
 
                     {/* Created By */}
                     <td className={`${TD} font-medium text-slate-700`}>
-                      <span className="truncate max-w-[130px] block">{creatorName}</span>
+                      <span>{creatorName}</span>
                     </td>
 
                     {/* Created */}
@@ -538,25 +601,41 @@ export function RequestCases({
                           <span>{isOwner ? "Open" : "View"}</span>
                         </button>
 
-                        {/* Report Button (Active if calculated & generated, disabled if fresh) */}
+                        {/* Report Button (Active if calculated & generated, informative if pending) */}
                         {c.workType !== "drawing" && (
                           <button
                             type="button"
-                            disabled={!hasGeneratedReport}
-                            onClick={() => hasGeneratedReport && onViewReport?.(c)}
-                            className={`inline-flex items-center gap-1.5 h-7 px-2.5 rounded-md text-xs font-medium transition-all ${
+                            onClick={() => {
+                              if (hasGeneratedReport) {
+                                onViewReport?.(c);
+                              } else {
+                                const msg = `Report for ${caseNoForNotice} is not available yet. Please open this case and run calculations first.`;
+                                if (onShowToastModal) {
+                                  onShowToastModal(msg);
+                                } else if (onToast) {
+                                  onToast(msg);
+                                }
+                              }
+                            }}
+                            className={`inline-flex items-center gap-1.5 h-7 px-2.5 rounded-md text-xs font-medium transition-all active:scale-95 ${
                               hasGeneratedReport
-                                ? "bg-emerald-50 hover:bg-emerald-100 text-emerald-800 ring-1 ring-inset ring-emerald-300 shadow-xs cursor-pointer active:scale-95"
-                                : "bg-slate-50 text-slate-300 ring-1 ring-inset ring-slate-200/60 cursor-not-allowed opacity-60"
+                                ? "bg-emerald-50 hover:bg-emerald-100 text-emerald-800 ring-1 ring-inset ring-emerald-300 shadow-xs cursor-pointer font-medium"
+                                : "bg-gray-50/80 hover:bg-gray-100/90 text-gray-400 hover:text-gray-500 border border-dashed border-gray-300/80 cursor-pointer"
                             }`}
                             title={
                               hasGeneratedReport
-                                ? "Lihat Calculation Report & Schematic"
-                                : "Report belum tersedia (buka case dan jalankan kalkulasi terlebih dahulu)"
+                                ? "View calculation report & schematic"
+                                : `Report for ${caseNoForNotice} is not available yet. Click to view details.`
                             }
                           >
-                            <FileText className="w-3.5 h-3.5" />
-                            <span>Report</span>
+                            <FileText
+                              className={`w-3.5 h-3.5 ${
+                                hasGeneratedReport
+                                  ? "text-emerald-700"
+                                  : "text-gray-400"
+                              }`}
+                            />
+                            <span className={hasGeneratedReport ? "" : "text-gray-400"}>Report</span>
                           </button>
                         )}
 
@@ -603,7 +682,7 @@ export function RequestCases({
                             className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 disabled:opacity-40 disabled:hover:text-slate-400 disabled:hover:bg-transparent transition-colors"
                             title={
                               isLocked
-                                ? "Cannot delete in locked requests"
+                                ? "Cannot delete in locked projects"
                                 : "Delete case"
                             }
                             aria-label="Delete case"
@@ -635,6 +714,7 @@ export function RequestCases({
       {/* ── MODAL: Edit Details ── */}
       {editModalCase && (
         <EditCaseModal
+          key={editModalCase.id}
           caseItem={editModalCase}
           existingCases={cases}
           onClose={() => setEditModalCase(null)}
@@ -719,16 +799,16 @@ function AddCaseModal({ workType, request, existingCases, onClose, onSubmit }) {
       poleKind,
       drawingType: !isCalc ? "Approval" : "",
       case_label: caseLabel.trim(),
-      owner: getUser()?.name || request.createdBy || "Rani Putri",
-      createdBy: getUser()?.name || request.createdBy || "Rani Putri",
+      owner: getUser()?.name || request.createdBy || "Bintarjo Agus Priyadi",
+      createdBy: getUser()?.name || request.createdBy || "Bintarjo Agus Priyadi",
       status: "Not started",
     });
   };
 
   const hasLabelError = (touched && !caseLabel.trim()) || isDuplicateLabel;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
+  return createPortal(
+    <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
       <div className="w-full max-w-md sm:max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
         {/* Header (No close button X as requested) */}
         <div className="bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] px-6 py-5 flex items-center justify-between shrink-0 rounded-t-2xl">
@@ -774,7 +854,7 @@ function AddCaseModal({ workType, request, existingCases, onClose, onSubmit }) {
               ) : isDuplicateLabel ? (
                 <p className="mt-1 text-[11px] text-amber-600 font-medium flex items-center gap-1">
                   <AlertTriangle className="w-3.5 h-3.5" />
-                  This case label is already used by another case in this request.
+                  This case label is already used by another case in this project.
                 </p>
               ) : (
                 <p className="mt-1 text-[11px] text-slate-500">
@@ -871,7 +951,8 @@ function AddCaseModal({ workType, request, existingCases, onClose, onSubmit }) {
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
@@ -897,12 +978,6 @@ function EditCaseModal({ caseItem, existingCases, onClose, onSubmit }) {
   const [poleKind, setPoleKind] = useState(initialPoleKind);
   const [touched, setTouched] = useState(false);
 
-  // Sync state if caseItem changes
-  useEffect(() => {
-    setCaseLabel(initialLabel);
-    setPoleKind(initialPoleKind);
-    setTouched(false);
-  }, [initialLabel, initialPoleKind]);
 
   // Check duplicate caseLabel soft warning (excluding this case)
   const isDuplicateLabel = useMemo(() => {
@@ -938,8 +1013,8 @@ function EditCaseModal({ caseItem, existingCases, onClose, onSubmit }) {
 
   const hasLabelError = (touched && !caseLabel.trim()) || isDuplicateLabel;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
+  return createPortal(
+    <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
       <div className="w-full max-w-md sm:max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
         {/* Header (No close button X) */}
         <div className="bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] px-6 py-5 flex items-center justify-between shrink-0 rounded-t-2xl">
@@ -980,7 +1055,7 @@ function EditCaseModal({ caseItem, existingCases, onClose, onSubmit }) {
               ) : isDuplicateLabel ? (
                 <p className="mt-1 text-[11px] text-amber-600 font-medium flex items-center gap-1">
                   <AlertTriangle className="w-3.5 h-3.5" />
-                  This case label is already used by another case in this request.
+                  This case label is already used by another case in this project.
                 </p>
               ) : (
                 <p className="mt-1 text-[11px] text-slate-500">
@@ -1083,7 +1158,8 @@ function EditCaseModal({ caseItem, existingCases, onClose, onSubmit }) {
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
@@ -1126,8 +1202,8 @@ function TransferOwnershipModal({ caseItem, members = [], onClose, onTransfer })
     onTransfer(selectedOwner);
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
+  return createPortal(
+    <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
       <div className="w-full max-w-md sm:max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
         {/* Header (No close button X) */}
         <div className="bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] px-6 py-5 flex items-center justify-between shrink-0 rounded-t-2xl">
@@ -1289,7 +1365,8 @@ function TransferOwnershipModal({ caseItem, members = [], onClose, onTransfer })
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
@@ -1297,8 +1374,8 @@ function TransferOwnershipModal({ caseItem, members = [], onClose, onTransfer })
 // MODAL: Delete Case (matching Remove Member modal in InitialAssignment)
 // ─────────────────────────────────────────────────────────────────────────────
 function DeleteCaseModal({ caseItem, onClose, onConfirm }) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm px-4 animate-in fade-in duration-200">
+  return createPortal(
+    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm px-4 animate-in fade-in duration-200">
       <div className="w-full max-w-xs sm:max-w-md bg-white border border-gray-200 rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-8 text-center animate-in zoom-in-95 duration-200">
         {/* Danger icon */}
         <div className="mx-auto mb-3 flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-red-100 rounded-full">
@@ -1337,6 +1414,7 @@ function DeleteCaseModal({ caseItem, onClose, onConfirm }) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

@@ -12,9 +12,9 @@ const numberField = (label) =>
 // (projectMode "both"), since Opening Direction only feeds the drawing output.
 export const RTypeSchema = (requireDirection) =>
   yup.object({
-    opWidth: numberField("Opening Width"),
-    opSurfaceHeight: numberField("Opening Surface Height"),
-    opLength: numberField("Opening Length"),
+    opWidth: numberField("Cut Width"),
+    opSurfaceHeight: numberField("Opening Cut Length"),
+    opLength: numberField("Opening Center Height"),
     openingDirection: requireDirection
       ? yup.string().required("Opening Direction is required")
       : yup.string(),

@@ -80,12 +80,29 @@ export function useMasterData() {
     () => toLowerCaseNameOptions(data?.objectTypes),
     [data],
   );
-  const regionOptions = useMemo(() => toCodeOptions(data?.regionCodes), [data]);
-  const departmentOptions = useMemo(
-    () => toCodeOptions(data?.departmentCodes),
-    [data],
-  );
-  const authorOptions = useMemo(() => toCodeOptions(data?.authorCodes), [data]);
+  const regionOptions = useMemo(() => {
+    const list = toCodeOptions(data?.regionCodes);
+    if (!list.some((o) => o.value === "A")) {
+      list.unshift({ value: "A", label: "Area A" });
+    }
+    return list;
+  }, [data]);
+
+  const departmentOptions = useMemo(() => {
+    const list = toCodeOptions(data?.departmentCodes);
+    if (!list.some((o) => o.value === "S")) {
+      list.push({ value: "S", label: "Department S" });
+    }
+    return list;
+  }, [data]);
+
+  const authorOptions = useMemo(() => {
+    const list = toCodeOptions(data?.authorCodes);
+    if (!list.some((o) => o.value === "X")) {
+      list.push({ value: "X", label: "Author X" });
+    }
+    return list;
+  }, [data]);
   const lightingCompanyOptions = useMemo(
     () => toCompanyOptions(data?.lightingCompanyCodes),
     [data],

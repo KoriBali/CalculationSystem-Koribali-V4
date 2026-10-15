@@ -7,23 +7,25 @@ import {
   unfinishedNewRequest,
 } from "../utils/newRequestDraft";
 
-export const NEW_REQUEST_FORM_PATH = "/requests/new/:type";
+export const NEW_REQUEST_FORM_PATH = "/projects/new/:type";
 
-// Leaving the New Request form inside the Requests menu (breadcrumb, logo,
+// Leaving the New Project form inside the Projects menu (breadcrumb, logo,
 // Back to Project Type) discards it, so ask first when it has entries.
 // Elsewhere — or with nothing filled in — `leave` just navigates.
 // Other sidebar menus don't go through here: the form is kept for when the
 // user comes back.
 //
 //   const { leave, confirmProps } = useLeaveNewRequest();
-//   <button onClick={() => leave("/requests")} />
+//   <button onClick={() => leave("/projects")} />
 //   <ConfirmResetAllModal {...confirmProps} />
 export function useLeaveNewRequest() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   // Where to go once the user confirms; null while no dialog is open.
   const [target, setTarget] = useState(null);
-  const onForm = matchPath(NEW_REQUEST_FORM_PATH, pathname) !== null;
+  const onForm =
+    matchPath(NEW_REQUEST_FORM_PATH, pathname) !== null ||
+    matchPath("/requests/new/:type", pathname) !== null;
 
   const discardAndGo = (to) => {
     clearNewRequestDraft();

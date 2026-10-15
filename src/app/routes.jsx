@@ -1,5 +1,5 @@
 // src/app/routes.jsx
-import { Routes, Route, Navigate, useParams } from "react-router-dom";
+import { Routes, Route, Navigate, useParams, useLocation } from "react-router-dom";
 
 // Helper component to redirect draft index directly to calculation or drawing step
 function DraftIndexRedirect() {
@@ -8,9 +8,16 @@ function DraftIndexRedirect() {
   const workflow = rawWorkflow ? JSON.parse(rawWorkflow) : {};
   const isDrawing = workflow.projectMode === "drawing";
   const target = isDrawing
-    ? `/requests/${type}/${draftId}/drawing/drawing-setup`
-    : `/requests/${type}/${draftId}/initial`;
+    ? `/projects/${type}/${draftId}/drawing/drawing-setup`
+    : `/projects/${type}/${draftId}/initial`;
   return <Navigate to={target} replace />;
+}
+
+// Redirect legacy /requests/* paths to /projects/*
+function RequestsRedirect() {
+  const location = useLocation();
+  const target = location.pathname.replace(/^\/requests/, "/projects");
+  return <Navigate to={target + location.search} replace />;
 }
 
 // Import Shared/Layout
@@ -64,24 +71,34 @@ export default function AppRoutes() {
         {/* PROTECTED AREA */}
         <Route element={<ProtectedRoute />}>
           <Route element={<Layout />}>
-            {/* Redirect old /calculation/* links to /requests/* */}
+            {/* Redirect old /calculation/* links to /projects */}
             <Route
               path="calculation"
-              element={<Navigate to="/requests" replace />}
+              element={<Navigate to="/projects" replace />}
             />
             <Route
               path="calculation/*"
-              element={<Navigate to="/requests" replace />}
+              element={<Navigate to="/projects" replace />}
             />
 
-            {/* ── REQUESTS (main section) ──────────────────────── */}
-            <Route path="requests">
+            {/* Redirect old /requests and /requests/* links to /projects/* */}
+            <Route
+              path="requests"
+              element={<Navigate to="/projects" replace />}
+            />
+            <Route
+              path="requests/*"
+              element={<RequestsRedirect />}
+            />
+
+            {/* ── PROJECTS (main section) ──────────────────────── */}
+            <Route path="projects">
               <Route index element={<RequestListPage />} />
-              {/* New request flow: pick type → fill form.
+              {/* New project flow: pick type → fill form.
                   Static "new" wins over :type below. */}
               <Route path="new" element={<ProjectSelectPage />} />
               <Route path="new/:type" element={<NewRequestFormPage />} />
-              {/* After the form: the request's summary, assignment, cases
+              {/* After the form: the project's summary, assignment, cases
                   and files. Static "detail" wins over :type too. */}
               <Route path="edit/:requestId" element={<NewRequestFormPage />} />
               <Route path="detail/:requestId" element={<RequestDetailPage />} />
@@ -90,8 +107,8 @@ export default function AppRoutes() {
               <Route path=":type" element={<TypeGuard />}>
                 <Route element={<SessionGuard />}>
                   {/* No drafts list: a draft is opened from its case on
-                      the Request Detail page. */}
-                  <Route index element={<Navigate to="/requests" replace />} />
+                      the Project Detail page. */}
+                  <Route index element={<Navigate to="/projects" replace />} />
                   <Route path=":draftId" element={<DraftSessionGuard />}>
                     <Route index element={<DraftIndexRedirect />} />
                     <Route
@@ -141,7 +158,7 @@ export default function AppRoutes() {
               </Route>
             </Route>
 
-            <Route path="report" element={<Navigate to="/requests" replace />} />
+            <Route path="report" element={<Navigate to="/projects" replace />} />
             <Route path="database" element={<ProjectDatabasePage />} />
 
             {/* Super Admin Routes */}
@@ -157,7 +174,7 @@ export default function AppRoutes() {
           </Route>
 
           {/* Global Redirects & 404 (Protected) */}
-          <Route path="/" element={<Navigate to="/requests" replace />} />
+          <Route path="/" element={<Navigate to="/projects" replace />} />
           <Route path="/404" element={<NotFoundPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>

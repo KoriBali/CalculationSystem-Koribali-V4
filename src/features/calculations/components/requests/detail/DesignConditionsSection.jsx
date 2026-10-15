@@ -5,16 +5,15 @@ import {
   forwardRef,
   useImperativeHandle,
 } from "react";
-import { Edit3, Info } from "lucide-react";
+import { Edit3, Info, Lightbulb } from "lucide-react";
 import { designStandardOptions } from "../../../constants/designStandards";
 import { FormSelect } from "../../../../../shared/components/FormSelect";
 
 const inputStyle = (hasError = false) =>
   `w-full px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border
-  ${
-    hasError
-      ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
-      : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
+  ${hasError
+    ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
+    : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
   }`;
 
 // Renders a red error message below an invalid field (matching Gambar 3)
@@ -32,6 +31,7 @@ export const DesignConditionsSection = forwardRef(
       onSave, // (updatedConditions) => void
       onToast, // (message) => void
       onShowToastModal, // (message) => void
+      onEditModeChange, // (isEditing) => void
     },
     ref,
   ) {
@@ -40,13 +40,6 @@ export const DesignConditionsSection = forwardRef(
 
     const [isEditing, setIsEditing] = useState(!isSaved);
     const [errors, setErrors] = useState({});
-
-    // Sync edit mode if isSaved status changes
-    useEffect(() => {
-      if (!isSaved) {
-        setIsEditing(true);
-      }
-    }, [isSaved]);
 
     // Standard options for this request's project pole type
     const activeOptions = useMemo(
@@ -68,18 +61,60 @@ export const DesignConditionsSection = forwardRef(
     const coverWindSpeed = request.fields?.windSpeed || "60";
     const coverAirDensity = request.fields?.airDensity || "1.23";
 
+    // Default reference values when not saved yet
+    const defaultStandard = coverStandardCode || "jil";
+    const defaultWindSpeed = coverWindSpeed || "60";
+    const defaultAirDensity = coverAirDensity || "1.23";
+
     // Saved / current conditions
     const currentStandard = request.designConditions?.standard || "";
     const currentAirDensity = request.designConditions?.airDensity || "";
     const currentWindSpeed = request.designConditions?.windSpeed || "";
 
-    // Form states in edit mode
-    const [standard, setStandard] = useState(currentStandard);
-    const [airDensity, setAirDensity] = useState(currentAirDensity);
-    const [windSpeed, setWindSpeed] = useState(currentWindSpeed);
+    // Form states in edit mode - automatically populated from reference if not yet saved
+    const [standard, setStandard] = useState(
+      currentStandard || defaultStandard
+    );
+    const [airDensity, setAirDensity] = useState(
+      currentAirDensity || defaultAirDensity
+    );
+    const [windSpeed, setWindSpeed] = useState(
+      currentWindSpeed || defaultWindSpeed
+    );
 
-    // Expose triggerValidation so that clicking "Add Case" validates this section
+    // Adjust state during render if request or saved status changes
+    const [prevReqData, setPrevReqData] = useState({
+      id: request.id,
+      saved: isSaved,
+      cond: request.designConditions,
+    });
+
+    if (
+      prevReqData.id !== request.id ||
+      prevReqData.saved !== isSaved ||
+      prevReqData.cond !== request.designConditions
+    ) {
+      setPrevReqData({
+        id: request.id,
+        saved: isSaved,
+        cond: request.designConditions,
+      });
+      if (!isSaved) {
+        setIsEditing(true);
+      }
+      setStandard(request.designConditions?.standard || defaultStandard);
+      setWindSpeed(request.designConditions?.windSpeed || defaultWindSpeed);
+      setAirDensity(request.designConditions?.airDensity || defaultAirDensity);
+    }
+
+    // Notify parent whenever edit mode changes
+    useEffect(() => {
+      onEditModeChange?.(isEditing);
+    }, [isEditing, onEditModeChange]);
+
+    // Expose isEditing and triggerValidation so parent can guard case actions
     useImperativeHandle(ref, () => ({
+      isEditing,
       triggerValidation: () => {
         setIsEditing(true);
         const errs = {};
@@ -155,17 +190,17 @@ export const DesignConditionsSection = forwardRef(
     };
 
     const handleStartEdit = () => {
-      setStandard(currentStandard);
-      setAirDensity(currentAirDensity);
-      setWindSpeed(currentWindSpeed);
+      setStandard(currentStandard || defaultStandard);
+      setAirDensity(currentAirDensity || defaultAirDensity);
+      setWindSpeed(currentWindSpeed || defaultWindSpeed);
       setErrors({});
       setIsEditing(true);
     };
 
     const handleCancel = () => {
-      setStandard(currentStandard);
-      setAirDensity(currentAirDensity);
-      setWindSpeed(currentWindSpeed);
+      setStandard(currentStandard || defaultStandard);
+      setAirDensity(currentAirDensity || defaultAirDensity);
+      setWindSpeed(currentWindSpeed || defaultWindSpeed);
       setErrors({});
       setIsEditing(false);
     };
@@ -211,10 +246,9 @@ export const DesignConditionsSection = forwardRef(
 
       setErrors({});
       setIsEditing(false);
-      // Temporarily hide successfully toast as requested
-      // if (onToast) {
-      //   onToast("Design conditions saved successfully.");
-      // }
+      if (onToast) {
+        onToast("Design conditions saved successfully.");
+      }
     };
 
     const standardLabel =
@@ -230,7 +264,7 @@ export const DesignConditionsSection = forwardRef(
             {/* Top Bar inside SectionCard */}
             <div className="flex flex-wrap items-center justify-between gap-3 pb-2.5 border-b border-gray-100">
               <p className="text-[14px] text-gray-500">
-                Structural criteria applied across all calculation cases in this request.
+                Structural criteria applied across all calculation cases in this project.
               </p>
 
               {/* Slightly enlarged Edit button */}
@@ -252,7 +286,7 @@ export const DesignConditionsSection = forwardRef(
                   Design Standard
                 </span>
                 <div className="mt-1">
-                  <span className="text-sm sm:text-base font-semibold text-gray-800 break-words">
+                  <span className="text-sm sm:text-base font-medium text-gray-800 break-words">
                     {standardLabel}
                   </span>
                 </div>
@@ -264,10 +298,10 @@ export const DesignConditionsSection = forwardRef(
                   Wind Speed
                 </span>
                 <div className="mt-1 flex items-baseline">
-                  <span className="text-sm sm:text-base font-semibold text-gray-800">
+                  <span className="text-sm sm:text-base font-medium text-gray-800">
                     {currentWindSpeed}
                   </span>
-                  <span className="ml-1 text-xs text-gray-500 font-normal">
+                  <span className="ml-1 text-sm text-gray-500 font-normal">
                     m/s
                   </span>
                 </div>
@@ -279,10 +313,10 @@ export const DesignConditionsSection = forwardRef(
                   Air Density
                 </span>
                 <div className="mt-1 flex items-baseline">
-                  <span className="text-sm sm:text-base font-semibold text-gray-800">
+                  <span className="text-sm sm:text-base font-medium text-gray-800">
                     {currentAirDensity}
                   </span>
-                  <span className="ml-1 text-xs text-gray-500 font-normal">
+                  <span className="ml-1 text-sm text-gray-500 font-normal">
                     N·sec²/m⁴
                   </span>
                 </div>
@@ -293,7 +327,7 @@ export const DesignConditionsSection = forwardRef(
             <div className="flex items-start sm:items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg hp:rounded-md px-4 py-2.5 text-xs md:text-sm text-gray-500">
               <Info className="w-4 h-4 shrink-0 text-gray-400 mt-0.5 sm:mt-0" />
               <span>
-                Reference from Cover Information Request: Standard {coverStandardLabel} · Wind speed {coverWindSpeed} m/s · Air density {coverAirDensity} N·sec²/m⁴
+                Reference from Cover Information: Standard {coverStandardLabel} · Wind speed {coverWindSpeed} m/s · Air density {coverAirDensity} N·sec²/m⁴
               </span>
             </div>
           </div>
@@ -308,10 +342,29 @@ export const DesignConditionsSection = forwardRef(
                     : "Design Conditions for Calculation Cases"}
                 </h4>
                 <p className="text-[14px] text-gray-500 mt-0.5">
-                  Structural criteria applied across all calculation cases in this request.
+                  Structural criteria applied across all calculation cases in this project.
                 </p>
               </div>
             </div>
+
+            {/* Interactive Guidance Banner (Shown on initial unconfirmed state) */}
+            {!isSaved && (
+              <div className="flex items-start gap-3 px-4 py-3 rounded-lg bg-sky-50/70 border border-sky-200/80 text-xs sm:text-sm">
+                <Lightbulb className="w-4 h-4 text-[#3399cc] shrink-0 mt-0.5" />
+                <div className="flex-1 leading-relaxed">
+                  <span className="font-semibold text-slate-800">
+                    Values are prefilled from Cover Information.{" "}
+                  </span>
+                  <span className="text-slate-600">
+                    You can adjust any field directly below if needed, or click{" "}
+                    <strong className="font-semibold text-[#0d3b66]">
+                      Save Design Conditions
+                    </strong>{" "}
+                    to confirm and proceed to cases.
+                  </span>
+                </div>
+              </div>
+            )}
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {/* 1. Field: Design standard */}
@@ -383,7 +436,7 @@ export const DesignConditionsSection = forwardRef(
             <div className="flex items-start sm:items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg hp:rounded-md px-4 py-2.5 text-xs md:text-sm text-gray-500">
               <Info className="w-4 h-4 shrink-0 text-gray-400 mt-0.5 sm:mt-0" />
               <span>
-                Reference from Cover Information Request: Standard {coverStandardLabel} · Wind speed {coverWindSpeed} m/s · Air density {coverAirDensity} N·sec²/m⁴
+                Reference from Cover Information: Standard {coverStandardLabel} · Wind speed {coverWindSpeed} m/s · Air density {coverAirDensity} N·sec²/m⁴
               </span>
             </div>
 

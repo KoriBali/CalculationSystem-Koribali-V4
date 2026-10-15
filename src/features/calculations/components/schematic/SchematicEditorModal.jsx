@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { X, Loader2, Edit3, RotateCcw } from "lucide-react";
+import { X, Loader2, RotateCcw } from "lucide-react";
 import { DEFAULT_SCHEMATIC_URL } from "../../hooks/useSchematicBridge";
 
 /**
@@ -38,6 +38,47 @@ export function SchematicEditorModal({
     };
   }, [isOpen, onOpenEditor]);
 
+  // Listen for cancel / close messages from iframe editor
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleWindowMessage = (event) => {
+      if (iframeRef?.current && event.source !== iframeRef.current.contentWindow) {
+        return;
+      }
+      const rawData = event.data;
+      const rawType = typeof rawData === "string" ? rawData : rawData?.type;
+      const rawAction = rawData?.action || rawData?.payload?.action;
+
+      const isCancel =
+        rawType === "SCHEMATIC_EDITOR_CANCELLED" ||
+        rawType === "SCHEMATIC_CANCEL" ||
+        rawType === "SCHEMATIC_CANCELLED" ||
+        rawType === "SCHEMATIC_CANCELED" ||
+        rawType === "SCHEMATIC_CLOSE" ||
+        rawType === "CLOSE_EDITOR" ||
+        rawType === "CANCEL_EDITOR" ||
+        rawType === "EDITOR_CANCEL" ||
+        rawType === "EDITOR_CANCELLED" ||
+        rawType === "EDITOR_CLOSED" ||
+        rawType === "CANCEL" ||
+        rawType === "CLOSE" ||
+        rawAction === "cancel" ||
+        rawAction === "close" ||
+        (typeof rawType === "string" &&
+          (rawType.toLowerCase().includes("cancel") || rawType.toLowerCase().includes("close")));
+
+      if (isCancel && onClose) {
+        onClose();
+      }
+    };
+
+    window.addEventListener("message", handleWindowMessage);
+    return () => {
+      window.removeEventListener("message", handleWindowMessage);
+    };
+  }, [isOpen, onClose, iframeRef]);
+
   return (
     <div
       className={`fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-3 sm:p-6 print:hidden transition-all duration-200 ${
@@ -59,30 +100,19 @@ export function SchematicEditorModal({
 
           <div className="flex items-center gap-2 shrink-0">
             {isEdited && onReset && (
-              <button
-                type="button"
-                onClick={onReset}
-                className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
-                title="Hapus editan manual dan kembalikan ke gambar skematik default semula"
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-                <span>Reset</span>
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={onReset}
+                  className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+                  title="Hapus editan manual dan kembalikan ke gambar skematik default semula"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>Reset</span>
+                </button>
+                <div className="w-px h-5 bg-gray-200 mx-1" aria-hidden="true" />
+              </>
             )}
-
-            {onOpenEditor && (
-              <button
-                type="button"
-                onClick={onOpenEditor}
-                className="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-lg text-xs font-medium bg-[#eef2f6] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:bg-[#0d3b66] hover:text-white hover:ring-[#0d3b66] transition-all cursor-pointer"
-                title="Buka toolbar editor manual SVG-Edit jika belum terbuka"
-              >
-                <Edit3 className="w-3.5 h-3.5" />
-                <span>Open Editor</span>
-              </button>
-            )}
-
-            <div className="w-px h-5 bg-gray-200 mx-1" aria-hidden="true" />
 
             <button
               onClick={onClose}
@@ -113,6 +143,19 @@ export function SchematicEditorModal({
               setIframeLoaded(true);
               if (isOpen && onOpenEditor) {
                 setTimeout(() => onOpenEditor(), 200);
+              }
+              try {
+                const doc = iframeRef.current?.contentDocument;
+                if (doc) {
+                  const cancelBtn = doc.getElementById("cancel-schematic");
+                  if (cancelBtn) {
+                    cancelBtn.addEventListener("click", () => {
+                      onClose?.();
+                    });
+                  }
+                }
+              } catch (e) {
+                void e;
               }
             }}
             className="w-full h-full border-0 rounded-xl bg-white shadow-inner"

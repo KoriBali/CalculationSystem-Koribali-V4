@@ -3,8 +3,7 @@
 // its cases (each opens a calculation or drawing draft) and its files.
 import { useNavigate, useParams } from "react-router-dom";
 import { Helmet } from "react-helmet";
-import { ArrowLeft, SearchX } from "lucide-react";
-
+import { ArrowLeft, SearchX, Check, X, AlertCircle } from "lucide-react";
 import { useState, useRef } from "react";
 import InitialAssignment from "../components/requests/InitialAssignment";
 import { RequestCases } from "../components/requests/detail/RequestCases";
@@ -28,7 +27,12 @@ import { useRequestRecord } from "../hooks/useRequestRecord";
 import { createCase } from "../utils/requestCases";
 import { deserializeWorkingSession } from "../utils/coreLogic";
 import { getUser } from "../../../utils/auth";
-import { Check, X } from "lucide-react";
+import {
+  STANDARD_OPENING_TYPE,
+  STANDARD_BOX_TYPE,
+  STANDARD_BASEPLATE_TYPE,
+  STANDARD_FOUR_RIB_TYPE,
+} from "../constants/standardPoleDefaults";
 
 const BACK_BUTTON =
   "self-start flex shrink-0 items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap text-white px-3 py-2 sm:px-4 rounded-lg hp:rounded-md text-xs sm:text-sm font-medium border border-white/20 hover:bg-white/10 active:bg-white/15 transition";
@@ -62,7 +66,7 @@ function NotFound({ onBack }) {
         onClick={onBack}
         className="mt-5 h-9 px-4 rounded-lg text-sm font-medium bg-[#0d3b66] text-white hover:bg-[#0b3157]"
       >
-        Back to Requests
+        Back to Projects
       </button>
     </div>
   );
@@ -74,31 +78,39 @@ export default function RequestDetailPage() {
   const [request, update] = useRequestRecord(requestId);
   const [toastMessage, setToastMessage] = useState(null);
   const [toastModal, setToastModal] = useState(null);
+  const [isEditingConditions, setIsEditingConditions] = useState(false);
   const designConditionsRef = useRef(null);
+  const toastTimeoutRef = useRef(null);
 
-  const showToast = (msg) => {
-    setToastMessage(msg);
-    setTimeout(() => {
-      setToastMessage((prev) => (prev === msg ? null : prev));
-    }, 3000);
+  const showToast = (toast) => {
+    if (toastTimeoutRef.current) {
+      clearTimeout(toastTimeoutRef.current);
+    }
+    const payload =
+      typeof toast === "string"
+        ? { message: toast, type: "success" }
+        : { message: toast?.message || "", type: toast?.type || "success" };
+    setToastMessage(payload);
+    toastTimeoutRef.current = setTimeout(() => {
+      setToastMessage(null);
+    }, 3200);
   };
 
   const handleBeforeAddCase = () => {
-    if (designConditionsRef.current) {
-      const { isValid, firstMsg } =
-        designConditionsRef.current.triggerValidation();
-      if (!isValid) {
-        if (firstMsg) {
-          setToastModal({ message: firstMsg });
-        }
-        const section = document.getElementById("design-conditions-section");
-        if (section) {
-          section.scrollIntoView({ behavior: "smooth", block: "center" });
-        }
-        return false;
-      }
-    } else if (!request.designConditions?.isSaved) {
-      setToastModal({ message: "Design Standard is required" });
+    const isUnsaved =
+      !request.designConditions?.isSaved ||
+      isEditingConditions ||
+      designConditionsRef.current?.isEditing;
+
+    if (isUnsaved) {
+      const msg =
+        (designConditionsRef.current &&
+          designConditionsRef.current.triggerValidation()?.firstMsg) ||
+        "Please save Design Conditions first before adding calculation cases.";
+      showToast({
+        message: msg,
+        type: "warning",
+      });
       const section = document.getElementById("design-conditions-section");
       if (section) {
         section.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -108,11 +120,11 @@ export default function RequestDetailPage() {
     return true;
   };
 
-  if (!request) return <NotFound onBack={() => navigate("/requests")} />;
+  if (!request) return <NotFound onBack={() => navigate("/projects")} />;
 
   const headline = REQUEST_HEADLINE[request.coverType];
   const requestNo = requestNoOf(request);
-  const me = getUser()?.name || "Rani Putri";
+  const me = getUser()?.name || "Bintarjo Agus Priyadi";
 
   // Add Case handler
   const handleAddCase = (workType, details = {}) => {
@@ -159,8 +171,21 @@ export default function RequestDetailPage() {
 
   // Open Case draft
   const handleOpenCase = (c) => {
-    if (!request.designConditions?.isSaved) {
-      setToastMessage("Please configure and save Design Conditions before opening a calculation case.");
+    const isUnsaved =
+      !request.designConditions?.isSaved ||
+      isEditingConditions ||
+      designConditionsRef.current?.isEditing;
+
+    if (isUnsaved) {
+      showToast({
+        message:
+          "Please save Design Conditions first before opening calculation cases.",
+        type: "warning",
+      });
+      const section = document.getElementById("design-conditions-section");
+      if (section) {
+        section.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
       return;
     }
     sessionStorage.setItem("projectType", request.projectType);
@@ -186,6 +211,7 @@ export default function RequestDetailPage() {
     const poleKind = c.poleKind || (request.projectType === "lighting-project" ? "standard" : "custom");
     const isStandard = poleKind === "standard";
 
+    let activeDraft = draftObj;
     if (!draftObj) {
       const initialCondition = {
         designStandard: designConditions.standard || "jil",
@@ -210,21 +236,26 @@ export default function RequestDetailPage() {
         },
         useCoupling: null,
       };
-      sessionStorage.setItem(
-        draftKey,
-        JSON.stringify({
-          workflow: JSON.stringify({
-            projectMode: c.workType === "drawing" ? "drawing" : "calculation",
-            withReport: false,
-          }),
-          projectIdentity: JSON.stringify({
-            projectName: request.fields?.projectName || "",
-            subject: request.fields?.subject || "",
-          }),
-          condition: JSON.stringify(initialCondition),
-          drawing_general: JSON.stringify(initialDrawingGeneral),
+      const draftPayload = {
+        workflow: JSON.stringify({
+          projectMode: c.workType === "drawing" ? "drawing" : "calculation",
+          withReport: false,
         }),
-      );
+        projectIdentity: JSON.stringify({
+          projectName: request.fields?.projectName || "",
+          subject: request.fields?.subject || "",
+        }),
+        condition: JSON.stringify(initialCondition),
+        drawing_general: JSON.stringify(initialDrawingGeneral),
+      };
+      if (isStandard) {
+        draftPayload.openingType = JSON.stringify(STANDARD_OPENING_TYPE);
+        draftPayload.boxType = JSON.stringify(STANDARD_BOX_TYPE);
+        draftPayload.baseplateType = JSON.stringify(STANDARD_BASEPLATE_TYPE);
+        draftPayload.fourRibType = JSON.stringify(STANDARD_FOUR_RIB_TYPE);
+      }
+      sessionStorage.setItem(draftKey, JSON.stringify(draftPayload));
+      activeDraft = draftPayload;
     } else {
       try {
         const curCond = draftObj.condition ? JSON.parse(draftObj.condition) : {};
@@ -235,7 +266,46 @@ export default function RequestDetailPage() {
         if (curCond.poleType === "standard") {
           curCond.openingEnabled = true;
           curCond.baseplateEnabled = true;
+          if (!draftObj.openingType) {
+            draftObj.openingType = JSON.stringify(STANDARD_OPENING_TYPE);
+          }
+          if (!draftObj.boxType) {
+            draftObj.boxType = JSON.stringify(STANDARD_BOX_TYPE);
+          }
+          if (!draftObj.baseplateType) {
+            draftObj.baseplateType = JSON.stringify(STANDARD_BASEPLATE_TYPE);
+          }
+          if (!draftObj.fourRibType) {
+            draftObj.fourRibType = JSON.stringify(STANDARD_FOUR_RIB_TYPE);
+          }
         }
+        // Cleanse incomplete reports: if calculation steps haven't all finished or cover report info is missing
+        const hasPole = Boolean(draftObj.results);
+        const hasOp = !curCond.openingEnabled || Boolean(draftObj.calculatedOp);
+        const hasBp = !curCond.baseplateEnabled || Boolean(draftObj.calculatedBaseplate);
+        const hasFd = !curCond.foundationEnabled || Boolean(draftObj.calculatedFoundation);
+        let rawCover = null;
+        try {
+          rawCover = draftObj.cover
+            ? typeof draftObj.cover === "string"
+              ? JSON.parse(draftObj.cover)
+              : draftObj.cover
+            : null;
+        } catch {
+          rawCover = null;
+        }
+        const hasCoverInfo = Boolean(
+          rawCover &&
+            (rawCover.reportNumber?.trim() || rawCover.calculationNumber?.trim()) &&
+            rawCover.author?.trim() &&
+            (rawCover.responsibleDepartment?.trim() || rawCover.region?.trim())
+        );
+
+        if (!hasPole || !hasOp || !hasBp || !hasFd || !hasCoverInfo) {
+          delete draftObj.reportSnapshot;
+          delete draftObj.hasReport;
+        }
+
         draftObj.condition = JSON.stringify(curCond);
         sessionStorage.setItem(draftKey, JSON.stringify(draftObj));
       } catch {
@@ -243,10 +313,13 @@ export default function RequestDetailPage() {
       }
     }
 
+    deserializeWorkingSession(request.projectType, activeDraft);
+    sessionStorage.setItem(`${request.projectType}_active_draft_id`, c.id);
+
     const targetPath =
       c.workType === "drawing"
-        ? `/requests/${request.projectType}/${c.id}/drawing/drawing-setup`
-        : `/requests/${request.projectType}/${c.id}/initial`;
+        ? `/projects/${request.projectType}/${c.id}/drawing/drawing-setup`
+        : `/projects/${request.projectType}/${c.id}/initial`;
     navigate(targetPath);
   };
 
@@ -263,7 +336,7 @@ export default function RequestDetailPage() {
         console.error("Failed to deserialize draft for report:", err);
       }
     }
-    navigate(`/requests/${request.projectType}/${c.id}/report`);
+    navigate(`/projects/${request.projectType}/${c.id}/report`);
   };
 
   // Save Design Conditions handler
@@ -323,25 +396,53 @@ export default function RequestDetailPage() {
   return (
     <div className="flex flex-col h-full min-h-screen relative">
       <Helmet>
-        <title>{requestNo || "Request"} - KORI BALI</title>
+        <title>{requestNo || "Project"} - KORI BALI</title>
       </Helmet>
 
-      {/* ── Toast notification banner (Temporarily hidden as requested) ── */}
-      {/* {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-3 rounded-xl bg-slate-900 text-white text-xs sm:text-sm font-medium shadow-2xl border border-slate-700 animate-in fade-in slide-in-from-bottom-3 duration-200">
-          <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
-            <Check className="w-3.5 h-3.5" />
-          </div>
-          <span>{toastMessage}</span>
-          <button
-            type="button"
-            onClick={() => setToastMessage(null)}
-            className="ml-2 text-slate-400 hover:text-white p-0.5"
+      {/* ── Floating Toast Notification Banner ── */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-[9999] pointer-events-none flex flex-col items-end">
+          <div
+            className={`pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl border backdrop-blur-md transition-all duration-300 animate-in fade-in slide-in-from-bottom-4 max-w-sm sm:max-w-md ${
+              toastMessage.type === "warning"
+                ? "bg-slate-900/95 text-white border-amber-500/40"
+                : toastMessage.type === "error"
+                  ? "bg-slate-900/95 text-white border-rose-500/40"
+                  : "bg-slate-900/95 text-white border-slate-700/80"
+            }`}
           >
-            <X className="w-3.5 h-3.5" />
-          </button>
+            <div
+              className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${
+                toastMessage.type === "warning"
+                  ? "bg-amber-500/20 text-amber-400"
+                  : toastMessage.type === "error"
+                    ? "bg-rose-500/20 text-rose-400"
+                    : "bg-emerald-500/20 text-emerald-400"
+              }`}
+            >
+              {toastMessage.type === "warning" || toastMessage.type === "error" ? (
+                <AlertCircle className="w-4 h-4 stroke-[2.5]" />
+              ) : (
+                <Check className="w-4 h-4 stroke-[2.5]" />
+              )}
+            </div>
+            <span className="text-xs sm:text-sm font-medium leading-snug">
+              {toastMessage.message}
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+                setToastMessage(null);
+              }}
+              className="ml-auto text-slate-400 hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors"
+              aria-label="Close notification"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
-      )} */}
+      )}
 
       <div className="flex-1 rounded-t-2xl hp:rounded-t-xl bg-gray-50">
         {/* ── Header: same blue card and width as the New Request form ── */}
@@ -349,11 +450,11 @@ export default function RequestDetailPage() {
           <div className="rounded-xl sm:rounded-2xl bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] shadow-sm px-3 py-3 sm:px-4 sm:py-4 md:px-6 2xl:px-8 flex flex-col gap-4">
             <button
               type="button"
-              onClick={() => navigate("/requests")}
+              onClick={() => navigate("/projects")}
               className={BACK_BUTTON}
             >
               <ArrowLeft className="w-4 h-4 shrink-0" />
-              Back to Requests
+              Back to Projects
             </button>
             <div className="min-w-0">
               <p className="text-xs sm:text-sm text-white/60">Request No.</p>
@@ -381,7 +482,7 @@ export default function RequestDetailPage() {
             <SectionCard>
               <RequestSummary
                 request={request}
-                onEdit={() => navigate(`/requests/edit/${request.id}`)}
+                onEdit={() => navigate(`/projects/edit/${request.id}`)}
               />
             </SectionCard>
           </div>
@@ -399,6 +500,7 @@ export default function RequestDetailPage() {
                   onSave={handleSaveDesignConditions}
                   onToast={showToast}
                   onShowToastModal={(msg) => setToastModal({ message: msg })}
+                  onEditModeChange={setIsEditingConditions}
                 />
               </SectionCard>
             </div>
@@ -431,14 +533,20 @@ export default function RequestDetailPage() {
                 onOpenCase={handleOpenCase}
                 onViewReport={handleViewCaseReport}
                 onToast={showToast}
+                onShowToastModal={(msg) => setToastModal({ message: msg })}
                 onBeforeAddCase={handleBeforeAddCase}
               />
             </SectionCard>
           </div>
 
-          {/* ── Section: Files ── */}
+          {/* ── Section: References Related to This Project ── */}
           <div>
-            <SectionTitle>Files</SectionTitle>
+            <SectionTitle>
+              References Related to This Project
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-normal text-slate-500 bg-slate-100 border border-slate-200 ml-2">
+                Under Development
+              </span>
+            </SectionTitle>
             <SectionCard>
               <RequestFiles
                 files={request.files || {}}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { validateCondition } from "../logic/initial-setup/conditionValidation";
@@ -53,25 +53,13 @@ export function useConditionForm() {
   const [toast, setToast] = useState(null);
   const [confirmDisable, setConfirmDisable] = useState(null);
 
-  // Auto-enable opening and baseplate if poleType is standard
-  useEffect(() => {
-    if (condition?.poleType === "standard" && (!condition.openingEnabled || !condition.baseplateEnabled)) {
-      setLocalCondition((prev) => ({
-        ...prev,
-        openingEnabled: true,
-        baseplateEnabled: true,
-      }));
-      setCondition((prev) => ({
-        ...prev,
-        openingEnabled: true,
-        baseplateEnabled: true,
-      }));
-    }
-  }, [condition?.poleType]);
-
   // Update local draft + auto-fill defaults + clear related errors
   const handleUpdate = (updates) => {
     const next = applyStandardDefaults(updates);
+    if (next.poleType === "standard") {
+      next.openingEnabled = true;
+      next.baseplateEnabled = true;
+    }
     setLocalCondition((prev) => ({ ...prev, ...next }));
 
     // Pakai `next` bukan `updates` — supaya key yang di-autofill juga ter-clear
@@ -130,6 +118,8 @@ export function useConditionForm() {
       sessionStorage.removeItem(`${projectType}_isCalculatedOp`);
       sessionStorage.removeItem(`${projectType}_isCalculatedBp`);
       sessionStorage.removeItem(`${projectType}_isCalculatedFd`);
+      sessionStorage.removeItem(`${projectType}_reportSnapshot`);
+      sessionStorage.removeItem(`${projectType}_hasReport`);
       notifyCalculationProgressChanged();
     }
 
@@ -137,7 +127,7 @@ export function useConditionForm() {
     setCondition(localCondition);
 
     // 5. Navigate to pole step
-    navigate(`/requests/${projectType}/${draftId}/pole`);
+    navigate(`/projects/${projectType}/${draftId}/pole`);
   };
 
   return {
