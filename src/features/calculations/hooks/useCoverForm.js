@@ -8,12 +8,17 @@ import { CoverSchema } from "../schemas/cover/CoverSchema";
 // Default prefilled cover state — temporary auto-fill defaults
 export const DEFAULT_COVER = {
   reportNumber: "WS76509-001",
+  calculationNumber: "WS76509-001",
   title1: "江戸川フラワーガーデン",
+  projectName: "江戸川フラワーガーデン",
   title2: "強度検討",
+  coverTopText: "強度検討",
   title3: "",
+  coverBottomText: "",
   region: "A",
   author: "X",
   responsibleDepartment: "S",
+  date: new Date().toISOString().split("T")[0],
 };
 
 // ─── HOOK ────────────────────────────────────────────────────────────────────

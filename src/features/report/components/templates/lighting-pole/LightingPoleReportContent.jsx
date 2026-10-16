@@ -52,21 +52,21 @@ export default function LightingPoleReportContent({
             {/* Project information block */}
             <div className="cover-double-line">
               <p className="cover-inner-text cover-inner-text-line text-center py-[7px] jp">
-                {cover?.projectName ?? ""}
+                {cover?.projectName || cover?.title1 || ""}
               </p>
               <p
                 className={`cover-inner-text cover-inner-text-line text-center jp ${
-                  !cover?.coverTopText ? "py-[19px]" : "py-[7px]"
+                  !(cover?.coverTopText || cover?.title2) ? "py-[19px]" : "py-[7px]"
                 }`}
               >
-                {cover?.coverTopText ?? ""}
+                {cover?.coverTopText || cover?.title2 || ""}
               </p>
               <p
                 className={`cover-inner-text text-center jp py-[7px] ${
-                  !cover?.coverBottomText ? "mb-[24px]" : ""
+                  !(cover?.coverBottomText || cover?.title3) ? "mb-[24px]" : ""
                 }`}
               >
-                {cover?.coverBottomText ?? ""}
+                {cover?.coverBottomText || cover?.title3 || ""}
               </p>
             </div>
 

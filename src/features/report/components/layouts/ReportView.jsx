@@ -31,6 +31,7 @@ import {
 } from "../../../calculations/hooks/useSchematicBridge";
 import { getStandardPoleSchematicParameters } from "../../../calculations/utils/standardPoleSchematicMapper";
 import { getDummyReportPayload } from "../../utils/dummyReportPayload";
+import { normalizeCover } from "../../utils/reportFormatters";
 import {
   getDraftData,
   deserializeWorkingSession,
@@ -101,16 +102,27 @@ export function ReportView() {
     }
 
     if (storedSnapshot && storedSnapshot.results?.length > 0) {
+      // Check if this is a straight pole standard or custom pole
+      const isStraight =
+        storedSnapshot?.poleTypeStandard === "straight" ||
+        storedSnapshot?.condition?.poleTypeStandard === "straight" ||
+        storedSnapshot?.condition?.standardPoleType === "straight" ||
+        Boolean(storedSnapshot?.straightPoleStandard);
+
       // Check if user selected or changed the pole standard in the form
-      const isPoleChanged = Boolean(
-        storedPole?.poleType &&
-        (storedSnapshot?.condition?.standardPoleType !== storedPole.poleType ||
-          storedSnapshot?.taperPoleStandard?.poleType !== storedPole.poleType ||
-          storedSnapshot?.taperPoleStandard?.groundPosition !==
-            storedPole.groundPosition ||
-          String(storedSnapshot?.taperPoleStandard?.height || "") !==
-            String(storedPole?.height || "")),
-      );
+      const isPoleChanged =
+        !isStraight &&
+        Boolean(
+          storedPole?.poleType &&
+            (storedSnapshot?.condition?.standardPoleType !==
+              storedPole.poleType ||
+              storedSnapshot?.taperPoleStandard?.poleType !==
+                storedPole.poleType ||
+              storedSnapshot?.taperPoleStandard?.groundPosition !==
+                storedPole.groundPosition ||
+              String(storedSnapshot?.taperPoleStandard?.height || "") !==
+                String(storedPole?.height || "")),
+        );
 
       const hasOldDummyCover =
         storedSnapshot.cover?.calculationNumber === "KB-2026-001";
@@ -197,7 +209,7 @@ export function ReportView() {
   const [showEditCoverModal, setShowEditCoverModal] = useState(false);
 
   const cover = useMemo(() => {
-    return editedCover || reportData?.cover || {};
+    return normalizeCover(editedCover || reportData?.cover || {});
   }, [editedCover, reportData]);
 
   const condition = reportData?.condition || {};
@@ -216,10 +228,11 @@ export function ReportView() {
   // ── Handlers ──
 
   const handleSaveCover = (updatedCover) => {
-    setEditedCover(updatedCover);
+    const normalizedCover = normalizeCover(updatedCover);
+    setEditedCover(normalizedCover);
     sessionStorage.setItem(
       `${projectType}_cover`,
-      JSON.stringify(updatedCover),
+      JSON.stringify(normalizedCover),
     );
 
     try {
@@ -229,7 +242,7 @@ export function ReportView() {
       const updatedSnap = {
         ...snap,
         ...(reportData || {}),
-        cover: updatedCover,
+        cover: normalizedCover,
       };
       sessionStorage.setItem(
         `${projectType}_reportSnapshot`,
@@ -295,7 +308,7 @@ export function ReportView() {
     }, 1000);
   };
 
-  // ── Schematic setup (Standard Pole IA, IS, LA, LS, TA, TS) ──
+  // ── Schematic setup (Standard Pole IA, IS, LA, LS, TA, TS & Standard Straight) ──
   const taperPoleStandard = useMemo(() => {
     if (reportData?.taperPoleStandard) return reportData.taperPoleStandard;
     try {
@@ -309,9 +322,40 @@ export function ReportView() {
     }
   }, [reportData, projectType]);
 
+  const straightPoleStandard = useMemo(() => {
+    if (reportData?.straightPoleStandard) return reportData.straightPoleStandard;
+    try {
+      return (
+        JSON.parse(
+          sessionStorage.getItem(`${projectType}_straightPoleStandard`) || "null",
+        ) || {}
+      );
+    } catch {
+      return {};
+    }
+  }, [reportData, projectType]);
+
+  const poleTypeStandard = useMemo(() => {
+    if (reportData?.poleTypeStandard) return reportData.poleTypeStandard;
+    try {
+      return (
+        JSON.parse(
+          sessionStorage.getItem(`${projectType}_poleTypeStandard`) || "null",
+        ) || {}
+      );
+    } catch {
+      return {};
+    }
+  }, [reportData, projectType]);
+
   const schematicParams = useMemo(() => {
-    return getStandardPoleSchematicParameters({ taperPoleStandard, condition });
-  }, [taperPoleStandard, condition]);
+    return getStandardPoleSchematicParameters({
+      taperPoleStandard,
+      straightPoleStandard,
+      poleTypeStandard,
+      condition,
+    });
+  }, [taperPoleStandard, straightPoleStandard, poleTypeStandard, condition]);
 
   const iframeRef = useRef(null);
   const [isEditorOpen, setIsEditorOpen] = useState(false);

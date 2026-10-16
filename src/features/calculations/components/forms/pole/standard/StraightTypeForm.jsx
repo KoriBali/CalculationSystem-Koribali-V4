@@ -1,4 +1,4 @@
-import { RotateCcw } from "lucide-react";
+import { RotateCcw, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { GROUND_POSITION_OPTIONS } from "../../../../constants/straightPoleStandardOptions";
 import { getThicknessOptions } from "../../../../logic/pole/standard/straightPoleLogic";
@@ -111,48 +111,53 @@ export function StraightPoleStandardForm({
       <div className="mb-6">
         <SectionTitle>Pole Standard Type</SectionTitle>
         <div className="border border-slate-200 rounded-xl hp:rounded-lg p-4 sm:p-6 bg-white shadow-sm">
-          {poleStandardLoading && steppedPoleOptions.length === 0 && (
-            <p className="text-xs sm:text-sm text-slate-400 mb-3">
-              Loading pole standard options...
-            </p>
-          )}
-          {!poleStandardLoading &&
-            poleStandardError &&
-            steppedPoleOptions.length === 0 && (
-              <div className="flex items-center justify-between gap-3 mb-3 px-3 py-2 rounded-lg bg-red-50 border border-red-200">
-                <p className="text-xs sm:text-sm text-red-600">
-                  Failed to load pole standard options.
-                </p>
-                <button
-                  type="button"
-                  onClick={refetchPoleStandard}
-                  className="text-xs sm:text-sm font-medium text-red-600 underline hover:text-red-700 shrink-0"
-                >
-                  Retry
-                </button>
+          {poleStandardLoading && steppedPoleOptions.length === 0 ? (
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              <div className="h-10 rounded-lg hp:rounded-md bg-slate-100 animate-pulse border border-slate-200 flex items-center justify-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin text-[#3399cc]" />
+                <span className="text-xs text-slate-400 font-medium">
+                  Loading pole standard options...
+                </span>
               </div>
-            )}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {steppedPoleOptions.map((option) => {
-              const isActive = straightPoleStandard.poleType === option.id;
+            </div>
+          ) : !poleStandardLoading &&
+            poleStandardError &&
+            steppedPoleOptions.length === 0 ? (
+            <div className="flex items-center justify-between gap-3 px-3 py-2 rounded-lg bg-red-50 border border-red-200">
+              <p className="text-xs sm:text-sm text-red-600">
+                Failed to load pole standard options.
+              </p>
+              <button
+                type="button"
+                onClick={refetchPoleStandard}
+                className="text-xs sm:text-sm font-medium text-red-600 underline hover:text-red-700 shrink-0"
+              >
+                Retry
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {steppedPoleOptions.map((option) => {
+                const isActive = straightPoleStandard.poleType === option.id;
 
-              return (
-                <button
-                  key={option.id}
-                  type="button"
-                  onClick={() => onUpdate({ poleType: option.id })}
-                  className={`rounded-lg hp:rounded-md border px-4 py-2 lg:py-2.5 text-xs md:text-sm font-medium transition-all
-                    ${
-                      isActive
-                        ? "border-blue-500 bg-blue-50 text-blue-600 shadow-sm"
-                        : "border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50"
-                    }`}
-                >
-                  {option.label}
-                </button>
-              );
-            })}
-          </div>
+                return (
+                  <button
+                    key={option.id}
+                    type="button"
+                    onClick={() => onUpdate({ poleType: option.id })}
+                    className={`rounded-lg hp:rounded-md border px-4 py-2 lg:py-2.5 text-xs md:text-sm font-medium transition-all
+                      ${
+                        isActive
+                          ? "border-blue-500 bg-blue-50 text-blue-600 shadow-sm"
+                          : "border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50"
+                      }`}
+                  >
+                    {option.label}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
 
@@ -170,33 +175,47 @@ export function StraightPoleStandardForm({
                   <h4 className="block text-gray-700 text-sm mb-3 hp:text-xs hp:mb-2">
                     Select Lower Pole Diameter (mm)
                   </h4>
-                  <div className="grid grid-cols-3 gap-3">
-                    {combinationGroups.map((group) => {
-                      const isActive =
-                        straightPoleStandard.combinationGroup === group;
-
-                      return (
-                        <button
-                          key={group}
-                          type="button"
-                          onClick={() =>
-                            onUpdate({
-                              combinationGroup: group,
-                              combination: "",
-                            })
-                          }
-                          className={`w-full py-2 lg:py-2.5 rounded-lg hp:rounded-md text-sm hp:text-xs border transition
-                            ${
-                              isActive
-                                ? "bg-blue-50 border-blue-500 text-blue-600"
-                                : "border-slate-200 text-slate-600 hover:bg-slate-50"
-                            }`}
+                  {poleStandardLoading && combinationGroups.length === 0 ? (
+                    <div className="grid grid-cols-3 gap-3">
+                      {[1, 2, 3].map((i) => (
+                        <div
+                          key={i}
+                          className="w-full h-10 rounded-lg hp:rounded-md bg-slate-100 animate-pulse border border-slate-200 flex items-center justify-center gap-1.5"
                         >
-                          {group}
-                        </button>
-                      );
-                    })}
-                  </div>
+                          <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-400" />
+                          <span className="text-xs text-slate-400">Loading...</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-3 gap-3">
+                      {combinationGroups.map((group) => {
+                        const isActive =
+                          straightPoleStandard.combinationGroup === group;
+
+                        return (
+                          <button
+                            key={group}
+                            type="button"
+                            onClick={() =>
+                              onUpdate({
+                                combinationGroup: group,
+                                combination: "",
+                              })
+                            }
+                            className={`w-full py-2 lg:py-2.5 rounded-lg hp:rounded-md text-sm hp:text-xs border transition
+                              ${
+                                isActive
+                                  ? "bg-blue-50 border-blue-500 text-blue-600"
+                                  : "border-slate-200 text-slate-600 hover:bg-slate-50"
+                              }`}
+                          >
+                            {group}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
 
                 {/* Combination dropdown — resets thickness on change */}
@@ -205,7 +224,14 @@ export function StraightPoleStandardForm({
                     Select Pole Combination
                   </h4>
 
-                  {straightPoleStandard.combinationGroup ? (
+                  {poleStandardLoading && !straightPoleStandard.combinationGroup ? (
+                    <div className="border border-slate-200 rounded-lg hp:rounded-md px-4 py-2 lg:py-2.5 bg-slate-50 flex items-center gap-2 animate-pulse">
+                      <Loader2 className="w-4 h-4 animate-spin text-[#3399cc]" />
+                      <p className="text-sm hp:text-xs text-slate-400">
+                        Loading combinations...
+                      </p>
+                    </div>
+                  ) : straightPoleStandard.combinationGroup ? (
                     <FormSelect
                       value={straightPoleStandard.combination}
                       onChange={(val) =>
@@ -240,7 +266,14 @@ export function StraightPoleStandardForm({
                       <h4 className="block text-gray-700 text-sm mb-3 hp:text-xs hp:mb-2">
                         Upper Pole Thickness
                       </h4>
-                      {straightPoleStandard.combination ? (
+                      {poleStandardLoading && straightPoleStandard.combination ? (
+                        <div className="border border-slate-200 rounded-lg hp:rounded-md px-4 py-2 lg:py-2.5 bg-slate-50 flex items-center gap-2 animate-pulse">
+                          <Loader2 className="w-4 h-4 animate-spin text-[#3399cc]" />
+                          <p className="text-sm hp:text-xs text-slate-400">
+                            Loading thicknesses...
+                          </p>
+                        </div>
+                      ) : straightPoleStandard.combination ? (
                         <div className="relative">
                           <FormSelect
                             value={straightPoleStandard.upperThickness}
@@ -300,7 +333,14 @@ export function StraightPoleStandardForm({
                       <h4 className="block text-gray-700 text-sm mb-3 hp:text-xs hp:mb-2">
                         Lower Pole Thickness
                       </h4>
-                      {straightPoleStandard.combination ? (
+                      {poleStandardLoading && straightPoleStandard.combination ? (
+                        <div className="border border-slate-200 rounded-lg hp:rounded-md px-4 py-2 lg:py-2.5 bg-slate-50 flex items-center gap-2 animate-pulse">
+                          <Loader2 className="w-4 h-4 animate-spin text-[#3399cc]" />
+                          <p className="text-sm hp:text-xs text-slate-400">
+                            Loading thicknesses...
+                          </p>
+                        </div>
+                      ) : straightPoleStandard.combination ? (
                         <div className="relative">
                           <FormSelect
                             value={straightPoleStandard.lowerThickness}

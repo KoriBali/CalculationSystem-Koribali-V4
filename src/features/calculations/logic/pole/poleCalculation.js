@@ -64,9 +64,19 @@ export async function executePoleCalculation({
         };
       } else if (type === "straight") {
         // Untuk straight, kirim konfigurasi spec-nya + hasil resolve poles
+        const lowestStep =
+          straightPoleStandard?.groundPosition === "onGL"
+            ? "0"
+            : String(straightPoleStandard?.lowestHeight ?? "0");
+
         payload = {
           ...payload,
           straightPoleStandard,
+          poleConfig: {
+            ...poleConfig,
+            lowestHeight: lowestStep,
+            groundPosition: straightPoleStandard?.groundPosition || "onGL",
+          },
         };
       }
       break;

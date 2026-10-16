@@ -7,10 +7,19 @@
 import STANDARD_POLE_DATA from "../data/specStandardPole.json";
 
 // Supported standard pole types for schematic generation
-export const SUPPORTED_SCHEMATIC_POLE_TYPES = ["IA", "IS", "LA", "LS", "TA", "TS"];
+export const SUPPORTED_SCHEMATIC_POLE_TYPES = [
+  "IA",
+  "IS",
+  "LA",
+  "LS",
+  "TA",
+  "TS",
+  "STRAIGHT",
+  "STEPPEDPOLE",
+];
 
 /**
- * Checks whether a given taper pole type is supported by the schematic drawing engine.
+ * Checks whether a given pole type is supported by the schematic drawing engine.
  * @param {string} poleType
  * @returns {boolean}
  */
@@ -20,15 +29,112 @@ export function isSchematicSupportedPole(poleType) {
 }
 
 /**
- * Resolves standard pole entry from specStandardPole.json and builds
- * the exact payload structure required by Amir's Drawing Engine.
+ * Resolves standard straight pole (stepped pole) from specStandardPole.json and user inputs
+ * and builds the exact payload structure required by Amir's Drawing Engine.
  *
  * @param {object} params
- * @param {object} params.taperPoleStandard - { poleType, groundPosition, height, embedmentLength }
+ * @param {object} params.straightPoleStandard - { combination, upperLength, upperThickness, lowerLength, lowerThickness, groundPosition, lowestHeight }
  * @param {object} [params.condition] - { baseplateEnabled, ... }
- * @returns {object|null} Returns { standardId, payload } or null if not supported/available.
+ * @returns {object|null} Returns { standardId, poleType, payload } or null if not supported/available.
  */
-export function getStandardPoleSchematicParameters({ taperPoleStandard, condition = {} }) {
+export function getStraightPoleSchematicParameters({ straightPoleStandard, condition = {} }) {
+  if (!straightPoleStandard || !straightPoleStandard.combination) return null;
+
+  // As confirmed: schematic drawing for embedment straight pole is not yet ready in Amir's system.
+  if (condition.baseplateEnabled === false) {
+    return null;
+  }
+
+  const combination = straightPoleStandard.combination;
+  const selectedPole = STANDARD_POLE_DATA?.straight?.[combination];
+  if (!selectedPole || !Array.isArray(selectedPole.poles) || selectedPole.poles.length < 2) {
+    return null;
+  }
+
+  const upperLength = Number(straightPoleStandard.upperLength || 0);
+  const lowerLength = Number(straightPoleStandard.lowerLength || 0);
+  const upperThickness = Number(straightPoleStandard.upperThickness || 0);
+  const lowerThickness = Number(straightPoleStandard.lowerThickness || 0);
+
+  if (upperLength <= 0 || lowerLength <= 0) {
+    return null;
+  }
+
+  const [topRaw, bottomRaw] = selectedPole.poles;
+
+  // Drawing Engine expects individual segment length in 'height'.
+  const poles = [
+    {
+      name: topRaw.name || "上柱",
+      material: topRaw.material || "STK400",
+      type: "straight",
+      Lower_D: Number(topRaw.lowerDiameter),
+      Upper_D: Number(topRaw.upperDiameter),
+      thickness: upperThickness,
+      upperThickness: upperThickness,
+      height: upperLength,
+      quantity: 1,
+    },
+    {
+      name: bottomRaw.name || "下柱",
+      material: bottomRaw.material || "STK400",
+      type: "straight",
+      Lower_D: Number(bottomRaw.lowerDiameter),
+      Upper_D: Number(bottomRaw.upperDiameter),
+      thickness: lowerThickness,
+      upperThickness: lowerThickness,
+      height: lowerLength,
+      quantity: 1,
+    },
+  ];
+
+  const groundPos = straightPoleStandard.groundPosition || "onGL";
+  const lowestStep =
+    groundPos === "onGL"
+      ? 0
+      : Number(straightPoleStandard.lowestHeight || 0);
+
+  const standardId = `ST-${combination}-${upperLength}-${lowerLength}-${groundPos}${lowestStep !== 0 ? `-${lowestStep}` : ""}`;
+
+  return {
+    standardId,
+    poleType: "straight",
+    payload: {
+      poles,
+      arms: [],
+      directObjects: [],
+      overHeadWires: [],
+      lowestStep,
+    },
+  };
+}
+
+/**
+ * Resolves standard pole entry from specStandardPole.json and builds
+ * the exact payload structure required by Amir's Drawing Engine.
+ * Supports both Tapered and Straight (Stepped) standard poles.
+ *
+ * @param {object} params
+ * @param {object} [params.taperPoleStandard] - { poleType, groundPosition, height, embedmentLength }
+ * @param {object} [params.straightPoleStandard] - { combination, upperLength, upperThickness, lowerLength, lowerThickness, groundPosition, lowestHeight }
+ * @param {object} [params.poleTypeStandard] - { type: "tapered" | "straight" }
+ * @param {object} [params.condition] - { baseplateEnabled, ... }
+ * @returns {object|null} Returns { standardId, poleType, payload } or null if not supported/available.
+ */
+export function getStandardPoleSchematicParameters({
+  taperPoleStandard,
+  straightPoleStandard,
+  poleTypeStandard,
+  condition = {},
+}) {
+  const isStraight =
+    poleTypeStandard?.type === "straight" ||
+    (!taperPoleStandard?.poleType && Boolean(straightPoleStandard?.combination));
+
+  if (isStraight) {
+    return getStraightPoleSchematicParameters({ straightPoleStandard, condition });
+  }
+
   if (!taperPoleStandard || !taperPoleStandard.poleType) return null;
 
   const type = taperPoleStandard.poleType.toUpperCase();

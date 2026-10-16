@@ -8,6 +8,7 @@ import { scrollToFirstError, scrollToFirstNestedError } from "../utils/scrollToE
 import { notifyCalculationProgressChanged } from "../utils/calculationProgressEvent";
 import { saveWorkingSessionToDraft } from "../utils/coreLogic";
 import * as Utils from "../utils";
+import { normalizeCover } from "../../report/utils/reportFormatters";
 
 // Orchestrates pole calculation — validates, calls API, maps errors back to UI
 export function usePoleCalculation({
@@ -412,11 +413,12 @@ export function usePoleCalculation({
       resultsDo,
       resultsOhw,
       resultsArm,
-      cover,
+      cover: normalizeCover(cover),
       condition,
       poleConfig: poleConfigForm.poleConfig,
       taperPoleStandard: poleStandardForm.taperPoleStandard,
       straightPoleStandard: poleStandardForm.straightPoleStandard,
+      poleTypeStandard: poleStandardForm.poleTypeStandard,
     };
 
     sessionStorage.setItem(`${projectType}_hasReport`, "true");

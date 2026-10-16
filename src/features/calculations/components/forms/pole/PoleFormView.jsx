@@ -323,12 +323,16 @@ export default function PoleFormView() {
 
                       <PoleTypeSelector
                         poleTypeStandard={
-                          isCalculationAndDrawing
+                          isCalculationAndDrawing && !condition.baseplateEnabled
                             ? { type: "tapered" }
                             : poleStandardForm.poleTypeStandard
                         }
                         onUpdate={(val) => {
-                          if (isCalculationAndDrawing && val.type === "straight") {
+                          if (
+                            isCalculationAndDrawing &&
+                            !condition.baseplateEnabled &&
+                            val.type === "straight"
+                          ) {
                             setShowStraightModal(true);
                           } else {
                             poleStandardForm.updatePoleTypeStandard(val);
@@ -336,8 +340,7 @@ export default function PoleFormView() {
                         }}
                       />
 
-                      {(isCalculationAndDrawing ||
-                        poleStandardForm.poleTypeStandard.type === "tapered") && (
+                      {poleStandardForm.poleTypeStandard.type === "tapered" && (
                         <TaperPoleStandardForm
                           taperPoleStandard={poleStandardForm.taperPoleStandard}
                           onUpdate={poleStandardForm.updateTaperPoleStandard}
@@ -346,20 +349,18 @@ export default function PoleFormView() {
                         />
                       )}
 
-                      {!isCalculationAndDrawing &&
-                        poleStandardForm.poleTypeStandard.type ===
-                          "straight" && (
-                          <StraightPoleStandardForm
-                            straightPoleStandard={
-                              poleStandardForm.straightPoleStandard
-                            }
-                            onUpdate={
-                              poleStandardForm.updateStraightPoleStandard
-                            }
-                            errors={poleStandardForm.straightPoleErrors}
-                            condition={condition}
-                          />
-                        )}
+                      {poleStandardForm.poleTypeStandard.type === "straight" && (
+                        <StraightPoleStandardForm
+                          straightPoleStandard={
+                            poleStandardForm.straightPoleStandard
+                          }
+                          onUpdate={
+                            poleStandardForm.updateStraightPoleStandard
+                          }
+                          errors={poleStandardForm.straightPoleErrors}
+                          condition={condition}
+                        />
+                      )}
                     </>
                   )}
 

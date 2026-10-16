@@ -11,7 +11,6 @@ import {
   Edit,
   UserCheck,
   Trash2,
-  AlertTriangle,
   AlertCircle,
   Search,
   Info,
@@ -777,17 +776,7 @@ function AddCaseModal({ workType, request, existingCases, onClose, onSubmit }) {
   const [poleKind, setPoleKind] = useState("standard"); // 'standard' | 'custom'
   const [touched, setTouched] = useState(false);
 
-  // Check duplicate caseLabel soft warning
-  const isDuplicateLabel = useMemo(() => {
-    if (!caseLabel.trim()) return false;
-    const clean = caseLabel.trim().toLowerCase();
-    return existingCases.some(
-      (c) =>
-        (c.case_label || "").trim().toLowerCase() === clean && clean !== "",
-    );
-  }, [caseLabel, existingCases]);
-
-  const isValid = caseLabel.trim() !== "" && !isDuplicateLabel && poleKind !== "";
+  const isValid = caseLabel.trim() !== "" && poleKind !== "";
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -805,7 +794,7 @@ function AddCaseModal({ workType, request, existingCases, onClose, onSubmit }) {
     });
   };
 
-  const hasLabelError = (touched && !caseLabel.trim()) || isDuplicateLabel;
+  const hasLabelError = touched && !caseLabel.trim();
 
   return createPortal(
     <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
@@ -847,14 +836,9 @@ function AddCaseModal({ workType, request, existingCases, onClose, onSubmit }) {
                 required
                 className={`${inputStyle(hasLabelError)} text-slate-800 placeholder-slate-400`}
               />
-              {touched && !caseLabel.trim() ? (
+              {hasLabelError ? (
                 <p className="mt-1 text-[11px] text-red-500 font-medium">
                   *Case No. / Label is required
-                </p>
-              ) : isDuplicateLabel ? (
-                <p className="mt-1 text-[11px] text-amber-600 font-medium flex items-center gap-1">
-                  <AlertTriangle className="w-3.5 h-3.5" />
-                  This case label is already used by another case in this project.
                 </p>
               ) : (
                 <p className="mt-1 text-[11px] text-slate-500">
@@ -979,25 +963,10 @@ function EditCaseModal({ caseItem, existingCases, onClose, onSubmit }) {
   const [touched, setTouched] = useState(false);
 
 
-  // Check duplicate caseLabel soft warning (excluding this case)
-  const isDuplicateLabel = useMemo(() => {
-    if (!caseLabel.trim()) return false;
-    const clean = caseLabel.trim().toLowerCase();
-    const original = initialLabel.toLowerCase();
-    if (clean === original) return false;
-    return (existingCases || []).some(
-      (c) =>
-        c.id !== caseItem.id &&
-        ((c.case_label || "").trim().toLowerCase() === clean ||
-          (c.no ? `/${c.no}` : "").toLowerCase() === clean) &&
-        clean !== "",
-    );
-  }, [caseLabel, initialLabel, caseItem.id, existingCases]);
-
   // Trigger active only when changes were made and input is valid
   const hasChanges =
     caseLabel.trim() !== initialLabel || poleKind !== initialPoleKind;
-  const isValid = hasChanges && caseLabel.trim() !== "" && !isDuplicateLabel;
+  const isValid = hasChanges && caseLabel.trim() !== "";
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -1011,7 +980,7 @@ function EditCaseModal({ caseItem, existingCases, onClose, onSubmit }) {
     });
   };
 
-  const hasLabelError = (touched && !caseLabel.trim()) || isDuplicateLabel;
+  const hasLabelError = touched && !caseLabel.trim();
 
   return createPortal(
     <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
@@ -1048,14 +1017,9 @@ function EditCaseModal({ caseItem, existingCases, onClose, onSubmit }) {
                 required
                 className={`${inputStyle(hasLabelError)} text-slate-800 placeholder-slate-400`}
               />
-              {touched && !caseLabel.trim() ? (
+              {hasLabelError ? (
                 <p className="mt-1 text-[11px] text-red-500 font-medium">
                   *Case No. / Label is required
-                </p>
-              ) : isDuplicateLabel ? (
-                <p className="mt-1 text-[11px] text-amber-600 font-medium flex items-center gap-1">
-                  <AlertTriangle className="w-3.5 h-3.5" />
-                  This case label is already used by another case in this project.
                 </p>
               ) : (
                 <p className="mt-1 text-[11px] text-slate-500">

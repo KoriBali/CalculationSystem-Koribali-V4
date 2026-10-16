@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { saveWorkingSessionToDraft } from "../../calculations/utils/coreLogic";
+import { normalizeCover } from "../utils/reportFormatters";
 
 // ─── HOOK ────────────────────────────────────────────────────────────────────
 
@@ -161,22 +162,7 @@ export function useReport(projectType) {
     const resultsOhw = read("resultsOhw", []);
     const resultsArm = read("resultsArm", []);
     const rawCover = coverOverride || read("cover", {}) || {};
-    const mgmtParts = [
-      rawCover?.region,
-      rawCover?.author,
-      rawCover?.responsibleDepartment,
-    ].filter(Boolean);
-    const computedMgmtCode =
-      mgmtParts.length > 0
-        ? mgmtParts.join(" ― ")
-        : rawCover?.managementCode
-          ? String(rawCover.managementCode).replace(/\s*-\s*/g, " ― ")
-          : "";
-    const cover = {
-      ...rawCover,
-      managementCode: computedMgmtCode,
-      calculationNumber: rawCover?.reportNumber || rawCover?.calculationNumber || "",
-    };
+    const cover = normalizeCover(rawCover);
 
     // Read calculated results for optional steps
     const calculatedOp = read("calculatedOp", {});
@@ -207,6 +193,7 @@ export function useReport(projectType) {
       poleConfig,
       taperPoleStandard: read("taperPoleStandard", null),
       straightPoleStandard: read("straightPoleStandard", null),
+      poleTypeStandard: read("poleTypeStandard", null),
       ...(openingEnabled && {
         calculatedOp: mergeOpening(
           read("openingType", {}),

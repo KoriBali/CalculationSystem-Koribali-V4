@@ -63,6 +63,49 @@ export const getDesignStandardText = (value) => {
   }
 };
 
+// Normalizes cover object so that title1/title2/title3, projectName/coverTopText/coverBottomText,
+// and reportNumber/calculationNumber are consistently synchronized and populated.
+export const normalizeCover = (rawCover) => {
+  if (!rawCover || typeof rawCover !== "object") return {};
+
+  const reportNumber =
+    rawCover.reportNumber || rawCover.calculationNumber || "";
+  const title1 = rawCover.title1 || rawCover.projectName || "";
+  const title2 =
+    rawCover.title2 !== undefined
+      ? rawCover.title2
+      : rawCover.coverTopText !== undefined
+        ? rawCover.coverTopText
+        : "";
+  const title3 = rawCover.title3 || rawCover.coverBottomText || "";
+
+  const mgmtParts = [
+    rawCover.region,
+    rawCover.author,
+    rawCover.responsibleDepartment,
+  ].filter(Boolean);
+  const computedMgmtCode =
+    mgmtParts.length > 0
+      ? mgmtParts.join(" ― ")
+      : rawCover.managementCode
+        ? String(rawCover.managementCode).replace(/\s*-\s*/g, " ― ")
+        : "";
+
+  return {
+    ...rawCover,
+    reportNumber,
+    calculationNumber: reportNumber,
+    title1,
+    projectName: title1,
+    title2,
+    coverTopText: title2,
+    title3,
+    coverBottomText: title3,
+    managementCode: computedMgmtCode,
+    date: rawCover.date || new Date().toISOString().split("T")[0],
+  };
+};
+
 // Formats calculation number as "No. {number}" (e.g. "No. 12345")
 export const formatCalculationNumber = (num) => {
   if (!num) return "";

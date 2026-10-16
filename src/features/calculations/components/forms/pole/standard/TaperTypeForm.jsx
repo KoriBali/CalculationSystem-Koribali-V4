@@ -768,14 +768,21 @@ export function TaperPoleStandardForm({
           </div>
 
           <div className="p-4 grid grid-cols-2 gap-4 flex-1 md:flex md:flex-col">
-            {poleStandardLoading && poleStandardOptions.length === 0 && (
-              <p className="text-xs sm:text-sm text-slate-400">
-                Loading pole standard options...
-              </p>
-            )}
-            {!poleStandardLoading &&
+            {poleStandardLoading && poleStandardOptions.length === 0 ? (
+              <div className="col-span-2 md:col-span-1 grid grid-cols-2 gap-3 md:flex md:flex-col">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <div
+                    key={i}
+                    className="h-11 rounded-lg hp:rounded-md bg-slate-100 animate-pulse border border-slate-200 flex items-center justify-between px-4"
+                  >
+                    <div className="w-20 h-3.5 bg-slate-200 rounded animate-pulse" />
+                    <div className="w-4 h-4 rounded-full bg-slate-200 animate-pulse" />
+                  </div>
+                ))}
+              </div>
+            ) : !poleStandardLoading &&
               poleStandardError &&
-              poleStandardOptions.length === 0 && (
+              poleStandardOptions.length === 0 ? (
                 <div className="col-span-2 md:col-span-1 flex items-center justify-between gap-3 px-3 py-2 rounded-lg bg-red-50 border border-red-200">
                   <p className="text-xs sm:text-sm text-red-600">
                     Failed to load pole standard options.
@@ -788,8 +795,8 @@ export function TaperPoleStandardForm({
                     Retry
                   </button>
                 </div>
-              )}
-            {poleStandardOptions.map((option) => {
+              ) : (
+                poleStandardOptions.map((option) => {
               const isActive = taperPoleStandard.poleType === option.id;
               return (
                 <button
@@ -823,7 +830,7 @@ export function TaperPoleStandardForm({
                   {option.label}
                 </button>
               );
-            })}
+            }))}
           </div>
           {errors.poleType && (
             <div className="px-4 pb-3">

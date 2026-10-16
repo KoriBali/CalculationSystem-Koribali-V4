@@ -36,20 +36,43 @@ export function CoverFormModal({
             parsed.reportNumber === "1111" &&
             (parsed.title1 === "1" || !parsed.title1);
 
+          const rawReportNumber = parsed.reportNumber || parsed.calculationNumber;
+          const rawTitle1 = parsed.title1 || parsed.projectName;
+          const rawTitle2 =
+            parsed.title2 !== undefined
+              ? parsed.title2
+              : parsed.coverTopText !== undefined
+                ? parsed.coverTopText
+                : undefined;
+          const rawTitle3 = parsed.title3 || parsed.coverBottomText || "";
+
           coverForm.updateCover({
             reportNumber:
-              !isTestDraft && parsed.reportNumber
-                ? parsed.reportNumber
+              !isTestDraft && rawReportNumber
+                ? rawReportNumber
                 : DEFAULT_COVER.reportNumber,
+            calculationNumber:
+              !isTestDraft && rawReportNumber
+                ? rawReportNumber
+                : DEFAULT_COVER.calculationNumber,
             title1:
-              !isTestDraft && parsed.title1
-                ? parsed.title1
+              !isTestDraft && rawTitle1
+                ? rawTitle1
                 : DEFAULT_COVER.title1,
+            projectName:
+              !isTestDraft && rawTitle1
+                ? rawTitle1
+                : DEFAULT_COVER.projectName,
             title2:
-              !isTestDraft && parsed.title2 !== undefined
-                ? parsed.title2
+              !isTestDraft && rawTitle2 !== undefined
+                ? rawTitle2
                 : DEFAULT_COVER.title2,
-            title3: parsed.title3 || "",
+            coverTopText:
+              !isTestDraft && rawTitle2 !== undefined
+                ? rawTitle2
+                : DEFAULT_COVER.coverTopText,
+            title3: rawTitle3,
+            coverBottomText: rawTitle3,
             region: parsed.region || DEFAULT_COVER.region,
             author:
               !isTestDraft && parsed.author && parsed.author !== "V"
@@ -61,6 +84,7 @@ export function CoverFormModal({
               parsed.responsibleDepartment !== "R"
                 ? parsed.responsibleDepartment
                 : DEFAULT_COVER.responsibleDepartment,
+            date: parsed.date || DEFAULT_COVER.date,
           });
         } else {
           coverForm.updateCover(DEFAULT_COVER);
@@ -103,6 +127,10 @@ export function CoverFormModal({
         ...coverData,
         managementCode: computedMgmtCode,
         calculationNumber: coverData.reportNumber,
+        projectName: coverData.title1 || "",
+        coverTopText: coverData.title2 || "",
+        coverBottomText: coverData.title3 || "",
+        date: coverData.date || new Date().toISOString().split("T")[0],
       };
       coverForm.updateCover(updatedCover);
       sessionStorage.setItem(`${projectType}_cover`, JSON.stringify(updatedCover));
