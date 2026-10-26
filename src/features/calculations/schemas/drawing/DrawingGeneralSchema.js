@@ -1,7 +1,7 @@
 import * as yup from "yup";
 
 export const DrawingGeneralSchema = yup.object({
-  drawingType: yup.string().required("Drawing Type is required"),
+  drawingType: yup.string().notRequired(),
   drawingNumber: yup.string().required("Drawing Number is required"),
   partNumber: yup.string().required("Part Number is required"),
   openingDirection: yup.string(),

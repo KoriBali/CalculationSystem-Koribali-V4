@@ -1,6 +1,16 @@
 import { useRef, useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { User, Settings, LogOut, ChevronDown } from "lucide-react";
+import { Settings, LogOut } from "lucide-react";
+import { getUser } from "../../../utils/auth";
+
+const getInitials = (name = "") => {
+  const parts = name.replace(/\./g, "").trim().split(/\s+/);
+  if (!parts.length || !parts[0]) return "U";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  const first = parts[0][0] ?? "";
+  const last = parts[parts.length - 1][0] ?? "";
+  return (first + last).toUpperCase();
+};
 
 // Profile button + dropdown menu
 export function ProfileDropdown({ userData, onLogout }) {
@@ -18,9 +28,10 @@ export function ProfileDropdown({ userData, onLogout }) {
       .replace(/\b\w/g, (char) => char.toUpperCase());
   };
 
-  const displayRole = formatRole(userData?.role);
+  const userRole = userData?.role || getUser()?.role;
+  const displayRole = formatRole(userRole);
 
-  const initial = displayName.charAt(0).toUpperCase();
+  const initials = getInitials(displayName);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -51,29 +62,26 @@ export function ProfileDropdown({ userData, onLogout }) {
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className="flex items-center gap-2.5 group rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3399cc]/40"
+        className="flex items-center gap-2.5 group rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3399cc]/40 py-1"
       >
-        <span
-          className="
-            hidden sm:block
-            text-[13px]
-            leading-[1.4]
-            font-semibold
-            tracking-normal
-            text-slate-800
-            whitespace-nowrap
-          "
-        >
-          {userData?.name || "Guest User"}
-        </span>
+        <div className="hidden sm:flex flex-col items-end text-right">
+          <span className="text-[13px] leading-tight font-semibold tracking-normal text-slate-800 whitespace-nowrap">
+            {displayName}
+          </span>
+          {displayRole && (
+            <span className="text-[11px] leading-none font-medium text-slate-500 whitespace-nowrap mt-1">
+              {displayRole}
+            </span>
+          )}
+        </div>
 
         <div
-          className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all border ${isOpen
-            ? "bg-[#0d3b66] text-white border-[#0d3b66]"
-            : "bg-slate-100 text-[#0d3b66] border-slate-200 group-hover:bg-[#0d3b66] group-hover:text-white group-hover:border-[#0d3b66]"
+          className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold tracking-wide transition-all shadow-sm ${isOpen
+            ? "bg-[#0d3b66] text-white ring-2 ring-[#0d3b66]/30 scale-105"
+            : "bg-[#0d3b66] text-white ring-1 ring-slate-200/60 group-hover:brightness-110 group-hover:scale-105 group-hover:shadow"
             }`}
         >
-          <User size={16} />
+          {initials}
         </div>
       </button>
 
@@ -134,7 +142,7 @@ export function ProfileDropdown({ userData, onLogout }) {
                       shadow-sm
                     "
                   >
-                    {initial}
+                    {initials}
                   </div>
 
                   {/* Online indicator */}

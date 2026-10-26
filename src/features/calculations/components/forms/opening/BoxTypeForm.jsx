@@ -1,4 +1,4 @@
-import { RotateCcw, ChevronRight, ChevronLeft, Calculator } from "lucide-react";
+import { RotateCcw, ChevronRight, ChevronLeft, Calculator, Lock } from "lucide-react";
 import { FieldErrorHint } from "../../../../../shared/components/FieldErrorHint";
 import { FormSelect } from "../../../../../shared/components/FormSelect";
 import { useState } from "react";
@@ -43,10 +43,12 @@ export function BoxTypeForm({
   isCalculated,
   buttonLabel,
   isCalculationAndDrawing = false,
+  readOnly = false,
 }) {
   const [showResetModal, setShowResetModal] = useState(false);
 
   const handleReset = () => {
+    if (readOnly) return;
     onUpdate({
       boxWidth: "",
       opWidth: "",
@@ -79,7 +81,7 @@ export function BoxTypeForm({
             {/* Box Height — tengah atas */}
             <div className="absolute top-[224px] sm:top-4 xl:top-5 2xl:top-6 left-[246px] sm:left-[57%] xl:left-[56%] xl:left-[55%] 2xl:left-[58%] -translate-x-1/2">
               <label className="block text-xs md:text-sm text-gray-700 mb-1">
-                Box Thickness
+                Box Thickness <span className="text-red-500 ml-1 font-semibold">*</span>
               </label>
               <div className="relative w-fit">
                 <input
@@ -102,7 +104,7 @@ export function BoxTypeForm({
             {/* Box Width — tengah kiri */}
             <div className="absolute -top-1 sm:top-[62%] xl:top-[61%] -translate-y-1/2 left-[48px] sm:left-[5px] xl:left-[64px] 2xl:-left-14">
               <label className="block text-xs md:text-sm text-gray-700 mb-1">
-                Box Width
+                Box Width <span className="text-red-500 ml-1 font-semibold">*</span>
               </label>
               <div className="relative">
                 <input
@@ -125,7 +127,7 @@ export function BoxTypeForm({
             {/* Opening Width — tengah tengah */}
             <div className="absolute top-[27.6%] sm:top-[62%] xl:top-[61%] left-[95px] sm:left-[34%] xl:left-[37%] 2xl:left-[30%] -translate-x-1/2 -translate-y-1/2">
               <label className="block text-xs md:text-sm text-gray-700 mb-1">
-                Cut Width
+                Cut Width <span className="text-red-500 ml-1 font-semibold">*</span>
               </label>
               <div className="relative w-fit">
                 <input
@@ -153,7 +155,7 @@ export function BoxTypeForm({
               {/* 1. Opening Surface Height Input */}
               <div className="relative">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1">
-                  Opening Cut Length
+                  Opening Cut Length <span className="text-red-500 ml-1 font-semibold">*</span>
                 </label>
                 <div className="relative">
                   <input
@@ -179,18 +181,19 @@ export function BoxTypeForm({
               {isCalculationAndDrawing && (
                 <div className="relative">
                   <label className="block text-xs md:text-sm text-gray-700 mb-1 whitespace-nowrap">
-                    Opening Direction
+                    Opening Direction <span className="text-red-500 ml-1 font-semibold">*</span>
                   </label>
                   <div className="relative">
                     <FormSelect
                       id="openingDirection"
                       value={boxType.openingDirection || ""}
                       onChange={(val) =>
-                        onUpdate({ openingDirection: val })
+                        !readOnly && onUpdate({ openingDirection: val })
                       }
                       options={OPENING_DIRECTION_OPTIONS}
                       hasError={!!errors.openingDirection}
                       placeholder="Select"
+                      disabled={readOnly}
                     />
                     <FieldErrorHint message={errors.openingDirection} />
                   </div>
@@ -210,7 +213,7 @@ export function BoxTypeForm({
             {/* 3. Opening Length Input */}
             <div className="relative mt-[150px] w-[100px] sm:w-[120px] xl:w-[140px]">
               <label className="block text-xs md:text-sm text-gray-700 mb-1">
-                Opening Center Height
+                Opening Center Height <span className="text-red-500 ml-1 font-semibold">*</span>
               </label>
               <div className="relative">
                 <input
@@ -252,58 +255,80 @@ export function BoxTypeForm({
 
         {/* Grouped form actions on the right: Reset, Calculate, Next */}
         <div className="flex items-center gap-4 hp:gap-2">
-          {/* Reset button to clear all inputs */}
-          <button
-            onClick={() => setShowResetModal(true)}
-            title="Reset"
-            className="flex justify-center items-center gap-2 px-5 py-2.5 hp:px-3 hp:py-2 md:px-6
-              rounded-lg hp:rounded-md font-medium bg-white hover:bg-red-50 text-red-500 hover:text-red-600 text-xs sm:text-sm
-              border border-red-300 transition-colors"
-          >
-            <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-            <span className="hp:hidden">Reset</span>
-          </button>
+          {/* Reset button to clear all inputs (hidden in readOnly) */}
+          {!readOnly && (
+            <button
+              onClick={() => setShowResetModal(true)}
+              title="Reset"
+              className="flex justify-center items-center gap-2 px-5 py-2.5 hp:px-3 hp:py-2 md:px-6
+                rounded-lg hp:rounded-md font-medium bg-white hover:bg-red-50 text-red-500 hover:text-red-600 text-xs sm:text-sm
+                border border-red-300 transition-colors"
+            >
+              <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+              <span className="hp:hidden">Reset</span>
+            </button>
+          )}
 
           <div className="flex items-center gap-2 hp:gap-0">
-            {/* Button to trigger calculations — steps aside to the
-                secondary style once calculated, so Next reads as the
-                thing to do now. Stays fully clickable either way (e.g.
-                to recalculate on purpose without editing anything). */}
-            <button
-              onClick={onCalculate}
-              className={`flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-4 hp:py-2 md:px-6
-                  rounded-lg hp:rounded-md font-medium text-sm transition-all
+            {/* Button to trigger calculations */}
+            {readOnly ? (
+              <button
+                type="button"
+                disabled
+                title="Calculations are locked in Read-Only mode"
+                className="flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-4 hp:py-2 md:px-6 rounded-lg hp:rounded-md font-medium text-sm bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed shadow-none"
+              >
+                <Lock className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+                <span className="hp:text-[11px] whitespace-nowrap">
+                  {isCalculated ? "Results Locked" : "Calculation Locked"}
+                </span>
+              </button>
+            ) : (
+              <button
+                onClick={onCalculate}
+                className={`flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-4 hp:py-2 md:px-6
+                    rounded-lg hp:rounded-md font-medium text-sm transition-all
+                    ${
+                      isCalculated
+                        ? "bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm"
+                        : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
+                    }`}
+              >
+                <Calculator className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+                <span className="hp:text-[11px] whitespace-nowrap">
+                  Calculate Results
+                </span>
+              </button>
+            )}
+
+            {/* Proceed to next step or report generation */}
+            {readOnly ? (
+              <button
+                onClick={onNext}
+                title={buttonLabel}
+                className="flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-3 hp:py-2 md:px-6
+                  rounded-lg hp:rounded-md font-medium transition-all text-sm bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
+              >
+                <span className="hp:hidden">{buttonLabel}</span>
+                <ChevronRight className="w-4 md:w-5 h-4 md:h-5 hp:w-4 hp:h-4" />
+              </button>
+            ) : (
+              <button
+                onClick={onNext}
+                aria-disabled={!isCalculated}
+                title={!isCalculated ? 'Click "Calculate Results" first' : buttonLabel}
+                className={`flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-3 hp:py-2 md:px-6
+                  rounded-lg hp:rounded-md font-medium transition-all text-sm
                   ${
-                    isCalculated
-                      ? "bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm"
+                    !isCalculated
+                      ? "bg-gray-100 text-gray-400 ring-1 ring-inset ring-gray-200 cursor-not-allowed shadow-none"
                       : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
                   }`}
-            >
-              <Calculator className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-              <span className="hp:text-[11px] whitespace-nowrap">
-                Calculate Results
-              </span>
-            </button>
-
-            {/* Proceed to next step or report generation — becomes the
-                primary button once calculated (mirrors Calculate stepping
-                aside above), regardless of whether this is a mid-flow
-                "Next" or the final step's label. */}
-            <button
-              onClick={onNext}
-              aria-disabled={!isCalculated}
-              title={!isCalculated ? 'Click "Calculate Results" first' : buttonLabel}
-              className={`flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-3 hp:py-2 md:px-6
-                rounded-lg hp:rounded-md font-medium transition-all text-sm
-                ${
-                  !isCalculated
-                    ? "bg-gray-100 text-gray-400 ring-1 ring-inset ring-gray-200 cursor-not-allowed shadow-none"
-                    : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
-                }`}
-            >
-              <span className="hp:hidden">{buttonLabel}</span>
-              <ChevronRight className="w-4 md:w-5 h-4 md:h-5 hp:w-4 hp:h-4" />
-            </button>
+              >
+                <span className="hp:hidden">{buttonLabel}</span>
+                <ChevronRight className="w-4 md:w-5 h-4 md:h-5 hp:w-4 hp:h-4" />
+              </button>
+            )}
           </div>
         </div>
       </div>

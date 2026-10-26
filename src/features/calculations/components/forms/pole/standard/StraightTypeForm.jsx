@@ -79,6 +79,7 @@ export function StraightPoleStandardForm({
   onUpdate,
   errors,
   condition,
+  readOnly = false,
 }) {
   const {
     steppedPoleOptions,
@@ -109,16 +110,21 @@ export function StraightPoleStandardForm({
     <div className="bg-white px-4 md:px-6 pb-6 rounded-b-2xl hp:rounded-b-xl">
       {/* ── Select Pole Standard ── */}
       <div className="mb-6">
-        <SectionTitle>Pole Standard Type</SectionTitle>
+        <SectionTitle>
+          Pole Standard Type <span className="text-red-500 ml-1 font-semibold">*</span>
+        </SectionTitle>
         <div className="border border-slate-200 rounded-xl hp:rounded-lg p-4 sm:p-6 bg-white shadow-sm">
           {poleStandardLoading && steppedPoleOptions.length === 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              <div className="h-10 rounded-lg hp:rounded-md bg-slate-100 animate-pulse border border-slate-200 flex items-center justify-center gap-2">
-                <Loader2 className="w-4 h-4 animate-spin text-[#3399cc]" />
-                <span className="text-xs text-slate-400 font-medium">
-                  Loading pole standard options...
-                </span>
-              </div>
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div
+                  key={i}
+                  className="h-11 rounded-lg hp:rounded-md bg-gradient-to-r from-slate-100 via-slate-50 to-slate-100 animate-pulse border border-slate-200/80 flex items-center justify-between px-4"
+                >
+                  <div className="w-24 h-3.5 bg-slate-200/80 rounded" />
+                  <div className="w-4 h-4 rounded-full bg-slate-200/80" />
+                </div>
+              ))}
             </div>
           ) : !poleStandardLoading &&
             poleStandardError &&
@@ -173,17 +179,16 @@ export function StraightPoleStandardForm({
                 {/* Lower pole diameter group — resets combination on change */}
                 <div>
                   <h4 className="block text-gray-700 text-sm mb-3 hp:text-xs hp:mb-2">
-                    Select Lower Pole Diameter (mm)
+                    Select Lower Pole Diameter (mm) <span className="text-red-500 ml-1 font-semibold">*</span>
                   </h4>
                   {poleStandardLoading && combinationGroups.length === 0 ? (
                     <div className="grid grid-cols-3 gap-3">
                       {[1, 2, 3].map((i) => (
                         <div
                           key={i}
-                          className="w-full h-10 rounded-lg hp:rounded-md bg-slate-100 animate-pulse border border-slate-200 flex items-center justify-center gap-1.5"
+                          className="w-full h-10 rounded-lg hp:rounded-md bg-gradient-to-r from-slate-100 via-slate-50 to-slate-100 animate-pulse border border-slate-200/80 flex items-center justify-center"
                         >
-                          <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-400" />
-                          <span className="text-xs text-slate-400">Loading...</span>
+                          <div className="w-12 h-3.5 bg-slate-200/80 rounded" />
                         </div>
                       ))}
                     </div>
@@ -197,17 +202,22 @@ export function StraightPoleStandardForm({
                           <button
                             key={group}
                             type="button"
-                            onClick={() =>
+                            disabled={readOnly}
+                            onClick={() => {
+                              if (readOnly) return;
                               onUpdate({
                                 combinationGroup: group,
                                 combination: "",
-                              })
-                            }
+                              });
+                            }}
                             className={`w-full py-2 lg:py-2.5 rounded-lg hp:rounded-md text-sm hp:text-xs border transition
+                              ${readOnly ? "cursor-default" : "cursor-pointer"}
                               ${
                                 isActive
                                   ? "bg-blue-50 border-blue-500 text-blue-600"
-                                  : "border-slate-200 text-slate-600 hover:bg-slate-50"
+                                  : readOnly
+                                    ? "border-slate-100 text-slate-400 bg-slate-50/50"
+                                    : "border-slate-200 text-slate-600 hover:bg-slate-50"
                               }`}
                           >
                             {group}
@@ -221,19 +231,18 @@ export function StraightPoleStandardForm({
                 {/* Combination dropdown — resets thickness on change */}
                 <div className="relative">
                   <h4 className="block text-gray-700 text-sm mb-3 hp:text-xs hp:mb-2">
-                    Select Pole Combination
+                    Select Pole Combination <span className="text-red-500 ml-1 font-semibold">*</span>
                   </h4>
 
                   {poleStandardLoading && !straightPoleStandard.combinationGroup ? (
-                    <div className="border border-slate-200 rounded-lg hp:rounded-md px-4 py-2 lg:py-2.5 bg-slate-50 flex items-center gap-2 animate-pulse">
-                      <Loader2 className="w-4 h-4 animate-spin text-[#3399cc]" />
-                      <p className="text-sm hp:text-xs text-slate-400">
-                        Loading combinations...
-                      </p>
+                    <div className="border border-slate-200 rounded-lg hp:rounded-md px-4 py-2 lg:py-2.5 bg-slate-50 flex items-center justify-between animate-pulse">
+                      <div className="w-32 h-3.5 bg-slate-200/80 rounded" />
+                      <div className="w-4 h-4 rounded bg-slate-200/80" />
                     </div>
                   ) : straightPoleStandard.combinationGroup ? (
                     <FormSelect
                       value={straightPoleStandard.combination}
+                      disabled={readOnly}
                       onChange={(val) =>
                         onUpdate({
                           combination: val,
@@ -264,14 +273,12 @@ export function StraightPoleStandardForm({
                     {/* Upper thickness — depends on combination */}
                     <div>
                       <h4 className="block text-gray-700 text-sm mb-3 hp:text-xs hp:mb-2">
-                        Upper Pole Thickness
+                        Upper Pole Thickness <span className="text-red-500 ml-1 font-semibold">*</span>
                       </h4>
                       {poleStandardLoading && straightPoleStandard.combination ? (
-                        <div className="border border-slate-200 rounded-lg hp:rounded-md px-4 py-2 lg:py-2.5 bg-slate-50 flex items-center gap-2 animate-pulse">
-                          <Loader2 className="w-4 h-4 animate-spin text-[#3399cc]" />
-                          <p className="text-sm hp:text-xs text-slate-400">
-                            Loading thicknesses...
-                          </p>
+                        <div className="border border-slate-200 rounded-lg hp:rounded-md px-4 py-2 lg:py-2.5 bg-slate-50 flex items-center justify-between animate-pulse">
+                          <div className="w-24 h-3.5 bg-slate-200/80 rounded" />
+                          <div className="w-4 h-4 rounded bg-slate-200/80" />
                         </div>
                       ) : straightPoleStandard.combination ? (
                         <div className="relative">
@@ -301,7 +308,7 @@ export function StraightPoleStandardForm({
                     {/* Upper length — free input */}
                     <div>
                       <h4 className="block text-gray-700 text-sm mb-3 hp:text-xs hp:mb-2">
-                        Upper Pole Length
+                        Upper Pole Length <span className="text-red-500 ml-1 font-semibold">*</span>
                       </h4>
                       <div className="relative">
                         <input
@@ -331,14 +338,12 @@ export function StraightPoleStandardForm({
                     {/* Lower thickness — depends on combination */}
                     <div>
                       <h4 className="block text-gray-700 text-sm mb-3 hp:text-xs hp:mb-2">
-                        Lower Pole Thickness
+                        Lower Pole Thickness <span className="text-red-500 ml-1 font-semibold">*</span>
                       </h4>
                       {poleStandardLoading && straightPoleStandard.combination ? (
-                        <div className="border border-slate-200 rounded-lg hp:rounded-md px-4 py-2 lg:py-2.5 bg-slate-50 flex items-center gap-2 animate-pulse">
-                          <Loader2 className="w-4 h-4 animate-spin text-[#3399cc]" />
-                          <p className="text-sm hp:text-xs text-slate-400">
-                            Loading thicknesses...
-                          </p>
+                        <div className="border border-slate-200 rounded-lg hp:rounded-md px-4 py-2 lg:py-2.5 bg-slate-50 flex items-center justify-between animate-pulse">
+                          <div className="w-24 h-3.5 bg-slate-200/80 rounded" />
+                          <div className="w-4 h-4 rounded bg-slate-200/80" />
                         </div>
                       ) : straightPoleStandard.combination ? (
                         <div className="relative">
@@ -368,7 +373,7 @@ export function StraightPoleStandardForm({
                     {/* Lower length — free input */}
                     <div>
                       <h4 className="block text-gray-700 text-sm mb-3 hp:text-xs hp:mb-2">
-                        Lower Pole Length
+                        Lower Pole Length <span className="text-red-500 ml-1 font-semibold">*</span>
                       </h4>
                       <div className="relative">
                         <input
@@ -451,10 +456,10 @@ export function StraightPoleStandardForm({
                       <div className="hp:w-full w-auto">
                         <label className="block text-xs md:text-sm mb-2 text-gray-700">
                           <span className="hidden hp:inline">
-                            Embedment Length (l)
+                            Embedment Length (l) <span className="text-red-500 ml-1 font-semibold">*</span>
                           </span>
                           <span className="hp:hidden inline">
-                            Embedment Length
+                            Embedment Length <span className="text-red-500 ml-1 font-semibold">*</span>
                           </span>
                         </label>
                         <div className="relative">
@@ -498,7 +503,7 @@ export function StraightPoleStandardForm({
               {condition.baseplateEnabled && (
                 <div className="grid grid-cols-1 gap-4 hp:gap-2">
                   <h4 className="block text-sm hp:text-xs text-gray-700">
-                    Select Ground Position
+                    Select Ground Position <span className="text-red-500 ml-1 font-semibold">*</span>
                   </h4>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
@@ -620,17 +625,19 @@ export function StraightPoleStandardForm({
       )}
 
       {/* ── Footer: Reset ── */}
-      <div className="flex justify-between pt-6 border-t">
-        <button
-          type="button"
-          onClick={() => setShowResetModal(true)}
-          className="flex justify-center items-center text-sm gap-2 px-5 py-2.5 sm:py-2.5 lg:py-2.5 md:px-6 bg-white text-red-500 border border-red-300 rounded-lg hp:rounded-md
-          hover:bg-red-50 hover:text-red-600 transition-colors font-medium hp:text-xs"
-        >
-          <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-          Reset
-        </button>
-      </div>
+      {!readOnly && (
+        <div className="flex justify-between pt-6 border-t">
+          <button
+            type="button"
+            onClick={() => setShowResetModal(true)}
+            className="flex justify-center items-center text-sm gap-2 px-5 py-2.5 sm:py-2.5 lg:py-2.5 md:px-6 bg-white text-red-500 border border-red-300 rounded-lg hp:rounded-md
+            hover:bg-red-50 hover:text-red-600 transition-colors font-medium hp:text-xs"
+          >
+            <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+            Reset
+          </button>
+        </div>
+      )}
 
       <ConfirmResetAllModal
         open={showResetModal}

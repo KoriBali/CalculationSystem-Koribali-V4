@@ -102,7 +102,7 @@ export const MOCK_COVER_EXTRACT = {
   // Standard is picked from this project type's list at auto-fill time.
   standard: "",
   windSpeed: "60",
-  foundation: "Square",
+  foundation: "square",
   foundationWidth: "800",
   foundationLength: "800",
   foundationDepth: "1500",
@@ -113,7 +113,7 @@ export const MOCK_COVER_EXTRACT = {
   coatingType: null,
   pic: "花村　勇佑",
   // Fills the Discipline cards (workTypes), not a `ys` field.
-  discipline: "both",
+  discipline: "calc",
 };
 
 export const MOCK_EXTRACT_DELAY_MS = 1600;

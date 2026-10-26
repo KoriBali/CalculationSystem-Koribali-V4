@@ -9,6 +9,7 @@ import { ArmObjectSchema } from "../../schemas/pole/custom/ArmObjectSchema";
 import { PoleTypeSchema } from "../../schemas/pole/standard/PoleTypeSchema";
 import { StraightTypeSchema } from "../../schemas/pole/standard/StraightTypeSchema";
 import { TaperTypeSchema } from "../../schemas/pole/standard/TaperTypeSchema";
+import { StandardDirectObjectSchema } from "../../schemas/pole/standard/StandardDirectObjectSchema";
 
 import STANDARD_POLE_DATA from "../../data/specStandardPole.json";
 
@@ -31,7 +32,7 @@ const resolveData = ({
 
   const type = poleTypeStandard.type;
 
-  if (type === "tapered") {
+  if (type === "taper" || type === "tapered") {
     const isEmbedment =
       !condition.baseplateEnabled && taperPoleStandard.groundPosition === "underGL";
 
@@ -41,15 +42,29 @@ const resolveData = ({
     // still keyed by the elongated height (e.g. "8.3"), since that's a
     // physically longer pole with different structural data. Translate
     // back to that key only for this lookup.
+    const rawH = Number(taperPoleStandard.height);
+    const mHeight = rawH > 100 ? rawH / 1000 : rawH;
     const heightKey = isEmbedment
-      ? (Number(taperPoleStandard.height) + 0.3).toFixed(1)
-      : taperPoleStandard.height;
+      ? (mHeight + 0.3).toFixed(1)
+      : String(Math.round(mHeight * 10) / 10);
 
     const dataTaper = STANDARD_POLE_DATA?.tapered || STANDARD_POLE_DATA?.taper;
-    const selectedPole =
+    const group =
       dataTaper?.[taperPoleStandard.poleType]?.[
         taperPoleStandard.groundPosition
-      ]?.[heightKey];
+      ] || {};
+    const isTypeWith100 =
+      taperPoleStandard.poleType !== "IS" &&
+      taperPoleStandard.poleType !== "IA";
+    const nominalKey = isTypeWith100
+      ? String(Math.round((Number(heightKey) - 0.1) * 10) / 10)
+      : String(Math.round((Number(heightKey) + 0.1) * 10) / 10);
+
+    const selectedPole =
+      group[heightKey] ||
+      group[nominalKey] ||
+      group[String(rawH)] ||
+      group[String(mHeight)];
 
     if (!selectedPole)
       return { error: "Standard taper pole data not found.", ...empty };
@@ -60,11 +75,64 @@ const resolveData = ({
       }
     }
 
+    let resolvedDirectObjects = [];
+    let resolvedArms = selectedPole.arms
+      ? JSON.parse(JSON.stringify(selectedPole.arms))
+      : [];
+
+    if (directObjects && directObjects.length > 0) {
+      directObjects.forEach((obj) => {
+        if (obj.sourceType === "direct") {
+          resolvedDirectObjects.push({
+            ...obj,
+            sideArea: obj.sideArea || obj.frontArea || "0.1",
+            fixAngle: obj.fixAngle ?? "0",
+          });
+        } else if (obj.sourceType === "arm") {
+          const armIdx = obj.armIndex ?? 0;
+          const aoIdx = obj.armObjectIndex ?? 0;
+          if (
+            resolvedArms[armIdx] &&
+            resolvedArms[armIdx].armObjects &&
+            resolvedArms[armIdx].armObjects[aoIdx]
+          ) {
+            resolvedArms[armIdx].armObjects[aoIdx] = {
+              ...resolvedArms[armIdx].armObjects[aoIdx],
+              name: obj.name,
+              type: obj.type,
+              frontArea: obj.frontArea,
+              sideArea: obj.sideArea || obj.frontArea || "0.1",
+              weight: obj.weight,
+              zHeight: obj.zHeight,
+              nnC: obj.nnC,
+              quantity: obj.quantity,
+              fixAngle:
+                obj.fixAngle ??
+                resolvedArms[armIdx].armObjects[aoIdx].fixAngle ??
+                "0",
+            };
+          }
+        } else {
+          if (selectedPole.directObjects?.length) {
+            resolvedDirectObjects.push({
+              ...obj,
+              sideArea: obj.sideArea || obj.frontArea || "0.1",
+              fixAngle: obj.fixAngle ?? "0",
+            });
+          }
+        }
+      });
+    } else {
+      resolvedDirectObjects = selectedPole.directObjects || [];
+    }
+
+    const resolvedOverheadWires = (overheadWires || []).slice(0, 4);
+
     return {
       poles: selectedPole.poles || [],
-      directObjects: selectedPole.directObjects || [],
-      arms: selectedPole.arms || [],
-      overheadWires: selectedPole.overheadWires || [],
+      directObjects: resolvedDirectObjects,
+      arms: resolvedArms,
+      overheadWires: resolvedOverheadWires,
     };
   }
 
@@ -278,15 +346,25 @@ export async function validatePoleForm({
     }
   }
 
-  // ── 6. Validate Direct Objects (custom only) ──
-  if (isCustom) {
+  // ── 6. Validate Objects (custom direct objects OR standard taper objects) ──
+  const isStandardTaper = isStandard && !isStraight;
+  const objectsToValidate = isStandardTaper
+    ? directObjects || []
+    : resolved.directObjects || [];
+  const shouldValidateDo =
+    isCustom || (isStandardTaper && objectsToValidate.length > 0);
+
+  if (shouldValidateDo && objectsToValidate.length > 0) {
     const allDoErrors = {};
     let hasDoError = false;
+    const schemaToUse = isCustom
+      ? DirectObjectSchema
+      : StandardDirectObjectSchema;
 
     await Promise.all(
-      (resolved.directObjects || []).map(async (directObject) => {
+      objectsToValidate.map(async (directObject) => {
         const { isValid, errors } = await validateWithYup(
-          DirectObjectSchema,
+          schemaToUse,
           directObject,
         );
         if (!isValid) {
@@ -300,13 +378,14 @@ export async function validatePoleForm({
       return {
         isValid: false,
         doErrors: allDoErrors,
-        message: "Please correct the errors in Direct Object fields.",
+        message: "Please correct the errors in Object fields.",
       };
     }
   }
 
-  // ── 7. Validate Overhead Wires (custom only) ──
-  if (isCustom) {
+  // ── 7. Validate Overhead Wires ──
+  const shouldValidateOhw = isCustom || (isStandard && !isStraight);
+  if (shouldValidateOhw && resolved.overheadWires && resolved.overheadWires.length > 0) {
     const allOhwErrors = {};
     let hasOhwError = false;
 

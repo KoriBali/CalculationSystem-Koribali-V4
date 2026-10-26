@@ -22,7 +22,7 @@ const OPENING_TYPE_OPTIONS = [
 /**
  * MAIN COMPONENT: OpeningType
  */
-export function OpeningType({ openingType, onUpdate, errors }) {
+export function OpeningType({ openingType, onUpdate, errors, readOnly = false }) {
   return (
     <div
       className="
@@ -37,10 +37,11 @@ export function OpeningType({ openingType, onUpdate, errors }) {
         <FormSelect
           id="type"
           value={openingType.type}
-          onChange={(val) => onUpdate({ type: val })}
+          onChange={(val) => !readOnly && onUpdate({ type: val })}
           options={OPENING_TYPE_OPTIONS}
           hasError={!!errors.type}
           placeholder="Select Opening Type"
+          disabled={readOnly}
         />
         <ErrorStyle show={errors.type} text={errors.type} />
       </div>

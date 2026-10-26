@@ -9,7 +9,7 @@ export default function ReportPage() {
           <title>Report - KORI BALI</title>
           <meta
             name="report"
-            content="Report System CV. KORI BALI menyajikan hasil analisis dan ringkasan data struktur pole secara lengkap."
+            content="CV. KORI BALI Report System provides comprehensive structural analysis and summary data for poles."
           />
         </Helmet>
 

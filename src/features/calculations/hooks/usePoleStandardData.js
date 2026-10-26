@@ -3,6 +3,7 @@ import {
   getPoleStandardData,
   clearPoleStandardCache,
 } from "../services/poleStandardService";
+import STANDARD_POLE_DATA from "../data/specStandardPole.json";
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
 
@@ -45,7 +46,62 @@ function deriveStraightOptions(straightEntry) {
   };
 }
 
+// Fallback heights derived from specStandardPole.json in case API is unavailable
+// or has missing height entries.
+function deriveFallbackHeightOptions() {
+  const result = {};
+  const tapered =
+    STANDARD_POLE_DATA?.tapered || STANDARD_POLE_DATA?.taper || {};
+
+  Object.entries(tapered).forEach(([shortCode, groups]) => {
+    let onGLKeys = Object.keys(groups.onGL || {});
+    let underGLKeys = Object.keys(groups.underGL || {});
+
+    const isTypeWith100 = shortCode !== "IS" && shortCode !== "IA";
+    if (isTypeWith100) {
+      // For LS, LA, TS, TA: prefer the +100mm heights (e.g. 4.6, 5.1, 8.1, 10.1, 12.1 for onGL; 4.9, 5.4, 8.4, 10.4, 12.4 for underGL)
+      const has100OnGL = onGLKeys.some((k) => String(k).includes(".1") || String(k).includes(".6"));
+      if (has100OnGL) {
+        onGLKeys = onGLKeys.filter((k) => String(k).includes(".1") || String(k).includes(".6"));
+      }
+      const has100UnderGL = underGLKeys.some((k) => String(k).includes(".4") || String(k).includes(".9"));
+      if (has100UnderGL) {
+        underGLKeys = underGLKeys.filter((k) => String(k).includes(".4") || String(k).includes(".9"));
+      }
+    }
+
+    const toOption = (k) => ({
+      id: String(k),
+      label: `${Math.round(Number(k) * 1000)} mm`,
+    });
+
+    result[shortCode] = {
+      onGL: onGLKeys.sort((a, b) => Number(a) - Number(b)).map(toOption),
+      underGL: underGLKeys.sort((a, b) => Number(a) - Number(b)).map(toOption),
+    };
+  });
+
+  return result;
+}
+
 function deriveTaperOptions(taperEntries) {
+  if (!taperEntries || taperEntries.length === 0) {
+    const tapered =
+      STANDARD_POLE_DATA?.tapered || STANDARD_POLE_DATA?.taper || {};
+    const fullNameMap = {
+      IS: "Type-I (IS)",
+      IA: "Type-I (IA)",
+      LS: "Type-L (LS)",
+      LA: "Type-L (LA)",
+      TS: "Type-T (TS)",
+      TA: "Type-T (TA)",
+    };
+    return Object.keys(tapered).map((shortCode) => ({
+      id: shortCode,
+      label: fullNameMap[shortCode] || shortCode,
+    }));
+  }
+
   return taperEntries.map((entry) => ({
     id: extractShortCode(entry.name),
     label: entry.name,
@@ -53,17 +109,31 @@ function deriveTaperOptions(taperEntries) {
 }
 
 // The API returns a flat list of heights per taper standard with no ground
-// position field — e.g. Type-I (IS): [8, 10, 12, 8.3, 10.3, 12.3]. Ground
-// position isn't master data (it's a local UI concept), but the pairing IS
-// derivable: every standard we've seen follows underGL = onGL + 0.3.
-// id is String(height) — specStandardPole.json's taper.*.underGL keys were
-// renamed to match this exact format (e.g. "8U" -> "8.3").
+// position field — e.g. Type-I (IS): [8000, 10000, 12000, 8300, 10300, 12300]
+// in mm (or [8, 10, 12, 8.3, 10.3, 12.3] in m).
+// Ground position is paired via underGL = onGL + 0.3.
+// id is String(height in meters) matching keys in specStandardPole.json (e.g. "8", "8.3").
 function deriveHeightOptions(taperEntries) {
-  const result = {};
+  const fallback = deriveFallbackHeightOptions();
+  if (!taperEntries || taperEntries.length === 0) {
+    return fallback;
+  }
+
+  const result = { ...fallback };
 
   taperEntries.forEach((entry) => {
     const shortCode = extractShortCode(entry.name);
-    const heights = entry.poleStandardHeights.map((h) => h.height);
+    const rawHeights = (entry.poleStandardHeights || []).map((h) =>
+      Number(h.height),
+    );
+    if (rawHeights.length === 0) return;
+
+    // Convert mm to meters if needed (e.g. 8000 -> 8, 8300 -> 8.3)
+    const heights = rawHeights.map((h) => {
+      const inMeters = h > 100 ? h / 1000 : h;
+      return Math.round(inMeters * 10) / 10;
+    });
+
     const heightSet = new Set(heights.map((h) => Math.round(h * 10)));
 
     const onGL = [];
@@ -78,17 +148,19 @@ function deriveHeightOptions(taperEntries) {
       } else if (isUnderGLPair) {
         underGL.push(h);
       }
-      // Heights with no +0.3/-0.3 counterpart are skipped — we can't tell
-      // which ground position they belong to, and a wrong guess here would
-      // silently break the specStandardPole.json lookup.
     });
 
-    const toOption = (h) => ({ id: String(h), label: `${h.toFixed(1)} m` });
+    const toOption = (h) => ({
+      id: String(h),
+      label: `${Math.round(h * 1000)} mm`,
+    });
 
-    result[shortCode] = {
-      onGL: onGL.sort((a, b) => a - b).map(toOption),
-      underGL: underGL.sort((a, b) => a - b).map(toOption),
-    };
+    if (onGL.length > 0 || underGL.length > 0) {
+      result[shortCode] = {
+        onGL: onGL.sort((a, b) => a - b).map(toOption),
+        underGL: underGL.sort((a, b) => a - b).map(toOption),
+      };
+    }
   });
 
   return result;
@@ -129,7 +201,10 @@ export function usePoleStandardData() {
     [data],
   );
   const taperEntries = useMemo(
-    () => data?.filter((item) => item.type === "tapered") || [],
+    () =>
+      data?.filter(
+        (item) => item.type === "taper" || item.type === "tapered"
+      ) || [],
     [data],
   );
 

@@ -207,7 +207,7 @@ export const MOCK_REQUESTS = [
     picName: "M. Ramdan Purnama",
     items: [
       { caseNo: "001", work_type: "calc", status: S.READY_CHECK },
-      { caseNo: "002", work_type: "calc", status: S.INTERNAL_CORRECTION },
+      { caseNo: "002", work_type: "calc", status: S.INTERNAL_CORRECTION, checkedBy: "Rina Kusuma" },
     ],
   },
   {
@@ -274,7 +274,7 @@ export const MOCK_REQUESTS = [
     // No Japanese request number on the cover.
     id: "req-0121",
     brandLine: "ys",
-    requestNo: null,
+    requestNo: "REQ-0121",
     receiptNo: "R-2609-028",
     pjNo: "12210",
     subject: "Hakusan park lighting",
@@ -418,8 +418,8 @@ export const MOCK_REQUESTS = [
     subject: "Standard pole spec review",
     requestDate: daysFromNow(-30),
     issuerOfficeCode: "YSC",
-    requesterPicName: null,
-    companyName: null,
+    requesterPicName: "Tanaka Shinji",
+    companyName: "Kanto Electric Power Co., Ltd.",
     status: "cancel",
     requestType: "special",
     designType: "calculation",
@@ -446,12 +446,12 @@ export const MOCK_REQUESTS = [
       subject,
       requestDate: daysFromNow(-closedDaysAgo - 21),
       issuerOfficeCode: line === "ys" ? "YSC" : null,
-      requesterPicName: null,
+      requesterPicName: picName || "Tanaka Shinji",
       companyName,
       status: "cleared",
-      requestType: "general",
+      requestType: ["general", "general", "special"][i % 3],
       designType: "calculation",
-      requestClassification: "new",
+      requestClassification: ["new", "change", "reuse_new"][i % 3],
       poleKind: "standard",
       // Closed on the due date, 3 days early, or 2 days late, in turn, so the
       // Closed column shows every outcome.

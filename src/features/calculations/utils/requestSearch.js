@@ -14,9 +14,9 @@
 export const SEARCH_FIELDS = [
   { key: "pjNo", label: "Project no.", placeholder: "e.g. 100234", number: true },
   { key: "requestNo", label: "Request no.", placeholder: "e.g. 0125", number: true },
+  { key: "companyName", label: "Company name", placeholder: "Company name", colSpan: 2 },
   { key: "receiptNo", label: "Receipt no.", placeholder: "e.g. 2609-041", number: true },
-  { key: "companyName", label: "Client", placeholder: "Client name" },
-  { key: "requesterPicName", label: "Japan PIC", placeholder: "Name on the cover" },
+  { key: "requesterPicName", label: "PIC", placeholder: "Name on the cover" },
   // Searched by the main box only; no input of their own in More filters.
   { key: "picName", label: "PIC", mainOnly: true },
   { key: "subject", label: "Subject", mainOnly: true },

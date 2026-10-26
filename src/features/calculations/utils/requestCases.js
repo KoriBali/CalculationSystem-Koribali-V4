@@ -2,9 +2,22 @@
 // drawing — done in its own draft (/requests/:type/:draftId). Cases are the
 // only way into a draft: it opens on Project Setup, and leaving goes back to
 // the case's request.
-import { findRequestOfCase } from "../data/requestStore";
-import { DEFAULT_IDENTITY } from "../hooks/useProjectIdentityForm";
+import { findRequestOfCase, updateRequest } from "../data/requestStore";
 import { getDraftsIndex } from "./coreLogic";
+
+export const DEFAULT_IDENTITY = {
+  requestNo: "",
+  receiptNo: "",
+  companyName: "",
+  responsibleDepartment: "",
+  requestType: "",
+  requestCategory: "",
+  projectNo: "",
+  requestedDueDate: "",
+  projectName: "",
+  checkedByName: "",
+  approvedByName: "",
+};
 import { parseDocumentNo } from "./requestForm";
 import {
   STANDARD_OPENING_TYPE,
@@ -12,6 +25,12 @@ import {
   STANDARD_BASEPLATE_TYPE,
   STANDARD_FOUR_RIB_TYPE,
 } from "../constants/standardPoleDefaults";
+import { markCaseReadyForCheck } from "../services/requestService";
+import {
+  resolveDesignStandardCode,
+  canonicalDrawingType,
+  resolveRegionCode,
+} from "./requestPayloadMapper";
 
 // Discipline of a case: its label and the draft workflow mode it opens in.
 export const CASE_WORK_TYPES = {
@@ -74,16 +93,23 @@ export const createCase = (request, workType, options = {}) => {
   const poleKind = options.poleKind || (request.projectType === "lighting-project" ? "standard" : "custom");
   const isStandard = poleKind === "standard";
   const initialCondition = {
-    designStandard: designConditions.standard || "",
-    designWindSpeed: designConditions.windSpeed || "",
-    designAirDensity: designConditions.airDensity || "",
+    designStandard:
+      resolveDesignStandardCode(designConditions.standard) ||
+      (request.projectType === "lighting-project" ? "jil" : "v60"),
+    designWindSpeed: designConditions.windSpeed || "60",
+    designAirDensity: designConditions.airDensity || "1.23",
     poleType: poleKind,
     openingEnabled: isStandard ? true : false,
     baseplateEnabled: isStandard ? true : false,
     foundationEnabled: false,
   };
   const initialDrawingGeneral = {
-    drawingType: options.drawingType || (workType === "drawing" ? "Approval" : ""),
+    drawingType:
+      options.drawingType ||
+      canonicalDrawingType(request.drawingConditions?.drawingType) ||
+      (workType === "drawing" ? "Approval" : ""),
+    region:
+      resolveRegionCode(request.drawingConditions?.region) || "east_japan",
     drawingNumber: "",
     partNumber: "",
     openingDirection: "",
@@ -103,6 +129,7 @@ export const createCase = (request, workType, options = {}) => {
     projectIdentity: JSON.stringify(setupIdentityFrom(request)),
     condition: JSON.stringify(initialCondition),
     drawing_general: JSON.stringify(initialDrawingGeneral),
+    drawing_coupling_location: JSON.stringify(request.drawingConditions?.region || "east_japan"),
   };
 
   if (isStandard) {
@@ -122,10 +149,13 @@ export const createCase = (request, workType, options = {}) => {
     request.fields?.projectName ||
     `Case ${nextNo}`;
 
+  const caseLabelVal = options.caseLabel || options.case_label || "";
+
   return {
     id,
     no: nextNo,
-    case_label: options.case_label || "",
+    caseLabel: caseLabelVal,
+    case_label: caseLabelVal,
     title: options.title || fallbackTitle,
     poleKind: options.poleKind || "standard",
     drawingType:
@@ -155,3 +185,57 @@ export const requestPathForDraft = (draftId) => {
 // session is cleared.
 export const activeDraftRequestPath = (projectType) =>
   requestPathForDraft(sessionStorage.getItem(`${projectType}_active_draft_id`));
+
+// Marks a case as submitted for checking in its parent request store and notifies API Gateway
+export const submitCaseForCheck = async (draftId, user) => {
+  if (!draftId) return;
+  const found = findRequestOfCase(draftId);
+  if (!found) return;
+  const { request, case: caseItem } = found;
+  updateRequest(request.id, (r) => ({
+    ...r,
+    cases: (r.cases || []).map((c) =>
+      c.id === draftId
+        ? {
+            ...c,
+            status: "Ready for check",
+            lastEdited: new Date().toISOString(),
+            lastEditedBy: user?.name || "Bintarjo Agus Priyadi",
+          }
+        : c
+    ),
+  }));
+
+  // Asynchronously notify backend API Gateway if request exists on server
+  try {
+    const workType = caseItem?.workType === "drawing" ? "drawing" : "calculation";
+    await markCaseReadyForCheck(request.id, workType, draftId);
+  } catch (err) {
+    console.debug("[submitCaseForCheck] Gateway sync skipped:", err?.message);
+  }
+};
+
+// Transitions a case from "Not started" to "In progress" upon working on it or saving draft.
+export const markCaseInProgress = (draftId, user) => {
+  if (!draftId) return;
+  const found = findRequestOfCase(draftId);
+  if (!found) return;
+  const { request, case: caseItem } = found;
+  if (!caseItem) return;
+  const currentStatus = caseItem.status || "Not started";
+  if (currentStatus === "Not started") {
+    updateRequest(request.id, (r) => ({
+      ...r,
+      cases: (r.cases || []).map((c) =>
+        c.id === draftId
+          ? {
+              ...c,
+              status: "In progress",
+              lastEdited: new Date().toISOString(),
+              lastEditedBy: user?.name || c.lastEditedBy || "Bintarjo Agus Priyadi",
+            }
+          : c
+      ),
+    }));
+  }
+};

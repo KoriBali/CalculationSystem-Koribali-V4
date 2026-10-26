@@ -265,8 +265,8 @@ export function useOpeningForm() {
   // ── Navigation ──
 
   // Navigates to next step — returns "OPEN_COVER" signal if this is the last step
-  const finish = () => {
-    if (!isCalculated) return;
+  const finish = (force = false) => {
+    if (!isCalculated && !force) return;
     if (isLast) return "OPEN_COVER";
     navigate(`/projects/${projectType}/${draftId}/${nextStep}`);
   };
@@ -309,5 +309,8 @@ export function useOpeningForm() {
     finish,
     goBack,
     showToast,
+    nextStep,
+    prevStep,
+    isLast,
   };
 }

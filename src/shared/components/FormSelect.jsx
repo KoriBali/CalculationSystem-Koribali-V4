@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
-import { ChevronDown, Check, ArrowLeft, Loader2 } from "lucide-react";
+import { ChevronDown, Check, ArrowLeft, Loader2, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 // Same visual language as the compact filter/form dropdowns already used on
@@ -16,7 +16,7 @@ export function FormSelect({
   id,
   value,
   onChange,
-  options,
+  options = [],
   placeholder = "Select...",
   hasError = false,
   // Value came from an auto-fill source (e.g. a cover) and hasn't been
@@ -27,6 +27,8 @@ export function FormSelect({
   loadingText = "Loading...",
   allowCustom = false,
   customPlaceholder = "Enter a value",
+  clearable = false,
+  noneLabel = "None / Not Specified",
 }) {
   // Loading implies disabled — the trigger can't be opened until options
   // (usually master data) arrive.
@@ -38,7 +40,12 @@ export function FormSelect({
   const customInputRef = useRef(null);
 
   const selectedOption = options.find(
-    (opt) => String(opt.value) === String(value),
+    (opt) =>
+      String(opt.value) === String(value) ||
+      (Number(opt.value) &&
+        Number(value) &&
+        (Math.round(Number(opt.value) * 1000) === Math.round(Number(value)) ||
+          Math.round(Number(value) * 1000) === Math.round(Number(opt.value)))),
   );
 
   // Custom mode = value is set but doesn't match any known option. Computed
@@ -153,7 +160,7 @@ export function FormSelect({
         disabled={isDisabled}
         onClick={handleOpen}
         className={`w-full px-3 md:px-4 py-2 md:py-2.5 rounded-md md:rounded-lg outline-none transition-all text-xs md:text-sm border text-left flex justify-between items-center ${
-          isDisabled ? "bg-gray-50 cursor-not-allowed" : ""
+          isDisabled ? "bg-slate-50/70 cursor-not-allowed" : ""
         } ${
           hasError
             ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
@@ -164,16 +171,44 @@ export function FormSelect({
                 : "border-gray-300 bg-white hover:border-[#3399cc]"
         } ${!selectedOption ? "text-slate-400" : "text-slate-900"}`}
       >
-        <span className="truncate">
-          {loading ? loadingText : selectedOption ? selectedOption.label : placeholder}
-        </span>
         {loading ? (
-          <Loader2 className="w-4 h-4 shrink-0 animate-spin text-gray-400" />
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="w-20 sm:w-28 h-3.5 bg-slate-200/80 rounded animate-pulse" />
+          </div>
         ) : (
-          <ChevronDown
-            className={`w-4 h-4 shrink-0 transition-transform ${isOpen ? "rotate-180" : ""} text-gray-400`}
-          />
+          <span className="truncate">
+            {selectedOption ? selectedOption.label : placeholder}
+          </span>
         )}
+        <div className="flex items-center gap-1.5 shrink-0">
+          {clearable && !!value && !isDisabled && (
+            <span
+              role="button"
+              tabIndex={0}
+              title="Clear selection"
+              onClick={(e) => {
+                e.stopPropagation();
+                onChange("");
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.stopPropagation();
+                  onChange("");
+                }
+              }}
+              className="p-1 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100 transition cursor-pointer"
+            >
+              <X className="w-3.5 h-3.5" />
+            </span>
+          )}
+          {loading ? (
+            <Loader2 className="w-3.5 h-3.5 shrink-0 animate-spin text-[#3399cc]" />
+          ) : (
+            <ChevronDown
+              className={`w-4 h-4 shrink-0 transition-transform ${isOpen ? "rotate-180" : ""} text-gray-400`}
+            />
+          )}
+        </div>
       </button>
 
       {isOpen &&
@@ -189,6 +224,26 @@ export function FormSelect({
               className="bg-white rounded-lg shadow-2xl border border-slate-300 overflow-hidden"
             >
               <div className="max-h-[220px] overflow-y-auto divide-y divide-gray-200">
+                {clearable && !options.some((opt) => opt.value === "") && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onChange("");
+                      setIsOpen(false);
+                    }}
+                    className="w-full px-3 md:px-4 py-2 md:py-2.5 flex items-center justify-between hover:bg-slate-50 transition-colors group text-left"
+                  >
+                    <span
+                      className={`text-xs md:text-sm truncate ${!value ? "text-[#0d3b66] font-bold" : "text-slate-500 font-medium group-hover:text-slate-800"}`}
+                    >
+                      {noneLabel}
+                    </span>
+                    {!value && (
+                      <Check className="w-4 h-4 shrink-0 text-[#0d3b66]" />
+                    )}
+                  </button>
+                )}
+
                 {options.map((opt) => {
                   const isActive = String(value) === String(opt.value);
                   return (
@@ -227,6 +282,12 @@ export function FormSelect({
                       Other…
                     </span>
                   </button>
+                )}
+
+                {options.length === 0 && !allowCustom && (
+                  <div className="px-3 md:px-4 py-3 text-xs md:text-sm text-slate-400 text-center">
+                    No options available
+                  </div>
                 )}
               </div>
             </motion.div>

@@ -1,4 +1,4 @@
-import { RotateCcw, ChevronLeft, ChevronRight, Calculator } from "lucide-react";
+import { RotateCcw, ChevronLeft, ChevronRight, Calculator, Lock } from "lucide-react";
 import { FieldErrorHint } from "../../../../../shared/components/FieldErrorHint";
 import { useState } from "react";
 import { ConfirmResetAllModal } from "../../modals/ConfirmResetAllModal";
@@ -35,11 +35,13 @@ export function SquareCaissonTypeForm({
   isCalculated,
   buttonLabel,
   isDrawingMode = false,
+  readOnly = false,
 }) {
   const [showResetModal, setShowResetModal] = useState(false);
 
   // Clear all dimension input fields
   const handleReset = () => {
+    if (readOnly) return;
     onUpdate({
       foundationWidthX: "",
       foundationWidthY: "",
@@ -81,7 +83,7 @@ export function SquareCaissonTypeForm({
               {/* Foundation Width X — top center */}
               <div className="absolute -top-1 sm:-top-5 xl:-top-4 left-[158px] sm:left-[255px] xl:left-[258px] 2xl:left-[288.6px] -translate-x-1/2">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1 whitespace-nowrap">
-                  Foundation Width (X)
+                  Foundation Width (X) <span className="text-red-500 ml-1 font-semibold">*</span>
                 </label>
                 <div className="relative w-fit">
                   <input
@@ -104,7 +106,7 @@ export function SquareCaissonTypeForm({
               {/* Foundation Width Y — middle left */}
               <div className="absolute top-[145px] sm:top-[64.4%] 2xl:top-[64.5%] -translate-y-1/2 -left-[56px] sm:-left-[48px] xl:-left-[53px]">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1">
-                  Foundation Width (Y)
+                  Foundation Width (Y) <span className="text-red-500 ml-1 font-semibold">*</span>
                 </label>
                 <div className="relative w-fit">
                   <input
@@ -143,7 +145,7 @@ export function SquareCaissonTypeForm({
               {/* Embedment Depth — right side */}
               <div className="absolute top-[135px] sm:top-[64%] 2xl:top-[64.1%] -translate-y-1/2 right-[185px] sm:-right-[52px] xl:-right-[65px]">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1 whitespace-nowrap">
-                  Embedment Depth
+                  Embedment Depth <span className="text-red-500 ml-1 font-semibold">*</span>
                 </label>
                 <div className="relative w-fit">
                   <input
@@ -178,7 +180,7 @@ export function SquareCaissonTypeForm({
             {/* N Value */}
             <div className="relative">
               <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">
-                N Value
+                N Value <span className="text-red-500 ml-1 font-semibold">*</span>
               </label>
               <input
                 id="nValue"
@@ -195,7 +197,7 @@ export function SquareCaissonTypeForm({
             {/* γ */}
             <div className="relative">
               <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">
-                γ
+                γ <span className="text-red-500 ml-1 font-semibold">*</span>
               </label>
               <div className="relative">
                 <input
@@ -217,7 +219,7 @@ export function SquareCaissonTypeForm({
             {/* γc */}
             <div className="relative">
               <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">
-                γc
+                γc <span className="text-red-500 ml-1 font-semibold">*</span>
               </label>
               <div className="relative">
                 <input
@@ -239,7 +241,7 @@ export function SquareCaissonTypeForm({
             {/* α */}
             <div className="relative">
               <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">
-                α
+                α <span className="text-red-500 ml-1 font-semibold">*</span>
               </label>
               <input
                 id="alphaValue"
@@ -275,63 +277,85 @@ export function SquareCaissonTypeForm({
 
         {/* Grouped form actions on the right: Reset, Calculate (calc mode), Next */}
         <div className="flex items-center gap-4 hp:gap-2">
-          {/* Reset button to clear all inputs */}
-          <button
-            onClick={() => setShowResetModal(true)}
-            title="Reset"
-            className="flex justify-center items-center gap-2 px-5 py-2.5 hp:px-3 hp:py-2 md:px-6
-              rounded-lg hp:rounded-md font-medium bg-white hover:bg-red-50 text-red-500 hover:text-red-600 text-xs sm:text-sm
-              border border-red-300 transition-colors"
-          >
-            <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-            <span className="hp:hidden">Reset</span>
-          </button>
+          {/* Reset button to clear all inputs (hidden in readOnly) */}
+          {!readOnly && (
+            <button
+              onClick={() => setShowResetModal(true)}
+              title="Reset"
+              className="flex justify-center items-center gap-2 px-5 py-2.5 hp:px-3 hp:py-2 md:px-6
+                rounded-lg hp:rounded-md font-medium bg-white hover:bg-red-50 text-red-500 hover:text-red-600 text-xs sm:text-sm
+                border border-red-300 transition-colors"
+            >
+              <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+              <span className="hp:hidden">Reset</span>
+            </button>
+          )}
 
           <div className="flex items-center gap-2 hp:gap-0">
-            {/* Calculate button — steps aside to the secondary style once
-                calculated, so Next reads as the thing to do now. Stays
-                fully clickable either way (e.g. to recalculate on purpose
-                without editing anything). */}
+            {/* Calculate button */}
             {!isDrawingMode && (
+              readOnly ? (
+                <button
+                  type="button"
+                  disabled
+                  title="Calculations are locked in Read-Only mode"
+                  className="flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-4 hp:py-2 md:px-6 rounded-lg hp:rounded-md font-medium text-sm bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed shadow-none"
+                >
+                  <Lock className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+                  <span className="hp:text-[11px] whitespace-nowrap">
+                    {isCalculated ? "Results Locked" : "Calculation Locked"}
+                  </span>
+                </button>
+              ) : (
+                <button
+                  onClick={onCalculate}
+                  className={`flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-4 hp:py-2 md:px-6
+                      rounded-lg hp:rounded-md font-medium text-sm transition-all
+                      ${
+                        isCalculated
+                          ? "bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm"
+                          : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
+                      }`}
+                >
+                  <Calculator className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+                  <span className="hp:text-[11px] whitespace-nowrap">
+                    Calculate Results
+                  </span>
+                </button>
+              )
+            )}
+            {/* Next step button */}
+            {readOnly ? (
               <button
-                onClick={onCalculate}
-                className={`flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-4 hp:py-2 md:px-6
-                    rounded-lg hp:rounded-md font-medium text-sm transition-all
-                    ${
-                      isCalculated
-                        ? "bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm"
-                        : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
-                    }`}
+                onClick={onNext}
+                title={buttonLabel}
+                className="flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-3 hp:py-2 md:px-6
+                  rounded-lg hp:rounded-md font-medium transition-all text-sm bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
               >
-                <Calculator className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-                <span className="hp:text-[11px] whitespace-nowrap">
-                  Calculate Results
-                </span>
+                <span className="hp:hidden">{buttonLabel}</span>
+                <ChevronRight className="w-4 md:w-5 h-4 md:h-5 hp:w-4 hp:h-4" />
+              </button>
+            ) : (
+              <button
+                onClick={onNext}
+                aria-disabled={!isDrawingMode && !isCalculated}
+                title={
+                  !isDrawingMode && !isCalculated
+                    ? 'Click "Calculate Results" first'
+                    : buttonLabel
+                }
+                className={`flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-3 hp:py-2 md:px-6
+                  rounded-lg hp:rounded-md font-medium transition-all text-sm
+                  ${
+                    !isDrawingMode && !isCalculated
+                      ? "bg-gray-100 text-gray-400 ring-1 ring-inset ring-gray-200 cursor-not-allowed shadow-none"
+                      : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
+                  }`}
+              >
+                <span className="hp:hidden">{buttonLabel}</span>
+                <ChevronRight className="w-4 md:w-5 h-4 md:h-5 hp:w-4 hp:h-4" />
               </button>
             )}
-            {/* Next step button — becomes the primary button once
-                calculated (mirrors Calculate stepping aside above),
-                regardless of whether this is a mid-flow "Next" or the
-                final step's label. */}
-            <button
-              onClick={onNext}
-              aria-disabled={!isDrawingMode && !isCalculated}
-              title={
-                !isDrawingMode && !isCalculated
-                  ? 'Click "Calculate Results" first'
-                  : buttonLabel
-              }
-              className={`flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-3 hp:py-2 md:px-6
-                rounded-lg hp:rounded-md font-medium transition-all text-sm
-                ${
-                  !isDrawingMode && !isCalculated
-                    ? "bg-gray-100 text-gray-400 ring-1 ring-inset ring-gray-200 cursor-not-allowed shadow-none"
-                    : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
-                }`}
-            >
-              <span className="hp:hidden">{buttonLabel}</span>
-              <ChevronRight className="w-4 md:w-5 h-4 md:h-5 hp:w-4 hp:h-4" />
-            </button>
           </div>
         </div>
       </div>

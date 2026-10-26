@@ -8,6 +8,10 @@ import {
 import { Edit3, Info, Lightbulb } from "lucide-react";
 import { designStandardOptions } from "../../../constants/designStandards";
 import { FormSelect } from "../../../../../shared/components/FormSelect";
+import {
+  resolveDesignStandardCode,
+  resolveDesignStandardLabel,
+} from "../../../utils/requestPayloadMapper";
 
 const inputStyle = (hasError = false) =>
   `w-full px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border
@@ -28,6 +32,7 @@ export const DesignConditionsSection = forwardRef(
   function DesignConditionsSection(
     {
       request,
+      canEdit = true,
       onSave, // (updatedConditions) => void
       onToast, // (message) => void
       onShowToastModal, // (message) => void
@@ -35,8 +40,15 @@ export const DesignConditionsSection = forwardRef(
     },
     ref,
   ) {
-    // Check if conditions have been manually saved by user
-    const isSaved = Boolean(request.designConditions?.isSaved);
+    // Check if conditions have been saved or if this is an existing project.
+    // Only freshly created projects that haven't been confirmed yet start in edit mode (Gambar 1).
+    // All existing projects (or once saved) display in read-only summary mode with Edit button (Gambar 2).
+    const isNewUnsaved = Boolean(
+      request.isNewProject &&
+      !request.designConditions?.isSaved &&
+      (!request.cases || request.cases.length === 0)
+    );
+    const isSaved = !isNewUnsaved;
 
     const [isEditing, setIsEditing] = useState(!isSaved);
     const [errors, setErrors] = useState({});
@@ -47,29 +59,71 @@ export const DesignConditionsSection = forwardRef(
       [request.projectType],
     );
 
-    // Reference values from cover information
-    const rawStandard = request.fields?.standard;
+    // Helper to find matching option from activeOptions, resolving any UUID or text variant
+    const findStandardOption = (val) => {
+      if (!val) return null;
+      const code = resolveDesignStandardCode(val);
+      const s = String(val).toLowerCase().trim();
+      return activeOptions.find((o) => {
+        const ov = o.value.toLowerCase();
+        const ol = o.label.toLowerCase();
+        return (
+          ov === code.toLowerCase() ||
+          ov === s ||
+          ol === s ||
+          (code === "jil" && ov === "jil") ||
+          (s.includes("jil") && ov === "jil") ||
+          (s.includes("haiden") && ov === "haiden") ||
+          (s.includes("v60") && ov === "v60") ||
+          ((s.includes("act") || s.includes("law")) && ov === "act") ||
+          (s.includes("tower") && ov === "tower") ||
+          (s.includes("signboard") && ov === "signboard")
+        );
+      });
+    };
+
+    // Reference values from cover information (original request input, kept immutable as reference)
+    const rawCoverStandard = request.fields?.standard;
+    const hasCoverStandard = Boolean(rawCoverStandard && String(rawCoverStandard).trim());
+    const matchedCoverOption = hasCoverStandard ? findStandardOption(rawCoverStandard) : null;
     const coverStandardCode =
-      (rawStandard === "v60" && request.projectType === "lighting-project") || !rawStandard
-        ? "jil"
-        : rawStandard;
-
+      matchedCoverOption?.value ||
+      (hasCoverStandard ? resolveDesignStandardCode(rawCoverStandard) : "");
     const coverStandardLabel =
-      activeOptions.find((o) => o.value?.toLowerCase() === coverStandardCode?.toLowerCase())?.label ||
-      (coverStandardCode?.toLowerCase() === "jil" ? "JIL" : coverStandardCode?.toUpperCase() || "JIL");
+      matchedCoverOption?.label ||
+      (coverStandardCode ? resolveDesignStandardLabel(coverStandardCode, request.projectType) : "");
 
-    const coverWindSpeed = request.fields?.windSpeed || "60";
-    const coverAirDensity = request.fields?.airDensity || "1.23";
+    const rawCoverWindSpeed = request.fields?.windSpeed;
+    const hasCoverWindSpeed =
+      rawCoverWindSpeed !== undefined &&
+      rawCoverWindSpeed !== null &&
+      String(rawCoverWindSpeed).trim() !== "";
+    const coverWindSpeed = hasCoverWindSpeed ? String(rawCoverWindSpeed) : "";
 
-    // Default reference values when not saved yet
-    const defaultStandard = coverStandardCode || "jil";
+    // Build reference info text: shows only what was actually specified in Cover Information
+    const referenceParts = [];
+    if (coverStandardLabel) referenceParts.push(`Standard ${coverStandardLabel}`);
+    if (coverWindSpeed) referenceParts.push(`Wind speed ${coverWindSpeed} m/s`);
+    const referenceInfoText =
+      referenceParts.length > 0
+        ? `Reference from Cover Information: ${referenceParts.join(" · ")}`
+        : null;
+
+    // Default initial values: if cover reference was filled, use it as initial value; otherwise use standard defaults
+    const defaultStandard =
+      coverStandardCode || (request.projectType === "lighting-project" ? "jil" : "v60");
     const defaultWindSpeed = coverWindSpeed || "60";
-    const defaultAirDensity = coverAirDensity || "1.23";
+    const defaultAirDensity = "1.23";
 
-    // Saved / current conditions
-    const currentStandard = request.designConditions?.standard || "";
-    const currentAirDensity = request.designConditions?.airDensity || "";
-    const currentWindSpeed = request.designConditions?.windSpeed || "";
+    // Saved / current calculation conditions (resolves UUIDs to standard code e.g. 'jil')
+    const rawSavedStandard = request.designConditions?.standard;
+    const matchedSaved = findStandardOption(rawSavedStandard);
+    const currentStandard =
+      matchedSaved?.value ||
+      resolveDesignStandardCode(rawSavedStandard) ||
+      defaultStandard;
+    const currentAirDensity = request.designConditions?.airDensity || defaultAirDensity;
+    const currentWindSpeed = request.designConditions?.windSpeed || defaultWindSpeed;
 
     // Form states in edit mode - automatically populated from reference if not yet saved
     const [standard, setStandard] = useState(
@@ -102,7 +156,11 @@ export const DesignConditionsSection = forwardRef(
       if (!isSaved) {
         setIsEditing(true);
       }
-      setStandard(request.designConditions?.standard || defaultStandard);
+      const nextStd =
+        findStandardOption(request.designConditions?.standard)?.value ||
+        resolveDesignStandardCode(request.designConditions?.standard) ||
+        defaultStandard;
+      setStandard(nextStd);
       setWindSpeed(request.designConditions?.windSpeed || defaultWindSpeed);
       setAirDensity(request.designConditions?.airDensity || defaultAirDensity);
     }
@@ -252,8 +310,9 @@ export const DesignConditionsSection = forwardRef(
     };
 
     const standardLabel =
+      findStandardOption(currentStandard)?.label ||
       activeOptions.find((o) => o.value === currentStandard)?.label ||
-      currentStandard ||
+      resolveDesignStandardLabel(currentStandard, request.projectType) ||
       "—";
 
     return (
@@ -268,14 +327,16 @@ export const DesignConditionsSection = forwardRef(
               </p>
 
               {/* Slightly enlarged Edit button */}
-              <button
-                type="button"
-                onClick={handleStartEdit}
-                className="inline-flex items-center gap-1.5 h-8.5 px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-xs active:scale-95 transition-all"
-              >
-                <Edit3 className="w-3.5 h-3.5 text-[#0d3b66]" />
-                Edit
-              </button>
+              {canEdit && (
+                <button
+                  type="button"
+                  onClick={handleStartEdit}
+                  className="inline-flex items-center gap-1.5 h-8.5 px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-xs active:scale-95 transition-all"
+                >
+                  <Edit3 className="w-3.5 h-3.5 text-[#0d3b66]" />
+                  Edit
+                </button>
+              )}
             </div>
 
             {/* Metrics Grid: Standard, Wind Speed, Air Density (No icons) */}
@@ -286,7 +347,7 @@ export const DesignConditionsSection = forwardRef(
                   Design Standard
                 </span>
                 <div className="mt-1">
-                  <span className="text-sm sm:text-base font-medium text-gray-800 break-words">
+                  <span className="text-sm font-medium text-gray-800 break-words">
                     {standardLabel}
                   </span>
                 </div>
@@ -298,7 +359,7 @@ export const DesignConditionsSection = forwardRef(
                   Wind Speed
                 </span>
                 <div className="mt-1 flex items-baseline">
-                  <span className="text-sm sm:text-base font-medium text-gray-800">
+                  <span className="text-sm font-medium text-gray-800">
                     {currentWindSpeed}
                   </span>
                   <span className="ml-1 text-sm text-gray-500 font-normal">
@@ -313,7 +374,7 @@ export const DesignConditionsSection = forwardRef(
                   Air Density
                 </span>
                 <div className="mt-1 flex items-baseline">
-                  <span className="text-sm sm:text-base font-medium text-gray-800">
+                  <span className="text-sm font-medium text-gray-800">
                     {currentAirDensity}
                   </span>
                   <span className="ml-1 text-sm text-gray-500 font-normal">
@@ -323,13 +384,13 @@ export const DesignConditionsSection = forwardRef(
               </div>
             </div>
 
-            {/* Simple Reference Info Box (Matching Gambar 1 without bold text) */}
-            <div className="flex items-start sm:items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg hp:rounded-md px-4 py-2.5 text-xs md:text-sm text-gray-500">
-              <Info className="w-4 h-4 shrink-0 text-gray-400 mt-0.5 sm:mt-0" />
-              <span>
-                Reference from Cover Information: Standard {coverStandardLabel} · Wind speed {coverWindSpeed} m/s · Air density {coverAirDensity} N·sec²/m⁴
-              </span>
-            </div>
+            {/* Simple Reference Info Box */}
+            {referenceInfoText && (
+              <div className="flex items-start sm:items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg hp:rounded-md px-4 py-2.5 text-xs md:text-sm text-gray-500">
+                <Info className="w-4 h-4 shrink-0 text-gray-400 mt-0.5 sm:mt-0" />
+                <span>{referenceInfoText}</span>
+              </div>
+            )}
           </div>
         ) : (
           /* ── EDIT / INITIAL INPUT MODE (Mandatory First Input) ── */
@@ -432,13 +493,13 @@ export const DesignConditionsSection = forwardRef(
               </div>
             </div>
 
-            {/* Simple Reference Info Box (Matching Gambar 1) */}
-            <div className="flex items-start sm:items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg hp:rounded-md px-4 py-2.5 text-xs md:text-sm text-gray-500">
-              <Info className="w-4 h-4 shrink-0 text-gray-400 mt-0.5 sm:mt-0" />
-              <span>
-                Reference from Cover Information: Standard {coverStandardLabel} · Wind speed {coverWindSpeed} m/s · Air density {coverAirDensity} N·sec²/m⁴
-              </span>
-            </div>
+            {/* Simple Reference Info Box */}
+            {referenceInfoText && (
+              <div className="flex items-start sm:items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg hp:rounded-md px-4 py-2.5 text-xs md:text-sm text-gray-500">
+                <Info className="w-4 h-4 shrink-0 text-gray-400 mt-0.5 sm:mt-0" />
+                <span>{referenceInfoText}</span>
+              </div>
+            )}
 
             {/* Footer buttons (Without "Applies to all calculation cases" text) */}
             <div className="pt-2 flex justify-end items-center gap-2.5">

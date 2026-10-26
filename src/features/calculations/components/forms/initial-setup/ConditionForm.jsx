@@ -36,12 +36,14 @@ export function ConditionForm({
   onUpdate,
   onFinish,
   errors,
+  readOnly = false,
 }) {
   // State for reset confirmation modal
   const [showResetModal, setShowResetModal] = useState(false);
 
   // Resets only additional components toggles, preserving request design conditions and pole type
   const handleReset = () => {
+    if (readOnly) return;
     const isStandard = condition?.poleType === "standard";
     onUpdate({
       openingEnabled: isStandard ? true : false,
@@ -83,10 +85,11 @@ export function ConditionForm({
                   icon={<DoorOpen size={16} />}
                   enabled={condition.openingEnabled}
                   disabled={
-                    projectMode === "both" && condition.poleType === "standard"
+                    readOnly ||
+                    (projectMode === "both" && condition.poleType === "standard")
                   }
                   onToggle={() =>
-                    onUpdate({ openingEnabled: !condition.openingEnabled })
+                    !readOnly && onUpdate({ openingEnabled: !condition.openingEnabled })
                   }
                 />
 
@@ -95,8 +98,9 @@ export function ConditionForm({
                   label="Baseplate"
                   icon={<BaseplateIcon size={18} />}
                   enabled={condition.baseplateEnabled}
+                  disabled={readOnly}
                   onToggle={() =>
-                    onUpdate({ baseplateEnabled: !condition.baseplateEnabled })
+                    !readOnly && onUpdate({ baseplateEnabled: !condition.baseplateEnabled })
                   }
                 />
 
@@ -105,7 +109,9 @@ export function ConditionForm({
                   label="Foundation"
                   icon={<Layers size={16} />}
                   enabled={condition.foundationEnabled}
+                  disabled={readOnly}
                   onToggle={() =>
+                    !readOnly &&
                     onUpdate({
                       foundationEnabled: !condition.foundationEnabled,
                     })
@@ -119,15 +125,17 @@ export function ConditionForm({
           <div className="border-t border-gray-200" />
 
           {/* Footer */}
-          <div className="flex justify-between items-center pt-4 md:pt-0">
-            {/* Reset => clears all fields */}
-            <button
-              onClick={() => setShowResetModal(true)}
-              className="flex items-center gap-2 px-5 py-2.5 md:px-6 rounded-lg hp:rounded-md bg-white text-red-500 font-medium text-xs md:text-sm hover:bg-red-50 hover:text-red-600 transition-colors border border-red-300"
-            >
-              <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-              Reset
-            </button>
+          <div className={`flex ${readOnly ? "justify-end" : "justify-between"} items-center pt-4 md:pt-0`}>
+            {/* Reset => clears all fields (hidden in readOnly) */}
+            {!readOnly && (
+              <button
+                onClick={() => setShowResetModal(true)}
+                className="flex items-center gap-2 px-5 py-2.5 md:px-6 rounded-lg hp:rounded-md bg-white text-red-500 font-medium text-xs md:text-sm hover:bg-red-50 hover:text-red-600 transition-colors border border-red-300"
+              >
+                <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+                Reset
+              </button>
+            )}
 
             {/* Finish => proceeds to next step */}
             <button

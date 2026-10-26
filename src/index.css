@@ -150,3 +150,13 @@ code {
     box-shadow: 0 0 0 3px rgb(254 240 138 / 0);
   }
 }
+
+/* Form locking for read-only case mode */
+.case-read-only-guard input:not([type="search"]),
+.case-read-only-guard textarea {
+  pointer-events: none !important;
+  background-color: #f8fafc !important;
+  cursor: not-allowed !important;
+  user-select: none !important;
+}
+

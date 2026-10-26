@@ -174,7 +174,7 @@ export default function RequestFilterBar({
                   <div
                     key={f.key}
                     className={`min-w-0 self-stretch px-3 border-l border-slate-200 ${
-                      f.type === "date" ? "sm:col-span-2" : ""
+                      f.type === "date" || f.colSpan === 2 ? "sm:col-span-2" : ""
                     }`}
                   >
                     <label

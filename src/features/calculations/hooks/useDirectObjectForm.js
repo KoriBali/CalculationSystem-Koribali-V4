@@ -109,6 +109,7 @@ export function useDirectObjectForm(projectType) {
     confirmReduceDo,
     confirmDeleteDo,
 
+    setDirectObjects,
     setDoErrors,
     setDoInputValue,
     setConfirmDeleteDo,

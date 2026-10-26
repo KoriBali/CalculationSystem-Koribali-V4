@@ -337,7 +337,7 @@ export default function LoginPage() {
                   setAuthSession({
                     accessToken: "guest-session-token",
                     refreshToken: "guest-session-token",
-                    user: { name: "Guest User", email: "guest@koribali.com" },
+                    user: { name: "Guest User", email: "guest@koribali.com", role: "drafter" },
                   });
                   navigate("/projects");
                 }}

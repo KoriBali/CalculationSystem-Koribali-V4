@@ -79,7 +79,145 @@ export async function getMasterData() {
   return inFlightRequest;
 }
 
-// Clears the cache so the next getMasterData() call re-fetches from the API.
+// ─── DYNAMIC DESIGN STANDARDS & REGIONS (ZERO HARDCODED UUID) ─────────────────
+export const STORAGE_KEY_STANDARDS = "masterDesignStandards";
+export const STORAGE_KEY_REGIONS = "masterRegions";
+
+let inFlightStandards = null;
+let inFlightRegions = null;
+
+function readSpecificCache(key) {
+  const raw = sessionStorage.getItem(key);
+  if (!raw) return null;
+  try {
+    const { data, cachedAt } = JSON.parse(raw);
+    if (!data || typeof cachedAt !== "number") {
+      sessionStorage.removeItem(key);
+      return null;
+    }
+    if (Date.now() - cachedAt > CACHE_TTL_MS) {
+      sessionStorage.removeItem(key);
+      return null;
+    }
+    return data;
+  } catch {
+    sessionStorage.removeItem(key);
+    return null;
+  }
+}
+
+function writeSpecificCache(key, data) {
+  try {
+    sessionStorage.setItem(
+      key,
+      JSON.stringify({ data, cachedAt: Date.now() }),
+    );
+  } catch {
+    // sessionStorage full or quota exceeded
+  }
+}
+
+export async function getMasterDesignStandards() {
+  const cached = readSpecificCache(STORAGE_KEY_STANDARDS);
+  if (cached) return cached;
+
+  if (!inFlightStandards) {
+    const baseUrl = import.meta.env.VITE_API_BASE_URL;
+    inFlightStandards = fetch(`${baseUrl}/api/master/design-standards`)
+      .then((res) => {
+        if (!res.ok) throw new Error(`Status ${res.status}`);
+        return res.json();
+      })
+      .then((json) => {
+        const data = json?.data || [];
+        writeSpecificCache(STORAGE_KEY_STANDARDS, data);
+        return data;
+      })
+      .catch((err) => {
+        console.warn("[masterDataService] Failed to load design standards:", err);
+        return [];
+      })
+      .finally(() => {
+        inFlightStandards = null;
+      });
+  }
+  return inFlightStandards;
+}
+
+export async function getMasterRegions() {
+  const cached = readSpecificCache(STORAGE_KEY_REGIONS);
+  if (cached) return cached;
+
+  if (!inFlightRegions) {
+    const baseUrl = import.meta.env.VITE_API_BASE_URL;
+    inFlightRegions = fetch(`${baseUrl}/api/master/regions`)
+      .then((res) => {
+        if (!res.ok) throw new Error(`Status ${res.status}`);
+        return res.json();
+      })
+      .then((json) => {
+        const data = json?.data || [];
+        writeSpecificCache(STORAGE_KEY_REGIONS, data);
+        return data;
+      })
+      .catch((err) => {
+        console.warn("[masterDataService] Failed to load regions:", err);
+        return [];
+      })
+      .finally(() => {
+        inFlightRegions = null;
+      });
+  }
+  return inFlightRegions;
+}
+
+export function getCachedDesignStandards() {
+  return readSpecificCache(STORAGE_KEY_STANDARDS) || [];
+}
+
+export function getCachedRegions() {
+  return readSpecificCache(STORAGE_KEY_REGIONS) || [];
+}
+
+// ─── POLE CATEGORIES MASTER DATA ─────────────────────────────────────────────
+export const STORAGE_KEY_POLE_CATEGORIES = "masterPoleCategories";
+let inFlightPoleCategories = null;
+
+export async function getMasterPoleCategories() {
+  const cached = readSpecificCache(STORAGE_KEY_POLE_CATEGORIES);
+  if (cached) return cached;
+
+  if (!inFlightPoleCategories) {
+    const baseUrl = import.meta.env.VITE_API_BASE_URL;
+    inFlightPoleCategories = fetch(`${baseUrl}/api/master/pole-categories`)
+      .then((res) => {
+        if (!res.ok) throw new Error(`Status ${res.status}`);
+        return res.json();
+      })
+      .then((json) => {
+        const data = json?.data || [];
+        writeSpecificCache(STORAGE_KEY_POLE_CATEGORIES, data);
+        return data;
+      })
+      .catch((err) => {
+        console.warn("[masterDataService] Failed to load pole categories:", err);
+        return [];
+      })
+      .finally(() => {
+        inFlightPoleCategories = null;
+      });
+  }
+  return inFlightPoleCategories;
+}
+
+export function getCachedPoleCategories() {
+  return readSpecificCache(STORAGE_KEY_POLE_CATEGORIES) || [];
+}
+
+// Clears the cache so the next master data calls re-fetch from the API.
 export function clearMasterDataCache() {
   sessionStorage.removeItem(STORAGE_KEY);
+  sessionStorage.removeItem(STORAGE_KEY_STANDARDS);
+  sessionStorage.removeItem(STORAGE_KEY_REGIONS);
+  sessionStorage.removeItem(STORAGE_KEY_POLE_CATEGORIES);
 }

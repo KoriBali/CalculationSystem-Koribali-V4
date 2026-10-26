@@ -20,8 +20,6 @@ import {
   ChevronRight,
   ChevronLeft,
   Settings2,
-  CheckCircle,
-  Circle,
   Plus,
   Minus,
   AlertTriangle,
@@ -46,34 +44,6 @@ const SectionCard = ({ children }) => (
   </div>
 );
 
-const CardOption = ({ label, current, value, onChange }) => {
-  const isActive = current === value;
-  return (
-    <button
-      type="button"
-      onClick={() => onChange(value)}
-      className={`group w-full flex items-center justify-between px-3 xl:px-4 py-2 lg:py-2.5 min-h-[34px] sm:min-h-[38px] lg:min-h-[42px] relative overflow-hidden rounded-lg hp:rounded-md border transition-all duration-300 cursor-pointer active:scale-[0.98]
-        ${isActive
-          ? "border-blue-500 bg-blue-50 shadow-sm ring-1 ring-blue-50"
-          : "border-slate-300 bg-white hover:border-slate-400 hover:bg-slate-50 hover:shadow-sm"
-        }`}
-    >
-      <p
-        className={`text-[12px] md:text-sm font-medium ${isActive ? "text-slate-900" : "text-slate-700"}`}
-      >
-        {label}
-      </p>
-      <div className="shrink-0 ml-2 flex items-center">
-        {isActive ? (
-          <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-blue-500" />
-        ) : (
-          <Circle className="w-4 h-4 md:w-5 md:h-5 text-slate-400 group-hover:text-slate-500" />
-        )}
-      </div>
-    </button>
-  );
-};
-
 const inputStyle = (hasError) =>
   `w-full px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border
   ${hasError
@@ -84,10 +54,29 @@ const inputStyle = (hasError) =>
 export function CouplingForm({ onReset, onNext, onBack, onError }) {
   const { type: projectType } = useParams();
 
+  // Derive location/region automatically from project Drawing Conditions or existing session
+  const getInitialLocation = () => {
+    try {
+      const dgRaw = sessionStorage.getItem(`${projectType}_drawing_general`);
+      if (dgRaw) {
+        const dg = JSON.parse(dgRaw);
+        if (dg?.region) return dg.region;
+      }
+    } catch {}
+    try {
+      const stored = sessionStorage.getItem(`${projectType}_drawing_coupling_location`);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed) return parsed;
+      }
+    } catch {}
+    return "east_japan";
+  };
+
   const [location, setLocation] = useProjectStorage(
     projectType || "default",
     "drawing_coupling_location",
-    "",
+    getInitialLocation(),
   );
   const [couplingCount, setCouplingCount] = useProjectStorage(
     projectType || "default",
@@ -136,14 +125,25 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
     refetch: refetchMaster,
   } = useCouplingMasterData();
 
-  const regionOptions = eo?.regions ?? [];
-
   // Legacy drafts stored the region label ("East Japan"); master data uses the
-  // code ("east_japan"). Migrate once so resolveEO's region lookup keeps working.
+  // code ("east_japan"). Keep in sync with project drawing_general.region if available.
   useEffect(() => {
     const LEGACY = { "East Japan": "east_japan", "West Japan": "west_japan" };
-    if (LEGACY[location]) setLocation(LEGACY[location]);
-  }, [location, setLocation]);
+    let currentRegion = location;
+    if (LEGACY[currentRegion]) {
+      currentRegion = LEGACY[currentRegion];
+      setLocation(currentRegion);
+    }
+    try {
+      const dgRaw = sessionStorage.getItem(`${projectType}_drawing_general`);
+      if (dgRaw) {
+        const dg = JSON.parse(dgRaw);
+        if (dg?.region && dg.region !== currentRegion) {
+          setLocation(dg.region);
+        }
+      }
+    } catch {}
+  }, [projectType, location, setLocation]);
 
   // Warm the browser cache with all 20 coupling diagrams (10 grid + 10 detail)
   // as soon as this page mounts, so opening the case picker / case form later
@@ -151,7 +151,6 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
   useEffect(() => preloadImagesWhenIdle(COUPLING_CASE_IMAGES), []);
 
   const handleReset = () => {
-    setLocation("");
     setCouplings((prev) =>
       prev.map(() => ({ height: "", withHookband: false, caseDetails: null })),
     );
@@ -243,37 +242,6 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
         @media (min-width: 1280px) { .stagger-spacer { width: calc(var(--stagger-idx) * 30%); } }
       `}</style>
       <div className="p-4 md:p-6 space-y-6 md:space-y-8">
-        {/* --- Input Location of Project --- */}
-        <div id="location" className="relative">
-          <SectionTitle>Project Location</SectionTitle>
-          <SectionCard>
-            <div className="flex flex-col sm:flex-row gap-4">
-              {regionOptions.map((region) => (
-                <div key={region.value} className="w-full sm:w-[220px]">
-                  <CardOption
-                    label={region.label}
-                    value={region.value}
-                    current={location}
-                    onChange={(val) => {
-                      setLocation(val);
-                      setProgressFlag(projectType, "drawing_coupling_completed", false);
-                      setErrors((prev) => {
-                        const newErrors = { ...prev };
-                        delete newErrors.location;
-                        return newErrors;
-                      });
-                    }}
-                  />
-                </div>
-              ))}
-            </div>
-          </SectionCard>
-          {errors.location && (
-            <p className="absolute -bottom-5 left-1 text-red-500 text-xs">
-              {errors.location}
-            </p>
-          )}
-        </div>
 
         {/* --- Coupling Input --- */}
         <div>
@@ -404,17 +372,6 @@ export function CouplingForm({ onReset, onNext, onBack, onError }) {
                             id={`couplings[${i}].caseDetails`}
                             type="button"
                             onClick={() => {
-                              if (!location) {
-                                const message =
-                                  "*Please select Location of Project first";
-                                setErrors((prev) => ({
-                                  ...prev,
-                                  location: message,
-                                }));
-                                if (onError) onError(message);
-                                scrollToFirstError({ location: message });
-                                return;
-                              }
                               const existingCase = couplings[i]?.caseDetails;
                               if (existingCase) {
                                 setModalState({

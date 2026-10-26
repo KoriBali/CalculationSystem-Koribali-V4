@@ -5,8 +5,24 @@ export const MENU_ITEMS = [
   { name: "Users", icon: "Users", path: "/superadmin/users", roles: ["superadmin"] },
 
   // Shared routes
-  { name: "Projects", icon: "Calculator", path: "/projects", roles: ["superadmin", "admin", "drafter"] },
-  { name: "Project Database", icon: "Database", path: "/database", roles: ["superadmin", "admin", "drafter"] },
+  {
+    name: "Projects",
+    icon: "Calculator",
+    path: "/projects",
+    roles: ["superadmin", "admin", "drafter", "drafter_checker", "admin_department"],
+  },
+  {
+    name: "Checking Queue",
+    icon: "ClipboardCheck",
+    path: "/checking-queue",
+    roles: ["superadmin", "admin", "drafter_checker", "admin_department"],
+  },
+  {
+    name: "Project Database",
+    icon: "Database",
+    path: "/database",
+    roles: ["superadmin", "admin", "drafter", "drafter_checker", "admin_department"],
+  },
 ];
 
 // Shared spring animation config — used across sidebar and nav animations

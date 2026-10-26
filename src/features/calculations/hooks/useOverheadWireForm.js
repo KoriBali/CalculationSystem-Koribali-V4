@@ -26,19 +26,26 @@ export function useOverheadWireForm(projectType) {
   }, [projectType]);
 
   // Adds OHWs by quantity input — triggers reduce confirm if count decreases
-  const addOhwByInput = () => {
+  const addOhwByInput = (customMax) => {
     Utils.syncOhwByInput(
       ohwInputValue,
       overheadWires,
       setOverheadWires,
       ohwIdRef,
       setConfirmReduceOhw,
+      typeof customMax === "number" ? customMax : 8,
     );
     setOhwInputValue("");
   };
 
   // Adds a single new OHW by button click
-  const addOhw = () => Utils.addOhw(overheadWires, setOverheadWires, ohwIdRef);
+  const addOhw = (customMax) =>
+    Utils.addOhw(
+      overheadWires,
+      setOverheadWires,
+      ohwIdRef,
+      typeof customMax === "number" ? customMax : 8,
+    );
 
   // Copies an OHW to clipboard
   const copyOhw = (ohw) => Utils.copyOhw(ohw, setOhwClipboard);
@@ -108,6 +115,7 @@ export function useOverheadWireForm(projectType) {
     confirmReduceOhw,
     confirmDeleteOhw,
 
+    setOverheadWires,
     setOhwErrors,
     setOhwInputValue,
     setConfirmDeleteOhw,

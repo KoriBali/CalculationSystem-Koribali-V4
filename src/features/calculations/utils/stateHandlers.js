@@ -288,19 +288,20 @@ export const resetCurrentDo = (setDirectObjects, directObjects, id) => {
 // ====================================================
 // Function for Overhead Wire Input
 // ====================================================
-// FUNCTION: Add a new Overhead Wire (max 8 OHW) By Input
+// FUNCTION: Add a new Overhead Wire By Input
 export const syncOhwByInput = (
   inputValue,
   overheadWires,
   setOverheadWires,
   ohwIdRef,
   onConfirmReduce, // callback untuk modal konfirmasi
+  maxLimit = 8,
 ) => {
   const targetCount = Number(inputValue);
 
   if (!targetCount || targetCount < 0) return;
 
-  const safeTarget = Math.min(targetCount, 8);
+  const safeTarget = Math.min(targetCount, maxLimit);
   const currentCount = overheadWires.length;
 
   // case 1: imput jumlah yang sama
@@ -340,9 +341,14 @@ export const syncOhwByInput = (
   }
 };
 
-// FUNCTION: Add a new overhead wire (max 8 OHW) By Click
-export const addOhw = (overheadWires, setOverheadWires, ohwIdRef) => {
-  if (overheadWires.length >= 8) return;
+// FUNCTION: Add a new overhead wire By Click
+export const addOhw = (
+  overheadWires,
+  setOverheadWires,
+  ohwIdRef,
+  maxLimit = 8,
+) => {
+  if (overheadWires.length >= maxLimit) return;
 
   ohwIdRef.current += 1;
   const newId = ohwIdRef.current.toString();

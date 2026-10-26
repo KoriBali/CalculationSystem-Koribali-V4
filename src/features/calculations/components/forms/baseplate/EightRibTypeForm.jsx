@@ -1,4 +1,4 @@
-import { RotateCcw, ChevronRight, ChevronLeft, Calculator } from "lucide-react";
+import { RotateCcw, ChevronRight, ChevronLeft, Calculator, Lock } from "lucide-react";
 import { FieldErrorHint } from "../../../../../shared/components/FieldErrorHint";
 import { useState } from "react";
 import { ConfirmResetAllModal } from "../../modals/ConfirmResetAllModal";
@@ -68,11 +68,13 @@ export function EightRibTypeForm({
   onNext,
   isCalculated,
   buttonLabel,
+  readOnly = false,
 }) {
   const [showResetModal, setShowResetModal] = useState(false);
 
   // Clear all dimension input fields
   const handleReset = () => {
+    if (readOnly) return;
     const emptyState = Object.keys(eightRibType).reduce((acc, key) => {
       acc[key] = "";
       return acc;
@@ -106,7 +108,7 @@ export function EightRibTypeForm({
             {/* Baseplate Width (EW) — top center */}
             <div className="absolute top-12 sm:top-0 xl:top-2 left-[50.6%] sm:left-[50%] xl:left-[49.99%] -translate-x-1/2">
               <label className="block text-xs md:text-sm text-gray-700 mb-1">
-                Baseplate Width
+                Baseplate Width <span className="text-red-500 ml-1 font-semibold">*</span>
               </label>
               <div className="relative w-fit">
                 <input
@@ -129,7 +131,7 @@ export function EightRibTypeForm({
             {/* Anchor Pitch (EW) — below Baseplate Width (EW) */}
             <div className="absolute top-[110px] sm:top-[23%] xl:top-[24%] left-[50%] sm:left-[49.99%] -translate-x-1/2">
               <label className="block text-xs md:text-sm text-gray-700 mb-1">
-                Anchor Pitch
+                Anchor Pitch <span className="text-red-500 ml-1 font-semibold">*</span>
               </label>
               <div className="relative w-fit">
                 <input
@@ -199,7 +201,7 @@ export function EightRibTypeForm({
             <div className="absolute top-[62%] sm:top-[72%] xl:top-[73.5%] 2xl:top-[73.5%] -translate-y-1/2 left-[35px] sm:left-[32px] xl:left-[23px] 2xl:left-[23px] -translate-x-1/2 flex flex-col xl:flex-row gap-2 sm:gap-3 xl:gap-2">
               <div className="relative">
                 <label className="w-[100px] sm:w-full block text-xs md:text-sm text-gray-700 mb-1">
-                  Anchor Bolt Diameter
+                  Anchor Bolt Diameter <span className="text-red-500 ml-1 font-semibold">*</span>
                 </label>
                 <div className="relative w-fit">
                   <input
@@ -245,7 +247,7 @@ export function EightRibTypeForm({
             {/* Rib Angle (θ) — bottom right */}
             <div className="absolute top-[210px] sm:top-[64%] xl:top-[65%] 2xl:top-[65%] -translate-y-1/2 -right-[60px] sm:-right-[98px] xl:-right-[112px] -translate-x-1/2">
               <label className="block text-xs md:text-sm text-gray-700 mb-1">
-                Rib Angle (θ)
+                Rib Angle (θ) <span className="text-red-500 ml-1 font-semibold">*</span>
               </label>
               <div className="relative w-fit">
                 <input
@@ -304,7 +306,7 @@ export function EightRibTypeForm({
               {/* Baseplate Thickness */}
               <div className="absolute -bottom-6 sm:-bottom-1 xl:bottom-[4%] left-[3px] sm:-left-[66px] xl:-left-[76px]">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1">
-                  Baseplate Thickness
+                  Baseplate Thickness <span className="text-red-500 ml-1 font-semibold">*</span>
                 </label>
                 <div className="relative w-fit">
                   <input
@@ -327,7 +329,7 @@ export function EightRibTypeForm({
               {/* Rib Plate Height */}
               <div className="absolute top-[41.5%] sm:top-[39%] xl:top-[40%] left-[3px] sm:left-12 2xl:left-12">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1">
-                  Rib Plate Height
+                  Rib Plate Height <span className="text-red-500 ml-1 font-semibold">*</span>
                 </label>
                 <div className="relative w-fit">
                   <input
@@ -350,7 +352,7 @@ export function EightRibTypeForm({
               {/* Weld Leg Length */}
               <div className="absolute top-1 sm:-top-4 xl:-top-1 -right-[38px] sm:-right-[37px] xl:-right-[49px] 2xl:-right-[49px]">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1">
-                  Welding Length
+                  Welding Length <span className="text-red-500 ml-1 font-semibold">*</span>
                 </label>
                 <div className="relative w-fit">
                   <input
@@ -373,7 +375,7 @@ export function EightRibTypeForm({
               {/* Rib Plate Scallop */}
               <div className="absolute top-[70px] sm:top-[26%] xl:top-[31%] -right-[38px] sm:-right-[37px] xl:-right-[49px] 2xl:-right-[49px]">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1">
-                  Rib Plate Scallop
+                  Rib Plate Scallop <span className="text-red-500 ml-1 font-semibold">*</span>
                 </label>
                 <div className="relative w-fit">
                   <input
@@ -407,7 +409,7 @@ export function EightRibTypeForm({
               {/* Rib Plate Length */}
               <div className="absolute -top-[45px] sm:-top-[50px] -right-[35px] sm:-right-[46px] -translate-x-1/2">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1">
-                  Rib Plate Length
+                  Rib Plate Length <span className="text-red-500 ml-1 font-semibold">*</span>
                 </label>
                 <div className="relative w-fit">
                   <input
@@ -430,7 +432,7 @@ export function EightRibTypeForm({
               {/* Rib Plate Thickness */}
               <div className="absolute top-[10%] sm:top-[23%] xl:top-[16%] -right-[150px] sm:-right-[155px] xl:-right-[215px] -translate-x-1/2">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1">
-                  Rib Plate Thickness
+                  Rib Plate Thickness <span className="text-red-500 ml-1 font-semibold">*</span>
                 </label>
                 <div className="relative w-fit">
                   <input
@@ -469,58 +471,80 @@ export function EightRibTypeForm({
 
           {/* Grouped form actions on the right: Reset, Calculate, Next */}
           <div className="flex items-center gap-4 hp:gap-2">
-            {/* Reset button to clear all inputs */}
-            <button
-              onClick={() => setShowResetModal(true)}
-              title="Reset"
-              className="flex justify-center items-center gap-2 px-5 py-2.5 hp:px-3 hp:py-2 md:px-6
-                rounded-lg hp:rounded-md font-medium bg-white hover:bg-red-50 text-red-500 hover:text-red-600 text-xs sm:text-sm
-                border border-red-300 transition-colors"
-            >
-              <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-              <span className="hp:hidden">Reset</span>
-            </button>
+            {/* Reset button to clear all inputs (hidden in readOnly) */}
+            {!readOnly && (
+              <button
+                onClick={() => setShowResetModal(true)}
+                title="Reset"
+                className="flex justify-center items-center gap-2 px-5 py-2.5 hp:px-3 hp:py-2 md:px-6
+                  rounded-lg hp:rounded-md font-medium bg-white hover:bg-red-50 text-red-500 hover:text-red-600 text-xs sm:text-sm
+                  border border-red-300 transition-colors"
+              >
+                <RotateCcw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+                <span className="hp:hidden">Reset</span>
+              </button>
+            )}
 
             <div className="flex items-center gap-2 hp:gap-0">
-              {/* Button to trigger calculations — steps aside to the
-                  secondary style once calculated, so Next reads as the
-                  thing to do now. Stays fully clickable either way (e.g.
-                  to recalculate on purpose without editing anything). */}
-              <button
-                onClick={onCalculate}
-                className={`flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-4 hp:py-2 md:px-6
-                    rounded-lg hp:rounded-md font-medium text-sm transition-all
+              {/* Button to trigger calculations */}
+              {readOnly ? (
+                <button
+                  type="button"
+                  disabled
+                  title="Calculations are locked in Read-Only mode"
+                  className="flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-4 hp:py-2 md:px-6 rounded-lg hp:rounded-md font-medium text-sm bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed shadow-none"
+                >
+                  <Lock className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+                  <span className="hp:text-[11px] whitespace-nowrap">
+                    {isCalculated ? "Results Locked" : "Calculation Locked"}
+                  </span>
+                </button>
+              ) : (
+                <button
+                  onClick={onCalculate}
+                  className={`flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-4 hp:py-2 md:px-6
+                      rounded-lg hp:rounded-md font-medium text-sm transition-all
+                      ${
+                        isCalculated
+                          ? "bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm"
+                          : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
+                      }`}
+                >
+                  <Calculator className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+                  <span className="hp:text-[11px] whitespace-nowrap">
+                    Calculate Results
+                  </span>
+                </button>
+              )}
+
+              {/* Proceed to next step or report generation */}
+              {readOnly ? (
+                <button
+                  onClick={onNext}
+                  title={buttonLabel}
+                  className="flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-3 hp:py-2 md:px-6
+                    rounded-lg hp:rounded-md font-medium transition-all text-sm bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
+                >
+                  <span className="hp:hidden">{buttonLabel}</span>
+                  <ChevronRight className="w-4 md:w-5 h-4 md:h-5 hp:w-4 hp:h-4" />
+                </button>
+              ) : (
+                <button
+                  onClick={onNext}
+                  aria-disabled={!isCalculated}
+                  title={!isCalculated ? 'Click "Calculate Results" first' : buttonLabel}
+                  className={`flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-3 hp:py-2 md:px-6
+                    rounded-lg hp:rounded-md font-medium transition-all text-sm
                     ${
-                      isCalculated
-                        ? "bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm"
+                      !isCalculated
+                        ? "bg-gray-100 text-gray-400 ring-1 ring-inset ring-gray-200 cursor-not-allowed shadow-none"
                         : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
                     }`}
-              >
-                <Calculator className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-                <span className="hp:text-[11px] whitespace-nowrap">
-                  Calculate Results
-                </span>
-              </button>
-
-              {/* Proceed to next step or report generation — becomes the
-                  primary button once calculated (mirrors Calculate stepping
-                  aside above), regardless of whether this is a mid-flow
-                  "Next" or the final step's label. */}
-              <button
-                onClick={onNext}
-                aria-disabled={!isCalculated}
-                title={!isCalculated ? 'Click "Calculate Results" first' : buttonLabel}
-                className={`flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-3 hp:py-2 md:px-6
-                  rounded-lg hp:rounded-md font-medium transition-all text-sm
-                  ${
-                    !isCalculated
-                      ? "bg-gray-100 text-gray-400 ring-1 ring-inset ring-gray-200 cursor-not-allowed shadow-none"
-                      : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
-                  }`}
-              >
-                <span className="hp:hidden">{buttonLabel}</span>
-                <ChevronRight className="w-4 md:w-5 h-4 md:h-5 hp:w-4 hp:h-4" />
-              </button>
+                >
+                  <span className="hp:hidden">{buttonLabel}</span>
+                  <ChevronRight className="w-4 md:w-5 h-4 md:h-5 hp:w-4 hp:h-4" />
+                </button>
+              )}
             </div>
           </div>
         </div>

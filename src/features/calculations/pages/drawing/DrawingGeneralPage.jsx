@@ -4,7 +4,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import { HeaderCalculationPage } from "../../components/layout/HeaderCalculationPage";
 import { DrawingGeneralForm } from "../../components/forms/drawing/DrawingGeneralForm";
 import { ToastModal } from "../../components/modals/ToastModal";
-import { CustomPoleModal } from "../../components/modals/CustomPoleModal";
 import { ConfirmDisableModal } from "../../components/modals/ConfirmDisableModal";
 import { useDrawingGeneralForm } from "../../hooks/useDrawingGeneralForm";
 
@@ -13,7 +12,6 @@ import { requestPathForDraft } from "../../utils/requestCases";
 export default function DrawingGeneralPage() {
   const { type: projectType, draftId } = useParams();
   const navigate = useNavigate();
-  const [isCustomPoleModalOpen, setIsCustomPoleModalOpen] = useState(false);
 
   const {
     localGeneral,
@@ -33,10 +31,6 @@ export default function DrawingGeneralPage() {
   } = useDrawingGeneralForm();
 
   const onNextStep = async () => {
-    if (localGeneral.poleType === "Custom Pole") {
-      setIsCustomPoleModalOpen(true);
-      return;
-    }
     await handleNext();
   };
 
@@ -71,7 +65,6 @@ export default function DrawingGeneralPage() {
         </div>
 
         <ToastModal toast={toast} onClose={() => setToast(null)} />
-        <CustomPoleModal isOpen={isCustomPoleModalOpen} onClose={() => setIsCustomPoleModalOpen(false)} />
 
         {/* Confirmation modal — shown when user disables an active component or coupling */}
         <ConfirmDisableModal

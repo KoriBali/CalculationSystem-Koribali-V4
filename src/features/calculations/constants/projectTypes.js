@@ -7,18 +7,22 @@ export const PROJECT_TYPES = [
   {
     id: "lighting-project",
     title: "Lighting Project",
+    categoryName: "lighting",
   },
   {
     id: "signboard-project",
     title: "Signboard Project",
+    categoryName: "signboard",
   },
   {
     id: "disaster-prevention-project",
     title: "Disaster Prevention Project",
+    categoryName: "acemast",
   },
   {
     id: "multi-purpose-project",
     title: "Multi-purpose Project",
+    categoryName: "multiple",
   },
 ];
 

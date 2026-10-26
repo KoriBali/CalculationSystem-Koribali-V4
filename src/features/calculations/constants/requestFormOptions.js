@@ -48,6 +48,11 @@ export const SCHEDULE_FLEX_OPTIONS = [
   { value: "strict", label: "Strict", jp: "厳守" },
 ];
 
+export const FOUNDATION_TYPE_OPTIONS = [
+  { value: "square", label: "Square", jp: "四角" },
+  { value: "circle", label: "Round", jp: "丸" },
+];
+
 // No before Yes, as on the cover (☐無 ☐有[ ]): the competitor's name field
 // sits right after "Yes", the option it belongs to.
 export const COMPETITOR_OPTIONS = [

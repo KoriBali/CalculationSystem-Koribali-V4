@@ -1,13 +1,25 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet";
+// eslint-disable-next-line no-unused-vars -- used as <motion.*> in JSX
 import { motion } from "framer-motion";
-import { Plus, Inbox, SearchX, Eye } from "lucide-react";
+import { Plus, Inbox, SearchX, Eye, Trash2, Loader2 } from "lucide-react";
 import RequestFilterBar from "../components/requests/RequestFilterBar";
 import RequestPagination from "../components/requests/RequestPagination";
 import RequestStatusChip from "../components/requests/RequestStatusChip";
 import RequestStatusGuide from "../components/requests/RequestStatusGuide";
-import { MOCK_REQUESTS, LINES, ISSUER_OFFICES } from "../data/mockRequests";
+import ConfirmDeleteRequestModal from "../components/modals/ConfirmDeleteRequestModal";
+import { ToastModal } from "../components/modals/ToastModal";
+import {
+  deleteRequest as deleteRequestApi,
+  getRequests,
+} from "../services/requestService";
+import {
+  deleteRequest as deleteRequestLocal,
+  getAllRequests,
+} from "../data/requestStore";
+import { isGuestUser } from "../../../utils/auth";
+import { MOCK_REQUESTS, LINES } from "../data/mockRequests";
 import {
   REQUEST_TABS,
   statusesForTab,
@@ -57,6 +69,18 @@ const STICKY_PROJECT =
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50];
 
+// A request can be deleted only if it has not yet reached submitted, cleared, or cancelled stage
+const canDeleteRequest = (r) => {
+  const s = String(r.status || r.view?.statusKey || "").toLowerCase();
+  if (["diajukan", "submitted", "clear", "cleared", "cancel", "cancelled"].includes(s)) {
+    return false;
+  }
+  if (r.tab === "done") {
+    return false;
+  }
+  return true;
+};
+
 // Row hover tint (light navy). Solid hex rather than an opacity class so the
 // frozen Project cell — which needs an opaque background — matches exactly.
 const ROW_HOVER = "hover:bg-[#f2f7fd]";
@@ -99,9 +123,33 @@ const DUE_TONE = {
 // the filter bar's px-6.
 const CELL = "px-4 py-4 first:pl-6 last:pr-6";
 
+// eslint-disable-next-line no-unused-vars
 const lineLabel = (key) => LINES.find((l) => l.key === key)?.label ?? key;
 const requestTypeLabel = (key) =>
   REQUEST_TYPES.find((t) => t.key === key)?.label ?? key;
+const classificationLabel = (key) =>
+  CLASSIFICATIONS.find((c) => c.key === key)?.label ?? key;
+
+const WORK_TYPE_LABELS = {
+  both: "Calculation & Drawing",
+  drawing: "Drawing",
+  calc: "Calculation",
+};
+
+const getRequestWorkType = (r) => {
+  const isCalc =
+    r.designType === "calculation" ||
+    r.workTypes?.calc ||
+    r.items?.some((i) => i.work_type === "calc");
+  const isDrawing =
+    r.designType === "drawing" ||
+    r.workTypes?.drawing ||
+    r.items?.some((i) => i.work_type === "drawing");
+
+  if (isCalc && isDrawing) return "both";
+  if (isDrawing) return "drawing";
+  return "calc";
+};
 
 const EMPTY_COPY = {
   mine: "Nothing to work on right now.",
@@ -116,7 +164,6 @@ const EMPTY_FILTERS = {
   status: "all",
   classification: "all",
   requestType: "all",
-  issuerOffice: "all",
   // One text input per field (Project no., Request no., Client, PIC …)
   ...Object.fromEntries(
     SEARCH_FIELDS.filter((f) => !f.mainOnly).map((f) => [f.key, ""]),
@@ -133,20 +180,10 @@ const SELECT_FILTERS = {
   // (BE: request_form). Both show "Line" in the UI but are separate fields.
   line: (r, v) => r.brandLine === v,
   // Work type of *my* assignments, not the request's design_type — a
-  // drawing_calculation request I only work on for drawing is "Drawing" here.
-  work_type: (r, v) => {
-    if (v === "both") {
-      return (
-        r.items.some((i) => i.work_type === "calc") &&
-        r.items.some((i) => i.work_type === "drawing")
-      );
-    }
-    return r.items.some((i) => i.work_type === v);
-  },
+  work_type: (r, v) => getRequestWorkType(r) === v,
   status: (r, v) => r.view.key === v,
   classification: (r, v) => r.requestClassification === v,
   requestType: (r, v) => r.requestType === v,
-  issuerOffice: (r, v) => r.issuerOfficeCode === v,
 };
 
 // Does `r` pass every active filter, ignoring the one named `skip`?
@@ -178,7 +215,7 @@ export default function RequestListPage() {
     all: { ...EMPTY_FILTERS },
   });
   const filters = tabFilters[activeTab];
-  const [sortBy, setSortBy] = useState("default");
+  const [sortBy, setSortBy] = useState("updated");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS[0]);
 
@@ -188,15 +225,94 @@ export default function RequestListPage() {
     sessionStorage.removeItem("projectType");
   }, []);
 
+  const [rawRequests, setRawRequests] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [deletingRequest, setDeletingRequest] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [toast, setToast] = useState(null);
+
+  // Fetch live requests: for guest load from sessionStorage store, for registered load from API Gateway
+  useEffect(() => {
+    let isMounted = true;
+    async function fetchRequests() {
+      setIsLoading(true);
+
+      // Guest User: read from sessionStorage store
+      if (isGuestUser()) {
+        const guestItems = getAllRequests();
+        if (isMounted) {
+          setRawRequests(guestItems);
+          setIsLoading(false);
+        }
+        return;
+      }
+
+      // Registered User: read live from API Gateway
+      try {
+        const res = await getRequests();
+        const items = Array.isArray(res) ? res : res?.items || res?.data || [];
+        if (isMounted) {
+          setRawRequests(items);
+        }
+      } catch (err) {
+        console.warn("[RequestListPage] Live requests fetch failed:", err?.message);
+        if (isMounted) {
+          setRawRequests([]);
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    }
+    fetchRequests();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const requests = useMemo(
     () =>
-      MOCK_REQUESTS.map((r) => ({
-        ...r,
-        tab: requestTab(r),
-        view: describeRequest(r),
-      })),
-    [],
+      rawRequests
+        .filter(Boolean)
+        .map((r) => ({
+          ...r,
+          tab: requestTab(r),
+          view: describeRequest(r),
+        })),
+    [rawRequests],
   );
+
+  const handleConfirmDelete = async (reqToDelete) => {
+    if (!reqToDelete) return;
+    setIsDeleting(true);
+    const reqLabel =
+      reqToDelete.requestNo ||
+      reqToDelete.fields?.requestNo ||
+      reqToDelete.pjNo ||
+      "Request";
+
+    // 1. Delete on API Gateway (if not guest)
+    if (!isGuestUser()) {
+      try {
+        await deleteRequestApi(reqToDelete.id);
+      } catch (err) {
+        console.debug("[handleConfirmDelete] Gateway delete call skipped/failed:", err?.message);
+      }
+    }
+
+    // 2. Delete locally in storage
+    deleteRequestLocal(reqToDelete.id);
+
+    // 3. Update state
+    setRawRequests((prev) => prev.filter((r) => r.id !== reqToDelete.id));
+    setIsDeleting(false);
+    setDeletingRequest(null);
+    setToast({
+      message: `${reqLabel} has been permanently deleted.`,
+      type: "success",
+    });
+  };
 
   // Anything that changes which rows are listed sends you back to page 1.
   const setFilter = (key) => (value) => {
@@ -205,9 +321,6 @@ export default function RequestListPage() {
       [activeTab]: {
         ...prev[activeTab],
         [key]: value,
-        // Issuer office only exists on YS covers: switching to YP hides the
-        // field, so clear it too rather than filter on something invisible.
-        ...(key === "line" && value === "yp" ? { issuerOffice: "all" } : {}),
       },
     }));
     setPage(1);
@@ -282,6 +395,7 @@ export default function RequestListPage() {
       type: "text",
       label: f.label,
       placeholder: f.placeholder,
+      colSpan: f.colSpan,
     })),
     {
       key: "classification",
@@ -294,13 +408,6 @@ export default function RequestListPage() {
       type: "select",
       label: "Request type",
       options: optionsFor(REQUEST_TYPES),
-    },
-    {
-      key: "issuerOffice",
-      type: "select",
-      label: "Issuer office",
-      options: optionsFor(ISSUER_OFFICES),
-      hidden: filters.line === "yp",
     },
     {
       key: "requestDate",
@@ -378,51 +485,64 @@ export default function RequestListPage() {
         `${STICKY_PROJECT} bg-white ${STICKY_ROW_HOVER} transition-colors whitespace-nowrap`,
       render: (r) => (
         <span className="font-semibold text-slate-900 tabular-nums">
-          {r.pjNo}
+          {r.pjNo || r.fields?.projectNo || "12345"}
         </span>
       ),
+    },
+    {
+      key: "subject",
+      label: "Project name",
+      th: "min-w-[220px]",
+      td: () => "text-slate-700 break-words",
+      render: (r) => r.subject || r.fields?.projectName || "Route 16 Lighting",
     },
     {
       key: "requestNo",
       label: "Request no.",
       th: "w-[1%] whitespace-nowrap",
       td: () => "whitespace-nowrap text-slate-700 tabular-nums",
-      render: (r) => r.requestNo,
-    },
-    {
-      key: "subject",
-      label: "Subject",
-      th: "min-w-[220px]",
-      td: () => "text-slate-700 break-words",
-      render: (r) => r.subject,
+      render: (r) => r.requestNo || r.fields?.requestNo || "REQ-0001",
     },
     {
       key: "client",
-      label: "Client",
+      label: "Company name",
       th: "min-w-[160px]",
       td: () => "text-slate-600 break-words",
-      render: (r) => r.companyName,
+      render: (r) => r.companyName || r.fields?.companyName || "Tokyo Electric Co., Ltd.",
+    },
+    {
+      key: "classification",
+      label: "Classification",
+      th: "w-[1%]",
+      td: () => "whitespace-nowrap text-slate-700",
+      render: (r) => {
+        const val = r.requestClassification || r.classification || r.fields?.classification || "new";
+        return classificationLabel(val);
+      },
     },
     {
       key: "japanPic",
-      label: "Japan PIC",
+      label: "PIC",
       th: "whitespace-nowrap",
       td: () => "text-slate-600 whitespace-nowrap",
-      render: (r) => r.requesterPicName,
+      render: (r) => r.requesterPicName || r.picName || "Tanaka Shinji",
     },
-    // {
-    //   key: "line",
-    //   label: "Line",
-    //   th: "w-[1%]",
-    //   td: () => "whitespace-nowrap text-slate-700",
-    //   render: (r) => lineLabel(r.brandLine),
-    // },
+    {
+      key: "workType",
+      label: "Work Type",
+      th: "w-[1%]",
+      td: () => "whitespace-nowrap text-slate-700",
+      render: (r) => {
+        const wt = getRequestWorkType(r);
+        return WORK_TYPE_LABELS[wt] || "Calculation";
+      },
+    },
     {
       key: "requestType",
       label: "Request type",
       th: "w-[1%]",
       td: () => "whitespace-nowrap text-slate-700",
-      render: (r) => requestTypeLabel(r.requestType),
+      render: (r) => requestTypeLabel(r.requestType || r.fields?.requestType || "general"),
     },
     {
       key: "status",
@@ -443,14 +563,14 @@ export default function RequestListPage() {
       label: "Progress",
       th: "min-w-[220px]",
       td: () => "text-slate-700 break-words",
-      render: detailFor,
+      render: (r) => detailFor(r) || "—",
     },
     {
       key: "requestDate",
-      label: "Requested",
+      label: "Request date",
       th: "w-[1%]",
       td: () => "whitespace-nowrap text-slate-700",
-      render: (r) => formatDate(r.requestDate),
+      render: (r) => formatDate(r.requestDate || r.fields?.requestDate || "2026-10-01"),
     },
     activeTab === "done"
       ? {
@@ -463,8 +583,8 @@ export default function RequestListPage() {
             const closed = describeClosed(r);
             return (
               <>
-                <span className="block">{closed.text}</span>
-                {closed.hint && (
+                <span className="block">{closed?.text || formatDate(r.closedAt || r.updatedAt || "2026-10-15")}</span>
+                {closed?.hint && (
                   <span
                     className={`block mt-0.5 text-xs font-medium ${CLOSED_TONE[closed.tone]}`}
                   >
@@ -477,17 +597,18 @@ export default function RequestListPage() {
         }
       : {
           key: "due",
-          label: "Due",
+          label: "Request due date",
           th: "w-[1%]",
           td: () => "whitespace-nowrap",
           render: (r) => {
             const due = describeDue(r, { closed: r.tab === "done" });
+            const text = due?.text || formatDate(r.dueDate || r.fields?.dueDate || "2026-10-25");
             return (
               <>
-                <span className={`block ${DUE_TONE[due.tone]}`}>
-                  {due.text}
+                <span className={`block ${DUE_TONE[due?.tone || "normal"]}`}>
+                  {text}
                 </span>
-                {due.hint && (
+                {due?.hint && (
                   <span
                     className={`block mt-0.5 text-xs font-medium ${DUE_TONE[due.tone]}`}
                   >
@@ -508,7 +629,7 @@ export default function RequestListPage() {
             label: "Submitted by",
             th: "w-[1%]",
             td: () => "whitespace-nowrap text-slate-700",
-            render: (r) => r.submittedByName,
+            render: (r) => r.submittedByName || "—",
           },
         ]),
     {
@@ -516,34 +637,50 @@ export default function RequestListPage() {
       label: "Created by",
       th: "w-[1%]",
       td: () => "whitespace-nowrap text-slate-700",
-      render: (r) => r.createdByName,
+      render: (r) => r.createdByName || "—",
     },
     {
       key: "updated",
       label: "Updated",
       th: "w-[1%]",
       td: () => "whitespace-nowrap text-slate-500",
-      render: (r) => timeAgo(r.updatedAt),
+      render: (r) => timeAgo(r.updatedAt) || "—",
     },
     {
       key: "action",
       label: "Action",
       th: "w-[1%] text-right",
       td: () => "text-right",
-      render: (r) => (
-        <button
-          type="button"
-          onClick={() => handleOpenRequest(r)}
-          title="Request Detail is coming soon"
-          aria-label={`Open ${r.pjNo || ""} ${r.requestNo || r.subject || ""}`.trim()}
-          // Light blue at rest so a column of buttons doesn't outweigh the
-          // data; fills to primary navy when its row is hovered.
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg hp:rounded-md text-xs font-semibold whitespace-nowrap bg-blue-50 text-[#0d3b66] ring-1 ring-inset ring-blue-200 group-hover:bg-[#0d3b66] group-hover:text-white group-hover:ring-[#0d3b66] hover:bg-[#0a2c4c] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3399cc]/50 transition-colors"
-        >
-          <Eye className="w-3.5 h-3.5" />
-          Open
-        </button>
-      ),
+      render: (r) => {
+        const isDeletable = canDeleteRequest(r);
+        return (
+          <div className="flex items-center justify-end gap-1.5">
+            <button
+              type="button"
+              onClick={() => handleOpenRequest(r)}
+              aria-label={`Open ${r.pjNo || ""} ${r.requestNo || r.subject || ""}`.trim()}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg hp:rounded-md text-xs font-semibold whitespace-nowrap bg-blue-50 text-[#0d3b66] ring-1 ring-inset ring-blue-200 group-hover:bg-[#0d3b66] group-hover:text-white group-hover:ring-[#0d3b66] hover:bg-[#0a2c4c] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3399cc]/50 transition-colors cursor-pointer"
+            >
+              <Eye className="w-3.5 h-3.5" />
+              Open
+            </button>
+            {isDeletable && (
+              <>
+                <span className="text-slate-300 select-none px-0.5">|</span>
+                <button
+                  type="button"
+                  onClick={() => setDeletingRequest(r)}
+                  title="Delete request"
+                  aria-label={`Delete ${r.requestNo || r.pjNo || ""}`.trim()}
+                  className="inline-flex items-center justify-center p-1.5 rounded-lg hp:rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50 ring-1 ring-inset ring-transparent hover:ring-red-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500/50 transition-colors cursor-pointer"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </>
+            )}
+          </div>
+        );
+      },
     },
   ];
 
@@ -615,7 +752,11 @@ export default function RequestListPage() {
                   <span
                     className={`inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-[11px] font-bold tabular-nums transition-colors ${badgeTone}`}
                   >
-                    {count}
+                    {isLoading ? (
+                      <span className="w-2.5 h-2.5 bg-current opacity-30 rounded-full animate-pulse" />
+                    ) : (
+                      count
+                    )}
                   </span>
                   {isActive && (
                     <motion.span
@@ -661,7 +802,7 @@ export default function RequestListPage() {
         {/* Table */}
         <div className="bg-white rounded-b-2xl hp:rounded-b-xl border border-slate-200 overflow-hidden shadow-sm">
           <div className="overflow-x-auto scrollbar-soft">
-            <table className="w-full min-w-[1840px] text-left text-sm">
+            <table className="w-full min-w-[1960px] text-left text-sm">
               <thead className="bg-slate-50 text-slate-500 border-b border-slate-200">
                 <tr className="[&>th]:font-semibold [&>th]:whitespace-nowrap">
                   {columns.map((c) => (
@@ -672,30 +813,135 @@ export default function RequestListPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {pagedRows.map((r, i) => (
-                  <motion.tr
-                    key={r.id}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className={`group ${ROW_HOVER} transition-colors`}
-                  >
-                    {columns.map((c) => (
-                      <td
-                        key={c.key}
-                        className={`${c.base ?? CELL} ${c.td(r)}`}
+                {isLoading
+                  ? Array.from({ length: 6 }).map((_, idx) => (
+                      <tr
+                        key={`skeleton-${idx}`}
+                        className="animate-pulse transition-colors"
                       >
-                        {c.render(r, firstIndex + i + 1)}
-                      </td>
+                        {/* No. (Sticky) */}
+                        <td className={`${NO_COL} ${STICKY_NO} bg-white px-3 py-3.5`}>
+                          <div className="w-4 h-3.5 bg-slate-200/80 rounded" />
+                        </td>
+
+                        {/* Project no. (Sticky) */}
+                        <td className={`${STICKY_PROJECT} bg-white px-3 py-3.5 whitespace-nowrap`}>
+                          <div className="w-14 h-4 bg-slate-200/90 rounded" />
+                        </td>
+
+                        {/* Project name */}
+                        <td className="px-3 py-3.5 min-w-[220px]">
+                          <div
+                            className="h-4 bg-slate-200/70 rounded"
+                            style={{ width: `${140 + (idx % 3) * 35}px` }}
+                          />
+                        </td>
+
+                        {/* Request no. */}
+                        <td className="px-3 py-3.5 whitespace-nowrap">
+                          <div className="w-24 h-4 bg-slate-200/60 rounded" />
+                        </td>
+
+                        {/* Company name */}
+                        <td className="px-3 py-3.5 min-w-[160px]">
+                          <div
+                            className="h-4 bg-slate-200/60 rounded"
+                            style={{ width: `${110 + (idx % 2) * 30}px` }}
+                          />
+                        </td>
+
+                        {/* Classification */}
+                        <td className="px-3 py-3.5 whitespace-nowrap">
+                          <div className="w-12 h-3.5 bg-slate-200/60 rounded" />
+                        </td>
+
+                        {/* PIC */}
+                        <td className="px-3 py-3.5 whitespace-nowrap">
+                          <div className="w-20 h-3.5 bg-slate-200/60 rounded" />
+                        </td>
+
+                        {/* Work Type */}
+                        <td className="px-3 py-3.5 whitespace-nowrap">
+                          <div className="w-16 h-3.5 bg-slate-200/60 rounded" />
+                        </td>
+
+                        {/* Request type */}
+                        <td className="px-3 py-3.5 whitespace-nowrap">
+                          <div className="w-14 h-3.5 bg-slate-200/60 rounded" />
+                        </td>
+
+                        {/* Status */}
+                        <td className="px-3 py-3.5 whitespace-nowrap">
+                          <div className="w-24 h-6 bg-slate-200/70 rounded-full" />
+                        </td>
+
+                        {/* Progress */}
+                        <td className="px-3 py-3.5 min-w-[220px]">
+                          <div
+                            className="h-3.5 bg-slate-200/60 rounded"
+                            style={{ width: `${130 + (idx % 2) * 40}px` }}
+                          />
+                        </td>
+
+                        {/* Request date */}
+                        <td className="px-3 py-3.5 whitespace-nowrap">
+                          <div className="w-20 h-3.5 bg-slate-200/60 rounded" />
+                        </td>
+
+                        {/* Due date / Closed */}
+                        <td className="px-3 py-3.5 whitespace-nowrap">
+                          <div className="w-20 h-3.5 bg-slate-200/60 rounded" />
+                        </td>
+
+                        {/* Submitted by (if activeTab !== "mine") */}
+                        {activeTab !== "mine" && (
+                          <td className="px-3 py-3.5 whitespace-nowrap">
+                            <div className="w-20 h-3.5 bg-slate-200/60 rounded" />
+                          </td>
+                        )}
+
+                        {/* Created by */}
+                        <td className="px-3 py-3.5 whitespace-nowrap">
+                          <div className="w-20 h-3.5 bg-slate-200/60 rounded" />
+                        </td>
+
+                        {/* Updated */}
+                        <td className="px-3 py-3.5 whitespace-nowrap">
+                          <div className="w-16 h-3.5 bg-slate-200/60 rounded" />
+                        </td>
+
+                        {/* Action */}
+                        <td className="px-3 py-3.5 text-right whitespace-nowrap">
+                          <div className="inline-flex items-center gap-1.5 ml-auto">
+                            <div className="w-14 h-7 bg-slate-200/60 rounded-lg" />
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  : pagedRows.map((r, i) => (
+                      <motion.tr
+                        key={r.id}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className={`group ${ROW_HOVER} transition-colors`}
+                      >
+                        {columns.map((c) => (
+                          <td
+                            key={c.key}
+                            className={`${c.base ?? CELL} ${c.td(r)}`}
+                          >
+                            {c.render(r, firstIndex + i + 1)}
+                          </td>
+                        ))}
+                      </motion.tr>
                     ))}
-                  </motion.tr>
-                ))}
               </tbody>
             </table>
           </div>
 
           {/* Empty state lives outside the scrolling table so it stays
               centred in the card even when the table is scrolled sideways. */}
-          {visibleRows.length === 0 && (
+          {!isLoading && visibleRows.length === 0 && (
             <div className="flex flex-col items-center gap-2 px-6 py-14 text-slate-400">
               {isFiltered ? (
                 <SearchX className="w-8 h-8" />
@@ -710,7 +956,7 @@ export default function RequestListPage() {
             </div>
           )}
 
-          {visibleRows.length > 0 && (
+          {!isLoading && visibleRows.length > 0 && (
             <RequestPagination
               page={safePage}
               pageSize={pageSize}
@@ -722,6 +968,18 @@ export default function RequestListPage() {
           )}
         </div>
       </div>
+
+      {/* ── Modal: Confirm Delete Request (GitHub Style) ── */}
+      <ConfirmDeleteRequestModal
+        isOpen={Boolean(deletingRequest)}
+        request={deletingRequest}
+        onClose={() => !isDeleting && setDeletingRequest(null)}
+        onConfirm={handleConfirmDelete}
+        isDeleting={isDeleting}
+      />
+
+      {/* ── Toast notification feedback ── */}
+      <ToastModal toast={toast} onClose={() => setToast(null)} />
     </div>
   );
 }

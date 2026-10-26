@@ -146,18 +146,24 @@ export function getStandardPoleSchematicParameters({
     !condition.baseplateEnabled && taperPoleStandard.groundPosition === "underGL";
 
   const rawHeight = Number(taperPoleStandard.height);
-  const normalizedHeight = !isNaN(rawHeight) && rawHeight > 0
-    ? String(Math.round(rawHeight * 10) / 10)
+  const mHeight = rawHeight > 100 ? rawHeight / 1000 : rawHeight;
+  const normalizedHeight = !isNaN(mHeight) && mHeight > 0
+    ? String(Math.round(mHeight * 10) / 10)
     : String(taperPoleStandard.height || "");
 
   const heightKey = isEmbedment
-    ? (rawHeight + 0.3).toFixed(1)
+    ? (mHeight + 0.3).toFixed(1)
     : normalizedHeight;
 
   const dataTaper = STANDARD_POLE_DATA?.tapered || STANDARD_POLE_DATA?.taper || {};
   const groundGroup = dataTaper?.[type]?.[taperPoleStandard.groundPosition || "onGL"] || {};
+  const isTypeWith100 = type !== "IS" && type !== "IA";
+  const nominalKey = isTypeWith100
+    ? String(Math.round((Number(heightKey) - 0.1) * 10) / 10)
+    : String(Math.round((Number(heightKey) + 0.1) * 10) / 10);
   const selectedPole =
     groundGroup[heightKey] ||
+    groundGroup[nominalKey] ||
     groundGroup[String(rawHeight)] ||
     Object.values(groundGroup)[0];
 

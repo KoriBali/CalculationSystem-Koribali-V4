@@ -14,6 +14,7 @@ import {
   Sparkles,
   Loader2,
   RotateCcw,
+  AlertTriangle,
 } from "lucide-react";
 
 import { PROJECT_TYPES } from "../constants/projectTypes";
@@ -31,6 +32,7 @@ import {
   DELIVER_TYPE_OPTIONS,
   DESIGN_ORIGIN_OPTIONS,
   DRAFTING_OPTIONS,
+  FOUNDATION_TYPE_OPTIONS,
   PAPER_FRAME_OPTIONS,
   PAPER_SIZE_OPTIONS,
   PLATING_OPTIONS,
@@ -68,6 +70,7 @@ import {
   DISABLED_INPUT,
   inputStyle,
 } from "../components/requests/form/formStyles";
+import { getUser, isGuestUser } from "../../../utils/auth";
 import {
   Label,
   NotFoundHint,
@@ -85,11 +88,25 @@ import { RequestHistoryPanel } from "../components/requests/form/RequestHistoryP
 import { RequestNoteSection } from "../components/requests/form/RequestNoteSection";
 import { useLeaveNewRequest } from "../hooks/useLeaveNewRequest";
 import {
-  createRequest,
-  updateRequest,
+  createRequest as createRequestLocal,
+  updateRequest as updateRequestLocal,
   getRequest,
+  getAllRequests,
   fileRecord,
 } from "../data/requestStore";
+import {
+  createRequest as createRequestApi,
+  updateFullRequest,
+  getRequestById,
+  checkRequestNo,
+} from "../services/requestService";
+import {
+  buildRequestPayload,
+  buildRequestUpdatePayload,
+  formatApiErrorMessage,
+  isUuid,
+} from "../utils/requestPayloadMapper";
+import { ToastModal } from "../components/modals/ToastModal";
 import { REQUEST_HEADLINE, requestNoOf } from "../constants/requestSummary";
 import {
   clearNewRequestDraft,
@@ -121,8 +138,41 @@ export default function NewRequestFormPage() {
   }, [requestId]);
 
   const isEditMode = Boolean(requestId && existingRequest);
-  const projectType = paramType || existingRequest?.projectType || "lighting-project";
-  const project = PROJECT_TYPES.find((p) => p.id === projectType) || PROJECT_TYPES[0];
+
+  // Guard: only project creator or department admin can edit the project
+  useEffect(() => {
+    if (isEditMode && existingRequest) {
+      const currentUser = getUser() || {};
+      const currentUserName = currentUser.name || currentUser.username || "";
+      const userRole = (currentUser.role || "").toLowerCase();
+      const isAdminDepartment =
+        userRole === "admin" ||
+        userRole === "superadmin" ||
+        userRole === "admin_department" ||
+        userRole === "admin_departement";
+      const creatorName =
+        (existingRequest.members || []).find((m) => m.isCreator)?.name ||
+        existingRequest.createdBy ||
+        existingRequest.createdByName ||
+        existingRequest.fields?.createdBy ||
+        "";
+      const isCreator =
+        Boolean(creatorName) &&
+        Boolean(currentUserName) &&
+        (creatorName.toLowerCase() === currentUserName.toLowerCase() ||
+          creatorName.toLowerCase() ===
+            (currentUser.username || "").toLowerCase());
+
+      if (!isCreator && !isAdminDepartment) {
+        navigate(`/projects/detail/${existingRequest.id}`, { replace: true });
+      }
+    }
+  }, [isEditMode, existingRequest, navigate]);
+
+  const projectType =
+    paramType || existingRequest?.projectType || "lighting-project";
+  const project =
+    PROJECT_TYPES.find((p) => p.id === projectType) || PROJECT_TYPES[0];
   // Same Standard list as the Condition form, per project type.
   const standardOptions = designStandardOptions[projectType] || [];
 
@@ -160,26 +210,20 @@ export default function NewRequestFormPage() {
     }
 
     const defaultStandard = standardOptions[0]?.value || "jil";
-    const defaultExtract = {
-      ...MOCK_COVER_EXTRACT,
-      deliveryQty: "1",
-      standard: defaultStandard,
-      windSpeed: "60",
-      coatingType: "",
-    };
-    const { discipline: defaultDiscipline, ...defaultFields } = defaultExtract;
 
-    const saved = loadNewRequestDraft(projectType);
+    // ── GUEST USER ONLY: Auto-fill with mock data for instant preview/testing ──
+    if (isGuestUser()) {
+      const defaultExtract = {
+        ...MOCK_COVER_EXTRACT,
+        discipline: "calc",
+        deliveryQty: "1",
+        standard: defaultStandard,
+        windSpeed: "60",
+        coatingType: "",
+      };
+      const { discipline: defaultDiscipline, ...defaultFields } =
+        defaultExtract;
 
-    // If draft is fresh, not populated, or has old project data, initialize with default auto-filled data
-    if (
-      !saved ||
-      !saved.coverType ||
-      saved.coverType === "yp" ||
-      !saved.ys?.projectName ||
-      saved.ys?.projectName !== "宮下児童遊園" ||
-      saved.ys?.windSpeed !== "60"
-    ) {
       return {
         coverType: "ys",
         coverFile: null,
@@ -193,19 +237,41 @@ export default function NewRequestFormPage() {
         requestNotes: { yp: "", ys: "" },
         autoFillStatus: "done",
         extracted: defaultExtract,
-        workTypes: workTypesFrom(defaultDiscipline || "both"),
+        workTypes: workTypesFrom(defaultDiscipline || "calc"),
         showDesignRef: true,
         docNoTouched: true,
       };
     }
 
+    // ── REGISTERED USER (NON-GUEST): Clean/empty initial form, manual data entry ──
+    const saved = loadNewRequestDraft(projectType);
+
+    // If draft exists AND was not populated by the guest mock data, restore it
+    if (
+      saved &&
+      saved.coverType &&
+      saved.ys?.projectName &&
+      saved.ys?.projectName !== "宮下児童遊園"
+    ) {
+      return saved;
+    }
+
+    // Fresh, empty form for registered user
     return {
-      ...saved,
       coverType: "ys",
+      coverFile: null,
+      lostCover: null,
       ys: {
-        ...saved.ys,
-        windSpeed: "60",
+        ...YS_EMPTY,
+        standard: "",
       },
+      yp: YP_EMPTY,
+      requestNotes: { yp: "", ys: "" },
+      autoFillStatus: "idle",
+      extracted: null,
+      workTypes: NO_WORK_TYPES,
+      showDesignRef: true,
+      docNoTouched: false,
     };
   });
   // Auto-select YS cover type
@@ -235,6 +301,7 @@ export default function NewRequestFormPage() {
   const [extracted, setExtracted] = useState(initial.extracted);
   // "overwrite" | "replace" | "remove" while a confirm dialog is open.
   const [coverConfirm, setCoverConfirm] = useState(null);
+  const [showSaveConfirmModal, setShowSaveConfirmModal] = useState(false);
   const extractTimer = useRef(null);
 
   useEffect(() => () => clearTimeout(extractTimer.current), []);
@@ -248,6 +315,9 @@ export default function NewRequestFormPage() {
   // Bumped on Reset to remount the form body, which also clears the inputs
   // that aren't held in state yet (most YP fields).
   const [formKey, setFormKey] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
+  const [toast, setToast] = useState(null);
 
   // YS fields (and the cover) are only hidden on YP, not cleared, so
   // switching back doesn't throw away the user's work.
@@ -258,10 +328,94 @@ export default function NewRequestFormPage() {
   const selectCoverType = (id) => {
     setCoverType(id);
     setShowRequiredErrors(false);
+    setDuplicateWarning(null);
   };
 
-  const setYsField = (key) => (value) =>
+  const [duplicateWarning, setDuplicateWarning] = useState(null);
+  const [isCheckingDuplicate, setIsCheckingDuplicate] = useState(false);
+
+  const checkDuplicateRequestNo = async (val) => {
+    const trimmed = String(val || "").trim();
+    if (!trimmed) {
+      setDuplicateWarning(null);
+      return false;
+    }
+
+    // 1. Check local store (all existing requests in tab/session)
+    const localAll = getAllRequests();
+    const isLocalDuplicate = localAll.some((r) => {
+      if (isEditMode && r.id === requestId) return false;
+      const rNo = (
+        r.requestNo ||
+        r.fields?.requestNo ||
+        r.fields?.documentNo ||
+        ""
+      ).trim();
+      return rNo.toLowerCase() === trimmed.toLowerCase();
+    });
+
+    if (isLocalDuplicate) {
+      const msg = `Request No. "${trimmed}" is already registered in the system.`;
+      setDuplicateWarning(msg);
+      return true;
+    }
+
+    // 2. Check backend gateway API if user is authenticated (not guest)
+    if (!isGuestUser()) {
+      try {
+        setIsCheckingDuplicate(true);
+        const result = await checkRequestNo({
+          requestNo: trimmed,
+          brandMark: coverType || "ys",
+          excludeRequestId: isEditMode ? requestId : undefined,
+        });
+
+        const isBackendDuplicate =
+          result?.exists === true ||
+          result?.isDuplicate === true ||
+          result?.is_duplicate === true ||
+          result?.duplicate === true ||
+          result?.found === true ||
+          (Array.isArray(result?.warnings) &&
+            result.warnings.some((w) =>
+              /already exists|duplicate|sudah ada/i.test(w),
+            )) ||
+          (typeof result?.warning === "string" &&
+            /already exists|duplicate|sudah ada/i.test(result.warning));
+
+        if (isBackendDuplicate) {
+          const msg =
+            result?.warning ||
+            result?.message ||
+            `Request No. "${trimmed}" is already registered in the system.`;
+          setDuplicateWarning(msg);
+          return true;
+        }
+      } catch (err) {
+        if (err?.response?.status === 409 || err?.response?.status === 400) {
+          const msg = `Request No. "${trimmed}" is already registered in the system.`;
+          setDuplicateWarning(msg);
+          return true;
+        }
+      } finally {
+        setIsCheckingDuplicate(false);
+      }
+    }
+
+    setDuplicateWarning(null);
+    return false;
+  };
+
+  const handleRequestNoBlur = (e) => {
+    checkDuplicateRequestNo(e?.target?.value);
+  };
+
+  const setYsField = (key) => (value) => {
+    if (key === "requestNo" && duplicateWarning) {
+      setDuplicateWarning(null);
+    }
     setYs((prev) => ({ ...prev, [key]: value }));
+  };
   const fieldValue = (key) =>
     key === "discipline" ? disciplineValue(workTypes) : ys[key];
   const isAutoFilled = (key) =>
@@ -374,8 +528,12 @@ export default function NewRequestFormPage() {
     ),
   });
 
-  const setYpField = (key) => (value) =>
+  const setYpField = (key) => (value) => {
+    if (key === "documentNo" && duplicateWarning) {
+      setDuplicateWarning(null);
+    }
     setYp((prev) => ({ ...prev, [key]: value }));
+  };
   const ypInput = (key) => ({
     value: yp[key],
     onChange: (e) => setYpField(key)(e.target.value),
@@ -511,14 +669,14 @@ export default function NewRequestFormPage() {
       // so a default like "New" can't pass for a value read from the cover.
       const extract = {
         ...MOCK_COVER_EXTRACT,
-        standard: standardOptions[0]?.value ?? null,
+        standard: standardOptions[0]?.value || "jil",
       };
       const { discipline, ...fields } = extract;
       const filled = Object.fromEntries(
         Object.entries(fields).map(([k, v]) => [k, v ?? ""]),
       );
       setYs({ ...YS_EMPTY, ...filled });
-      setWorkTypes(workTypesFrom(discipline ?? ""));
+      setWorkTypes(workTypesFrom(discipline || "calc"));
       setExtracted(extract);
       setAutoFillStatus("done");
       // Open Cover Design Conditions so the values just filled in there can
@@ -636,25 +794,70 @@ export default function NewRequestFormPage() {
     </div>
   );
 
-  const [showSaveConfirmModal, setShowSaveConfirmModal] = useState(false);
-
   // Confirm save edit
-  const handleConfirmSaveEdit = () => {
+  const handleConfirmSaveEdit = async () => {
     if (!requestId) return;
-    updateRequest(requestId, (r) => ({
-      ...r,
-      coverType,
-      fields: { yp, ys }[coverType],
-      workTypes,
-      note: requestNotes[coverType],
-    }));
-    setShowSaveConfirmModal(false);
-    navigate(`/projects/detail/${requestId}`);
+    const activeFields = { yp, ys }[coverType];
+    const userNote = requestNotes[coverType] || "";
+
+    // ── GUEST USER OR NON-UUID (MOCK): update session storage store only ──
+    if (isGuestUser() || !isUuid(requestId)) {
+      updateRequestLocal(requestId, (r) => ({
+        ...r,
+        coverType,
+        fields: activeFields,
+        workTypes,
+        note: userNote,
+      }));
+      setShowSaveConfirmModal(false);
+      navigate(`/projects/detail/${requestId}`);
+      return;
+    }
+
+    // ── REGISTERED USER: Call Backend API Gateway to update ──
+    setIsSavingEdit(true);
+    try {
+      const updateData = buildRequestUpdatePayload({
+        projectType,
+        coverType,
+        fields: activeFields,
+        workTypes,
+        notes: userNote || null,
+        currentUser: getUser(),
+      });
+
+      await updateFullRequest(requestId, updateData);
+
+      // Also update local store with latest edited fields so Detail page reflects it immediately
+      updateRequestLocal(requestId, (r) => ({
+        ...r,
+        coverType,
+        fields: activeFields,
+        workTypes,
+        note: userNote,
+        requestNo: updateData.requestUpdate.requestNo,
+        pjNo: updateData.requestUpdate.pjNo,
+        subject: updateData.requestUpdate.subject,
+      }));
+
+      setShowSaveConfirmModal(false);
+      navigate(`/projects/detail/${requestId}`);
+    } catch (err) {
+      console.error("[handleConfirmSaveEdit] Backend update failed:", err);
+      const errMsg = formatApiErrorMessage(err);
+      setToast({
+        title: "Failed to Save Changes",
+        message: errMsg || "Failed to save changes. Please try again.",
+        type: "error",
+      });
+    } finally {
+      setIsSavingEdit(false);
+    }
   };
 
   // Save: if a required field is empty, mark them all and bring the first
   // one into view (focused when it's a text field); otherwise go on.
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!coverType) return;
     if (missingRequiredKeys.length > 0) {
       setShowRequiredErrors(true);
@@ -671,30 +874,132 @@ export default function NewRequestFormPage() {
       return;
     }
 
-    // On to the new request's page (summary, assignment, cases, files).
-    // The cover PDF goes with it, into Brief & References.
     const activeFields = { yp, ys }[coverType];
-    const request = createRequest({
-      projectType,
-      coverType,
-      fields: activeFields,
-      workTypes,
-      note: requestNotes[coverType],
-      members: [creatorMember()],
-      designConditions: {
-        standard: "",
-        airDensity: "",
-        windSpeed: "",
-        isSaved: false,
-      },
-      files:
-        isYs && coverFile
-          ? { brief: [fileRecord(coverFile, creatorMember().name)] }
-          : {},
-      createdBy: creatorMember().name,
-    });
-    clearNewRequestDraft();
-    navigate(`/projects/detail/${request.id}`);
+    const userNote = requestNotes[coverType] || "";
+
+    const targetNo = isYs ? ys.requestNo : yp.documentNo;
+    const isDup = await checkDuplicateRequestNo(targetNo);
+    if (isDup) {
+      setToast({
+        title: "Request Number Already Exists",
+        message: `Project / Request with number "${targetNo}" is already registered in the system. Please change or adjust the Request No. before saving.`,
+        type: "error",
+      });
+      return;
+    }
+
+    // ── GUEST USER: Store strictly in sessionStorage (mock store) ──
+    if (isGuestUser()) {
+      const request = createRequestLocal({
+        projectType,
+        coverType,
+        fields: activeFields,
+        workTypes,
+        note: userNote,
+        members: [creatorMember()],
+        isNewProject: true,
+        designConditions: {
+          standard: activeFields?.standard || "",
+          airDensity: activeFields?.airDensity || "1.23",
+          windSpeed: activeFields?.windSpeed || "60",
+          isSaved: false,
+        },
+        drawingConditions: {
+          drawingType: activeFields?.drawingType || "",
+          region: "",
+          isSaved: false,
+        },
+        files:
+          isYs && coverFile
+            ? { brief: [fileRecord(coverFile, creatorMember().name)] }
+            : {},
+        createdBy: creatorMember().name,
+      });
+      clearNewRequestDraft();
+      navigate(`/projects/detail/${request.id}`);
+      return;
+    }
+
+    // ── REGISTERED USER: Submit directly to Backend API Gateway (POST /api/requests) ──
+    setIsSubmitting(true);
+    setToast(null);
+    try {
+      const currentUser = getUser();
+      const payload = buildRequestPayload({
+        projectType,
+        coverType,
+        fields: activeFields,
+        workTypes,
+        notes: userNote || null, // never Indonesian
+        currentUser,
+      });
+
+      const response = await createRequestApi(payload);
+      const createdId =
+        response?.id || response?.request?.id || `req_${Date.now()}`;
+      const createdRequestNo = response?.requestNo || payload.requestNo;
+
+      // Save to local store with server ID so the Detail page reads it immediately
+      createRequestLocal({
+        ...response,
+        id: createdId,
+        projectType,
+        coverType,
+        requestNo: createdRequestNo,
+        pjNo: payload.pjNo,
+        subject: payload.subject,
+        fields: activeFields,
+        workTypes,
+        note: userNote,
+        members: [creatorMember()],
+        isNewProject: true,
+        designConditions: {
+          standard: activeFields?.standard || "",
+          airDensity: activeFields?.airDensity || "1.23",
+          windSpeed: activeFields?.windSpeed || "60",
+          isSaved: false,
+        },
+        drawingConditions: {
+          drawingType: activeFields?.drawingType || "",
+          region: "",
+          isSaved: false,
+        },
+        files:
+          isYs && coverFile
+            ? { brief: [fileRecord(coverFile, creatorMember().name)] }
+            : {},
+        createdBy: creatorMember().name,
+      });
+
+      clearNewRequestDraft();
+      navigate(`/projects/detail/${createdId}`);
+    } catch (err) {
+      console.error("[handleSubmit] Gateway save failed:", err);
+      const errMsg = formatApiErrorMessage(err);
+      const isDuplicate =
+        err?.response?.status === 409 ||
+        (err?.response?.status === 400 &&
+          /already exists|duplicate|unique/i.test(errMsg)) ||
+        /already exists|duplicate|unique/i.test(errMsg);
+
+      if (isDuplicate) {
+        setDuplicateWarning(
+          `Request No. "${payload.requestNo}" is already registered.`,
+        );
+        setToast({
+          title: "Request Number Already Exists",
+          message: `Request No. "${payload.requestNo}" is already registered in the system. Please change or adjust the Request No. before saving.`,
+          type: "error",
+        });
+      } else {
+        setToast({
+          message: errMsg,
+          type: "error",
+        });
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const currentRequestNo = isEditMode
@@ -705,7 +1010,9 @@ export default function NewRequestFormPage() {
     <div className="flex flex-col h-full min-h-screen">
       <Helmet>
         <title>
-          {isEditMode ? `Edit ${currentRequestNo} - KORI BALI` : "New Project - KORI BALI"}
+          {isEditMode
+            ? `Edit ${currentRequestNo} - KORI BALI`
+            : "New Project - KORI BALI"}
         </title>
       </Helmet>
 
@@ -736,7 +1043,9 @@ export default function NewRequestFormPage() {
 
             {isEditMode && (
               <div className="flex items-center gap-2">
-                <span className="text-white/70 text-xs sm:text-sm">Editing Project:</span>
+                <span className="text-white/70 text-xs sm:text-sm">
+                  Editing Project:
+                </span>
                 <span className="text-white font-bold text-xs sm:text-sm bg-white/15 px-2.5 py-0.5 rounded-full border border-white/20">
                   {currentRequestNo}
                 </span>
@@ -793,7 +1102,9 @@ export default function NewRequestFormPage() {
                   </SectionTitle>
                   <SectionCard>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {COVER_TYPE_OPTIONS.filter((option) => option.id !== "yp").map((option) => {
+                      {COVER_TYPE_OPTIONS.filter(
+                        (option) => option.id !== "yp",
+                      ).map((option) => {
                         const Icon = option.icon;
                         const isActive = coverType === option.id;
 
@@ -844,7 +1155,8 @@ export default function NewRequestFormPage() {
                     <div className="mt-3 flex items-start gap-2 bg-gray-50 border border-gray-200 rounded-lg hp:rounded-md px-4 py-2.5 text-xs md:text-sm text-gray-500">
                       <Info className="w-4 h-4 shrink-0 mt-0.5 text-gray-400" />
                       <span>
-                        The request fields below follow the Yamada Shomei (YS) cover specifications.
+                        The request fields below follow the Yamada Shomei (YS)
+                        cover specifications.
                       </span>
                     </div>
                   </SectionCard>
@@ -1073,12 +1385,26 @@ export default function NewRequestFormPage() {
                             required
                           >
                             Request No.
+                            {isCheckingDuplicate && (
+                              <span className="ml-2 inline-flex items-center text-[11px] text-gray-400 font-normal">
+                                <Loader2 className="w-3 h-3 animate-spin mr-1" />{" "}
+                                checking...
+                              </span>
+                            )}
                           </Label>
                           <input
                             type="text"
                             {...ysInput("requestNo")}
+                            onBlur={handleRequestNoBlur}
+                            className={`${ysInput("requestNo").className} ${duplicateWarning ? "!border-amber-400 !bg-amber-50/30" : ""}`}
                             placeholder="e.g. 26-1187"
                           />
+                          {duplicateWarning && (
+                            <p className="mt-1.5 text-xs text-amber-600 flex items-center gap-1 font-medium animate-fadeIn">
+                              <AlertTriangle className="w-3.5 h-3.5 shrink-0 text-amber-500" />
+                              {duplicateWarning}
+                            </p>
+                          )}
                           {ysMissing("requestNo")}
                           {requiredHint("requestNo")}
                         </div>
@@ -1360,10 +1686,13 @@ export default function NewRequestFormPage() {
                                 >
                                   Foundation Shape
                                 </Label>
-                                <input
-                                  type="text"
-                                  {...ysInput("foundation")}
-                                  placeholder="e.g. Square"
+                                <BtnGroup
+                                  options={FOUNDATION_TYPE_OPTIONS}
+                                  value={ys.foundation}
+                                  onChange={setYsField("foundation")}
+                                  allowDeselect
+                                  tight
+                                  autoFilled={isAutoFilled("foundation")}
                                 />
                                 {ysMissing("foundation")}
                               </div>
@@ -1431,8 +1760,10 @@ export default function NewRequestFormPage() {
                                     value={ys.standard}
                                     onChange={setYsField("standard")}
                                     options={standardOptions}
-                                    placeholder="Select Standard"
+                                    placeholder="Select standard..."
                                     autoFilled={isAutoFilled("standard")}
+                                    clearable
+                                    noneLabel="None / No Standard"
                                   />
                                   {ysMissing("standard")}
                                 </div>
@@ -1468,7 +1799,7 @@ export default function NewRequestFormPage() {
                                   (Only for drawing requests)
                                 </span>
                               </SubGroupTitle>
-                              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-6 md:gap-y-8">
+                              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-x-6 gap-y-6 md:gap-y-8">
                                 <div className="relative">
                                   <Label
                                     jp="図面種類"
@@ -1482,6 +1813,8 @@ export default function NewRequestFormPage() {
                                     options={DRAWING_TYPE_OPTIONS}
                                     placeholder="Select Drawing Type"
                                     autoFilled={isAutoFilled("drawingType")}
+                                    clearable
+                                    noneLabel="None / No Drawing Type"
                                   />
                                   {ysMissing("drawingType")}
                                 </div>
@@ -1563,6 +1896,12 @@ export default function NewRequestFormPage() {
                               BE `document_no` underneath. */}
                           <Label jp="図番" required>
                             Request No.
+                            {isCheckingDuplicate && (
+                              <span className="ml-2 inline-flex items-center text-[11px] text-gray-400 font-normal">
+                                <Loader2 className="w-3 h-3 animate-spin mr-1" />{" "}
+                                checking...
+                              </span>
+                            )}
                           </Label>
                           {/* Typed whole, as on the cover; the parts are
                               split from it in the row below. */}
@@ -1575,10 +1914,19 @@ export default function NewRequestFormPage() {
                               )
                             }
                             onFocus={() => setDocNoTouched(false)}
-                            onBlur={() => setDocNoTouched(true)}
-                            className={`${inputStyle(docNoError || fieldError("documentNo"))} tracking-wide`}
+                            onBlur={(e) => {
+                              setDocNoTouched(true);
+                              handleRequestNoBlur(e);
+                            }}
+                            className={`${inputStyle(docNoError || fieldError("documentNo"))} ${duplicateWarning ? "!border-amber-400 !bg-amber-50/30" : ""} tracking-wide`}
                             placeholder="e.g. RPJ658053 or RPJ658053-1"
                           />
+                          {duplicateWarning && (
+                            <p className="mt-1.5 text-xs text-amber-600 flex items-center gap-1 font-medium animate-fadeIn">
+                              <AlertTriangle className="w-3.5 h-3.5 shrink-0 text-amber-500" />
+                              {duplicateWarning}
+                            </p>
+                          )}
                           {/* Empty after Save: the same floating note as the
                               other required fields. */}
                           {fieldError("documentNo") && yp.documentNo === "" && (
@@ -1823,16 +2171,6 @@ export default function NewRequestFormPage() {
                               <div>
                                 <Label>Deliverables</Label>
                                 <div className="flex flex-wrap items-center gap-2">
-                                  {/* Order / Meeting / Approval — pick exactly one */}
-                                  <BtnGroup
-                                    fit
-                                    options={DELIVER_TYPE_OPTIONS}
-                                    value={yp.deliverType}
-                                    onChange={setYpField("deliverType")}
-                                    allowDeselect
-                                  />
-                                  {/* Divider */}
-                                  <div className="w-px self-stretch bg-gray-200" />
                                   {/* CAD Data — independent toggle */}
                                   <button
                                     type="button"
@@ -2318,21 +2656,38 @@ export default function NewRequestFormPage() {
                   <button
                     type="button"
                     onClick={handleSubmit}
-                    disabled={!coverType}
+                    disabled={!coverType || isSubmitting}
                     className={`
                     flex justify-center items-center gap-2
                     px-5 py-2.5 md:px-6
                     rounded-lg hp:rounded-md font-medium
                     text-xs md:text-sm shadow-sm transition-all
                     ${
-                      coverType
+                      coverType && !isSubmitting
                         ? "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110"
                         : "bg-gray-200 text-gray-400 cursor-not-allowed"
                     }
                   `}
                   >
-                    <span>{isEditMode ? "Save Changes" : "Save Request & Continue"}</span>
-                    <ChevronRight className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin text-white" />
+                        <span>
+                          {isEditMode
+                            ? "Saving Changes..."
+                            : "Saving Request..."}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <span>
+                          {isEditMode
+                            ? "Save Changes"
+                            : "Save Request & Continue"}
+                        </span>
+                        <ChevronRight className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+                      </>
+                    )}
                   </button>
                   {showRequiredErrors && missingRequiredKeys.length > 0 && (
                     <p className="text-[11px] md:text-xs text-red-500">
@@ -2382,7 +2737,9 @@ export default function NewRequestFormPage() {
 
             {/* Description */}
             <p className="text-center text-gray-600 text-xs sm:text-sm mb-4 sm:mb-6 leading-relaxed">
-              Are you sure you want to save changes to this project? Your updates will be saved and you will be redirected to the Project Detail page.
+              Are you sure you want to save changes to this project? Your
+              updates will be saved and you will be redirected to the Project
+              Detail page.
             </p>
 
             {/* Actions */}
@@ -2390,7 +2747,8 @@ export default function NewRequestFormPage() {
               <button
                 type="button"
                 onClick={() => setShowSaveConfirmModal(false)}
-                className="flex-1 py-2 sm:py-3 font-bold text-xs sm:text-sm bg-slate-100 text-slate-600 rounded-md sm:rounded-lg hover:bg-slate-200 transition"
+                disabled={isSavingEdit}
+                className="flex-1 py-2 sm:py-3 font-bold text-xs sm:text-sm bg-slate-100 text-slate-600 rounded-md sm:rounded-lg hover:bg-slate-200 transition disabled:opacity-50"
               >
                 Keep Editing
               </button>
@@ -2398,14 +2756,46 @@ export default function NewRequestFormPage() {
               <button
                 type="button"
                 onClick={handleConfirmSaveEdit}
-                className="flex-1 py-2 sm:py-3 font-bold text-xs sm:text-sm bg-[#0d3b66] text-white rounded-md sm:rounded-lg hover:bg-[#154c80] transition"
+                disabled={isSavingEdit}
+                className="flex-1 py-2 sm:py-3 font-bold text-xs sm:text-sm bg-[#0d3b66] text-white rounded-md sm:rounded-lg hover:bg-[#154c80] transition flex items-center justify-center gap-2 disabled:opacity-50"
               >
-                Yes, Save Changes
+                {isSavingEdit ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-white" />
+                    <span>Saving Changes...</span>
+                  </>
+                ) : (
+                  "Yes, Save Changes"
+                )}
               </button>
             </div>
           </div>
         </div>
       )}
+
+      {/* ── Page-level Saving Animation Overlay ── */}
+      {(isSubmitting || isSavingEdit) && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed inset-0 z-50 bg-slate-900/30 backdrop-blur-[2px] flex items-center justify-center transition-all p-4"
+        >
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-100 p-6 flex flex-col items-center text-center max-w-xs w-full mx-4 transition-all">
+            <div className="w-13 h-13 rounded-2xl bg-gradient-to-tr from-[#0d3b66] to-[#3399cc] flex items-center justify-center text-white shadow-md shadow-blue-500/20 mb-3.5">
+              <Loader2 className="w-6 h-6 animate-spin text-white" />
+            </div>
+            <h3 className="font-semibold text-slate-800 text-sm md:text-base">
+              {isEditMode ? "Saving Changes..." : "Saving Request..."}
+            </h3>
+            <p className="text-sm text-slate-500 mt-1 leading-relaxed">
+              Please wait while your request is being processed.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* ── Toast Notification Modal ── */}
+      {toast && <ToastModal toast={toast} onClose={() => setToast(null)} />}
     </div>
   );
 }

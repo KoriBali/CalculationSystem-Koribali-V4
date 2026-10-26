@@ -8,7 +8,8 @@ import { useSurfaceForm } from "../../hooks/useSurfaceForm";
 import { FinishCalculationModal } from "../../components/modals/FinishCalculationModal";
 import { ConfirmSaveDatabaseModal } from "../../components/modals/ConfirmSaveDatabaseModal";
 import { saveWorkingSessionToDraft, clearCalculationSession, clearActiveDraftId } from "../../utils/coreLogic";
-import { activeDraftRequestPath } from "../../utils/requestCases";
+import { activeDraftRequestPath, submitCaseForCheck } from "../../utils/requestCases";
+import { getUser } from "../../../../utils/auth";
 
 export default function DrawingSurfacePage() {
   const { type: projectType, draftId } = useParams();
@@ -71,7 +72,9 @@ export default function DrawingSurfacePage() {
   };
 
   const handleConfirmSaveDb = () => {
-    setToast({ message: "Project successfully saved to database!", type: "success" });
+    saveWorkingSessionToDraft(projectType, draftId);
+    submitCaseForCheck(draftId, getUser());
+    setToast({ message: "Case saved and submitted for checking!", type: "success" });
     setShowDbModal(false);
     // Back to the case's request — read before the session is cleared.
     const backPath = activeDraftRequestPath(projectType);
@@ -79,7 +82,7 @@ export default function DrawingSurfacePage() {
       clearCalculationSession(projectType);
       clearActiveDraftId(projectType);
       navigate(backPath);
-    }, 2500);
+    }, 2000);
   };
 
   return (

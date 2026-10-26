@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { useParams, Outlet, Navigate } from "react-router-dom";
 import { handleSessionTransition } from "../utils/coreLogic";
+import { ReadOnlyContext, useCaseReadOnly } from "../contexts/ReadOnlyContext";
 
 export default function DraftSessionGuard() {
   const { type, draftId } = useParams();
   const [isReady, setIsReady] = useState(false);
+  const readOnlyState = useCaseReadOnly(draftId);
 
   useEffect(() => {
     // Process the transition (auto-saving previous if any, and loading this one)
@@ -25,5 +27,12 @@ export default function DraftSessionGuard() {
     return <Navigate to="/projects" replace />;
   }
 
-  return <Outlet />;
+  return (
+    <ReadOnlyContext.Provider value={readOnlyState}>
+      <div className={readOnlyState.isReadOnly ? "case-read-only-guard" : ""}>
+        <Outlet />
+      </div>
+    </ReadOnlyContext.Provider>
+  );
 }
+

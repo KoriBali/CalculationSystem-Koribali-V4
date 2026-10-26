@@ -45,16 +45,17 @@ export function OverheadWireForm({
   setConfirmDeleteOhw,
   resetCurrentOhw,
   handleAddOhw,
+  maxOhw = 8,
 }) {
   // Convert input to number for validation
   const ohwValueNumber = Number(wireCountInput);
 
-  // Validate OHW count input (must be 1–8)
+  // Validate OHW count input (must be 1–maxOhw)
   const isOhwInputValue =
     !wireCountInput ||
     isNaN(wireCountInput) ||
     ohwValueNumber <= 0 ||
-    ohwValueNumber > 8;
+    ohwValueNumber > maxOhw;
 
   return (
     <div className="rounded-b-2xl shadow-sm border border-gray-200 overflow-hidden bg-white hp:rounded-b-xl">
@@ -69,7 +70,7 @@ export function OverheadWireForm({
 
                 {/* Title */}
                 <span className="font-semibold">
-                  Configure up to 8 Overhead Wires
+                  Configure up to {maxOhw} Overhead Wires
                 </span>
 
                 {/* Subtitle (hidden on small screen) */}
@@ -121,9 +122,11 @@ export function OverheadWireForm({
                 {overheadWires.length}
               </span>
               <span className="text-slate-400">/</span>
-              <span className="inline sm:hidden text-slate-600">8 OHW</span>
+              <span className="inline sm:hidden text-slate-600">
+                {maxOhw} OHW
+              </span>
               <span className="hidden sm:inline text-slate-600">
-                8 Overhead Wires
+                {maxOhw} Overhead Wires
               </span>
             </div>
 
@@ -131,7 +134,7 @@ export function OverheadWireForm({
             <input
               type="number"
               min={1}
-              max={8}
+              max={maxOhw}
               placeholder="Input Overhead Wire Number"
               value={wireCountInput}
               onChange={(e) => setWireCountInput(e.target.value)}
@@ -216,15 +219,7 @@ export function OverheadWireForm({
               {/* TITLE + INDEX */}
               <div className="flex items-center gap-3">
                 {/* Index badge */}
-                <div
-                  className="
-                    w-9 h-9 lg:w-10 lg:h-10 rounded-md sm:rounded-lg flex-shrink-0
-                    bg-gradient-to-br from-[#0d3b66] to-[#3399cc]
-                    flex items-center justify-center
-                    text-white text-sm font-medium
-                    hp:w-[34px] hp:h-[34px]
-                  "
-                >
+                <div className="flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-lg bg-[#0d3b66] text-white font-semibold text-xs md:text-sm shrink-0">
                   {index + 1}
                 </div>
 
@@ -360,6 +355,7 @@ export function OverheadWireForm({
                 <div className="relative col-span-2 xl:flex-[2] min-w-0 hp:w-full hp:col-span-2">
                   <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
                     Overhead Wire Name
+                    <span className="text-red-500 ml-1 font-semibold">*</span>
                   </label>
                   <input
                     id={`ohw-${overheadWire.idOhw}-name`}
@@ -378,6 +374,7 @@ export function OverheadWireForm({
                 <div className="relative xl:flex-1 min-w-0 hp:w-full">
                   <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
                     Weight
+                    <span className="text-red-500 ml-1 font-semibold">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -404,6 +401,7 @@ export function OverheadWireForm({
                 <div className="relative xl:flex-1 min-w-0 hp:w-full">
                   <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
                     Diameter
+                    <span className="text-red-500 ml-1 font-semibold">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -433,6 +431,7 @@ export function OverheadWireForm({
                 <div className="relative xl:flex-1 min-w-0 hp:w-full">
                   <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
                     Height
+                    <span className="text-red-500 ml-1 font-semibold">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -459,6 +458,7 @@ export function OverheadWireForm({
                 <div className="relative xl:flex-1 min-w-0 hp:w-full">
                   <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
                     Span
+                    <span className="text-red-500 ml-1 font-semibold">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -488,6 +488,7 @@ export function OverheadWireForm({
                     <span className="hidden xl:inline 2xl:hidden">
                       Sag. Ratio
                     </span>
+                    <span className="text-red-500 ml-1 font-semibold">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -517,6 +518,7 @@ export function OverheadWireForm({
                 <div className="relative xl:flex-[0.8] min-w-0 hp:w-full">
                   <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
                     nnC
+                    <span className="text-red-500 ml-1 font-semibold">*</span>
                   </label>
                   <input
                     id={`ohw-${overheadWire.idOhw}-nnC`}
@@ -538,6 +540,7 @@ export function OverheadWireForm({
                 <div className="relative xl:flex-1 min-w-0 hp:w-full">
                   <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
                     Fix Angle
+                    <span className="text-red-500 ml-1 font-semibold">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -566,6 +569,7 @@ export function OverheadWireForm({
                 <div className="relative xl:flex-1 min-w-0 hp:w-full">
                   <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
                     Vertical Angle
+                    <span className="text-red-500 ml-1 font-semibold">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -604,13 +608,13 @@ export function OverheadWireForm({
         {/* Add Button */}
         <button
           onClick={handleAddOhw}
-          disabled={overheadWires.length >= 8}
+          disabled={overheadWires.length >= maxOhw}
           className={`
             w-full py-2 lg:py-2.5 font-medium text-sm rounded-md sm:rounded-lg
             flex items-center justify-center gap-2
             transition-all duration-200
             ${
-              overheadWires.length >= 8
+              overheadWires.length >= maxOhw
                 ? "border-2 border-dashed border-gray-300 text-gray-400 cursor-not-allowed opacity-50"
                 : "border-2 border-dashed border-[#3399cc] text-[#3399cc] bg-transparent hover:bg-[#3399cc] hover:text-white"
             }

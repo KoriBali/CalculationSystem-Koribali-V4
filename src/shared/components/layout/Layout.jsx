@@ -17,7 +17,11 @@ import { logoutUser, getMe } from "../../../services/authService";
 import { ScrollToTopButton } from "../ScrollToTopButton";
 import { ErrorBoundary } from "../ErrorBoundary";
 import { resetScrollDirection } from "../../../hooks/useScrollDirection";
-import { getMasterData } from "../../../features/calculations/services/masterDataService";
+import {
+  getMasterData,
+  getMasterDesignStandards,
+  getMasterRegions,
+} from "../../../features/calculations/services/masterDataService";
 import { getCouplingMasterData } from "../../../features/calculations/services/couplingMasterService";
 import {
   saveWorkingSessionToDraft,
@@ -73,6 +77,7 @@ export default function Layout() {
   const projectType = sessionStorage.getItem("projectType");
   const formattedProjectType = formatProjectType(projectType);
   const isCalculationRoot = location.pathname === "/projects" || location.pathname === "/requests";
+  const isCheckingQueue = location.pathname.startsWith("/checking-queue");
   // Covers /projects/new (type picker) and /projects/new/:type (form).
   const isNewRequest = /^\/(projects|requests)\/new(\/|$)/.test(location.pathname);
   // /projects/detail/:requestId — Projects > [its Request No.]
@@ -86,12 +91,6 @@ export default function Layout() {
     !["new", "detail"].includes(pathParts[1]) &&
     pathParts[2];
   const draftCase = draftId ? findRequestOfCase(draftId) : null;
-  const isReadOnlyCase = Boolean(
-    draftCase &&
-      (sessionStorage.getItem("case_read_only") === "true" ||
-        (draftCase.case?.owner &&
-          draftCase.case.owner !== (userData?.name || "Bintarjo Agus Priyadi"))),
-  );
 
   let currentTitle;
   if (requestDetailId) {
@@ -105,6 +104,8 @@ export default function Layout() {
     currentTitle =
       MENU_ITEMS.find((item) => item.path === "/projects")?.name ??
       "Projects";
+  } else if (isCheckingQueue) {
+    currentTitle = "Checking Queue";
   } else if (isNewRequest) {
     // Read project type directly from the URL — single source of truth.
     // /projects/new/:type → parts[2] is the type slug.
@@ -330,10 +331,9 @@ export default function Layout() {
   // concurrent callers, so this just moves the ~3s gateway round-trip earlier
   // — by the time a form needs it, it's likely already sitting in cache.
   useEffect(() => {
-    getMasterData().catch(() => {
-      // Ignore here — useMasterData() surfaces the error to whichever form
-      // actually needs the data and lets the user retry from there.
-    });
+    getMasterData().catch(() => {});
+    getMasterDesignStandards().catch(() => {});
+    getMasterRegions().catch(() => {});
     // Coupling master data lives deep in the drawing flow — prefetch it now so
     // it's cached well before the user reaches the coupling page.
     getCouplingMasterData().catch(() => {});
@@ -441,28 +441,6 @@ export default function Layout() {
           }}
         />
 
-        {/* Read-Only Notice Banner */}
-        {isReadOnlyCase && (
-          <div className="bg-amber-50/95 border-b border-amber-200 px-4 py-2.5 sm:px-8 flex items-center justify-between gap-3 text-xs sm:text-sm text-amber-900 shadow-xs animate-in fade-in slide-in-from-top-1 duration-200">
-            <div className="flex items-center gap-2 min-w-0">
-              <Eye className="w-4 h-4 text-amber-600 shrink-0" />
-              <span className="truncate">
-                <span className="font-semibold">Read-Only Mode:</span> This case is assigned to{" "}
-                <span className="font-semibold text-amber-950 underline decoration-amber-300">
-                  {draftCase?.case?.owner || "another member"}
-                </span>
-                . You are viewing in read-only mode to prevent edit conflicts.
-              </span>
-            </div>
-            <button
-              type="button"
-              onClick={handleProjectCrumbClick}
-              className="shrink-0 inline-flex items-center gap-1 px-3 py-1 rounded-md text-xs font-medium bg-amber-100 hover:bg-amber-200 text-amber-800 border border-amber-200/80 transition-colors"
-            >
-              Back to Project
-            </button>
-          </div>
-        )}
 
         {/* Page content */}
         <main className="flex-1 p-4 lg:p-8">

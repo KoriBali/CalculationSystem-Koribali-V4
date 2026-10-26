@@ -21,7 +21,9 @@ import { clearCalculationSession } from "../../../utils";
 
 import { useFoundationForm } from "../../../hooks/useFoundationForm";
 import { useReport } from "../../../../report/hooks/useReport";
-import { activeDraftRequestPath } from "../../../utils/requestCases";
+import { activeDraftRequestPath, submitCaseForCheck } from "../../../utils/requestCases";
+import { useReadOnly } from "../../../contexts/ReadOnlyContext";
+import { getUser } from "../../../../../utils/auth";
 
 // Main view component for foundation calculation form
 export default function FoundationFormView() {
@@ -60,13 +62,17 @@ export default function FoundationFormView() {
 
   // ================= REPORT HOOK =================
   const { makeReport } = useReport(projectType);
+  const { isReadOnly } = useReadOnly();
 
   // Handle navigation to next step or create report.
-  // handleFinish() silently no-ops when not yet calculated — fine when the
-  // Next button was natively `disabled`, but it no longer is (see
-  // RoundCaissonTypeForm/SquareCaissonTypeForm), so this needs to explain
-  // why nothing happened instead of doing nothing.
   const handleNextStep = () => {
+    if (isReadOnly) {
+      const result = handleFinish(true);
+      if (result === "OPEN_COVER") {
+        navigate(`/projects/${projectType}/${draftId}/report`);
+      }
+      return;
+    }
     if (!isCalculated) {
       showToast('Click "Calculate Results" first', "error");
       return;
@@ -110,8 +116,9 @@ export default function FoundationFormView() {
   };
 
   const handleConfirmSaveDb = () => {
-    // Database save logic will go here
-    showToast("Project successfully saved to database!", "success");
+    saveWorkingSessionToDraft(projectType, draftId);
+    submitCaseForCheck(draftId, getUser());
+    showToast("Case saved and submitted for checking!", "success");
     setShowDbModal(false);
     // Back to the case's request — read before the session is cleared.
     const backPath = activeDraftRequestPath(projectType);
@@ -119,7 +126,7 @@ export default function FoundationFormView() {
       clearCalculationSession(projectType);
       clearActiveDraftId(projectType);
       navigate(backPath);
-    }, 2500);
+    }, 2000);
   };
 
   return (
@@ -161,12 +168,13 @@ export default function FoundationFormView() {
                 <div>
                   <h3 className="text-[#0d3b66] mb-4 flex items-center gap-1 md:gap-2 text-xs md:text-sm font-medium">
                     <div className="w-1 h-4 md:h-5 bg-[#3399cc] rounded-full" />
-                    Foundation Type
+                    Foundation Type <span className="text-red-500 ml-1 font-semibold">*</span>
                   </h3>
                   <FoundationType
                     foundationType={foundationType}
                     onUpdate={handleFoundationTypeUpdate}
                     errors={foundationTypeErrors}
+                    readOnly={isReadOnly}
                   />
                 </div>
 
@@ -203,9 +211,10 @@ export default function FoundationFormView() {
                       errors={squareCaissonErrors}
                       onCalculate={handleCalculate}
                       onBack={handleBack}
-                      onNext={handleNextStep} // PERBAIKAN: Gunakan handleNextStep agar sinkron dengan modal
+                      onNext={handleNextStep}
                       isCalculated={isCalculated}
                       buttonLabel={buttonLabel}
+                      readOnly={isReadOnly}
                     />
                   )}
 
@@ -217,9 +226,10 @@ export default function FoundationFormView() {
                       errors={roundCaissonErrors}
                       onCalculate={handleCalculate}
                       onBack={handleBack}
-                      onNext={handleNextStep} // PERBAIKAN: Gunakan handleNextStep agar sinkron dengan modal
+                      onNext={handleNextStep}
                       isCalculated={isCalculated}
                       buttonLabel={buttonLabel}
+                      readOnly={isReadOnly}
                     />
                   )}
                 </div>

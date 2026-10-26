@@ -22,7 +22,7 @@ const FOUNDATION_TYPE_OPTIONS = [
 /**
  * MAIN COMPONENT: FoundationType
  */
-export function FoundationType({ foundationType, onUpdate, errors }) {
+export function FoundationType({ foundationType, onUpdate, errors, readOnly = false }) {
   return (
     <div
       className="
@@ -37,10 +37,11 @@ export function FoundationType({ foundationType, onUpdate, errors }) {
         <FormSelect
           id="type"
           value={foundationType.type}
-          onChange={(val) => onUpdate({ type: val })}
+          onChange={(val) => !readOnly && onUpdate({ type: val })}
           options={FOUNDATION_TYPE_OPTIONS}
           hasError={!!errors.type}
           placeholder="Select Foundation Type"
+          disabled={readOnly}
         />
         <ErrorStyle show={errors.type} text={errors.type} />
       </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Helmet } from "react-helmet";
 import { useParams, useNavigate } from "react-router-dom";
 import {
@@ -15,9 +15,11 @@ import {
   Copy,
   ClipboardPaste,
   CircleDot,
+  Lock,
 } from "lucide-react";
 
 import { HeaderCalculationPage } from "../../layout/HeaderCalculationPage";
+import { useReadOnly } from "../../../contexts/ReadOnlyContext";
 import { PoleConfigForm } from "./custom/PoleConfigForm";
 import { PoleForm } from "./custom/PoleForm";
 import { DirectObjectForm } from "./custom/DirectObjectForm";
@@ -27,7 +29,9 @@ import { ArmObjectForm } from "./custom/ArmObjectForm";
 import { PoleTypeSelector } from "./standard/PoleType";
 import { TaperPoleStandardForm } from "./standard/TaperTypeForm";
 import { StraightPoleStandardForm } from "./standard/StraightTypeForm";
+import { StandardDirectObjectForm } from "./standard/StandardDirectObjectForm";
 import { ResultsTableView } from "../../tables/pole-result/ResultTableView";
+import STANDARD_POLE_DATA from "../../../data/specStandardPole.json";
 
 import { ToastModal } from "../../modals/ToastModal";
 import { ConfirmDeleteModal } from "../../modals/ConfirmDeleteModal";
@@ -51,12 +55,73 @@ import {
 } from "../../../utils/coreLogic";
 import { clearCalculationSession } from "../../../utils";
 import { CustomPoleModal } from "../../modals/CustomPoleModal";
-import { activeDraftRequestPath } from "../../../utils/requestCases";
+import { activeDraftRequestPath, submitCaseForCheck } from "../../../utils/requestCases";
+import { getUser } from "../../../../../utils/auth";
+
+// Helper to extract all standard objects (both directObjects and armObjects) from spec
+export function getStandardPoleObjects(selectedPole) {
+  if (!selectedPole) return [];
+
+  const objects = [];
+
+  // 1. Direct objects (e.g. IS, IA)
+  if (selectedPole.directObjects && selectedPole.directObjects.length > 0) {
+    selectedPole.directObjects.forEach((d, index) => {
+      objects.push({
+        ...d,
+        idDo: index + 1,
+        sourceType: "direct",
+        sourceIndex: index,
+        sourceLabel: "Direct Object",
+        name: d.name || "灯具",
+        type: d.type || "directional",
+        frontArea: d.frontArea ?? "0.1",
+        sideArea: d.sideArea || d.frontArea || "0.1",
+        weight: d.weight ?? "14",
+        zHeight: d.zHeight ?? "8000",
+        nnC: d.nnC ?? "1",
+        quantity: d.quantity ?? "1",
+        fixAngle: d.fixAngle ?? "0",
+      });
+    });
+  }
+
+  // 2. Arm objects (e.g. LS, LA, TS, TA)
+  if (selectedPole.arms && selectedPole.arms.length > 0) {
+    selectedPole.arms.forEach((arm, armIdx) => {
+      const armName = arm.name || `Arm ${armIdx + 1}`;
+      if (arm.armObjects && arm.armObjects.length > 0) {
+        arm.armObjects.forEach((ao, aoIdx) => {
+          objects.push({
+            ...ao,
+            idDo: objects.length + 1,
+            sourceType: "arm",
+            armIndex: armIdx,
+            armObjectIndex: aoIdx,
+            sourceLabel: `${armName} Object`,
+            name: ao.name || "灯具",
+            type: ao.type || "directional",
+            frontArea: ao.frontArea ?? "0.1",
+            sideArea: ao.sideArea || ao.frontArea || "0.1",
+            weight: ao.weight ?? "14",
+            zHeight: ao.zHeight ?? "180",
+            nnC: ao.nnC ?? "1",
+            quantity: ao.quantity ?? "1",
+            fixAngle: ao.fixAngle ?? (armIdx === 1 ? "180" : "0"),
+          });
+        });
+      }
+    });
+  }
+
+  return objects;
+}
 
 // ─── COMPONENT ───────────────────────────────────────────────────────────────
 
 export default function PoleFormView() {
   const { type: projectType, draftId } = useParams();
+  const { isReadOnly } = useReadOnly();
 
   const navigate = useNavigate();
   // Read condition from sessionStorage
@@ -123,8 +188,11 @@ export default function PoleFormView() {
       condition.poleType === "standard" &&
       isCalculationAndDrawing
     ) {
-      if (poleStandardForm.poleTypeStandard.type !== "tapered") {
-        poleStandardForm.updatePoleTypeStandard({ type: "tapered" });
+      if (
+        poleStandardForm.poleTypeStandard.type !== "taper" &&
+        poleStandardForm.poleTypeStandard.type !== "tapered"
+      ) {
+        poleStandardForm.updatePoleTypeStandard({ type: "taper" });
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -184,8 +252,9 @@ export default function PoleFormView() {
   };
 
   const handleConfirmSaveDb = () => {
-    // Database save logic will go here
-    calculation.showToast("Project successfully saved to database!", "success");
+    saveWorkingSessionToDraft(projectType, draftId);
+    submitCaseForCheck(draftId, getUser());
+    calculation.showToast("Case saved and submitted for checking!", "success");
     setShowDbModal(false);
     // Back to the case's request — read before the session is cleared.
     const backPath = activeDraftRequestPath(projectType);
@@ -193,12 +262,128 @@ export default function PoleFormView() {
       clearCalculationSession(projectType);
       clearActiveDraftId(projectType);
       navigate(backPath);
-    }, 2500);
+    }, 2000);
   };
 
   // custom mode — non lighting-project always custom, lighting-project only if poleType === custom
   const isCustomMode =
     projectType !== "lighting-project" || condition.poleType === "custom";
+
+  // standard taper mode
+  const isStandardTaper =
+    projectType === "lighting-project" &&
+    condition.poleType === "standard" &&
+    (poleStandardForm.poleTypeStandard?.type === "taper" ||
+      poleStandardForm.poleTypeStandard?.type === "tapered");
+
+  const maxOhw = isStandardTaper ? 4 : 8;
+
+  // If in standard taper and overhead wires currently exceed 4, trim to 4
+  useEffect(() => {
+    if (isStandardTaper && ohwForm.overheadWires.length > 4) {
+      ohwForm.setOverheadWires((prev) => prev.slice(0, 4));
+    }
+  }, [isStandardTaper, ohwForm.overheadWires.length, ohwForm]);
+
+  // Derive standard taper pole key for syncing defaults
+  const standardTaperPoleKey = useMemo(() => {
+    if (!isStandardTaper) return "";
+    const taper = poleStandardForm.taperPoleStandard;
+    if (!taper.poleType || !taper.height) return "";
+    const isEmbedment =
+      !condition.baseplateEnabled && taper.groundPosition === "underGL";
+    const rawH = Number(taper.height);
+    const mHeight = rawH > 100 ? rawH / 1000 : rawH;
+    const heightKey = isEmbedment
+      ? (mHeight + 0.3).toFixed(1)
+      : String(Math.round(mHeight * 10) / 10);
+    return `${taper.poleType}_${taper.groundPosition}_${heightKey}`;
+  }, [
+    isStandardTaper,
+    condition.baseplateEnabled,
+    poleStandardForm.taperPoleStandard.poleType,
+    poleStandardForm.taperPoleStandard.groundPosition,
+    poleStandardForm.taperPoleStandard.height,
+  ]);
+
+  // Extract standard default direct & arm objects from specStandardPole.json
+  const standardDefaultObjects = useMemo(() => {
+    if (!isStandardTaper) return [];
+    const taper = poleStandardForm.taperPoleStandard;
+    if (!taper.poleType || !taper.height) return [];
+    const isEmbedment =
+      !condition.baseplateEnabled && taper.groundPosition === "underGL";
+    const rawH = Number(taper.height);
+    const mHeight = rawH > 100 ? rawH / 1000 : rawH;
+    const heightKey = isEmbedment
+      ? (mHeight + 0.3).toFixed(1)
+      : String(Math.round(mHeight * 10) / 10);
+    const dataTaper = STANDARD_POLE_DATA?.tapered || STANDARD_POLE_DATA?.taper;
+    const group = dataTaper?.[taper.poleType]?.[taper.groundPosition] || {};
+    const isTypeWith100 = taper.poleType !== "IS" && taper.poleType !== "IA";
+    const nominalKey = isTypeWith100
+      ? String(Math.round((Number(heightKey) - 0.1) * 10) / 10)
+      : String(Math.round((Number(heightKey) + 0.1) * 10) / 10);
+    const selectedPole =
+      group[heightKey] ||
+      group[nominalKey] ||
+      group[String(rawH)] ||
+      group[String(mHeight)];
+    return getStandardPoleObjects(selectedPole);
+  }, [
+    isStandardTaper,
+    condition.baseplateEnabled,
+    poleStandardForm.taperPoleStandard.poleType,
+    poleStandardForm.taperPoleStandard.groundPosition,
+    poleStandardForm.taperPoleStandard.height,
+  ]);
+
+  // Sync default direct & arm objects from specStandardPole.json when standard taper pole selection changes
+  useEffect(() => {
+    if (!isStandardTaper || !standardTaperPoleKey) return;
+
+    const savedKey = sessionStorage.getItem(
+      `${projectType}_standardTaperPoleKey`,
+    );
+
+    // If key changed, or if directObjects count doesn't match standardDefaultObjects
+    if (
+      savedKey !== standardTaperPoleKey ||
+      doForm.directObjects.length !== standardDefaultObjects.length ||
+      (standardDefaultObjects.length > 0 &&
+        doForm.directObjects.some((d) => !d.sourceType))
+    ) {
+      doForm.setDirectObjects(standardDefaultObjects);
+      sessionStorage.setItem(
+        `${projectType}_standardTaperPoleKey`,
+        standardTaperPoleKey,
+      );
+    }
+  }, [
+    isStandardTaper,
+    standardTaperPoleKey,
+    standardDefaultObjects,
+    projectType,
+    doForm,
+  ]);
+
+  // Reset a standard direct or arm object to its default values from specStandardPole.json
+  const handleResetStandardDirectObject = (idDo) => {
+    const defaultSpec = standardDefaultObjects.find((d) => d.idDo === idDo);
+    if (defaultSpec) {
+      doForm.updateDo(idDo, {
+        name: defaultSpec.name,
+        type: defaultSpec.type,
+        frontArea: defaultSpec.frontArea,
+        sideArea: defaultSpec.sideArea,
+        weight: defaultSpec.weight,
+        zHeight: defaultSpec.zHeight,
+        nnC: defaultSpec.nnC,
+        quantity: defaultSpec.quantity,
+        fixAngle: defaultSpec.fixAngle,
+      });
+    }
+  };
 
   return (
     <div className="flex flex-col h-full">
@@ -225,6 +410,7 @@ export default function PoleFormView() {
         <HeaderCalculationPage />
 
         <div className="w-full max-w-[1440px] mx-auto pt-0 pb-24 sm:pb-8 px-2">
+
           {/* ── Pole Specifications ── */}
           <div
             className="
@@ -322,12 +508,14 @@ export default function PoleFormView() {
                       <div className="pt-6 hp:pt-4" />
 
                       <PoleTypeSelector
+                        readOnly={isReadOnly}
                         poleTypeStandard={
                           isCalculationAndDrawing && !condition.baseplateEnabled
-                            ? { type: "tapered" }
+                            ? { type: "taper" }
                             : poleStandardForm.poleTypeStandard
                         }
                         onUpdate={(val) => {
+                          if (isReadOnly) return;
                           if (
                             isCalculationAndDrawing &&
                             !condition.baseplateEnabled &&
@@ -340,12 +528,14 @@ export default function PoleFormView() {
                         }}
                       />
 
-                      {poleStandardForm.poleTypeStandard.type === "tapered" && (
+                      {(poleStandardForm.poleTypeStandard.type === "taper" ||
+                        poleStandardForm.poleTypeStandard.type === "tapered") && (
                         <TaperPoleStandardForm
                           taperPoleStandard={poleStandardForm.taperPoleStandard}
                           onUpdate={poleStandardForm.updateTaperPoleStandard}
                           isBaseplate={condition.baseplateEnabled}
                           errors={poleStandardForm.taperPoleErrors}
+                          readOnly={isReadOnly}
                         />
                       )}
 
@@ -359,6 +549,7 @@ export default function PoleFormView() {
                           }
                           errors={poleStandardForm.straightPoleErrors}
                           condition={condition}
+                          readOnly={isReadOnly}
                         />
                       )}
                     </>
@@ -372,7 +563,7 @@ export default function PoleFormView() {
                       <div className="flex items-center justify-between mb-4 hp:mb-2">
                         <h3 className="text-[#0d3b66] mb-2 flex items-center gap-2 text-xs md:text-sm font-medium hp:text-xs hp:gap-1">
                           <div className="w-1 h-5 bg-[#3399cc] rounded-full hp:h-4" />
-                          Structural Design
+                          Structural Design <span className="text-red-500 ml-1 font-semibold">*</span>
                         </h3>
                       </div>
                       <PoleConfigForm
@@ -395,6 +586,7 @@ export default function PoleFormView() {
                               {" "}
                               with detailed specifications
                             </span>
+                            <span className="text-red-500 ml-1 font-semibold">*</span>
                           </h3>
                         </div>
                       </div>
@@ -530,15 +722,7 @@ export default function PoleFormView() {
                             <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-200 hp:flex-col hp:items-start hp:gap-3">
                               <div className="flex items-center gap-3 hp:gap-2">
                                 {/* Index badge */}
-                                <div
-                                  className="
-                                    w-9 h-9 lg:w-10 lg:h-10 rounded-md sm:rounded-lg flex-shrink-0
-                                    bg-gradient-to-br from-[#0d3b66] to-[#3399cc]
-                                    flex items-center justify-center
-                                    text-white text-sm font-medium
-                                    hp:w-[34px] hp:h-[34px]
-                                  "
-                                >
+                                <div className="flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-lg bg-[#0d3b66] text-white font-semibold text-xs md:text-sm shrink-0">
                                   {index + 1}
                                 </div>
                                 <div className="min-w-0">
@@ -655,7 +839,7 @@ export default function PoleFormView() {
           </div>
 
           {/* ── Direct Object ── */}
-          {isCustomMode && (
+          {(isCustomMode || isStandardTaper) && (
             <>
               <div
                 className="
@@ -701,7 +885,9 @@ export default function PoleFormView() {
                       whitespace-nowrap
                     "
                   >
-                    Direct Object Specifications
+                    {isCustomMode
+                      ? "Direct Object Specifications"
+                      : "Object Specifications"}
                   </h2>
 
                   {/* Expand / collapse icon */}
@@ -713,12 +899,9 @@ export default function PoleFormView() {
                       shrink-0
                       items-center justify-center
                       rounded-full
-
                       text-slate-400
-
                       group-hover:text-[#0d3b66]
                       group-hover:bg-blue-50
-
                       transition-colors
                       duration-200
                     "
@@ -746,20 +929,33 @@ export default function PoleFormView() {
                   `}
                 >
                   <div className="min-h-0 overflow-hidden">
-                    <DirectObjectForm
-                      directObjects={doForm.directObjects}
-                      doCountInput={doForm.doInputValue}
-                      setDoCountInput={doForm.setDoInputValue}
-                      onUpdate={doForm.updateDo}
-                      errors={doForm.doErrors}
-                      onAddDo={doForm.addDoByInput}
-                      onCopyDo={doForm.copyDo}
-                      onPasteDo={doForm.pasteDo}
-                      hasClipboard={Boolean(doForm.doClipboard)}
-                      setConfirmDeleteDo={doForm.setConfirmDeleteDo}
-                      resetCurrentDo={doForm.resetDo}
-                      handleAddDo={doForm.addDo}
-                    />
+                    {isCustomMode ? (
+                      <DirectObjectForm
+                        directObjects={doForm.directObjects}
+                        doCountInput={doForm.doInputValue}
+                        setDoCountInput={doForm.setDoInputValue}
+                        onUpdate={doForm.updateDo}
+                        errors={doForm.doErrors}
+                        onAddDo={doForm.addDoByInput}
+                        onCopyDo={doForm.copyDo}
+                        onPasteDo={doForm.pasteDo}
+                        hasClipboard={Boolean(doForm.doClipboard)}
+                        setConfirmDeleteDo={doForm.setConfirmDeleteDo}
+                        resetCurrentDo={doForm.resetDo}
+                        handleAddDo={doForm.addDo}
+                        readOnly={isReadOnly}
+                      />
+                    ) : (
+                      <StandardDirectObjectForm
+                        directObjects={doForm.directObjects}
+                        defaultObjects={standardDefaultObjects}
+                        onUpdate={doForm.updateDo}
+                        errors={doForm.doErrors}
+                        taperPoleStandard={poleStandardForm.taperPoleStandard}
+                        readOnly={isReadOnly}
+                        onResetDefault={handleResetStandardDirectObject}
+                      />
+                    )}
                   </div>
                 </div>
               </div>
@@ -767,7 +963,7 @@ export default function PoleFormView() {
           )}
 
           {/* ── Overhead Wire ── */}
-          {isCustomMode && (
+          {(isCustomMode || isStandardTaper) && (
             <>
               <div
                 className="
@@ -825,12 +1021,9 @@ export default function PoleFormView() {
                       shrink-0
                       items-center justify-center
                       rounded-full
-
                       text-slate-400
-
                       group-hover:text-[#0d3b66]
                       group-hover:bg-blue-50
-
                       transition-colors
                       duration-200
                     "
@@ -864,13 +1057,15 @@ export default function PoleFormView() {
                       setWireCountInput={ohwForm.setOhwInputValue}
                       onUpdate={ohwForm.updateOhw}
                       errors={ohwForm.ohwErrors}
-                      onAddOhw={ohwForm.addOhwByInput}
+                      onAddOhw={() => ohwForm.addOhwByInput(maxOhw)}
                       onCopyOhw={ohwForm.copyOhw}
                       onPasteOhw={ohwForm.pasteOhw}
                       hasClipboard={Boolean(ohwForm.ohwClipboard)}
                       setConfirmDeleteOhw={ohwForm.setConfirmDeleteOhw}
                       resetCurrentOhw={ohwForm.resetOhw}
-                      handleAddOhw={ohwForm.addOhw}
+                      handleAddOhw={() => ohwForm.addOhw(maxOhw)}
+                      readOnly={isReadOnly}
+                      maxOhw={maxOhw}
                     />
                   </div>
                 </div>
@@ -1260,43 +1455,59 @@ export default function PoleFormView() {
                   once calculated, so Next/Finish reads as the thing to do
                   now. Stays fully clickable either way (e.g. to
                   recalculate on purpose without editing anything). */}
-              <button
-                onClick={calculation.calculate}
-                className={`flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-4 hp:py-2 md:px-6
-                rounded-lg hp:rounded-md font-medium text-sm transition-all
-                ${
-                  calculation.isCalculated
-                    ? "bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm"
-                    : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
-                }`}
-              >
-                <Calculator className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-                <span className="hp:text-[11px] whitespace-nowrap">
-                  Calculate Results
-                </span>
-              </button>
+              {isReadOnly ? (
+                <button
+                  type="button"
+                  disabled
+                  title="Calculations are locked in Read-Only mode"
+                  className="flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-4 hp:py-2 md:px-6 rounded-lg hp:rounded-md font-medium text-sm bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed shadow-none"
+                >
+                  <Lock className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+                  <span className="hp:text-[11px] whitespace-nowrap">
+                    {calculation.isCalculated ? "Results Locked" : "Calculation Locked"}
+                  </span>
+                </button>
+              ) : (
+                <button
+                  onClick={calculation.calculate}
+                  className={`flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-4 hp:py-2 md:px-6
+                  rounded-lg hp:rounded-md font-medium text-sm transition-all
+                  ${
+                    calculation.isCalculated
+                      ? "bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm"
+                      : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
+                  }`}
+                >
+                  <Calculator className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+                  <span className="hp:text-[11px] whitespace-nowrap">
+                    Calculate Results
+                  </span>
+                </button>
+              )}
 
               {/* Next/Finish button — becomes the primary button once
                   calculated (mirrors Calculate stepping aside above),
                   regardless of whether this is a mid-flow "Next" or the
                   final step's label. */}
               <button
-                onClick={handleFinish}
-                aria-disabled={!calculation.isCalculated}
+                onClick={isReadOnly ? () => navigate(`/projects/${projectType}/${draftId}/opening`) : handleFinish}
+                aria-disabled={!calculation.isCalculated && !isReadOnly}
                 title={
-                  !calculation.isCalculated
-                    ? 'Click "Calculate Results" first'
-                    : calculation.buttonLabel
+                  isReadOnly
+                    ? "Next: Opening"
+                    : !calculation.isCalculated
+                      ? 'Click "Calculate Results" first'
+                      : calculation.buttonLabel
                 }
                 className={`flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-3 hp:py-2 md:px-6
                 rounded-lg hp:rounded-md font-medium transition-all text-sm
                 ${
-                  !calculation.isCalculated
+                  !calculation.isCalculated && !isReadOnly
                     ? "bg-gray-100 text-gray-400 ring-1 ring-inset ring-gray-200 cursor-not-allowed shadow-none"
                     : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
                 }`}
               >
-                <span className="hp:hidden">{calculation.buttonLabel}</span>
+                <span className="hp:hidden">{isReadOnly ? "Next: Opening" : calculation.buttonLabel}</span>
                 <ChevronRight className="w-4 md:w-5 h-4 md:h-5 hp:w-4 hp:h-4" />
               </button>
             </div>

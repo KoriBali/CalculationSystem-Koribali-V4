@@ -10,6 +10,7 @@ import {
   Users,
   AlertCircle,
 } from "lucide-react";
+import { getUser } from "../../../../utils/auth";
 
 // "Muhammad Rifa Alfadli" → "MA"; "Dimas P." → "DP"
 const initials = (name = "") => {
@@ -42,12 +43,35 @@ export default function InitialAssignment({
   members,
   onChange,
   workers = [], // everyone who can be added: [{ id, name, department }]
+  canManageMembers,
 }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedWorkers, setSelectedWorkers] = useState([]);
   const [memberToRemove, setMemberToRemove] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const searchInputRef = useRef(null);
+
+  const currentUser = getUser() || {};
+  const currentUserName = (currentUser.name || currentUser.username || "").toLowerCase();
+  const userRole = (currentUser.role || "").toLowerCase();
+
+  const isAdminDepartment =
+    userRole === "admin" ||
+    userRole === "superadmin" ||
+    userRole === "admin_department" ||
+    userRole === "admin_departement";
+
+  const creatorMember = members.find((m) => m.isCreator);
+  const creatorName = (creatorMember?.name || "").toLowerCase();
+  const isCreator =
+    Boolean(creatorName) &&
+    Boolean(currentUserName) &&
+    creatorName === currentUserName;
+
+  const canManage =
+    typeof canManageMembers === "boolean"
+      ? canManageMembers
+      : isCreator || isAdminDepartment;
 
   // Set of member IDs already officially assigned to this request
   const assignedMemberIds = useMemo(
@@ -78,10 +102,8 @@ export default function InitialAssignment({
 
   useEffect(() => {
     if (modalOpen) {
-      setTimeout(() => searchInputRef.current?.focus(), 100);
-    } else {
-      setSearchQuery("");
-      setSelectedWorkers([]);
+      const timer = setTimeout(() => searchInputRef.current?.focus(), 100);
+      return () => clearTimeout(timer);
     }
   }, [modalOpen]);
 
@@ -140,14 +162,16 @@ export default function InitialAssignment({
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={handleOpenModal}
-          className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg hp:rounded-md text-xs md:text-sm font-medium bg-gradient-to-r from-[#0d3b66] to-[#3399cc] hover:brightness-110 text-white shadow-sm active:scale-[0.98] transition-all"
-        >
-          <UserPlus className="w-4 h-4" />
-          Assign Member
-        </button>
+        {canManage && (
+          <button
+            type="button"
+            onClick={handleOpenModal}
+            className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg hp:rounded-md text-xs md:text-sm font-medium bg-gradient-to-r from-[#0d3b66] to-[#3399cc] hover:brightness-110 text-white shadow-sm active:scale-[0.98] transition-all"
+          >
+            <UserPlus className="w-4 h-4" />
+            Assign Member
+          </button>
+        )}
       </div>
 
       {/* ── Members List ── */}
@@ -165,7 +189,9 @@ export default function InitialAssignment({
                 </span>
                 {m.isCreator ? (
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-sky-50 text-sky-700 ring-1 ring-inset ring-sky-200/80">
-                    Creator · You
+                    {currentUserName && m.name?.toLowerCase() === currentUserName
+                      ? "Creator · You"
+                      : "Creator"}
                   </span>
                 ) : (
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600 ring-1 ring-inset ring-slate-200/80">
@@ -184,7 +210,7 @@ export default function InitialAssignment({
                 >
                   <Lock className="w-4 h-4" />
                 </span>
-              ) : (
+              ) : canManage ? (
                 <button
                   type="button"
                   onClick={() => setMemberToRemove(m)}
@@ -193,14 +219,14 @@ export default function InitialAssignment({
                 >
                   <X className="w-4 h-4" />
                 </button>
-              )}
+              ) : null}
             </div>
           </div>
         ))}
       </div>
 
       {/* Hint if only creator is assigned */}
-      {members.length === 1 && (
+      {members.length === 1 && canManage && (
         <p className="text-xs sm:text-sm text-gray-500 flex items-center gap-2 mt-2 font-normal">
           <Users className="w-4 h-4 text-slate-400 shrink-0" />
           Only you are assigned right now. Click "Assign Member" above to add colleagues.
@@ -292,7 +318,7 @@ export default function InitialAssignment({
               </div>
 
               {/* Candidates List (Only unassigned workers) */}
-              <div className="overflow-y-auto p-3 divide-y divide-slate-100 flex-1">
+              <div className="overflow-y-auto p-3 divide-y divide-slate-100 flex-1 scrollbar-soft">
                 {candidateWorkers.length === 0 ? (
                   <div className="py-10 text-center px-4">
                     <p className="text-xs sm:text-sm text-slate-600 font-medium">

@@ -1,10 +1,15 @@
 import { AlertCircle } from "lucide-react";
 
-export const CustomPoleModal = ({ isOpen, onClose, featureName = "Custom Pole" }) => {
+export const CustomPoleModal = ({
+  isOpen,
+  onClose,
+  featureName = "Custom Pole",
+  zIndex = "z-[1050]",
+}) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm px-4">
+    <div className={`fixed inset-0 ${zIndex} flex items-center justify-center bg-slate-900/40 backdrop-blur-sm px-4`}>
       <div className="w-full max-w-xs sm:max-w-md bg-white border border-gray-200 rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-8">
         <div className="mx-auto mb-3 flex items-center justify-center w-10 h-10 sm:w-16 sm:h-16 bg-blue-100 rounded-full">
           <AlertCircle className="w-5 h-5 sm:w-8 sm:h-8 text-blue-500" />

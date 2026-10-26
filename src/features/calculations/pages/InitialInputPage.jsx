@@ -8,12 +8,14 @@ import { ToastModal } from "../components/modals/ToastModal";
 import { useConditionForm } from "../hooks/useConditionFrom";
 import { useWorkflowMode } from "../hooks/useWorkflowMode";
 import { CustomPoleModal } from "../components/modals/CustomPoleModal";
+import { useReadOnly } from "../contexts/ReadOnlyContext";
 
 export default function InitialInputPage() {
   const { type: projectType } = useParams();
   const [isCustomPoleModalOpen, setIsCustomPoleModalOpen] = useState(false);
   const workflowForm = useWorkflowMode(projectType);
   const projectMode = workflowForm.workflowData.projectMode;
+  const { isReadOnly } = useReadOnly();
 
   const {
     localCondition,
@@ -57,6 +59,7 @@ export default function InitialInputPage() {
               onUpdate={handleUpdate}
               onFinish={onNextStep}
               errors={errors}
+              readOnly={isReadOnly}
             />
           </div>
         </div>

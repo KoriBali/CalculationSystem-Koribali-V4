@@ -47,7 +47,7 @@ export function ArmForm({ arm, onUpdate, armError }) {
         {/* Arm Name Input */}
         <div className="relative col-span-2 2xl:flex-[2] min-w-0 hp:w-full hp:col-span-2">
           <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-            Arm Name
+            Arm Name <span className="text-red-500 ml-1 font-semibold">*</span>
           </label>
           <input
             id={`arm-${arm.idArm}-name`}
@@ -63,7 +63,7 @@ export function ArmForm({ arm, onUpdate, armError }) {
         {/* Material Arm Selector */}
         <div className="relative 2xl:w-[120px] 2xl:flex-none min-w-0 hp:w-full">
           <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-            Material
+            Material <span className="text-red-500 ml-1 font-semibold">*</span>
           </label>
           <FormSelect
             id={`arm-${arm.idArm}-material`}
@@ -94,7 +94,7 @@ export function ArmForm({ arm, onUpdate, armError }) {
         {/* Diameter Arm Input */}
         <div className="relative 2xl:flex-1 min-w-0 hp:w-full">
           <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-            Diameter
+            Diameter <span className="text-red-500 ml-1 font-semibold">*</span>
           </label>
           <div className="relative">
             <input
@@ -120,7 +120,7 @@ export function ArmForm({ arm, onUpdate, armError }) {
         {/* Thickness Arm Input */}
         <div className="relative 2xl:flex-1 min-w-0 hp:w-full">
           <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-            Thickness
+            Thickness <span className="text-red-500 ml-1 font-semibold">*</span>
           </label>
           <div className="relative">
             <input
@@ -146,7 +146,7 @@ export function ArmForm({ arm, onUpdate, armError }) {
         {/* Length Arm Input */}
         <div className="relative 2xl:flex-1 min-w-0 hp:w-full">
           <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-            Length
+            Length <span className="text-red-500 ml-1 font-semibold">*</span>
           </label>
           <div className="relative">
             <input
@@ -172,7 +172,7 @@ export function ArmForm({ arm, onUpdate, armError }) {
         {/* Exp.Length Arm Input */}
         <div className="relative 2xl:flex-1 min-w-0 hp:w-full">
           <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-            Exp.Length
+            Exp.Length <span className="text-red-500 ml-1 font-semibold">*</span>
           </label>
           <div className="relative">
             <input
@@ -198,7 +198,7 @@ export function ArmForm({ arm, onUpdate, armError }) {
         {/* Height Arm Input */}
         <div className="relative 2xl:flex-1 min-w-0 hp:w-full">
           <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-            Height
+            Height <span className="text-red-500 ml-1 font-semibold">*</span>
           </label>
           <div className="relative">
             <input
@@ -224,7 +224,7 @@ export function ArmForm({ arm, onUpdate, armError }) {
         {/* H-Distance Arm Input */}
         <div className="relative 2xl:flex-1 min-w-0 hp:w-full">
           <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-            H-Distance
+            H-Distance <span className="text-red-500 ml-1 font-semibold">*</span>
           </label>
           <div className="relative">
             <input
@@ -250,7 +250,7 @@ export function ArmForm({ arm, onUpdate, armError }) {
         {/* Fix Angle Arm Input */}
         <div className="relative 2xl:flex-1 min-w-0 hp:w-full">
           <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-            Fix Angle
+            Fix Angle <span className="text-red-500 ml-1 font-semibold">*</span>
           </label>
           <div className="relative">
             <input
@@ -275,7 +275,7 @@ export function ArmForm({ arm, onUpdate, armError }) {
         {/* nnC Arm Input */}
         <div className="relative 2xl:flex-[0.8] min-w-0 hp:w-full">
           <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-            nnC
+            nnC <span className="text-red-500 ml-1 font-semibold">*</span>
           </label>
           <input
             id={`arm-${arm.idArm}-nnC`}
@@ -296,7 +296,7 @@ export function ArmForm({ arm, onUpdate, armError }) {
         {/* Quantity Arm Input */}
         <div className="relative 2xl:flex-[0.8] min-w-0 hp:w-full">
           <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-            Quantity
+            Quantity <span className="text-red-500 ml-1 font-semibold">*</span>
           </label>
           <div className="relative">
             <input

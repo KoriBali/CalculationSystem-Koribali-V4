@@ -3,7 +3,7 @@ import { Triangle, RectangleVertical, CheckCircle, Circle } from "lucide-react";
 // ==== CONSTANTS ====
 // Available pole type options
 const POLE_TYPE_OPTIONS = [
-  { id: "tapered", label: "Taper Pole", icon: Triangle },
+  { id: "taper", label: "Taper Pole", icon: Triangle },
   { id: "straight", label: "Straight Pole", icon: RectangleVertical },
 ];
 
@@ -18,27 +18,35 @@ const SectionTitle = ({ children }) => (
 );
 
 // === COMPONENT ===
-export function PoleTypeSelector({ poleTypeStandard, onUpdate }) {
+export function PoleTypeSelector({ poleTypeStandard, onUpdate, readOnly = false }) {
   return (
     <div className="mb-6 px-4 md:px-6">
-      <SectionTitle>Select Pole Type</SectionTitle>
+      <SectionTitle>
+        Select Pole Type <span className="text-red-500 ml-1 font-semibold">*</span>
+      </SectionTitle>
 
       <div className="border border-slate-200 rounded-xl hp:rounded-lg p-4 md:p-6 bg-white shadow-sm">
         <div className="grid grid-cols-2 gap-4 md:gap-6">
           {POLE_TYPE_OPTIONS.map((option) => {
             const Icon = option.icon;
-            const isActive = poleTypeStandard.type === option.id;
+            const isActive =
+              poleTypeStandard.type === option.id ||
+              (option.id === "taper" && poleTypeStandard.type === "tapered");
 
             return (
               <button
                 key={option.id}
                 type="button"
-                onClick={() => onUpdate({ type: option.id })}
-                className={`group w-full flex items-center justify-between px-3 xl:px-4 py-2 lg:py-3 relative overflow-hidden rounded-lg border transition-all duration-300 cursor-pointer active:scale-[0.98]
+                disabled={readOnly}
+                onClick={readOnly ? undefined : () => onUpdate({ type: option.id })}
+                className={`group w-full flex items-center justify-between px-3 xl:px-4 py-2 lg:py-3 relative overflow-hidden rounded-lg border transition-all duration-300
+                  ${readOnly ? "cursor-default" : "cursor-pointer active:scale-[0.98]"}
                   ${
                     isActive
                       ? "border-blue-500 bg-blue-50 shadow-sm ring-1 ring-blue-50"
-                      : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+                      : readOnly
+                        ? "border-slate-200 bg-slate-50/50 opacity-60"
+                        : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
                   }`}
               >
                 <div className="flex items-center gap-3">

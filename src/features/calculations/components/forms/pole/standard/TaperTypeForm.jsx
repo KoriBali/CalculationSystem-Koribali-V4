@@ -490,6 +490,7 @@ const LABEL_ANCHOR_TRANSFORM = {
 // Builds the label texts for the selected pole from specStandardPole.json.
 // Returns null until a height is chosen or when the diagram isn't mapped.
 function getDiagramLabels(poleType, groundPosition, height) {
+  if (!height) return null;
   const layout = DIAGRAM_LABEL_LAYOUT[`${poleType}.${groundPosition}`];
   if (!layout) return null;
   // Layouts flagged textsFromOnGL read the On GL entry for the same pole
@@ -498,12 +499,22 @@ function getDiagramLabels(poleType, groundPosition, height) {
     layout.textsFromOnGL || groundPosition === "embedment"
       ? "onGL"
       : groundPosition;
+  const numH = Number(height);
+  const mH = numH > 100 ? numH / 1000 : numH;
   const dataHeight = layout.textsFromOnGL
-    ? String(Math.round((Number(height) - UNDER_GL_DEPTH_MM / 1000) * 10) / 10)
-    : height;
+    ? String(Math.round((mH - UNDER_GL_DEPTH_MM / 1000) * 10) / 10)
+    : String(mH);
   const dataTaper = STANDARD_POLE_DATA.tapered || STANDARD_POLE_DATA.taper;
+  const group = dataTaper?.[poleType]?.[dataGround] || {};
+  const isTypeWith100 = poleType !== "IS" && poleType !== "IA";
+  const nominalHeight = isTypeWith100
+    ? String(Math.round((Number(dataHeight) - 0.1) * 10) / 10)
+    : String(Math.round((Number(dataHeight) + 0.1) * 10) / 10);
+
   const entry =
-    dataTaper?.[poleType]?.[dataGround]?.[dataHeight];
+    group[dataHeight] ||
+    group[nominalHeight] ||
+    group[String(Math.round(Number(dataHeight) * 10) / 10)];
   const poles = entry?.poles;
   const arm = entry?.arms?.[0];
   const arm2 = entry?.arms?.[1];
@@ -520,13 +531,15 @@ function getDiagramLabels(poleType, groundPosition, height) {
   const [top, middle, bottom] = poles;
   const isStepped = poles.length >= 3;
 
+  const heightInMm = numH > 100 ? Math.round(numH) : Math.round(mH * 1000);
+
   const texts = {
     upperDiameter: [`φ${pole.upperDiameter}`],
     poleSpec: [`t${thickness}`, `[JIS G3444 ${taper.material}]`],
     baseDimension: [`${BASE_DIMENSION_MM}`],
     lowerDiameter: [`φ${pole.lowerDiameter}`],
     aboveGroundHeight: [
-      `${Math.round(Number(height) * 1000) - UNDER_GL_DEPTH_MM}`,
+      `${heightInMm - UNDER_GL_DEPTH_MM}`,
     ],
     underGroundDepth: [`${UNDER_GL_DEPTH_MM}`],
     // Stepped poles — diameters top to bottom, then section lengths.
@@ -603,6 +616,7 @@ export function TaperPoleStandardForm({
   hideReset = false,
   isBaseplate = true,
   errors = {},
+  readOnly = false,
 }) {
   const {
     poleStandardOptions,
@@ -647,6 +661,26 @@ export function TaperPoleStandardForm({
   const heightLookupKey = !isBaseplate
     ? "onGL"
     : taperPoleStandard.groundPosition;
+
+  // If poleType and ground position are selected but height is empty (e.g. restored
+  // from draft or standard selection made while options were loading), auto-select
+  // the first available height option.
+  useEffect(() => {
+    if (
+      taperPoleStandard.poleType &&
+      heightLookupKey &&
+      !taperPoleStandard.height &&
+      currentHeightOptions[heightLookupKey]?.length > 0
+    ) {
+      onUpdate({ height: currentHeightOptions[heightLookupKey][0].id });
+    }
+  }, [
+    taperPoleStandard.poleType,
+    taperPoleStandard.height,
+    heightLookupKey,
+    currentHeightOptions,
+    onUpdate,
+  ]);
 
   const currentImage =
     taperPoleStandard.poleType && taperPoleStandard.groundPosition
@@ -724,7 +758,7 @@ export function TaperPoleStandardForm({
   const heightField = (
     <>
       <span className="block text-gray-600 text-xs md:text-sm font-medium mb-2">
-        Height
+        Height <span className="text-red-500 ml-1 font-semibold">*</span>
       </span>
       <FormSelect
         id="taperPoleStandard.height"
@@ -735,6 +769,7 @@ export function TaperPoleStandardForm({
           label: h.label,
         }))}
         loading={poleStandardLoading}
+        disabled={readOnly}
         hasError={!!errors.height}
         placeholder="Select Height"
       />
@@ -763,7 +798,7 @@ export function TaperPoleStandardForm({
         >
           <div className="px-4 py-3 border-b border-slate-100 bg-slate-50 flex-shrink-0">
             <p className="text-xs md:text-sm font-medium text-slate-500">
-              Pole Standard Type
+              Pole Standard Type <span className="text-red-500 ml-1 font-semibold">*</span>
             </p>
           </div>
 
@@ -773,10 +808,10 @@ export function TaperPoleStandardForm({
                 {[1, 2, 3, 4, 5, 6].map((i) => (
                   <div
                     key={i}
-                    className="h-11 rounded-lg hp:rounded-md bg-slate-100 animate-pulse border border-slate-200 flex items-center justify-between px-4"
+                    className="h-11 rounded-lg hp:rounded-md bg-gradient-to-r from-slate-100 via-slate-50 to-slate-100 animate-pulse border border-slate-200/80 flex items-center justify-between px-4"
                   >
-                    <div className="w-20 h-3.5 bg-slate-200 rounded animate-pulse" />
-                    <div className="w-4 h-4 rounded-full bg-slate-200 animate-pulse" />
+                    <div className="w-20 h-3.5 bg-slate-200/80 rounded" />
+                    <div className="w-4 h-4 rounded-full bg-slate-200/80" />
                   </div>
                 ))}
               </div>
@@ -802,7 +837,9 @@ export function TaperPoleStandardForm({
                 <button
                   key={option.id}
                   type="button"
+                  disabled={readOnly}
                   onClick={() => {
+                    if (readOnly) return;
                     const nextGround = !isBaseplate
                       ? "underGL"
                       : taperPoleStandard.groundPosition || "onGL";
@@ -821,10 +858,13 @@ export function TaperPoleStandardForm({
                     });
                   }}
                   className={`w-full rounded-lg hp:rounded-md border px-4 py-2 lg:py-2.5 text-xs md:text-sm font-medium transition-all text-left
+                  ${readOnly ? "cursor-default" : "cursor-pointer"}
                   ${
                     isActive
                       ? "border-blue-500 bg-blue-50 text-blue-600 shadow-sm"
-                      : "border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50"
+                      : readOnly
+                        ? "border-slate-100 text-slate-400 bg-slate-50/50"
+                        : "border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50"
                   }`}
                 >
                   {option.label}
@@ -851,7 +891,7 @@ export function TaperPoleStandardForm({
             className="px-4 py-3 border-b border-slate-100 bg-slate-50 flex flex-col xl:flex-row items-start xl:items-center gap-3 xl:gap-4 flex-shrink-0"
           >
             <p className="text-xs md:text-sm font-medium text-slate-500 flex-shrink-0">
-              Ground Position
+              Ground Position <span className="text-red-500 ml-1 font-semibold">*</span>
             </p>
 
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
@@ -864,9 +904,9 @@ export function TaperPoleStandardForm({
                     <button
                       key={option.id}
                       type="button"
-                      disabled={isGroundDisabled}
+                      disabled={isGroundDisabled || readOnly}
                       onClick={() => {
-                        if (isGroundDisabled) return;
+                        if (isGroundDisabled || readOnly) return;
                         const optList =
                           heightOptionsByStandard[taperPoleStandard.poleType]?.[
                             option.id
@@ -887,10 +927,10 @@ export function TaperPoleStandardForm({
                       rounded-lg hp:rounded-md border px-4 py-2 lg:py-2.5 text-xs md:text-sm font-medium
                       transition-all duration-150 select-none
                       ${
-                        isGroundDisabled
-                          ? "bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed opacity-60"
+                        isGroundDisabled || (readOnly && !isActive)
+                          ? "bg-slate-100/70 text-slate-400 border-slate-200 cursor-not-allowed opacity-60"
                           : isActive
-                            ? "border-blue-500 bg-blue-50 text-blue-600 shadow-sm cursor-pointer"
+                            ? "border-blue-500 bg-blue-50 text-blue-600 shadow-sm cursor-default"
                             : "border-slate-200 text-slate-700 cursor-pointer hover:border-slate-300 hover:bg-slate-100"
                       }
                     `}
@@ -975,11 +1015,38 @@ export function TaperPoleStandardForm({
                   }`}
                 >
                   {!isImageLoaded && (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-slate-400">
-                      <Loader2 className="w-6 h-6 animate-spin" />
-                      <span className="text-[11px] md:text-xs">
-                        Loading diagram...
-                      </span>
+                    <div className="absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none p-4">
+                      {/* Technical Silhouette Wireframe Shimmer */}
+                      <div className="absolute inset-0 flex items-center justify-center opacity-30 select-none">
+                        <div className="relative flex flex-col items-center h-4/5 w-16">
+                          {/* Pole top cap */}
+                          <div className="w-5 h-2 rounded-t bg-slate-300 animate-pulse" />
+                          {/* Pole tapered body */}
+                          <div className="flex-1 w-7 bg-gradient-to-b from-slate-200 via-slate-100 to-slate-200 rounded-sm animate-pulse border-x border-slate-300/70" />
+                          {/* Dimension reference ticks */}
+                          <div className="absolute -left-10 top-1/4 w-8 border-t border-dashed border-slate-400" />
+                          <div className="absolute -left-10 top-1/2 w-8 border-t border-dashed border-slate-400" />
+                          <div className="absolute -left-10 top-3/4 w-8 border-t border-dashed border-slate-400" />
+                          <div className="absolute -left-10 top-1/4 bottom-1/4 border-l border-dashed border-slate-400" />
+                          {/* Baseplate indicator */}
+                          <div className="w-16 h-2.5 rounded-b bg-slate-300 animate-pulse" />
+                        </div>
+                      </div>
+
+                      {/* Enterprise Glassmorphic Status Badge */}
+                      <div className="relative z-10 flex items-center gap-3.5 px-5 py-3 rounded-xl bg-white/90 backdrop-blur-md border border-slate-200 shadow-[0_8px_30px_rgb(0,0,0,0.06)]">
+                        <div className="relative flex items-center justify-center w-9 h-9 rounded-lg bg-gradient-to-br from-[#0d3b66] to-[#1a5a92] text-white shadow-sm shrink-0">
+                          <Loader2 className="w-4.5 h-4.5 animate-spin text-white" />
+                        </div>
+                        <div className="text-left">
+                          <p className="text-xs font-semibold text-[#0d3b66] tracking-wide">
+                            Rendering Technical Schematic
+                          </p>
+                          <p className="text-[11px] text-slate-400 font-normal">
+                            Generating pole specifications & dimensions...
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   )}
                   {/* Wrapper sized exactly to the rendered image, so the
@@ -1057,7 +1124,7 @@ export function TaperPoleStandardForm({
                           className={`absolute z-10 w-[120px] sm:w-[150px] xl:w-[160px] ${["IS", "IA"].includes(taperPoleStandard.poleType) ? "bottom-[5%]" : "bottom-[2%]"}`}
                         >
                           <span className="block text-gray-600 text-xs md:text-sm font-medium mb-2">
-                            Embedment Length
+                            Embedment Length <span className="text-red-500 ml-1 font-semibold">*</span>
                           </span>
                           <div className="relative">
                             <input
@@ -1144,7 +1211,7 @@ export function TaperPoleStandardForm({
       </div>
 
       {/* ── Footer: Reset ── */}
-      {!hideReset && (
+      {!hideReset && !readOnly && (
         <div className="flex justify-between pt-5 border-t mt-6">
           <button
             type="button"

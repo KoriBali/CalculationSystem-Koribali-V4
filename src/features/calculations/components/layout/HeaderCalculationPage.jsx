@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import {
   ArrowLeft,
   LayoutDashboard,
@@ -17,8 +18,11 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Eye,
+  X,
+  ChevronDown,
 } from "lucide-react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
+import { useReadOnly } from "../../contexts/ReadOnlyContext";
 
 import { DraftActionModal } from "../modals/DraftActionModal";
 import { ToastModal } from "../modals/ToastModal";
@@ -42,7 +46,65 @@ export function HeaderCalculationPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { type, draftId } = useParams();
-  const isReadOnly = sessionStorage.getItem("case_read_only") === "true";
+  const { isReadOnly: isContextReadOnly, owner: caseOwner } = useReadOnly();
+  const isReadOnly = isContextReadOnly || sessionStorage.getItem("case_read_only") === "true";
+  const [showReadOnlyPopover, setShowReadOnlyPopover] = useState(false);
+  const [readOnlyPopoverPos, setReadOnlyPopoverPos] = useState(null);
+  const readOnlyPopoverRef = useRef(null);
+
+  const handleToggleReadOnlyPopover = (e) => {
+    e.stopPropagation();
+    if (showReadOnlyPopover) {
+      setShowReadOnlyPopover(false);
+      return;
+    }
+    const rect = e.currentTarget.getBoundingClientRect();
+    const POPOVER_WIDTH = 320;
+    const isTriggerOnRight = rect.left > window.innerWidth / 2;
+    let left;
+    if (isTriggerOnRight) {
+      left = Math.min(
+        Math.max(12, rect.right - POPOVER_WIDTH),
+        window.innerWidth - POPOVER_WIDTH - 12
+      );
+    } else {
+      left = Math.min(
+        Math.max(12, rect.left),
+        window.innerWidth - POPOVER_WIDTH - 12
+      );
+    }
+    const top = rect.bottom + 8;
+    setReadOnlyPopoverPos({ top, left });
+    setShowReadOnlyPopover(true);
+  };
+
+  useEffect(() => {
+    if (!showReadOnlyPopover) return;
+    const handleClose = () => setShowReadOnlyPopover(false);
+    const handleClickOutside = (e) => {
+      if (
+        readOnlyPopoverRef.current &&
+        !readOnlyPopoverRef.current.contains(e.target) &&
+        !e.target.closest('[data-readonly-trigger="true"]')
+      ) {
+        setShowReadOnlyPopover(false);
+      }
+    };
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") setShowReadOnlyPopover(false);
+    };
+
+    window.addEventListener("scroll", handleClose, true);
+    window.addEventListener("resize", handleClose);
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("scroll", handleClose, true);
+      window.removeEventListener("resize", handleClose);
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [showReadOnlyPopover]);
 
   const [showDraftModal, setShowDraftModal] = useState(false);
   const [toast, setToast] = useState(null);
@@ -172,21 +234,33 @@ export function HeaderCalculationPage() {
 
   // ─── CALCULATION CONFIG ──────────────────────────────────────────────────
   const raw = sessionStorage.getItem(`${type}_calculation_config`);
-  const config = raw ? JSON.parse(raw) : null;
+  const storedConfig = raw ? JSON.parse(raw) : null;
 
-  // ─── CHECK CALCULATION COMPLETION ────────────────────────────────────────
-  // Gates entry to the Drawing phase. Driven by the same "isCalculated*"
-  // flags each step's own Calculate/Next button and tab-lock use (see
-  // isPoleStepCompleted etc. below) — not by whether result data merely
-  // exists in sessionStorage. A step's result data can outlive its
-  // isCalculated flag (e.g. it's edited afterward, or a condition change
-  // invalidates it) while staying on screen as a stale reference, so
-  // checking data presence alone would let a user reach Drawing with
-  // out-of-date calculations. Checking the flag keeps this in sync with
-  // "has this step actually been calculated against its current inputs".
   // ─── CONDITION ───────────────────────────────────────────────────────────
   const rawCondition = sessionStorage.getItem(`${type}_condition`);
   const condition = rawCondition ? JSON.parse(rawCondition) : null;
+
+  // Condition is the ground truth for enabled components (Opening, Baseplate, Foundation).
+  // When condition exists in session, derive config directly from condition to avoid stale tabs
+  // left behind from a previous poleType (e.g. Standard pole had opening/baseplate true, then switched to Custom).
+  const config = condition
+    ? {
+        pole: storedConfig?.pole ?? true,
+        opening: Boolean(condition.openingEnabled),
+        baseplate: Boolean(condition.baseplateEnabled),
+        foundation: Boolean(condition.foundationEnabled),
+      }
+    : storedConfig;
+
+  useEffect(() => {
+    if (config) {
+      const currentRaw = sessionStorage.getItem(`${type}_calculation_config`);
+      const targetStr = JSON.stringify(config);
+      if (currentRaw !== targetStr) {
+        sessionStorage.setItem(`${type}_calculation_config`, targetStr);
+      }
+    }
+  }, [type, config]);
 
   const isInvalidCustomBoth =
     workflow.projectMode === "both" && condition?.poleType === "custom";
@@ -338,9 +412,6 @@ export function HeaderCalculationPage() {
         ]
       : []),
   ];
-
-  // ─── CURRENT PAGE ────────────────────────────────────────────────────────
-  const isProjectIdentityPage = false;
 
   const isDrawingPage =
     location.pathname.includes(`/projects/${type}/${draftId}/drawing`) ||
@@ -680,13 +751,22 @@ export function HeaderCalculationPage() {
 
             <button
               type="button"
-              onClick={handleQuickSave}
-              title={isReadOnly ? "Read-Only Case" : "Save Draft"}
-              aria-label={isReadOnly ? "Read-Only Case" : "Save Draft"}
-              className="flex items-center justify-center w-[38px] h-[38px] shrink-0 rounded-lg hover:bg-white/10 active:bg-white/15 transition"
+              data-readonly-trigger={isReadOnly ? "true" : undefined}
+              onClick={isReadOnly ? handleToggleReadOnlyPopover : handleQuickSave}
+              title={
+                isReadOnly
+                  ? `Read-Only: Assigned to ${caseOwner || "another engineer"}`
+                  : "Save Draft"
+              }
+              aria-label={
+                isReadOnly
+                  ? `Read-Only: Assigned to ${caseOwner || "another engineer"}`
+                  : "Save Draft"
+              }
+              className="flex items-center justify-center w-[38px] h-[38px] shrink-0 rounded-lg hover:bg-white/10 active:bg-white/15 transition text-amber-300"
             >
               {isReadOnly ? (
-                <Eye className="w-4 h-4 text-amber-300" />
+                <Lock className="w-4 h-4 text-amber-300" />
               ) : (
                 <Save className="w-4 h-4" />
               )}
@@ -709,7 +789,7 @@ export function HeaderCalculationPage() {
           >
             {/* ─── BLUE HEADER CARD ─────────────────────────────────────────────── */}
             <div
-              className={`rounded-xl bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] shadow-sm px-3 py-3 sm:px-4 sm:py-4 md:px-6 2xl:px-8 flex flex-col gap-3 sm:gap-4 ${!isProjectIdentityPage ? "sm:rounded-t-2xl sm:rounded-b-none" : "sm:rounded-2xl"}`}
+              className="rounded-xl bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] shadow-sm px-3 py-3 sm:px-4 sm:py-4 md:px-6 2xl:px-8 flex flex-col gap-3 sm:gap-4 sm:rounded-t-2xl sm:rounded-b-none"
             >
               {/* TOP ROW: Back / Mode Switch / Save */}
               <div className="flex items-center justify-between gap-2 sm:gap-3 w-full">
@@ -728,7 +808,7 @@ export function HeaderCalculationPage() {
 
                 {/* DESKTOP: PHASE STEPPER */}
                 <div className="hidden sm:flex flex-[2] md:flex-[3] flex-col items-center justify-center">
-                  {workflow.projectMode === "both" && !isProjectIdentityPage ? (
+                  {workflow.projectMode === "both" ? (
                     <div className="flex items-center w-full max-w-[300px] xl:max-w-[340px] 2xl:max-w-[400px] px-2">
                       {/* Phase 1: Calculation — a pill-shaped button (not a bare
                     div) so hover/focus affordances read as "clickable" the
@@ -862,31 +942,33 @@ export function HeaderCalculationPage() {
 
                 {/* SAVE DRAFT + MINIMIZE */}
                 <div className="flex-1 flex items-center justify-end gap-2 relative">
-                  <button
-                    type="button"
-                    onClick={handleQuickSave}
-                    className={`flex items-center justify-center gap-1 sm:gap-2 px-3 py-2 sm:px-4 shrink-0 whitespace-nowrap border rounded-lg hp:rounded-md text-xs sm:text-sm font-medium transition ${
-                      isReadOnly
-                        ? "bg-amber-500/20 hover:bg-amber-500/30 border-amber-300/40 text-amber-200"
-                        : "bg-white/10 hover:bg-white/20 active:bg-white/25 border-white/20 text-white"
-                    }`}
-                  >
-                    {isReadOnly ? (
-                      <>
-                        <Eye className="w-4 h-4 shrink-0 text-amber-300" />
-                        <span className="hidden sm:inline text-amber-100">
-                          Read-Only
-                        </span>
-                        <span className="sm:hidden text-amber-100">View</span>
-                      </>
-                    ) : (
-                      <>
-                        <Save className="w-4 h-4 shrink-0" />
-                        <span className="hidden sm:inline">Save Draft</span>
-                        <span className="sm:hidden">Save</span>
-                      </>
-                    )}
-                  </button>
+                  {isReadOnly ? (
+                    <button
+                      type="button"
+                      data-readonly-trigger="true"
+                      onClick={handleToggleReadOnlyPopover}
+                      className="flex items-center justify-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 shrink-0 whitespace-nowrap rounded-lg hp:rounded-md text-xs sm:text-sm font-medium bg-amber-400/15 hover:bg-amber-400/25 active:bg-amber-400/30 border border-amber-300/40 text-amber-200 shadow-xs backdrop-blur-sm transition-all active:scale-[0.98]"
+                      title="Read-Only Mode: Click for details"
+                    >
+                      <Lock className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+                      <span className="text-amber-100 font-semibold tracking-wide">Read-Only</span>
+                      <ChevronDown
+                        className={`w-3.5 h-3.5 text-amber-300/80 transition-transform duration-200 shrink-0 ${
+                          showReadOnlyPopover ? "rotate-180" : ""
+                        }`}
+                      />
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleQuickSave}
+                      className="flex items-center justify-center gap-1 sm:gap-2 px-3 py-2 sm:px-4 shrink-0 whitespace-nowrap border rounded-lg hp:rounded-md text-xs sm:text-sm font-medium transition bg-white/10 hover:bg-white/20 active:bg-white/25 border-white/20 text-white"
+                    >
+                      <Save className="w-4 h-4 shrink-0" />
+                      <span className="hidden sm:inline">Save Draft</span>
+                      <span className="sm:hidden">Save</span>
+                    </button>
+                  )}
 
                   {/* Minimize — only offered once the header is stuck over the
                 content (appears together with the scroll-to-top button).
@@ -914,7 +996,7 @@ export function HeaderCalculationPage() {
 
               {/* MOBILE: PHASE STEPPER — same button/pill/checkmark treatment as
             the desktop version above, scaled down for a compact touch bar. */}
-              {workflow.projectMode === "both" && !isProjectIdentityPage && (
+              {workflow.projectMode === "both" && (
                 <div className="flex sm:hidden w-full items-center justify-center px-4 pt-2">
                   {/* Phase 1 */}
                   <button
@@ -1015,8 +1097,7 @@ export function HeaderCalculationPage() {
             </div>
 
             {/* ─── STEP NAVIGATION — DESKTOP (separate section, no gap) ─────────── */}
-            {!isProjectIdentityPage && (
-              <div className="hidden sm:block bg-white border border-slate-200 border-t-0 rounded-b-2xl sm:px-4 sm:py-2 md:px-6 2xl:px-8 shadow-sm">
+            <div className="hidden sm:block bg-white border border-slate-200 border-t-0 rounded-b-2xl sm:px-4 sm:py-2 md:px-6 2xl:px-8 shadow-sm">
                 <div className="relative flex items-center w-full overflow-hidden">
                   {/* SCROLL LEFT */}
                   <div
@@ -1058,11 +1139,9 @@ export function HeaderCalculationPage() {
                   </div>
                 </div>
               </div>
-            )}
 
             {/* ─── STEP NAVIGATION — MOBILE (fixed bottom bar) ────────────────── */}
-            {!isProjectIdentityPage && (
-              <div className="fixed bottom-0 left-0 right-0 z-50 sm:hidden bg-white border-t border-slate-200 px-3 py-1.5 [@media(max-width:639px)_and_(max-height:600px)]:hidden shadow-[0_-4px_10px_-1px_rgba(0,0,0,0.1)]">
+            <div className="fixed bottom-0 left-0 right-0 z-50 sm:hidden bg-white border-t border-slate-200 px-3 py-1.5 [@media(max-width:639px)_and_(max-height:600px)]:hidden shadow-[0_-4px_10px_-1px_rgba(0,0,0,0.1)]">
                 <div className="relative flex items-center w-full overflow-hidden">
                   {/* SCROLL LEFT */}
                   <div
@@ -1159,7 +1238,6 @@ export function HeaderCalculationPage() {
                   </div>
                 </div>
               </div>
-            )}
           </div>
         </div>
       </div>
@@ -1192,6 +1270,76 @@ export function HeaderCalculationPage() {
         open={showSmartPreserveModal}
         onClose={() => setShowSmartPreserveModal(false)}
       />
+
+      {/* ─── READ-ONLY INFO POPOVER (PORTAL) ──────────────────────────────────
+          Rendered directly into document.body to prevent clipping by the
+          collapsible header's clip-path or any parent overflow. */}
+      {showReadOnlyPopover && readOnlyPopoverPos &&
+        createPortal(
+          <div
+            ref={readOnlyPopoverRef}
+            style={{
+              position: "fixed",
+              top: readOnlyPopoverPos.top,
+              left: readOnlyPopoverPos.left,
+              width: 320,
+            }}
+            className="z-[9999] p-4 rounded-2xl bg-white text-slate-800 shadow-[0_12px_36px_rgba(15,23,42,0.18)] border border-slate-200 animate-in fade-in zoom-in-95 duration-150"
+            role="dialog"
+            aria-label="Read-Only Mode Details"
+          >
+            <div className="flex items-start justify-between gap-2 pb-2.5 border-b border-slate-100">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-600 shrink-0">
+                  <Lock className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <h4 className="text-sm font-semibold text-slate-900 leading-tight">
+                      Read-Only Mode
+                    </h4>
+                    <span className="text-[10px] font-semibold tracking-wide uppercase px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200">
+                      Protected
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    Assigned to {caseOwner || "another engineer"}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowReadOnlyPopover(false)}
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-md hover:bg-slate-100 transition-colors shrink-0"
+                aria-label="Close"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="mt-3 space-y-2 text-xs text-slate-600 leading-relaxed">
+              <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-[11px] space-y-2">
+                <p className="flex items-start gap-2 text-slate-600">
+                  <span className="text-amber-500 font-bold shrink-0 text-xs">✕</span>
+                  <span>Form inputs and calculations are locked to prevent conflicting edits.</span>
+                </p>
+                <p className="flex items-start gap-2 text-emerald-700">
+                  <span className="text-emerald-500 font-bold shrink-0 text-xs">✓</span>
+                  <span>You can freely inspect specifications, formulas, calculation results, and drawings.</span>
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowReadOnlyPopover(false)}
+              className="mt-3 w-full py-1.5 text-center text-xs font-semibold text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200/80 rounded-lg transition-colors"
+            >
+              Got it
+            </button>
+          </div>,
+          document.body
+        )}
     </>
   );
 }

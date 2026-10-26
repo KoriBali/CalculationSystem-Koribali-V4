@@ -8,7 +8,8 @@ export const getRows = (poleIndex, resultPole) => {
   // =========================
   rows.push({
     type: "section",
-    description: currentStep.description,
+    description:
+      currentStep?.description || currentStep?.name || `Section ${poleIndex + 1}`,
   });
 
   return rows;

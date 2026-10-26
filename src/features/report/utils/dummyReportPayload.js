@@ -20,9 +20,19 @@ export function getDummyReportPayload(projectType = "lighting-project", customPo
   const poleType = (taperPole.poleType || "IA").toUpperCase();
   const groundPos = taperPole.groundPosition || "onGL";
   const heightKey = String(taperPole.height || "10");
+  const rawH = Number(heightKey);
+  const mH = rawH > 100 ? rawH / 1000 : rawH;
+  const hKey = String(Math.round(mH * 10) / 10);
+  const isTypeWith100 = poleType !== "IS" && poleType !== "IA";
+  const nominalKey = isTypeWith100
+    ? String(Math.round((Number(hKey) - 0.1) * 10) / 10)
+    : String(Math.round((Number(hKey) + 0.1) * 10) / 10);
 
+  const group = dataTaper?.[poleType]?.[groundPos] || {};
   const selectedPole =
-    dataTaper?.[poleType]?.[groundPos]?.[heightKey] ||
+    group[heightKey] ||
+    group[hKey] ||
+    group[nominalKey] ||
     dataTaper?.["IA"]?.["onGL"]?.["10"] ||
     dataTaper?.["IS"]?.["onGL"]?.["12"] ||
     {};

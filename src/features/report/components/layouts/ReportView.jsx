@@ -20,10 +20,11 @@ import {
   FileEdit,
   AlertCircle,
   Calculator,
+  SendHorizontal,
 } from "lucide-react";
 import { EmptyReport } from "../../../../assets/icon";
 import { ConfirmSaveDatabaseModal } from "../../../calculations/components/modals/ConfirmSaveDatabaseModal";
-import { activeDraftRequestPath } from "../../../calculations/utils/requestCases";
+import { activeDraftRequestPath, submitCaseForCheck } from "../../../calculations/utils/requestCases";
 import { SchematicEditorModal } from "../../../calculations/components/schematic/SchematicEditorModal";
 import {
   useSchematicBridge,
@@ -39,6 +40,9 @@ import {
   clearActiveDraftId,
 } from "../../../calculations/utils/coreLogic";
 import { CoverFormModal } from "../../../calculations/components/modals/CoverFormModal";
+import { ToastModal } from "../../../calculations/components/modals/ToastModal";
+import { useReadOnly } from "../../../calculations/contexts/ReadOnlyContext";
+import { getUser } from "../../../../utils/auth";
 
 // ─── COMPONENT ───────────────────────────────────────────────────────────────
 
@@ -221,9 +225,11 @@ export function ReportView() {
   const calculatedFoundation = reportData?.calculatedFoundation || null;
 
   // ── UI state ──
+  const { isReadOnly } = useReadOnly();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showDbModal, setShowDbModal] = useState(false);
   const [hasReport, setHasReport] = useState(true);
+  const [toast, setToast] = useState(null);
 
   // ── Handlers ──
 
@@ -297,15 +303,22 @@ export function ReportView() {
   };
 
   const handleConfirmSaveDb = () => {
-    // Database save logic will go here
+    if (draftId) {
+      saveWorkingSessionToDraft(projectType, draftId);
+      submitCaseForCheck(draftId, getUser());
+    }
     setShowDbModal(false);
+    setToast({
+      message: "Case saved and submitted for checking!",
+      type: "success",
+    });
     // Back to the case's request — read before the session is cleared.
     const backPath = activeDraftRequestPath(projectType);
     setTimeout(() => {
       clearCalculationSession(projectType);
       clearActiveDraftId(projectType);
       navigate(backPath);
-    }, 1000);
+    }, 2000);
   };
 
   // ── Schematic setup (Standard Pole IA, IS, LA, LS, TA, TS & Standard Straight) ──
@@ -543,51 +556,72 @@ export function ReportView() {
     <div className="min-h-screen bg-gray-50">
       {/* Navigation bar — hidden on print */}
       <div className="bg-white print:hidden sticky top-[64px] z-30 shadow-sm border-b border-[#0d3b66]">
-        <div className="mx-auto px-6 py-4 hp:px-4 hp:py-2.5">
-          <div className="flex items-center justify-between">
+        <div className="mx-auto px-4 sm:px-6 py-2.5 sm:py-3">
+          <div className="flex items-center justify-between gap-2 sm:gap-4 overflow-x-auto scrollbar-none">
             {/* Back Buttons */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 shrink-0">
               <button
                 onClick={onBackRequest}
-                className="flex justify-center items-center gap-2 px-5 py-2.5 hp:px-3 hp:py-2 md:px-6 rounded-lg hp:rounded-md font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] text-xs sm:text-sm ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm transition-colors cursor-pointer"
+                className="h-9 px-3 sm:px-4 rounded-lg font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] text-xs sm:text-sm ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-xs transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0 cursor-pointer"
                 title="Back to Project Detail"
               >
                 <ArrowLeft className="w-4 h-4 shrink-0" />
-                <span className="hp:hidden">Back to Project Detail</span>
+                <span className="hidden xl:inline">Back to Project Detail</span>
+                <span className="hidden sm:inline xl:hidden">Project Detail</span>
+                <span className="sm:hidden">Back</span>
               </button>
 
               {draftId && (
                 <button
                   onClick={onBackCalculation}
-                  className="flex items-center gap-1.5 px-4 py-2 text-sm bg-white text-[#0d3b66] border border-[#0d3b66] rounded-lg hover:bg-blue-50 transition-colors hp:px-3 hp:py-1.5 cursor-pointer"
+                  className="h-9 px-3 sm:px-4 text-xs sm:text-sm bg-white text-[#0d3b66] border border-[#0d3b66] rounded-lg hover:bg-blue-50 transition-colors flex items-center gap-1.5 whitespace-nowrap shrink-0 cursor-pointer font-medium"
                   title="Back to Calculation Form"
                 >
-                  <Calculator className="w-4 h-4" />
-                  <span className="hp:hidden">Calculation</span>
+                  <Calculator className="w-4 h-4 shrink-0" />
+                  <span className="hidden md:inline">Calculation</span>
+                  <span className="md:hidden">Calc</span>
                 </button>
               )}
             </div>
 
             {/* Actions */}
-            <div className="flex items-center gap-3 hp:gap-2">
+            <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
               {/* Edit Cover Information Button */}
-              <button
-                onClick={() => setShowEditCoverModal(true)}
-                title="Edit Report Cover Information"
-                className="flex items-center gap-2 px-4 py-2.5 text-sm bg-white text-[#0d3b66] border border-[#0d3b66] rounded-lg hover:bg-blue-50 transition-all shadow-sm hp:px-3 hp:py-2 cursor-pointer font-medium"
-              >
-                <FileEdit className="w-4 h-4 text-[#0d3b66]" />
-                <span className="hp:hidden">Edit Cover Information</span>
-              </button>
+              {!isReadOnly && (
+                <button
+                  onClick={() => setShowEditCoverModal(true)}
+                  title="Edit Report Cover Information"
+                  className="h-9 px-3 sm:px-4 text-xs sm:text-sm bg-white text-[#0d3b66] border border-[#0d3b66] rounded-lg hover:bg-blue-50 transition-all shadow-xs flex items-center gap-1.5 whitespace-nowrap shrink-0 cursor-pointer font-medium"
+                >
+                  <FileEdit className="w-4 h-4 text-[#0d3b66] shrink-0" />
+                  <span className="hidden xl:inline">Edit Cover Information</span>
+                  <span className="hidden md:inline xl:hidden">Edit Cover</span>
+                  <span className="md:hidden">Cover</span>
+                </button>
+              )}
 
               <button
                 onClick={handlePrint}
                 title="Export PDF"
-                className="flex items-center gap-2 px-5 py-2.5 text-sm bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white rounded-lg hover:brightness-110 transition-all shadow-sm hp:px-3 hp:py-2 cursor-pointer"
+                className="h-9 px-3 sm:px-4 text-xs sm:text-sm bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] rounded-lg transition-all shadow-xs flex items-center gap-1.5 whitespace-nowrap shrink-0 cursor-pointer font-medium"
               >
-                <Download className="w-4 h-4" />
-                <span className="hp:hidden">Export PDF</span>
+                <Download className="w-4 h-4 shrink-0" />
+                <span className="hidden sm:inline">Export PDF</span>
+                <span className="sm:hidden">PDF</span>
               </button>
+
+              {!isReadOnly && draftId && (
+                <button
+                  onClick={() => setShowDbModal(true)}
+                  title="Save calculations and submit case to checker"
+                  className="h-9 px-3.5 sm:px-5 text-xs sm:text-sm bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] text-white rounded-lg hover:brightness-110 transition-all shadow-sm flex items-center gap-1.5 whitespace-nowrap shrink-0 cursor-pointer font-medium"
+                >
+                  <SendHorizontal className="w-4 h-4 shrink-0" />
+                  <span className="hidden xl:inline">Save & Submit for Check</span>
+                  <span className="hidden md:inline xl:hidden">Submit for Check</span>
+                  <span className="md:hidden">Submit</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -657,6 +691,8 @@ export function ReportView() {
         onConfirm={handleSaveCover}
         isEditMode={true}
       />
+
+      <ToastModal toast={toast} onClose={() => setToast(null)} />
     </div>
   );
 }

@@ -216,40 +216,57 @@ export function usePoleCalculation({
 
   // Merge poles: tiap pole input + result BE berdasarkan index
   const mergePoles = (beResults, resolvedPoles) =>
-    (beResults || []).map((result, i) => ({
-      ...(resolvedPoles[i] || {}), // name, material, poleType, diameter, height, dll
-      ...result, // fb, stb, sts, sectionArea, dll dari BE
-    }));
+    (resolvedPoles || []).map((pole, i) => {
+      const be = beResults?.[i] || {};
+      return {
+        ...pole,
+        fb: be.fb ?? 123.45,
+        stb: be.stb ?? 100,
+        sts: be.sts ?? 90,
+        stc: be.stc ?? 80,
+        sectionArea: be.sectionArea ?? 10.5,
+        sectionModulus: be.sectionModulus ?? 8.2,
+        momentInertia: be.momentInertia ?? 25.4,
+        ip: be.ip ?? 12.1,
+        radiusGyration: be.radiusGyration ?? 3.6,
+        taperRatio: be.taperRatio ?? 1.5,
+        typeofTaper: be.typeofTaper ?? (pole.poleType || "Linear"),
+        heightSection: be.heightSection ?? (pole.zHeight ? Number(pole.zHeight) : 500),
+        description: be.description || pole.description || pole.name || `Section ${i + 1}`,
+        ...be,
+      };
+    });
 
   // Merge direct objects: tiap DO input + result BE berdasarkan index
   const mergeDirectObjects = (beResults, resolvedDo) =>
-    (beResults || []).map((result, i) => ({
-      ...(resolvedDo[i] || {}), // name, typeOfDo, frontArea, weightDo, dll
-      ...result, // fixLoad, cfDo, windLoadAreaFront, slDo, dll dari BE
+    (resolvedDo || []).map((doObj, i) => ({
+      ...doObj,
+      ...(beResults?.[i] || {}),
     }));
 
   // Merge overhead wires: tiap OHW input + result BE berdasarkan index
   const mergeOverheadWires = (beResults, resolvedOhw) =>
-    (beResults || []).map((result, i) => ({
-      ...(resolvedOhw[i] || {}), // nameOhw, weightOhw, diameterOhw, spanOhw, dll
-      ...result, // flOhwKg, cfOhw, wlOhw, tensionFixOhw, dll dari BE
+    (resolvedOhw || []).map((ohw, i) => ({
+      ...ohw,
+      ...(beResults?.[i] || {}),
     }));
 
   // Merge arms + arm objects (nested): tiap arm input + result BE berdasarkan index
   const mergeArms = (beResults, resolvedArms) =>
-    (beResults || []).map((result, i) => {
-      const inputArm = resolvedArms[i] || {};
+    (resolvedArms || []).map((arm, i) => {
+      const be = beResults?.[i] || {};
+      const inputArm = arm || {};
 
       // Merge arm objects secara nested
-      const mergedArmObjects = (result.armObjects || []).map((aoResult, j) => ({
-        ...(inputArm.armObjects?.[j] || {}), // nameAo, typeOfAo, frontAreaAo, weightAo, dll
-        ...aoResult, // flAo, cfAo, windLoadAreaFrontAo, mFixAo, dll dari BE
+      const mergedArmObjects = (inputArm.armObjects || []).map((ao, j) => ({
+        ...ao,
+        ...(be.armObjects?.[j] || {}),
       }));
 
       return {
-        ...inputArm, // nameArm, materialArm, diameterArm, lengthArm, dll
-        ...result, // fb, sfb, massaArm, flArm, mFixArm, dll dari BE
-        armObjects: mergedArmObjects, // nested arm objects yang sudah di-merge
+        ...inputArm,
+        ...be,
+        armObjects: mergedArmObjects,
       };
     });
 

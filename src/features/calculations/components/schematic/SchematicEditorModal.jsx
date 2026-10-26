@@ -105,7 +105,7 @@ export function SchematicEditorModal({
                   type="button"
                   onClick={onReset}
                   className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
-                  title="Hapus editan manual dan kembalikan ke gambar skematik default semula"
+                  title="Discard manual edits and reset to default schematic"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
                   <span>Reset</span>
@@ -131,7 +131,7 @@ export function SchematicEditorModal({
           {!iframeLoaded && (
             <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-slate-100/80 backdrop-blur-sm">
               <Loader2 className="w-8 h-8 text-[#0d3b66] animate-spin mb-2" />
-              <p className="text-xs font-medium text-slate-600">Memuat Drawing Engine & SVG-Edit...</p>
+              <p className="text-xs font-medium text-slate-600">Loading Drawing Engine & SVG Editor...</p>
             </div>
           )}
 

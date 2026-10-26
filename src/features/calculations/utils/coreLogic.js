@@ -1,3 +1,6 @@
+import { findRequestOfCase, updateRequest } from "../data/requestStore";
+import { getUser } from "../../../utils/auth";
+
 // ===============================================================================
 // FUNCTIONS: Check whether the session contains any meaningful calculation data
 // ===============================================================================
@@ -218,6 +221,25 @@ export const getDraftData = (projectType, draftId) => {
 
 // Serializes the current active working session into an object
 export const serializeWorkingSession = (projectType) => {
+  // Sync calculation_config with condition if condition exists
+  try {
+    const rawCond = sessionStorage.getItem(`${projectType}_condition`);
+    if (rawCond) {
+      const cond = JSON.parse(rawCond);
+      sessionStorage.setItem(
+        `${projectType}_calculation_config`,
+        JSON.stringify({
+          pole: true,
+          opening: Boolean(cond.openingEnabled),
+          baseplate: Boolean(cond.baseplateEnabled),
+          foundation: Boolean(cond.foundationEnabled),
+        })
+      );
+    }
+  } catch {
+    // ignore
+  }
+
   const data = {};
   DATA_KEYS.forEach(key => {
     const val = sessionStorage.getItem(`${projectType}_${key}`);
@@ -235,6 +257,24 @@ export const deserializeWorkingSession = (projectType, draftData) => {
     Object.entries(draftData).forEach(([key, val]) => {
       sessionStorage.setItem(`${projectType}_${key}`, val);
     });
+    // Ensure calculation_config matches condition if condition is present
+    try {
+      const rawCond = draftData.condition;
+      if (rawCond) {
+        const cond = typeof rawCond === "string" ? JSON.parse(rawCond) : rawCond;
+        sessionStorage.setItem(
+          `${projectType}_calculation_config`,
+          JSON.stringify({
+            pole: true,
+            opening: Boolean(cond.openingEnabled),
+            baseplate: Boolean(cond.baseplateEnabled),
+            foundation: Boolean(cond.foundationEnabled),
+          })
+        );
+      }
+    } catch {
+      // ignore
+    }
   }
 };
 
@@ -335,6 +375,33 @@ export const saveWorkingSessionToDraft = (projectType, draftId, defaultTitle = "
     drafts.unshift(draftMeta);
   }
   saveDraftsIndex(projectType, drafts);
+
+  // Sync case status in request store: if "Not started", advance to "In progress"
+  try {
+    const found = draftId ? findRequestOfCase(draftId) : null;
+    if (found) {
+      const { request, case: caseItem } = found;
+      const user = getUser();
+      const userName = user?.name || "Bintarjo Agus Priyadi";
+      const currentStatus = caseItem?.status || "Not started";
+      const newStatus = currentStatus === "Not started" ? "In progress" : currentStatus;
+      updateRequest(request.id, (r) => ({
+        ...r,
+        cases: (r.cases || []).map((c) =>
+          c.id === draftId
+            ? {
+                ...c,
+                status: newStatus,
+                lastEdited: new Date().toISOString(),
+                lastEditedBy: userName,
+              }
+            : c
+        ),
+      }));
+    }
+  } catch {
+    // ignore
+  }
 };
 
 export const deleteDraft = (projectType, draftId) => {
@@ -387,6 +454,58 @@ export const handleSessionTransition = (projectType, targetDraftId) => {
   } else if (!targetDraftId) {
     clearCalculationSession(projectType);
     clearActiveDraftId(projectType);
+  }
+
+  // Ensure current active condition.poleType always matches the case's poleKind
+  if (targetDraftId) {
+    try {
+      const found = findRequestOfCase(targetDraftId);
+      if (found?.case?.poleKind) {
+        const casePoleKind = found.case.poleKind;
+        const rawCond = sessionStorage.getItem(`${projectType}_condition`);
+        if (rawCond) {
+          const cond = JSON.parse(rawCond);
+          if (cond.poleType !== casePoleKind) {
+            cond.poleType = casePoleKind;
+            if (casePoleKind === "standard") {
+              cond.openingEnabled = true;
+              cond.baseplateEnabled = true;
+              sessionStorage.removeItem(`${projectType}_poles`);
+              sessionStorage.removeItem(`${projectType}_poleConfig`);
+              sessionStorage.removeItem(`${projectType}_directObjects`);
+              sessionStorage.removeItem(`${projectType}_arms`);
+              sessionStorage.removeItem(`${projectType}_overheadWires`);
+              sessionStorage.removeItem(`${projectType}_results`);
+              sessionStorage.removeItem(`${projectType}_standardTaperPoleKey`);
+            } else {
+              cond.openingEnabled = false;
+              cond.baseplateEnabled = false;
+              sessionStorage.removeItem(`${projectType}_standardTaperPoleKey`);
+              sessionStorage.removeItem(`${projectType}_poleStandard`);
+              sessionStorage.removeItem(`${projectType}_directObjects`);
+              sessionStorage.removeItem(`${projectType}_overheadWires`);
+              sessionStorage.removeItem(`${projectType}_results`);
+              sessionStorage.removeItem(`${projectType}_openingType`);
+              sessionStorage.removeItem(`${projectType}_boxType`);
+              sessionStorage.removeItem(`${projectType}_baseplateType`);
+              sessionStorage.removeItem(`${projectType}_fourRibType`);
+            }
+            sessionStorage.setItem(`${projectType}_condition`, JSON.stringify(cond));
+            sessionStorage.setItem(
+              `${projectType}_calculation_config`,
+              JSON.stringify({
+                pole: true,
+                opening: Boolean(cond.openingEnabled),
+                baseplate: Boolean(cond.baseplateEnabled),
+                foundation: Boolean(cond.foundationEnabled),
+              })
+            );
+          }
+        }
+      }
+    } catch {
+      // ignore
+    }
   }
 };
 

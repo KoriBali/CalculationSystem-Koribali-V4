@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+// eslint-disable-next-line no-unused-vars -- used as <motion.*> in JSX
 import { motion, AnimatePresence } from "framer-motion";
 import { Info, X, ArrowRight, CornerDownLeft } from "lucide-react";
 import RequestStatusChip from "./RequestStatusChip";
@@ -24,6 +25,37 @@ const BRANCHES = [
 const GUIDE_ORDER = [...FLOW, ...BRANCHES.map((b) => b.key)].map((k) =>
   REQUEST_STATUSES.find((s) => s.key === k),
 );
+
+const PROJECT_TABS = [
+  {
+    key: "mine",
+    label: "My tasks",
+    style: "bg-sky-50 text-sky-700 ring-sky-200",
+    hint: "Your active work. Projects with cases you are currently drafting or fixing after review.",
+    rule: "Leaves this tab once all your cases are handed over for checking or submitted.",
+  },
+  {
+    key: "waiting",
+    label: "Waiting",
+    style: "bg-amber-50 text-amber-700 ring-amber-200",
+    hint: "Pending external review. Projects handed over and sitting with a checker, admin, or Japan.",
+    rule: "Returns to My tasks if revisions are requested, or moves to Done once cleared.",
+  },
+  {
+    key: "done",
+    label: "Done",
+    style: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+    hint: "Completed or closed. Projects officially approved by Japan, or cancelled.",
+    rule: "Permanent record. Finished work kept for historical reference and auditing.",
+  },
+  {
+    key: "all",
+    label: "All",
+    style: "bg-slate-100 text-slate-700 ring-slate-200",
+    hint: "Total overview. Shows all projects across every stage, team member, and status.",
+    rule: "Complete registry of all projects across all lifecycle phases.",
+  },
+];
 
 const Chip = ({ k }) => <RequestStatusChip statusKey={k} label={label(k)} />;
 
@@ -118,6 +150,33 @@ export default function RequestStatusGuide() {
                     </li>
                   ))}
                 </ul>
+              </section>
+
+              {/* What each tab means */}
+              <section>
+                <SectionTitle>What each tab means</SectionTitle>
+                <dl className="divide-y divide-slate-100 rounded-lg border border-slate-100">
+                  {PROJECT_TABS.map((tab) => (
+                    <div
+                      key={tab.key}
+                      className="grid grid-cols-[150px_1fr] gap-3 px-3 py-2.5 hp:grid-cols-1 hp:gap-1.5"
+                    >
+                      <dt>
+                        <span
+                          className={`inline-flex items-center whitespace-nowrap px-2.5 py-0.5 rounded-full text-xs font-medium ring-1 ring-inset ${tab.style}`}
+                        >
+                          {tab.label}
+                        </span>
+                      </dt>
+                      <dd className="text-xs leading-relaxed font-medium text-slate-700">
+                        {tab.hint}
+                        <span className="block mt-0.5 font-normal text-slate-500">
+                          Lifecycle: {tab.rule}
+                        </span>
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
               </section>
 
               {/* Meanings */}

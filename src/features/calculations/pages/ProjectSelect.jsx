@@ -19,6 +19,11 @@ import {
   unfinishedNewRequest,
 } from "../utils/newRequestDraft";
 
+import {
+  getMasterPoleCategories,
+  getCachedPoleCategories,
+} from "../services/masterDataService";
+
 // === CONSTANTS ===
 const HEADER_ANIMATION = {
   initial: { opacity: 0, y: -20 },
@@ -32,47 +37,151 @@ const cardAnimation = (index) => ({
   transition: { duration: 0.3, delay: index * 0.05 },
 });
 
-// Professional descriptions and icons mapping
-const PROJECT_DETAILS = {
+// Professional descriptions and icons mapping (retains all rich explanations as requested)
+const PROJECT_METADATA = {
   "lighting-project": {
+    id: "lighting-project",
+    title: "Lighting Project",
+    icon: Lightbulb,
+    description:
+      "Calculate structural integrity and wind load for street and area lighting pole installations.",
+  },
+  lighting: {
+    id: "lighting-project",
+    title: "Lighting Project",
     icon: Lightbulb,
     description:
       "Calculate structural integrity and wind load for street and area lighting pole installations.",
   },
   "signboard-project": {
+    id: "signboard-project",
+    title: "Signboard Project",
+    icon: Monitor,
+    description:
+      "Analyze structural requirements for standalone and wall-mounted advertisement signboards.",
+  },
+  signboard: {
+    id: "signboard-project",
+    title: "Signboard Project",
     icon: Monitor,
     description:
       "Analyze structural requirements for standalone and wall-mounted advertisement signboards.",
   },
   "disaster-prevention-project": {
+    id: "disaster-prevention-project",
+    title: "Disaster Prevention Project",
+    icon: Shield,
+    description:
+      "Evaluate safety factors and load capacities for emergency alert and disaster warning systems.",
+  },
+  acemast: {
+    id: "disaster-prevention-project",
+    title: "Disaster Prevention Project",
     icon: Shield,
     description:
       "Evaluate safety factors and load capacities for emergency alert and disaster warning systems.",
   },
   "multi-purpose-project": {
+    id: "multi-purpose-project",
+    title: "Multi-purpose Project",
+    icon: Layers,
+    description:
+      "Comprehensive analysis for structures supporting various multi-purpose load attachments.",
+  },
+  multiple: {
+    id: "multi-purpose-project",
+    title: "Multi-purpose Project",
     icon: Layers,
     description:
       "Comprehensive analysis for structures supporting various multi-purpose load attachments.",
   },
 };
 
+// Preferred visual display order: Lighting first, then Signboard, Disaster Prevention, Multi-purpose
+const PREFERRED_PROJECT_ORDER = [
+  "lighting-project",
+  "signboard-project",
+  "disaster-prevention-project",
+  "multi-purpose-project",
+];
+
+const getProjectPriority = (id) => {
+  const index = PREFERRED_PROJECT_ORDER.indexOf(id);
+  return index === -1 ? 99 : index;
+};
+
+const mapCategories = (apiCategories) => {
+  if (!Array.isArray(apiCategories) || apiCategories.length === 0) {
+    return PROJECT_TYPES.map((pt) => ({
+      ...pt,
+      icon: PROJECT_METADATA[pt.id]?.icon || Layers,
+      description:
+        PROJECT_METADATA[pt.id]?.description ||
+        "Standard structural calculation module.",
+    })).sort((a, b) => getProjectPriority(a.id) - getProjectPriority(b.id));
+  }
+
+  return apiCategories
+    .filter((cat) => cat.isActive !== false)
+    .map((cat) => {
+      const key = String(cat.name || "").toLowerCase().trim();
+      const meta =
+        PROJECT_METADATA[key] ||
+        PROJECT_METADATA[`${key}-project`] || {
+          id: `${key}-project`,
+          title: `${cat.name ? cat.name[0].toUpperCase() + cat.name.slice(1) : "Pole"} Project`,
+          icon: Layers,
+          description: `Comprehensive analysis and structural configuration for ${cat.name || "pole"} installations.`,
+        };
+
+      return {
+        id: meta.id,
+        title: meta.title,
+        icon: meta.icon,
+        description: meta.description, // Crucial: preserved explanation per user request
+        backendCategory: cat,
+      };
+    })
+    .sort((a, b) => getProjectPriority(a.id) - getProjectPriority(b.id));
+};
+
 // === COMPONENT ===
 export default function ProjectSelectPage() {
   const navigate = useNavigate();
+
+  // Load from master data or cached categories, with graceful fallback
+  const [projectTypesList, setProjectTypesList] = useState(() => {
+    const cached = getCachedPoleCategories();
+    return mapCategories(cached);
+  });
+
   // A New Request left with entries (e.g. via the browser's Back button):
   // offered to continue or discard before starting another one.
   const [unfinishedType, setUnfinishedType] = useState(unfinishedNewRequest);
-  const unfinishedTitle = PROJECT_TYPES.find(
+  const unfinishedTitle = projectTypesList.find(
     (p) => p.id === unfinishedType,
-  )?.title;
+  )?.title || PROJECT_TYPES.find((p) => p.id === unfinishedType)?.title;
   const [confirmDiscard, setConfirmDiscard] = useState(false);
 
   useEffect(() => {
+    let isMounted = true;
     sessionStorage.removeItem("projectType");
+
+    getMasterPoleCategories().then((apiCategories) => {
+      if (isMounted && Array.isArray(apiCategories) && apiCategories.length > 0) {
+        setProjectTypesList(mapCategories(apiCategories));
+      }
+    });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const handleSelectProject = (projectId) => {
-    const isValid = PROJECT_TYPES.some((p) => p.id === projectId);
+    const isValid =
+      projectTypesList.some((p) => p.id === projectId) ||
+      PROJECT_TYPES.some((p) => p.id === projectId);
     if (!isValid) {
       navigate("/404");
       return;
@@ -155,12 +264,8 @@ export default function ProjectSelectPage() {
 
         {/* ── Project type cards ── */}
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 w-full max-w-[1400px] mx-auto">
-          {PROJECT_TYPES.map((project, index) => {
-            const details = PROJECT_DETAILS[project.id] || {
-              icon: Layers,
-              description: "Standard structural calculation module.",
-            };
-            const Icon = details.icon;
+          {projectTypesList.map((project, index) => {
+            const Icon = project.icon || Layers;
 
             return (
               <motion.div
@@ -183,7 +288,7 @@ export default function ProjectSelectPage() {
                       {project.title}
                     </h3>
                     <p className="text-sm text-slate-500 leading-relaxed pr-4">
-                      {details.description}
+                      {project.description}
                     </p>
                   </div>
 

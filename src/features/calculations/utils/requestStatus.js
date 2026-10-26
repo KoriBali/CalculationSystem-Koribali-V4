@@ -139,37 +139,84 @@ export const REQUEST_TYPES = [
 ];
 
 export const SORT_OPTIONS = [
-  { key: "default", label: "Default order" },
-  { key: "due", label: "Earliest due" },
   { key: "updated", label: "Last updated" },
+  { key: "due", label: "Earliest due date" },
 ];
 
 const workTypeShort = (key) =>
   DISCIPLINES.find((d) => d.key === key)?.short ?? key;
 
 // "001" → "case 001"; ["002","003"] → "case 002 and 003"
-function caseList(items) {
-  const nos = items.map((i) => i.caseNo);
+function caseList(items = []) {
+  const nos = (items || []).map((i) => i.caseNo);
   if (nos.length <= 1) return `case ${nos[0] ?? ""}`.trim();
   return `case ${nos.slice(0, -1).join(", ")} and ${nos[nos.length - 1]}`;
 }
 
 // Prefix "Calc: " / "Drawing: " when every relevant item shares one work_type.
-function withWorkType(items, text) {
-  const types = new Set(items.map((i) => i.work_type));
+function withWorkType(items = [], text) {
+  const types = new Set((items || []).map((i) => i.work_type));
   if (types.size !== 1) return text;
   return `${workTypeShort([...types][0])}: ${text}`;
 }
 
 const lowerFirst = (s) => (s ? s[0].toLowerCase() + s.slice(1) : s);
 
-function byStatus(items, status) {
-  return items.filter((i) => i.status === status);
+function byStatus(items = [], status) {
+  return (items || []).filter((i) => i.status === status);
 }
 
 const isClosed = (request) =>
-  request.status === REQUEST_DB_STATUS.CLEAR ||
-  request.status === REQUEST_DB_STATUS.CANCELLED;
+  request?.status === REQUEST_DB_STATUS.CLEAR ||
+  request?.status === REQUEST_DB_STATUS.CANCELLED;
+
+// Extracts or maps items from request.items or request.cases with safe fallbacks
+export function getRequestItems(request) {
+  if (!request) return [];
+  if (Array.isArray(request.items) && request.items.length > 0) {
+    return request.items;
+  }
+  if (Array.isArray(request.cases) && request.cases.length > 0) {
+    return request.cases.map((c, idx) => {
+      const st = String(c.status || "").toLowerCase();
+      let itemStatus = ITEM_STATUS.IN_PROGRESS;
+      if (st.includes("internal") || st.includes("correction")) {
+        itemStatus = ITEM_STATUS.INTERNAL_CORRECTION;
+      } else if (st.includes("return")) {
+        itemStatus = ITEM_STATUS.RETURNED;
+      } else if (st.includes("check")) {
+        itemStatus = ITEM_STATUS.READY_CHECK;
+      } else if (st.includes("ready") && st.includes("submit")) {
+        itemStatus = ITEM_STATUS.READY_SUBMIT;
+      } else if (st.includes("submit")) {
+        itemStatus = ITEM_STATUS.SUBMITTED;
+      } else if (st.includes("clear")) {
+        itemStatus = ITEM_STATUS.CLEARED;
+      } else if (st.includes("cancel")) {
+        itemStatus = ITEM_STATUS.CANCELLED;
+      } else {
+        itemStatus = ITEM_STATUS.IN_PROGRESS;
+      }
+      return {
+        caseNo: c.no || String(idx + 1).padStart(3, "0"),
+        work_type: c.workType || "calc",
+        status: itemStatus,
+        checkedBy: c.checkedBy,
+        note: c.note || "",
+      };
+    });
+  }
+  if (Array.isArray(request.items)) {
+    return request.items;
+  }
+  return [
+    {
+      caseNo: "001",
+      work_type: request.workTypes?.drawing ? "drawing" : "calc",
+      status: ITEM_STATUS.IN_PROGRESS,
+    },
+  ];
+}
 
 // Placement rule, checked in order:
 //   1. anything I still have to do or fix → "mine"
@@ -177,17 +224,26 @@ const isClosed = (request) =>
 //   3. otherwise (everything cleared/cancelled) → "done"
 // A request closed in the database is "done" whatever its items say.
 export function requestTab(request) {
-  const { items } = request;
+  if (!request) return "done";
   if (isClosed(request)) return "done";
-  if (items.some((i) => MINE.includes(i.status))) return "mine";
-  if (items.some((i) => WAITING.includes(i.status))) return "waiting";
+  const items = getRequestItems(request);
+  if (!Array.isArray(items) || items.length === 0) return "mine";
+  if (items.some((i) => MINE.includes(i?.status))) return "mine";
+  if (items.some((i) => WAITING.includes(i?.status))) return "waiting";
   return "done";
 }
 
 // → { key, label, detail } where `detail` is the Progress-column text for the
 // request's own tab.
 export function describeRequest(request) {
-  const { items } = request;
+  if (!request) {
+    return {
+      key: "in_progress",
+      label: "In progress",
+      detail: "",
+    };
+  }
+  const items = getRequestItems(request);
   const tab = requestTab(request);
 
   if (tab === "mine") {
@@ -244,13 +300,13 @@ export function describeRequest(request) {
   }
 
   if (tab === "waiting") {
-    const stages = WAITING.filter((s) => items.some((i) => i.status === s));
+    const stages = WAITING.filter((s) => items.some((i) => i?.status === s));
     // The request's status is its earliest pending stage.
-    const first = stages[0];
+    const first = stages[0] || ITEM_STATUS.READY_CHECK;
     return {
       key: first,
-      label: REQUEST_STATUSES.find((s) => s.key === first).label,
-      detail: stages.map((s) => WAITING_ON[s]).join(", "),
+      label: REQUEST_STATUSES.find((s) => s.key === first)?.label || "Waiting",
+      detail: stages.map((s) => WAITING_ON[s]).filter(Boolean).join(", ") || "Waiting",
     };
   }
 
@@ -280,18 +336,13 @@ export function describeRequest(request) {
 const URGENT = new Set(["internal_correction", "returned"]);
 
 // `rows` carry the derived status as `view` (see describeRequest).
-// sortBy: "default" (per-tab order) | "due" (earliest first, undated last)
-//       | "updated" (newest change first, no urgency grouping).
-export function sortRequests(rows, tab, sortBy = "default") {
+// sortBy: "due" (earliest first, undated last) | "updated" (newest change first).
+export function sortRequests(rows, tab, sortBy = "updated") {
   return [...rows].sort((a, b) => {
     if (sortBy === "due") {
       const da = a.dueDate ? new Date(a.dueDate).getTime() : Infinity;
       const db = b.dueDate ? new Date(b.dueDate).getTime() : Infinity;
       if (da !== db) return da - db;
-    } else if (sortBy !== "updated" && tab === "mine") {
-      const ua = URGENT.has(a.view.key) ? 0 : 1;
-      const ub = URGENT.has(b.view.key) ? 0 : 1;
-      if (ua !== ub) return ua - ub;
     }
     return new Date(b.updatedAt) - new Date(a.updatedAt);
   });

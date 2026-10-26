@@ -22,7 +22,7 @@ const BASEPLATE_TYPE_OPTIONS = [
 /**
  * MAIN COMPONENT: BaseplateType
  */
-export function BaseplateType({ baseplateType, onUpdate, errors }) {
+export function BaseplateType({ baseplateType, onUpdate, errors, readOnly = false }) {
   return (
     <div
       className="
@@ -37,10 +37,11 @@ export function BaseplateType({ baseplateType, onUpdate, errors }) {
         <FormSelect
           id="type"
           value={baseplateType.type}
-          onChange={(val) => onUpdate({ type: val })}
+          onChange={(val) => !readOnly && onUpdate({ type: val })}
           options={BASEPLATE_TYPE_OPTIONS}
           hasError={!!errors.type}
           placeholder="Select Baseplate Type"
+          disabled={readOnly}
         />
         <ErrorStyle show={errors.type} text={errors.type} />
       </div>

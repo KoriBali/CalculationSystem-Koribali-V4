@@ -20,7 +20,9 @@ import { clearCalculationSession } from "../../../utils";
 import { useOpeningForm } from "../../../hooks/useOpeningForm";
 import { useReport } from "../../../../report/hooks/useReport";
 import { useState } from "react";
-import { activeDraftRequestPath } from "../../../utils/requestCases";
+import { activeDraftRequestPath, submitCaseForCheck } from "../../../utils/requestCases";
+import { useReadOnly } from "../../../contexts/ReadOnlyContext";
+import { getUser } from "../../../../../utils/auth";
 
 // Main view for the opening calculation step
 export default function OpeningFormView() {
@@ -34,13 +36,17 @@ export default function OpeningFormView() {
   // ── Hooks ──
   const opening = useOpeningForm();
   const { makeReport } = useReport(projectType);
+  const { isReadOnly } = useReadOnly();
 
   // Opens cover modal if this is the last step, otherwise navigates to next.
-  // opening.finish() silently no-ops when not yet calculated — fine when
-  // the Next button was natively `disabled`, but it no longer is (see
-  // BoxTypeForm/RTypeForm), so this needs to explain why nothing happened
-  // instead of doing nothing.
   const handleNextStep = () => {
+    if (isReadOnly) {
+      const result = opening.finish(true);
+      if (result === "OPEN_COVER") {
+        navigate(`/projects/${projectType}/${draftId}/report`);
+      }
+      return;
+    }
     if (!opening.isCalculated) {
       opening.showToast('Click "Calculate Results" first', "error");
       return;
@@ -84,8 +90,9 @@ export default function OpeningFormView() {
   };
 
   const handleConfirmSaveDb = () => {
-    // Database save logic will go here
-    opening.showToast("Project successfully saved to database!", "success");
+    saveWorkingSessionToDraft(projectType, draftId);
+    submitCaseForCheck(draftId, getUser());
+    opening.showToast("Case saved and submitted for checking!", "success");
     setShowDbModal(false);
     // Back to the case's request — read before the session is cleared.
     const backPath = activeDraftRequestPath(projectType);
@@ -93,7 +100,7 @@ export default function OpeningFormView() {
       clearCalculationSession(projectType);
       clearActiveDraftId(projectType);
       navigate(backPath);
-    }, 2500);
+    }, 2000);
   };
 
   return (
@@ -133,12 +140,13 @@ export default function OpeningFormView() {
                 <div>
                   <h3 className="text-[#0d3b66] mb-4 flex items-center gap-1 md:gap-2 text-xs md:text-sm font-medium">
                     <div className="w-1 h-4 md:h-5 bg-[#3399cc] rounded-full" />
-                    Opening Type
+                    Opening Type <span className="text-red-500 ml-1 font-semibold">*</span>
                   </h3>
                   <OpeningType
                     openingType={opening.openingType}
                     onUpdate={opening.updateOpeningType}
                     errors={opening.openingTypeErrors}
+                    readOnly={isReadOnly}
                   />
                 </div>
 
@@ -178,6 +186,7 @@ export default function OpeningFormView() {
                       isCalculated={opening.isCalculated}
                       buttonLabel={opening.buttonLabel}
                       isCalculationAndDrawing={opening.isCalculationAndDrawing}
+                      readOnly={isReadOnly}
                     />
                   )}
 
@@ -193,6 +202,7 @@ export default function OpeningFormView() {
                       isCalculated={opening.isCalculated}
                       buttonLabel={opening.buttonLabel}
                       isCalculationAndDrawing={opening.isCalculationAndDrawing}
+                      readOnly={isReadOnly}
                     />
                   )}
                 </div>

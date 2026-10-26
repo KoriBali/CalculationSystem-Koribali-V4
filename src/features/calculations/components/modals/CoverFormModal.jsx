@@ -10,8 +10,7 @@ import {
 import { FormSelect } from "../../../../shared/components/FormSelect";
 
 // Master-data region/author options come as {value, label} where `value` is
-// the code — combine into "CODE - Name" the same way ProjectIdentityFields
-// does for its Department field, so both places read consistently.
+// the code — combine into "CODE - Name" for clear and consistent display.
 const toCodeSelectOptions = (opts) =>
   opts.map((o) => ({ value: o.value, label: `${o.value} - ${o.label}` }));
 
@@ -178,7 +177,9 @@ export function CoverFormModal({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6 md:gap-y-8">
             {/* Report Number */}
             <div className="relative md:col-span-2">
-              <Label>Report Number</Label>
+              <Label>
+                Report Number <span className="text-red-500 ml-1 font-semibold">*</span>
+              </Label>
               <input
                 type="text"
                 value={coverData.reportNumber}
@@ -194,7 +195,9 @@ export function CoverFormModal({
 
             {/* Titles */}
             <div className="relative md:col-span-2">
-              <Label>Report Titles</Label>
+              <Label>
+                Report Titles <span className="text-red-500 ml-1 font-semibold">*</span>
+              </Label>
               <div className="flex flex-col gap-5 md:gap-6">
                 <div className="relative">
                   <input
@@ -202,7 +205,7 @@ export function CoverFormModal({
                     value={coverData.title1}
                     onChange={(e) => updateCover({ title1: e.target.value })}
                     className={inputStyle(coverErrors.title1)}
-                    placeholder="Title Line 1 (Required)"
+                    placeholder="Title Line 1"
                   />
                   <ErrorStyle
                     show={coverErrors.title1}
@@ -258,7 +261,9 @@ export function CoverFormModal({
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border border-slate-200 p-5 rounded-xl bg-slate-50/50">
                 {/* Region */}
                 <div className="relative">
-                  <Label>Region</Label>
+                  <Label>
+                    Region <span className="text-red-500 ml-1 font-semibold">*</span>
+                  </Label>
                   <FormSelect
                     value={coverData.region}
                     onChange={(val) => updateCover({ region: val })}
@@ -275,7 +280,9 @@ export function CoverFormModal({
 
                 {/* Author */}
                 <div className="relative">
-                  <Label>Author</Label>
+                  <Label>
+                    Author <span className="text-red-500 ml-1 font-semibold">*</span>
+                  </Label>
                   <FormSelect
                     value={coverData.author}
                     onChange={(val) => updateCover({ author: val })}
@@ -292,7 +299,9 @@ export function CoverFormModal({
 
                 {/* Responsible Department */}
                 <div className="relative">
-                  <Label>Responsible Department</Label>
+                  <Label>
+                    Responsible Department <span className="text-red-500 ml-1 font-semibold">*</span>
+                  </Label>
                   <FormSelect
                     value={coverData.responsibleDepartment}
                     onChange={(val) =>

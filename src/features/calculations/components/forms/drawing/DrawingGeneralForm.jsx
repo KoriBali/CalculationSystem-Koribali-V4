@@ -11,7 +11,6 @@ import { useState } from "react";
 import { BaseplateIcon } from "../../../../../assets/icon";
 import { useMasterData } from "../../../hooks/useMasterData";
 import { couplingUsageOptions } from "../../../constants/couplingUsageOptions";
-import { DRAWING_TYPE_OPTIONS } from "../../../constants/drawingTypeOptions";
 import { FormSelect } from "../../../../../shared/components/FormSelect";
 import { ConfirmResetAllModal } from "../../modals/ConfirmResetAllModal";
 
@@ -166,25 +165,7 @@ export function DrawingGeneralForm({
         <div>
           <SectionTitle>Drawing Information</SectionTitle>
           <SectionCard>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
-              <div className="relative pb-1">
-                <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">
-                  Drawing Type
-                </label>
-                <FormSelect
-                  id="drawingType"
-                  value={general.drawingType || ""}
-                  onChange={(val) => onUpdate({ drawingType: val })}
-                  options={DRAWING_TYPE_OPTIONS}
-                  hasError={!!errors.drawingType}
-                  placeholder="Select Drawing Type"
-                />
-                <ErrorStyle
-                  show={errors.drawingType}
-                  text={errors.drawingType}
-                />
-              </div>
-
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-6">
               <div className="relative pb-1">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">
                   Drawing Number
@@ -216,7 +197,7 @@ export function DrawingGeneralForm({
                 <ErrorStyle show={errors.partNumber} text={errors.partNumber} />
               </div>
 
-              <div className="relative pb-1">
+              <div className="relative pb-1 sm:col-span-2 lg:col-span-1">
                 <label className="block text-xs md:text-sm text-gray-700 mb-1 md:mb-2">
                   Lighting Company Name
                 </label>

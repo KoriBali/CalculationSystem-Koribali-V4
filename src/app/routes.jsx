@@ -41,6 +41,7 @@ import DrawingFoundationPage from "../features/calculations/pages/drawing/Drawin
 import DrawingSurfacePage from "../features/calculations/pages/drawing/DrawingSurfacePage";
 import ReportPage from "../features/report/pages/ReportPage";
 import ProjectDatabasePage from "../features/database/pages/ProjectDatabasePage";
+import CheckingQueuePage from "../features/calculations/pages/CheckingQueuePage";
 import NotFoundPage from "../pages/NotFoundPage";
 
 // Admin Pages
@@ -160,6 +161,23 @@ export default function AppRoutes() {
 
             <Route path="report" element={<Navigate to="/projects" replace />} />
             <Route path="database" element={<ProjectDatabasePage />} />
+
+            {/* Checking Queue (Drafter Checkers & Admins) */}
+            <Route
+              path="checking-queue"
+              element={
+                <RoleGuard
+                  allowedRoles={[
+                    "superadmin",
+                    "admin",
+                    "drafter_checker",
+                    "admin_department",
+                  ]}
+                />
+              }
+            >
+              <Route index element={<CheckingQueuePage />} />
+            </Route>
 
             {/* Super Admin Routes */}
             <Route

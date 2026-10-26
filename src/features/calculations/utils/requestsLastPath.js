@@ -9,7 +9,7 @@ export const rememberRequestsPath = (path) => {
   try {
     sessionStorage.setItem(STORAGE_KEY, path.replace(/^\/requests/, "/projects"));
   } catch {
-    // Not remembered — the link falls back to the project list.
+    // Not remembered - the link falls back to the project list.
   }
 };
 

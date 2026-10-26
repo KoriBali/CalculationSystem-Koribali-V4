@@ -66,3 +66,14 @@ export const getUser = () => {
 export const isAuthenticated = () => {
   return !!getRefreshToken();
 };
+
+export const isGuestUser = () => {
+  const user = getUser();
+  const token = getAccessToken();
+  return (
+    !user ||
+    user.email === "guest@koribali.com" ||
+    user.role === "guest" ||
+    token === "guest-session-token"
+  );
+};

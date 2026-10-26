@@ -246,8 +246,8 @@ export function useFoundationForm() {
   };
 
   // Handle navigation to next step or finish flow
-  const handleFinish = () => {
-    if (!isCalculated) return;
+  const handleFinish = (force = false) => {
+    if (!isCalculated && !force) return;
 
     if (isLast) {
       return "OPEN_COVER";
@@ -286,6 +286,9 @@ export function useFoundationForm() {
     toast,
     typeLabelMap,
     loading,
+    nextStep,
+    prevStep,
+    isLast,
 
     // Actions
     setIsFoundationExpanded,

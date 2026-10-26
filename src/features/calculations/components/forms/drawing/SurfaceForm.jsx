@@ -99,7 +99,7 @@ export function SurfaceForm({ surface, onUpdate, onReset, onBack, onFinish, erro
   const handlePlatingTypeChange = (val) => {
     const updates = { platingType: val };
     if (val === "Standard Plating") {
-      updates.specificPlatingTypeCode = "HZTD";
+      updates.specificPlatingTypeCode = "HDZT77";
     } else {
       updates.specificPlatingTypeCode = "";
     }
@@ -187,7 +187,7 @@ export function SurfaceForm({ surface, onUpdate, onReset, onBack, onFinish, erro
                   <input
                     id="specificPlatingTypeCode"
                     type="text"
-                    placeholder="ex: HDZT63, HZTD, etc"
+                    placeholder="ex: HDZT63, HDZT77, etc"
                     value={surface.specificPlatingTypeCode || ""}
                     onChange={(e) => onUpdate({ specificPlatingTypeCode: e.target.value })}
                     readOnly={surface.platingType === "Standard Plating"}

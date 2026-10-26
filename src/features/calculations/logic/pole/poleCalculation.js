@@ -56,11 +56,21 @@ export async function executePoleCalculation({
         arms,
       };
 
-      if (type === "tapered") {
+      if (type === "taper" || type === "tapered") {
         // Untuk taper, BE mungkin butuh selection user + data hasil resolve
+        const lowestStep =
+          taperPoleStandard?.groundPosition === "onGL"
+            ? "0"
+            : String(taperPoleStandard?.embedmentLength ?? "0");
+
         payload = {
           ...payload,
           taperPoleStandard,
+          poleConfig: {
+            ...poleConfig,
+            lowestHeight: lowestStep,
+            groundPosition: taperPoleStandard?.groundPosition || "onGL",
+          },
         };
       } else if (type === "straight") {
         // Untuk straight, kirim konfigurasi spec-nya + hasil resolve poles

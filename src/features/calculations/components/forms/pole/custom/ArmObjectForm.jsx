@@ -229,15 +229,7 @@ export function ArmObjectForm({
               {/* TITLE + INDEX */}
               <div className="flex items-center gap-3">
                 {/* Index badge */}
-                <div
-                  className="
-                    w-9 h-9 lg:w-10 lg:h-10 rounded-md sm:rounded-lg flex-shrink-0
-                    bg-gradient-to-br from-[#0d3b66] to-[#3399cc]
-                    flex items-center justify-center
-                    text-white text-sm font-medium
-                    hp:w-[34px] hp:h-[34px]
-                  "
-                >
+                <div className="flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-lg bg-[#0d3b66] text-white font-semibold text-xs md:text-sm shrink-0">
                   {index + 1}
                 </div>
 
@@ -377,6 +369,7 @@ export function ArmObjectForm({
                 <div className="relative col-span-2 xl:flex-[2] min-w-0 hp:w-full hp:col-span-2">
                   <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
                     Object Name
+                    <span className="text-red-500 ml-1 font-semibold">*</span>
                   </label>
                   <input
                     type="text"
@@ -394,6 +387,7 @@ export function ArmObjectForm({
                 <div className="relative xl:w-[130px] xl:flex-none min-w-0 hp:w-full">
                   <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
                     Type
+                    <span className="text-red-500 ml-1 font-semibold">*</span>
                   </label>
                   <FormSelect
                     value={armObject.type}
@@ -428,6 +422,7 @@ export function ArmObjectForm({
                 <div className="relative xl:flex-1 min-w-0 hp:w-full">
                   <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
                     Front Area
+                    <span className="text-red-500 ml-1 font-semibold">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -457,6 +452,7 @@ export function ArmObjectForm({
                   <div className="relative xl:flex-1 min-w-0 hp:w-full">
                     <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
                       Side Area
+                      <span className="text-red-500 ml-1 font-semibold">*</span>
                     </label>
                     <div className="relative">
                       <input
@@ -486,6 +482,7 @@ export function ArmObjectForm({
                 <div className="relative xl:flex-1 min-w-0 hp:w-full">
                   <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
                     Weight
+                    <span className="text-red-500 ml-1 font-semibold">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -511,6 +508,7 @@ export function ArmObjectForm({
                 <div className="relative xl:flex-1 min-w-0 hp:w-full">
                   <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
                     H-Distance
+                    <span className="text-red-500 ml-1 font-semibold">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -540,6 +538,7 @@ export function ArmObjectForm({
                   <div className="relative xl:flex-1 min-w-0 hp:w-full">
                     <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
                       Fix Angle
+                      <span className="text-red-500 ml-1 font-semibold">*</span>
                     </label>
                     <div className="relative">
                       <input
@@ -568,6 +567,7 @@ export function ArmObjectForm({
                 <div className="relative xl:flex-[0.8] min-w-0 hp:w-full">
                   <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
                     nnC
+                    <span className="text-red-500 ml-1 font-semibold">*</span>
                   </label>
                   <input
                     type="number"
@@ -586,6 +586,7 @@ export function ArmObjectForm({
                 <div className="relative xl:flex-[0.8] min-w-0 hp:w-full">
                   <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
                     Quantity
+                    <span className="text-red-500 ml-1 font-semibold">*</span>
                   </label>
                   <div className="relative">
                     <input

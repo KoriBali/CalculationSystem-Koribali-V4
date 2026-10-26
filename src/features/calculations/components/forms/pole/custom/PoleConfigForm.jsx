@@ -39,6 +39,7 @@ export function PoleConfigForm({ poleConfig, onUpdate, errors }) {
         <div className="grid grid-cols-1 gap-4 hp:gap-2">
           <h4 className="block text-xs sm:text-sm text-gray-700">
             Select Ground Position
+            <span className="text-red-500 ml-1 font-semibold">*</span>
           </h4>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
@@ -84,6 +85,9 @@ export function PoleConfigForm({ poleConfig, onUpdate, errors }) {
                           {" "}
                           Lowest Height
                         </span>
+                        {isActive && !isOnGL && (
+                          <span className="text-red-500 ml-1 font-semibold">*</span>
+                        )}
                       </label>
                       <div className="relative">
                         <input
@@ -136,7 +140,7 @@ export function PoleConfigForm({ poleConfig, onUpdate, errors }) {
         <div className="flex flex-col sm:flex-row sm:items-center justify-start p-4 sm:p-5 bg-slate-50/50 border border-slate-200 rounded-xl hp:rounded-lg gap-4 sm:gap-8 xl:gap-16">
           <div>
             <label className="block text-xs md:text-sm font-semibold text-slate-700">
-              Overdesign Factor
+              Overdesign Factor <span className="text-red-500 ml-1 font-semibold">*</span>
             </label>
             <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5 sm:mt-1">
               Safety margin multiplier applied to the structural calculation

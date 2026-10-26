@@ -93,7 +93,7 @@ export function PoleForm({ pole, onUpdate, errors }) {
         {/* Pole Name */}
         <div className="relative col-span-2 xl:flex-[2] min-w-0 hp:w-full hp:col-span-2">
           <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-            Pole Name
+            Pole Name <span className="text-red-500 ml-1 font-semibold">*</span>
           </label>
           <input
             id={`pole-${pole.id}-name`}
@@ -109,7 +109,7 @@ export function PoleForm({ pole, onUpdate, errors }) {
         {/* Material Type */}
         <div className="relative xl:w-[130px] xl:flex-none min-w-0 hp:w-full">
           <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-            Material
+            Material <span className="text-red-500 ml-1 font-semibold">*</span>
           </label>
           <FormSelect
             id={`pole-${pole.id}-material`}
@@ -140,7 +140,7 @@ export function PoleForm({ pole, onUpdate, errors }) {
         {/* Pole Type */}
         <div className="relative xl:w-[130px] xl:flex-none min-w-0 hp:w-full">
           <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-            Pole Type
+            Pole Type <span className="text-red-500 ml-1 font-semibold">*</span>
           </label>
           <FormSelect
             id={`pole-${pole.id}-type`}
@@ -165,6 +165,7 @@ export function PoleForm({ pole, onUpdate, errors }) {
         <div className="relative xl:flex-[1.2] min-w-0 hp:w-full">
           <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
             {isStraight ? "Diameter" : "Lower Diameter"}
+            <span className="text-red-500 ml-1 font-semibold">*</span>
           </label>
           <UnitInput
             id={`pole-${pole.id}-lowerDiameter`}
@@ -191,7 +192,7 @@ export function PoleForm({ pole, onUpdate, errors }) {
         {!isStraight && (
           <div className="relative xl:flex-[1.2] min-w-0 hp:w-full">
             <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-              Upper Diameter
+              Upper Diameter <span className="text-red-500 ml-1 font-semibold">*</span>
             </label>
             <UnitInput
               id={`pole-${pole.id}-upperDiameter`}
@@ -212,6 +213,7 @@ export function PoleForm({ pole, onUpdate, errors }) {
         <div className="relative xl:flex-[1.2] min-w-0 hp:w-full">
           <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
             {isStraight ? "Thickness" : "Lower Thickness"}
+            <span className="text-red-500 ml-1 font-semibold">*</span>
           </label>
           <UnitInput
             id={`pole-${pole.id}-lowerThickness`}
@@ -242,7 +244,7 @@ export function PoleForm({ pole, onUpdate, errors }) {
         {!isStraight && (
           <div className="relative xl:flex-[1.2] min-w-0 hp:w-full">
             <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-              Upper Thickness
+              Upper Thickness <span className="text-red-500 ml-1 font-semibold">*</span>
             </label>
             <UnitInput
               id={`pole-${pole.id}-upperThickness`}
@@ -262,7 +264,7 @@ export function PoleForm({ pole, onUpdate, errors }) {
         {/* Height */}
         <div className="relative xl:flex-[1.2] min-w-0 hp:w-full">
           <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-            Height
+            Height <span className="text-red-500 ml-1 font-semibold">*</span>
           </label>
           <UnitInput
             id={`pole-${pole.id}-zHeight`}
@@ -278,7 +280,7 @@ export function PoleForm({ pole, onUpdate, errors }) {
         {/* Quantity */}
         <div className="relative xl:flex-[0.8] min-w-0 hp:w-full">
           <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-            Quantity
+            Quantity <span className="text-red-500 ml-1 font-semibold">*</span>
           </label>
           <UnitInput
             id={`pole-${pole.id}-quantity`}

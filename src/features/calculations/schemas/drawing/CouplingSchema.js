@@ -37,7 +37,7 @@ const heightField = yup
   );
 
 export const CouplingSchema = yup.object().shape({
-  location: yup.string().required("*Please select a project location"),
+  location: yup.string().notRequired(),
   couplings: yup.array().of(
     yup.object().shape({
       height: heightField,

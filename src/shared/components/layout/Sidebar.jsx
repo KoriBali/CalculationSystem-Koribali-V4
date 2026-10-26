@@ -9,6 +9,7 @@ import {
   LayoutDashboard,
   Building2,
   Users,
+  ClipboardCheck,
 } from "lucide-react";
 
 import { MENU_ITEMS, SPRING_TRANSITION } from "../../constants/layoutConstants";
@@ -24,6 +25,7 @@ const ICON_MAP = {
   Calculator,
   FileText,
   Database,
+  ClipboardCheck,
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
