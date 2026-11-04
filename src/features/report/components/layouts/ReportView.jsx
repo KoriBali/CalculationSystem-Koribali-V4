@@ -473,21 +473,99 @@ export function ReportView() {
   const [editedCover, setEditedCover] = useState(null);
   const [showEditCoverModal, setShowEditCoverModal] = useState(false);
 
-  const cover = useMemo(() => {
-    const baseCover =
-      editedCover ||
-      serverCover ||
-      effectiveOfficialReport?.cover ||
-      effectiveOfficialReport?.reportHeader ||
-      reportData?.cover ||
-      {};
-    return normalizeCover(baseCover);
-  }, [editedCover, serverCover, effectiveOfficialReport, reportData]);
+  const sessionCover = useMemo(() => {
+    try {
+      const raw = sessionStorage.getItem(`${projectType}_cover`);
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  }, [projectType, editedCover]);
 
   const parentRequest = useMemo(() => {
     if (!draftId) return null;
     return findRequestOfCase(draftId)?.request || null;
   }, [draftId]);
+
+  const cover = useMemo(() => {
+    const hasValidTitles = (c) => {
+      if (!c || typeof c !== "object") return false;
+      return Boolean(
+        (c.projectName && String(c.projectName).trim()) ||
+        (c.title1 && String(c.title1).trim()) ||
+        (c.calculationNumber && String(c.calculationNumber).trim()) ||
+        (c.reportNumber && String(c.reportNumber).trim()) ||
+        (c.title2 && String(c.title2).trim()) ||
+        (c.coverTopText && String(c.coverTopText).trim())
+      );
+    };
+
+    // Candidates in priority order:
+    // 1. editedCover (just edited in modal)
+    // 2. sessionCover (user's input in current session)
+    // 3. reportData.cover (snapshot when clicking Make Report)
+    // 4. serverCover (from API getReportHeader, only if it has actual titles)
+    // 5. officialReport cover (from backend calculation run)
+    const validCandidate =
+      (editedCover && hasValidTitles(editedCover) ? editedCover : null) ||
+      (sessionCover && hasValidTitles(sessionCover) ? sessionCover : null) ||
+      (reportData?.cover && hasValidTitles(reportData.cover) ? reportData.cover : null) ||
+      (serverCover && hasValidTitles(serverCover) ? serverCover : null) ||
+      (effectiveOfficialReport?.cover && hasValidTitles(effectiveOfficialReport.cover)
+        ? effectiveOfficialReport.cover
+        : null) ||
+      (effectiveOfficialReport?.reportHeader &&
+      hasValidTitles(effectiveOfficialReport.reportHeader)
+        ? effectiveOfficialReport.reportHeader
+        : null) ||
+      editedCover ||
+      sessionCover ||
+      reportData?.cover ||
+      serverCover ||
+      effectiveOfficialReport?.cover ||
+      effectiveOfficialReport?.reportHeader ||
+      {};
+
+    const normalized = normalizeCover(validCandidate);
+
+    // Smart fallback from parentRequest so project name and calculation number are never blank
+    const fallbackProjName =
+      parentRequest?.subject ||
+      parentRequest?.fields?.projectName ||
+      sessionCover?.projectName ||
+      sessionCover?.title1 ||
+      reportData?.cover?.projectName ||
+      reportData?.cover?.title1 ||
+      "";
+    const fallbackCalcNo =
+      parentRequest?.requestNo ||
+      parentRequest?.fields?.requestNo ||
+      parentRequest?.fields?.calcReportNo ||
+      sessionCover?.calculationNumber ||
+      sessionCover?.reportNumber ||
+      "";
+    const fallbackCompany =
+      parentRequest?.fields?.companyName ||
+      parentRequest?.companyName ||
+      sessionCover?.companyName ||
+      "";
+
+    return {
+      ...normalized,
+      projectName: normalized.projectName || fallbackProjName,
+      title1: normalized.title1 || fallbackProjName,
+      calculationNumber: normalized.calculationNumber || fallbackCalcNo,
+      reportNumber: normalized.reportNumber || fallbackCalcNo,
+      companyName: normalized.companyName || fallbackCompany,
+    };
+  }, [
+    editedCover,
+    sessionCover,
+    serverCover,
+    effectiveOfficialReport,
+    reportData,
+    parentRequest,
+  ]);
 
   const condition = useMemo(() => {
     const cond = { ...(reportData?.condition || {}) };
