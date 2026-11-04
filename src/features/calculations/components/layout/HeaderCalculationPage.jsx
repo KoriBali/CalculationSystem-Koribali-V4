@@ -115,6 +115,7 @@ export function HeaderCalculationPage() {
   const [showLeftScroll, setShowLeftScroll] = useState(false);
   const [showRightScroll, setShowRightScroll] = useState(false);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
+  const [isSavingAndLeave, setIsSavingAndLeave] = useState(false);
 
   // Once scrolled, the sticky header can be folded into a slim pill on the
   // left (like the sidebar) so it stops covering the form. Flow height never
@@ -600,6 +601,7 @@ export function HeaderCalculationPage() {
       return;
     }
 
+    setIsSavingAndLeave(true);
     try {
       await saveWorkingSessionToDraft(type, draftId);
       setToast({
@@ -612,6 +614,8 @@ export function HeaderCalculationPage() {
         message: "Draft saved locally.",
         type: "info",
       });
+    } finally {
+      setIsSavingAndLeave(false);
     }
 
     setShowDraftModal(false);
@@ -621,7 +625,7 @@ export function HeaderCalculationPage() {
       clearActiveDraftId(type);
 
       navigate(requestPathForDraft(draftId));
-    }, 2000);
+    }, 1500);
   };
 
   // ─── QUICK SAVE ──────────────────────────────────────────────────────────
@@ -1295,9 +1299,10 @@ export function HeaderCalculationPage() {
 
       <DraftActionModal
         open={showDraftModal}
-        onClose={() => setShowDraftModal(false)}
+        onClose={() => !isSavingAndLeave && setShowDraftModal(false)}
         onSave={handleSaveAndLeave}
         onDiscard={handleDiscard}
+        loading={isSavingAndLeave}
       />
 
       <ToastModal toast={toast} onClose={() => setToast(null)} />

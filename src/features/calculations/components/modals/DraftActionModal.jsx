@@ -1,8 +1,36 @@
-import { FileWarning } from "lucide-react";
+import { useState, useEffect } from "react";
+import { FileWarning, Loader2 } from "lucide-react";
 import { createPortal } from "react-dom";
 
-export function DraftActionModal({ open, onClose, onSave, onDiscard }) {
+export function DraftActionModal({
+  open,
+  onClose,
+  onSave,
+  onDiscard,
+  loading = false,
+}) {
+  const [internalLoading, setInternalLoading] = useState(false);
+
+  useEffect(() => {
+    if (!open) {
+      setInternalLoading(false);
+    }
+  }, [open]);
+
   if (!open) return null;
+
+  const isLoading = loading || internalLoading;
+
+  const handleSaveClick = async () => {
+    if (isLoading) return;
+    try {
+      setInternalLoading(true);
+      await onSave?.();
+    } catch (err) {
+      console.warn("[DraftActionModal] Save error:", err);
+      setInternalLoading(false);
+    }
+  };
 
   return createPortal(
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm px-4">
@@ -30,26 +58,39 @@ export function DraftActionModal({ open, onClose, onSave, onDiscard }) {
           <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 w-full">
             {/* Don't Save */}
             <button
+              type="button"
               onClick={onDiscard}
-              className="flex-1 py-2.5 sm:py-3 font-bold text-xs sm:text-sm bg-red-50 text-red-600 border border-red-200 rounded-md sm:rounded-lg hover:bg-red-100 hover:border-red-300 transition-colors"
+              disabled={isLoading}
+              className="flex-1 py-2.5 sm:py-3 font-bold text-xs sm:text-sm bg-red-50 text-red-600 border border-red-200 rounded-md sm:rounded-lg hover:bg-red-100 hover:border-red-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               Don't Save
             </button>
 
             {/* Cancel */}
             <button
+              type="button"
               onClick={onClose}
-              className="flex-1 py-2.5 sm:py-3 font-bold text-xs sm:text-sm bg-slate-100 text-slate-600 rounded-md sm:rounded-lg hover:bg-slate-200 transition-colors"
+              disabled={isLoading}
+              className="flex-1 py-2.5 sm:py-3 font-bold text-xs sm:text-sm bg-slate-100 text-slate-600 rounded-md sm:rounded-lg hover:bg-slate-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               Cancel
             </button>
 
             {/* Save */}
             <button
-              onClick={onSave}
-              className="flex-1 py-2.5 sm:py-3 font-bold text-xs sm:text-sm bg-[#0d3b66] text-white rounded-md sm:rounded-lg hover:bg-[#154c80] transition-colors"
+              type="button"
+              onClick={handleSaveClick}
+              disabled={isLoading}
+              className="flex-1 py-2.5 sm:py-3 font-bold text-xs sm:text-sm bg-[#0d3b66] text-white rounded-md sm:rounded-lg hover:bg-[#154c80] transition-colors flex items-center justify-center gap-2 disabled:opacity-75 disabled:cursor-not-allowed cursor-pointer shadow-sm"
             >
-              Save Draft
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin text-white shrink-0" />
+                  <span>Saving Draft...</span>
+                </>
+              ) : (
+                <span>Save Draft</span>
+              )}
             </button>
           </div>
         </div>
