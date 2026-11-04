@@ -22,6 +22,8 @@ function generateMockResults(payload) {
             typeofTaper: p.poleType || "Linear",
             heightSection: p.zHeight ? Number(p.zHeight) : 500,
             description: p.description || p.name || `Section ${i + 1}`,
+            safetyFactor: 0.9,
+            utilizationRatio: 0.9,
           }))
         : [
             {
@@ -38,6 +40,8 @@ function generateMockResults(payload) {
               typeofTaper: "Linear",
               heightSection: 500,
               description: "Section 1",
+              safetyFactor: 0.9,
+              utilizationRatio: 0.9,
             },
           ],
     resultsDo: (payload?.directObjects || []).map(() => ({
@@ -92,7 +96,7 @@ export const calculatePole = async (payload) => {
     });
   }
 
-  // Registered user: Call backend calculation API with graceful fallback
+  // Registered user: Call backend calculation API strictly without dummy fallbacks
   try {
     const { data } = await api.post("/api/calculate", payload);
     const resultData = data?.data || data;
@@ -112,18 +116,38 @@ export const calculatePole = async (payload) => {
       };
     }
 
-    // Backend returned 200 but results was empty or missing - fallback to simulation
-    console.warn(
-      "Backend /api/calculate returned empty results, falling back to simulated calculation.",
+    if (
+      resultData?.display ||
+      resultData?.checks ||
+      resultData?.governing ||
+      resultData?.positions ||
+      resultData?.sections ||
+      resultData?.status
+    ) {
+      return {
+        results: rawResults || [],
+        resultsDo: resultData?.resultsDo || [],
+        resultsOhw: resultData?.resultsOhw || [],
+        resultsArm: resultData?.resultsArm || [],
+        ...resultData,
+      };
+    }
+
+    throw new Error(
+      resultData?.message ||
+        "No calculation results were returned from the backend engine.",
     );
-    return generateMockResults(payload);
   } catch (error) {
-    console.warn(
-      "Backend /api/calculate call failed, falling back to simulated calculation:",
-      error?.response?.data || error?.message || error,
-    );
-    // Graceful fallback: do NOT crash or lock the user out of calculation/navigation!
-    return generateMockResults(payload);
+    console.error("Backend calculation API error:", error);
+    const detail =
+      error?.response?.data?.detail?.message ||
+      error?.response?.data?.detail ||
+      error?.response?.data?.message ||
+      error?.message ||
+      "Structural calculation failed on the backend server.";
+    const errorMsg =
+      typeof detail === "object" ? JSON.stringify(detail) : String(detail);
+    throw new Error(errorMsg);
   }
 };
 

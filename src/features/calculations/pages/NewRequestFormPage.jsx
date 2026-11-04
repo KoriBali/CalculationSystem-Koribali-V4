@@ -21,7 +21,6 @@ import { PROJECT_TYPES } from "../constants/projectTypes";
 import { FormSelect } from "../../../shared/components/FormSelect";
 import { DateInput } from "../../../shared/components/DateInput";
 import { ConfirmResetAllModal } from "../components/modals/ConfirmResetAllModal";
-import { designStandardOptions } from "../constants/designStandards";
 import { DRAWING_TYPE_OPTIONS } from "../constants/drawingTypeOptions";
 import {
   CAD_FORMAT_OPTIONS,
@@ -93,17 +92,26 @@ import {
   getRequest,
   getAllRequests,
   fileRecord,
+  saveRequest,
 } from "../data/requestStore";
 import {
   createRequest as createRequestApi,
   updateFullRequest,
+  updateRequestFinish,
   getRequestById,
   checkRequestNo,
+  getMasterPoleCategories,
+  getRequests,
 } from "../services/requestService";
+import { getCachedPoleCategories } from "../services/masterDataService";
 import {
   buildRequestPayload,
   buildRequestUpdatePayload,
   formatApiErrorMessage,
+  canonicalDrawingType,
+  resolveDesignStandardCode,
+  resolveDesignStandardLabel,
+  resolveRegionCode,
   isUuid,
 } from "../utils/requestPayloadMapper";
 import { ToastModal } from "../components/modals/ToastModal";
@@ -113,6 +121,33 @@ import {
   loadNewRequestDraft,
   saveNewRequestDraft,
 } from "../utils/newRequestDraft";
+
+const cleanCoverStandard = (val) => {
+  if (!val) return "";
+  if (isUuid(val)) {
+    const label = resolveDesignStandardLabel(val);
+    if (label && label !== "—" && !isUuid(label)) return label;
+    return "";
+  }
+  const s = String(val).trim().toLowerCase();
+  if (
+    s === "new_jil" ||
+    s === "old_lighting_pole" ||
+    s === "old_lighting" ||
+    s === "lighting_pole" ||
+    s === "old_jil" ||
+    s === "haiden" ||
+    s === "v60" ||
+    s === "act" ||
+    s === "tower" ||
+    s === "signboard"
+  ) {
+    const label = resolveDesignStandardLabel(val);
+    if (label && label !== "—" && !isUuid(label)) return label;
+    return "";
+  }
+  return String(val).trim();
+};
 
 // "Design Conditions" (design standard, wind speed, air density) is hidden
 // for now; flip back to true to show it on both YP and YS.
@@ -129,52 +164,644 @@ const SUBMISSION_CHAIN = [
   { key: "submitTo3", placeholder: "e.g. Client" },
 ];
 
+function EditProjectLoadingSkeleton({ onBack, requestNo }) {
+  return (
+    <div className="flex flex-col h-full min-h-screen bg-gray-50">
+      <Helmet>
+        <title>Loading Project... - KORI BALI</title>
+      </Helmet>
+
+      <div className="flex-1 rounded-t-2xl hp:rounded-t-xl bg-gray-50">
+        {/* Top Header Card Skeleton */}
+        <div className="w-full max-w-[1440px] mx-auto px-2">
+          <div className="rounded-xl sm:rounded-2xl bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] shadow-sm px-3 py-3 sm:px-4 sm:py-4 md:px-6 2xl:px-8 flex flex-col md:flex-row md:items-center justify-between gap-3">
+            <button
+              type="button"
+              onClick={onBack}
+              className="self-start md:self-auto flex shrink-0 items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap text-white px-3 py-2 sm:px-4 rounded-lg hp:rounded-md text-xs sm:text-sm font-medium border border-white/20 hover:bg-white/10 active:bg-white/15 transition cursor-pointer"
+            >
+              <ArrowLeft className="w-4 h-4 shrink-0" />
+              Back to Project Detail
+            </button>
+
+            <div className="flex items-center gap-3">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-white text-xs sm:text-sm font-medium shadow-xs">
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-cyan-300 shrink-0" />
+                <span className="tracking-wide">Loading project data...</span>
+              </div>
+              {requestNo && (
+                <div className="hidden sm:flex items-center gap-2">
+                  <span className="text-white/70 text-xs sm:text-sm">
+                    Editing Project:
+                  </span>
+                  <span className="text-white font-bold text-xs sm:text-sm bg-white/15 px-2.5 py-0.5 rounded-full border border-white/20">
+                    {requestNo}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Form Body Skeleton */}
+        <div className="w-full max-w-[1440px] mx-auto pt-6 pb-24 sm:pb-8 px-2">
+          <div className="bg-white rounded-2xl hp:rounded-xl border border-gray-200 shadow-[0_2px_10px_rgba(15,23,42,0.06)] overflow-hidden">
+            {/* Top accent strip */}
+            <div
+              aria-hidden="true"
+              className="h-1.5 bg-gradient-to-r from-[#0d3b66] to-[#3399cc]"
+            />
+
+            <div className="p-4 md:p-6 space-y-6 md:space-y-8">
+              {/* Section 1: Request Identity Skeleton */}
+              <div>
+                <div className="flex items-center gap-2 mb-4 animate-pulse">
+                  <div className="w-1 h-4 md:h-5 bg-[#3399cc] rounded-full" />
+                  <div className="h-4 w-36 bg-slate-200 rounded" />
+                  <div className="h-3 w-16 bg-slate-100 rounded" />
+                </div>
+                <div className="bg-white px-4 md:px-5 py-5 rounded-xl border border-gray-200">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+                    {Array.from({ length: 6 }).map((_, idx) => (
+                      <div key={`id-skel-${idx}`} className="space-y-2 animate-pulse">
+                        <div className="h-3.5 bg-slate-200 rounded w-28" />
+                        <div className="h-10 bg-slate-100 border border-slate-200/60 rounded-lg w-full" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 2: Work Type Skeleton */}
+              <div>
+                <div className="flex items-center gap-2 mb-4 animate-pulse">
+                  <div className="w-1 h-4 md:h-5 bg-[#3399cc] rounded-full" />
+                  <div className="h-4 w-28 bg-slate-200 rounded" />
+                  <div className="h-3 w-16 bg-slate-100 rounded" />
+                </div>
+                <div className="bg-white px-4 md:px-5 py-5 rounded-xl border border-gray-200">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {[1, 2].map((i) => (
+                      <div
+                        key={`work-skel-${i}`}
+                        className="h-14 rounded-lg border border-slate-200 bg-slate-50/70 p-4 flex items-center gap-3 animate-pulse"
+                      >
+                        <div className="w-5 h-5 rounded bg-slate-200 shrink-0" />
+                        <div className="h-4 bg-slate-200 rounded w-24" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 3: Request Details Skeleton */}
+              <div>
+                <div className="flex items-center gap-2 mb-4 animate-pulse">
+                  <div className="w-1 h-4 md:h-5 bg-[#3399cc] rounded-full" />
+                  <div className="h-4 w-32 bg-slate-200 rounded" />
+                  <div className="h-3 w-16 bg-slate-100 rounded" />
+                </div>
+                <div className="bg-white px-4 md:px-5 py-5 rounded-xl border border-gray-200">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+                    {Array.from({ length: 4 }).map((_, idx) => (
+                      <div key={`det-skel-${idx}`} className="space-y-2 animate-pulse">
+                        <div className="h-3.5 bg-slate-200 rounded w-32" />
+                        <div className="h-10 bg-slate-100 border border-slate-200/60 rounded-lg w-full" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 4: Cover Design Conditions Skeleton */}
+              <div>
+                <div className="flex items-center gap-2 mb-4 animate-pulse">
+                  <div className="w-1 h-4 md:h-5 bg-[#3399cc] rounded-full" />
+                  <div className="h-4 w-48 bg-slate-200 rounded" />
+                  <div className="h-3 w-28 bg-slate-100 rounded" />
+                </div>
+                <div className="bg-white px-4 md:px-5 py-5 rounded-xl border border-gray-200 animate-pulse">
+                  <div className="h-16 bg-slate-50 border border-slate-200/70 rounded-lg w-full" />
+                </div>
+              </div>
+
+              {/* Section 5: Footer Actions Skeleton */}
+              <div className="pt-4 border-t border-gray-100 flex items-center justify-between gap-3 animate-pulse">
+                <div className="h-10 w-24 bg-slate-100 border border-slate-200 rounded-lg" />
+                <div className="h-10 w-36 bg-[#0d3b66]/20 rounded-lg" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function NewRequestFormPage() {
   const navigate = useNavigate();
   // Project type was picked on /calculation/requests/new; it arrives via the URL or from requestId.
   const { type: paramType, requestId } = useParams();
-  const existingRequest = useMemo(() => {
+  const [serverRequest, setServerRequest] = useState(() => {
     return requestId ? getRequest(requestId) : null;
+  });
+  const [isLoadingExisting, setIsLoadingExisting] = useState(
+    Boolean(requestId && !isGuestUser() && isUuid(requestId))
+  );
+
+  const existingRequest =
+    serverRequest || (requestId ? getRequest(requestId) : null);
+  const isEditMode = Boolean(requestId);
+
+  // Load existing request from backend if editing
+  useEffect(() => {
+    if (!requestId) return;
+    let isMounted = true;
+
+    getRequestById(requestId)
+      .then((data) => {
+        if (!isMounted || !data) return;
+        setServerRequest(data);
+
+        const serverCalcCond =
+          data.calculationConditions || data.calculation_conditions || null;
+        const serverDrawingCond =
+          data.drawingConditions || data.drawing_conditions || null;
+
+        const existing = getRequest(requestId) || {};
+        const resolvedCalcCond =
+          existing.designConditions ||
+          (serverCalcCond &&
+          (serverCalcCond.designStandardId ||
+            serverCalcCond.standard ||
+            serverCalcCond.windSpeed != null)
+            ? {
+                standard:
+                  resolveDesignStandardCode(
+                    serverCalcCond.designStandardId || serverCalcCond.standard
+                  ) || "",
+                windSpeed:
+                  serverCalcCond.windSpeed != null
+                    ? String(serverCalcCond.windSpeed)
+                    : "",
+                airDensity:
+                  serverCalcCond.airDensity != null
+                    ? String(serverCalcCond.airDensity)
+                    : "1.23",
+                isSaved: true,
+                isSavedOnServer: true,
+              }
+            : undefined);
+
+        const resolvedDrawCond =
+          existing.drawingConditions ||
+          (serverDrawingCond &&
+          (serverDrawingCond.drawingType ||
+            serverDrawingCond.regionId ||
+            serverDrawingCond.region)
+            ? {
+                drawingType:
+                  canonicalDrawingType(serverDrawingCond.drawingType) || "",
+                region:
+                  resolveRegionCode(
+                    serverDrawingCond.regionId || serverDrawingCond.region
+                  ) || "",
+                isSaved: true,
+                isSavedOnServer: true,
+              }
+            : undefined);
+
+        saveRequest({
+          ...existing,
+          ...data,
+          id: requestId,
+          designConditions: resolvedCalcCond,
+          drawingConditions: resolvedDrawCond,
+          cases: existing.cases?.length ? existing.cases : data.cases,
+          members: existing.members?.length ? existing.members : data.members,
+        });
+
+      const brand = (data.brandMark || data.brandLine || data.brand || "").toLowerCase();
+        const cType = brand === "yp" ? "yp" : "ys";
+        setCoverType(cType);
+
+        const fields = data.fields || {};
+        const ysDetails = data.ysDetails || data.ys_details || {};
+        const ypDetails = data.ypDetails || data.yp_details || {};
+        const sharedDetails = data.sharedDetails || data.shared_details || {};
+
+        if (cType === "ys") {
+          const rawStd =
+            ysDetails.designStandardText ||
+            ysDetails.design_standard_text ||
+            "";
+          const cleanStd = cleanCoverStandard(rawStd);
+
+          const rawWind =
+            ysDetails.windSpeedText != null && ysDetails.windSpeedText !== ""
+              ? String(ysDetails.windSpeedText)
+              : ysDetails.wind_speed_text != null && ysDetails.wind_speed_text !== ""
+              ? String(ysDetails.wind_speed_text)
+              : "";
+
+          setYs((prev) => ({
+            ...prev,
+            requestNo: data.requestNo || "",
+            projectNo: data.pjNo || "",
+            projectName: data.subject || "",
+            companyName:
+              data.requestingDepartmentName ||
+              data.companyName ||
+              "",
+            classification:
+              data.requestClassification ||
+              data.request_classification ||
+              "new",
+            requestType:
+              data.requestType ||
+              data.request_type ||
+              "general",
+            receptionNo:
+              ysDetails.receiptNo ||
+              data.receiptNo ||
+              "",
+            pic:
+              sharedDetails.requesterPicName ||
+              data.picName ||
+              "",
+            requestDate:
+              data.requestDate ||
+              sharedDetails.requestDate ||
+              "",
+            requestedDate:
+              data.dueDate ||
+              data.due_date ||
+              ysDetails.requestedDate ||
+              "",
+            deliveryDate:
+              sharedDetails.scheduledDeliveryDate ||
+              data.deliveryDate ||
+              "",
+            deliveryQty:
+              sharedDetails.deliveryQuantity != null
+                ? String(sharedDetails.deliveryQuantity)
+                : ysDetails.deliveryQuantity != null
+                ? String(ysDetails.deliveryQuantity)
+                : "",
+            openingHeight:
+              ysDetails.openingHeight ||
+              ysDetails.opening_height ||
+              "",
+            openingDirection:
+              ysDetails.openingDirectionNote ||
+              ysDetails.opening_direction_note ||
+              "",
+            foundation:
+              ysDetails.foundationType ||
+              ysDetails.foundation_type ||
+              "",
+            foundationWidth:
+              ysDetails.foundationWidthX != null
+                ? String(ysDetails.foundationWidthX)
+                : ysDetails.foundation_width_x != null
+                ? String(ysDetails.foundation_width_x)
+                : "",
+            foundationLength:
+              ysDetails.foundationWidthY != null
+                ? String(ysDetails.foundationWidthY)
+                : ysDetails.foundation_width_y != null
+                ? String(ysDetails.foundation_width_y)
+                : "",
+            foundationDepth:
+              ysDetails.embedmentDepth != null
+                ? String(ysDetails.embedmentDepth)
+                : ysDetails.embedment_depth != null
+                ? String(ysDetails.embedment_depth)
+                : "",
+            material:
+              ysDetails.materialText ||
+              ysDetails.material_text ||
+              "",
+            concreteStrength:
+              ysDetails.concreteStrength ||
+              ysDetails.concrete_strength ||
+              "",
+            standard: cleanStd,
+            windSpeed: rawWind,
+            drawingType:
+              canonicalDrawingType(sharedDetails.drawingType || sharedDetails.drawing_type) ||
+              "",
+            paperSize:
+              sharedDetails.paperSize ||
+              sharedDetails.paper_size ||
+              "",
+            cadFormat:
+              sharedDetails.cadFormat ||
+              sharedDetails.cad_format ||
+              "",
+            deliverCad:
+              sharedDetails.isCadDataRequested ??
+              sharedDetails.is_cad_data_requested ??
+              false,
+            surfaceTreatment:
+              data.finish?.platingSpec ||
+              data.finish?.plating_spec ||
+              data.finish?.surfaceTreatment ||
+              data.finish?.surface_treatment ||
+              fields.surfaceTreatment ||
+              "",
+            coatingType:
+              data.finish?.colorName ||
+              data.finish?.color_name ||
+              data.finish?.coatingType ||
+              data.finish?.coating_type ||
+              fields.coatingType ||
+              "",
+          }));
+          if (data.notes || data.note) {
+            setRequestNotes((prev) => ({
+              ...prev,
+              ys: data.notes || data.note || "",
+            }));
+          }
+        } else {
+          const rawStd =
+            ypDetails.designStandardText ||
+            ypDetails.design_standard_text ||
+            "";
+          const cleanStd = cleanCoverStandard(rawStd);
+
+          const rawWind =
+            ypDetails.windSpeedText != null && ypDetails.windSpeedText !== ""
+              ? String(ypDetails.windSpeedText)
+              : ypDetails.wind_speed_text != null && ypDetails.wind_speed_text !== ""
+              ? String(ypDetails.wind_speed_text)
+              : "";
+
+          setYp((prev) => ({
+            ...prev,
+            documentNo: data.requestNo || "",
+            projectNo: data.pjNo || "",
+            projectName: data.subject || "",
+            companyName:
+              data.requestingDepartmentName ||
+              data.companyName ||
+              "",
+            classification:
+              data.requestClassification ||
+              data.request_classification ||
+              "new",
+            requestType:
+              data.requestType ||
+              data.request_type ||
+              "general",
+            requestDate:
+              data.requestDate ||
+              sharedDetails.requestDate ||
+              "",
+            dueDate:
+              data.dueDate ||
+              data.due_date ||
+              "",
+            pic:
+              sharedDetails.requesterPicName ||
+              data.picName ||
+              "",
+            deliveryDate:
+              sharedDetails.scheduledDeliveryDate ||
+              data.deliveryDate ||
+              "",
+            quantityUnits:
+              sharedDetails.deliveryQuantity != null
+                ? String(sharedDetails.deliveryQuantity)
+                : "",
+            tailCode:
+              ypDetails.tailCode ||
+              ypDetails.tail_code ||
+              "",
+            calcStrength:
+              ypDetails.calcStrength ??
+              ypDetails.calc_strength ??
+              false,
+            calcDesign:
+              ypDetails.calcDesign ??
+              ypDetails.calc_design ??
+              false,
+            scopeMain:
+              ypDetails.scopeMainMember ??
+              ypDetails.scope_main_member ??
+              false,
+            scopeJoint:
+              ypDetails.scopeJoint ??
+              ypDetails.scope_joint ??
+              false,
+            scopeFoundation:
+              ypDetails.scopeFoundation ??
+              ypDetails.scope_foundation ??
+              false,
+            scopeOther:
+              ypDetails.scopeOther ||
+              ypDetails.scope_other ||
+              "",
+            scopeOtherOn: Boolean(
+              ypDetails.scopeOther ||
+              ypDetails.scope_other
+            ),
+            draftTracing:
+              ypDetails.draftingTracing ??
+              ypDetails.drafting_tracing ??
+              false,
+            draftDesign:
+              ypDetails.draftingDesign ??
+              ypDetails.drafting_design ??
+              false,
+            submitTo1:
+              ypDetails.submissionDestination1 ||
+              ypDetails.submission_destination_1 ||
+              "",
+            submitTo2:
+              ypDetails.submissionDestination2 ||
+              ypDetails.submission_destination_2 ||
+              "",
+            submitTo3:
+              ypDetails.submissionDestination3 ||
+              ypDetails.submission_destination_3 ||
+              "",
+            hasCompetitor:
+              ypDetails.hasCompetitor != null
+                ? (ypDetails.hasCompetitor ? "yes" : "no")
+                : (ypDetails.has_competitor != null
+                  ? (ypDetails.has_competitor ? "yes" : "no")
+                  : "no"),
+            designOrigin:
+              ypDetails.designOrigin ||
+              ypDetails.design_origin ||
+              "",
+            scheduleFlex:
+              ypDetails.scheduleFlexibility ||
+              ypDetails.schedule_flexibility ||
+              "",
+            paperFrame:
+              ypDetails.paperFrame ||
+              ypDetails.paper_frame ||
+              "",
+            finishedCopies:
+              ypDetails.finishedCopies != null
+                ? String(ypDetails.finishedCopies)
+                : ypDetails.finished_copies != null
+                ? String(ypDetails.finished_copies)
+                : "",
+            platingProviso:
+              ypDetails.platingProviso ||
+              ypDetails.plating_proviso ||
+              "",
+            standard: cleanStd,
+            windSpeed: rawWind,
+            drawingType:
+              canonicalDrawingType(sharedDetails.drawingType || sharedDetails.drawing_type) ||
+              "",
+            paperSize:
+              sharedDetails.paperSize ||
+              sharedDetails.paper_size ||
+              "",
+            cadFormat:
+              sharedDetails.cadFormat ||
+              sharedDetails.cad_format ||
+              "",
+            deliverCad:
+              sharedDetails.isCadDataRequested ??
+              sharedDetails.is_cad_data_requested ??
+              false,
+            surfaceTreatment:
+              data.finish?.platingSpec ||
+              data.finish?.plating_spec ||
+              data.finish?.surfaceTreatment ||
+              data.finish?.surface_treatment ||
+              fields.surfaceTreatment ||
+              "",
+            coatingType:
+              data.finish?.colorName ||
+              data.finish?.color_name ||
+              data.finish?.coatingType ||
+              data.finish?.coating_type ||
+              fields.coatingType ||
+              "",
+          }));
+          if (data.notes || data.note) {
+            setRequestNotes((prev) => ({
+              ...prev,
+              yp: data.notes || data.note || "",
+            }));
+          }
+        }
+
+        const dt = (data.designType || data.design_type || "").toLowerCase();
+        setWorkTypes({
+          calc:
+            dt === "drawing_calculation" ||
+            dt === "calculation" ||
+            dt === "calc",
+          drawing: dt === "drawing_calculation" || dt === "drawing",
+        });
+      })
+      .catch((err) => {
+        console.warn("[NewRequestFormPage] Fetch existing request failed:", err);
+      })
+      .finally(() => {
+        if (isMounted) setIsLoadingExisting(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, [requestId]);
 
-  const isEditMode = Boolean(requestId && existingRequest);
-
-  // Guard: only project creator or department admin can edit the project
+  // Guard: only project creator, assigned members, or department admin can edit the project
   useEffect(() => {
-    if (isEditMode && existingRequest) {
+    if (isEditMode && existingRequest && !isLoadingExisting) {
       const currentUser = getUser() || {};
-      const currentUserName = currentUser.name || currentUser.username || "";
+      const currentUserId = currentUser.id ? String(currentUser.id) : "";
+      const currentUserName = (
+        currentUser.name ||
+        currentUser.fullName ||
+        currentUser.username ||
+        ""
+      ).trim();
+      const currentFullName = (currentUser.fullName || currentUser.name || "").trim();
+      const currentUsername = (currentUser.username || "").trim();
+      const currentEmail = (currentUser.email || "").trim();
       const userRole = (currentUser.role || "").toLowerCase();
+
       const isAdminDepartment =
         userRole === "admin" ||
         userRole === "superadmin" ||
         userRole === "admin_department" ||
         userRole === "admin_departement";
-      const creatorName =
-        (existingRequest.members || []).find((m) => m.isCreator)?.name ||
+
+      const creatorMember = (existingRequest.members || []).find((m) => m.isCreator);
+      const creatorId =
+        creatorMember?.id ||
+        existingRequest.created_by_user_id ||
+        existingRequest.createdByUserId ||
+        existingRequest.created_by ||
+        existingRequest.creator?.id ||
+        existingRequest.creatorId ||
+        "";
+
+      const creatorName = (
+        creatorMember?.name ||
         existingRequest.createdBy ||
         existingRequest.createdByName ||
+        existingRequest.creator?.fullName ||
+        existingRequest.creator?.name ||
         existingRequest.fields?.createdBy ||
-        "";
-      const isCreator =
-        Boolean(creatorName) &&
-        Boolean(currentUserName) &&
-        (creatorName.toLowerCase() === currentUserName.toLowerCase() ||
-          creatorName.toLowerCase() ===
-            (currentUser.username || "").toLowerCase());
+        ""
+      ).trim();
 
-      if (!isCreator && !isAdminDepartment) {
-        navigate(`/projects/detail/${existingRequest.id}`, { replace: true });
+      const isCreator = Boolean(
+        (creatorId && currentUserId && String(creatorId) === currentUserId) ||
+        (creatorName && currentUserName && creatorName.toLowerCase() === currentUserName.toLowerCase()) ||
+        (creatorName && currentFullName && creatorName.toLowerCase() === currentFullName.toLowerCase()) ||
+        (creatorName && currentUsername && creatorName.toLowerCase() === currentUsername.toLowerCase()) ||
+        (creatorName && currentEmail && creatorName.toLowerCase() === currentEmail.toLowerCase()) ||
+        (creatorName &&
+          creatorName.toLowerCase() !== "unknown" && (
+            (currentUserName && (creatorName.toLowerCase().includes(currentUserName.toLowerCase()) || currentUserName.toLowerCase().includes(creatorName.toLowerCase()))) ||
+            (currentFullName && (creatorName.toLowerCase().includes(currentFullName.toLowerCase()) || currentFullName.toLowerCase().includes(creatorName.toLowerCase()))) ||
+            (currentUsername && (creatorName.toLowerCase().includes(currentUsername.toLowerCase()) || currentUsername.toLowerCase().includes(creatorName.toLowerCase())))
+          ))
+      );
+
+      // Check if user is an assigned member on this request
+      const isAssignedMember =
+        Boolean(currentUserId || currentUserName) &&
+        (existingRequest.members || []).some((m) => {
+          const mId = m.id ? String(m.id) : "";
+          const mName = (m.name || "").trim().toLowerCase();
+          return (
+            (mId && currentUserId && mId === currentUserId) ||
+            (mName && currentUserName && mName === currentUserName.toLowerCase()) ||
+            (mName && currentFullName && mName === currentFullName.toLowerCase()) ||
+            (mName && currentUsername && mName === currentUsername.toLowerCase())
+          );
+        });
+
+      if (!isCreator && !isAdminDepartment && !isAssignedMember) {
+        navigate(`/projects/detail/${existingRequest.id || requestId}`, {
+          replace: true,
+        });
       }
     }
-  }, [isEditMode, existingRequest, navigate]);
+  }, [isEditMode, existingRequest, isLoadingExisting, requestId, navigate]);
+
+  useEffect(() => {
+    getMasterPoleCategories().catch(() => []);
+  }, []);
 
   const projectType =
     paramType || existingRequest?.projectType || "lighting-project";
   const project =
     PROJECT_TYPES.find((p) => p.id === projectType) || PROJECT_TYPES[0];
-  // Same Standard list as the Condition form, per project type.
-  const standardOptions = designStandardOptions[projectType] || [];
 
   // Back to Project Type asks first when the form has entries.
   const { leave, confirmProps: leaveConfirmProps } = useLeaveNewRequest();
@@ -191,11 +818,19 @@ export default function NewRequestFormPage() {
         lostCover: null,
         ys:
           cType === "ys"
-            ? { ...YS_EMPTY, ...(existingRequest.fields || {}) }
+            ? {
+                ...YS_EMPTY,
+                ...(existingRequest.fields || {}),
+                standard: cleanCoverStandard(existingRequest.fields?.standard),
+              }
             : YS_EMPTY,
         yp:
           cType === "yp"
-            ? { ...YP_EMPTY, ...(existingRequest.fields || {}) }
+            ? {
+                ...YP_EMPTY,
+                ...(existingRequest.fields || {}),
+                standard: cleanCoverStandard(existingRequest.fields?.standard),
+              }
             : YP_EMPTY,
         requestNotes: {
           yp: cType === "yp" ? existingRequest.note || "" : "",
@@ -209,7 +844,7 @@ export default function NewRequestFormPage() {
       };
     }
 
-    const defaultStandard = standardOptions[0]?.value || "jil";
+    const defaultStandard = "JIL 1003";
 
     // ── GUEST USER ONLY: Auto-fill with mock data for instant preview/testing ──
     if (isGuestUser()) {
@@ -344,11 +979,11 @@ export default function NewRequestFormPage() {
     // 1. Check local store (all existing requests in tab/session)
     const localAll = getAllRequests();
     const isLocalDuplicate = localAll.some((r) => {
-      if (isEditMode && r.id === requestId) return false;
+      if (isEditMode && String(r?.id) === String(requestId)) return false;
       const rNo = (
-        r.requestNo ||
-        r.fields?.requestNo ||
-        r.fields?.documentNo ||
+        r?.requestNo ||
+        r?.fields?.requestNo ||
+        r?.fields?.documentNo ||
         ""
       ).trim();
       return rNo.toLowerCase() === trimmed.toLowerCase();
@@ -364,39 +999,72 @@ export default function NewRequestFormPage() {
     if (!isGuestUser()) {
       try {
         setIsCheckingDuplicate(true);
-        const result = await checkRequestNo({
-          requestNo: trimmed,
-          brandMark: coverType || "ys",
-          excludeRequestId: isEditMode ? requestId : undefined,
-        });
+        let isBackendDuplicate = false;
+        let warningMsg = `Request No. "${trimmed}" is already registered in the system.`;
 
-        const isBackendDuplicate =
-          result?.exists === true ||
-          result?.isDuplicate === true ||
-          result?.is_duplicate === true ||
-          result?.duplicate === true ||
-          result?.found === true ||
-          (Array.isArray(result?.warnings) &&
-            result.warnings.some((w) =>
-              /already exists|duplicate|sudah ada/i.test(w),
-            )) ||
-          (typeof result?.warning === "string" &&
-            /already exists|duplicate|sudah ada/i.test(result.warning));
+        // First attempt: call dedicated check endpoint
+        try {
+          const result = await checkRequestNo({
+            requestNo: trimmed,
+            brandMark: coverType || "ys",
+            excludeRequestId: isEditMode ? requestId : undefined,
+          });
+
+          isBackendDuplicate =
+            result?.exists === true ||
+            result?.isDuplicate === true ||
+            result?.is_duplicate === true ||
+            result?.duplicate === true ||
+            result?.found === true ||
+            (Array.isArray(result?.warnings) &&
+              result.warnings.some((w) =>
+                /already exists|duplicate|sudah ada/i.test(w),
+              )) ||
+            (typeof result?.warning === "string" &&
+              /already exists|duplicate|sudah ada/i.test(result.warning));
+
+          if (isBackendDuplicate) {
+            warningMsg =
+              result?.warning ||
+              result?.message ||
+              warningMsg;
+          }
+        } catch (apiErr) {
+          if (
+            apiErr?.response?.status === 409 ||
+            apiErr?.response?.status === 400
+          ) {
+            isBackendDuplicate = true;
+          }
+        }
+
+        // Fallback / Robust check: Query live list from GET /api/requests
+        // This is 100% reliable even if /api/requests/request-no-check returns 404
+        if (!isBackendDuplicate) {
+          const allServerRequests = await getRequests().catch(() => []);
+          const items = Array.isArray(allServerRequests)
+            ? allServerRequests
+            : allServerRequests?.items || allServerRequests?.data || [];
+
+          const found = items.some((r) => {
+            if (isEditMode && String(r?.id) === String(requestId)) return false;
+            const rNo = String(
+              r?.requestNo || r?.request_no || r?.fields?.requestNo || ""
+            ).trim();
+            return rNo.toLowerCase() === trimmed.toLowerCase();
+          });
+
+          if (found) {
+            isBackendDuplicate = true;
+          }
+        }
 
         if (isBackendDuplicate) {
-          const msg =
-            result?.warning ||
-            result?.message ||
-            `Request No. "${trimmed}" is already registered in the system.`;
-          setDuplicateWarning(msg);
+          setDuplicateWarning(warningMsg);
           return true;
         }
       } catch (err) {
-        if (err?.response?.status === 409 || err?.response?.status === 400) {
-          const msg = `Request No. "${trimmed}" is already registered in the system.`;
-          setDuplicateWarning(msg);
-          return true;
-        }
+        console.warn("[checkDuplicateRequestNo] duplicate check error:", err);
       } finally {
         setIsCheckingDuplicate(false);
       }
@@ -414,7 +1082,20 @@ export default function NewRequestFormPage() {
     if (key === "requestNo" && duplicateWarning) {
       setDuplicateWarning(null);
     }
-    setYs((prev) => ({ ...prev, [key]: value }));
+    setYs((prev) => {
+      const next = { ...prev, [key]: value };
+      // When requestDate changes, if requestedDate is earlier than requestDate,
+      // auto-adjust requestedDate to match requestDate so it stays valid
+      if (
+        key === "requestDate" &&
+        value &&
+        prev.requestedDate &&
+        prev.requestedDate < value
+      ) {
+        next.requestedDate = value;
+      }
+      return next;
+    });
   };
   const fieldValue = (key) =>
     key === "discipline" ? disciplineValue(workTypes) : ys[key];
@@ -500,9 +1181,43 @@ export default function NewRequestFormPage() {
   // with their own rule are listed in EMPTY_CHECKS; the rest are empty when
   // their value is "".
   const formValues = { yp, ys }[coverType] ?? {};
+
+  // Specific validation helpers
+  const isPjNoInvalid = Boolean(
+    coverType === "ys" &&
+      ((showRequiredErrors && !ys.projectNo) ||
+        (ys.projectNo && ys.projectNo.trim().length > 0 && ys.projectNo.trim().length !== 5)),
+  );
+  const isDueDateInvalid = Boolean(
+    coverType === "ys"
+      ? (showRequiredErrors && !ys.requestedDate) ||
+        Boolean(
+          ys.requestDate &&
+            ys.requestedDate &&
+            ys.requestedDate < ys.requestDate,
+        )
+      : (showRequiredErrors && !yp.dueDate) ||
+        Boolean(
+          yp.requestDate && yp.dueDate && yp.dueDate < yp.requestDate,
+        ),
+  );
+
   const EMPTY_CHECKS = {
     discipline: () => !workTypes.calc && !workTypes.drawing,
     documentNo: () => !parseDocumentNo(yp.documentNo).valid,
+    projectNo: () => !/^\d{5}$/.test(ys.projectNo?.trim() || ""),
+    requestedDate: () =>
+      !ys.requestedDate ||
+      Boolean(
+        ys.requestDate &&
+          ys.requestedDate &&
+          ys.requestedDate < ys.requestDate,
+      ),
+    dueDate: () =>
+      !yp.dueDate ||
+      Boolean(
+        yp.requestDate && yp.dueDate && yp.dueDate < yp.requestDate,
+      ),
   };
   const isRequiredEmpty = (key) =>
     (EMPTY_CHECKS[key] ?? (() => formValues[key] === ""))();
@@ -511,35 +1226,103 @@ export default function NewRequestFormPage() {
   // Red once Save has been tried.
   const fieldError = (key) =>
     showRequiredErrors && requiredKeys.includes(key) && isRequiredEmpty(key);
-  // "*This field is required." — not when the YS auto-fill note already says
-  // it's missing.
-  const requiredHint = (key) =>
-    fieldError(key) && !(coverType === "ys" && isMissingRequired(key)) ? (
+  // "*This field is required." — or custom validation hint
+  const requiredHint = (key) => {
+    if (coverType === "ys" && isMissingRequired(key)) return null;
+
+    if (coverType === "ys" && key === "projectNo") {
+      const pjno = ys.projectNo?.trim() || "";
+      if (showRequiredErrors && !pjno) {
+        return <RequiredHint floating>*This field is required.</RequiredHint>;
+      }
+      if ((showRequiredErrors || pjno.length > 0) && pjno.length !== 5) {
+        return (
+          <RequiredHint floating>
+            *Project No. (PJNO) must be exactly 5 digits.
+          </RequiredHint>
+        );
+      }
+    }
+
+    if (coverType === "ys" && key === "requestedDate") {
+      if (showRequiredErrors && !ys.requestedDate) {
+        return <RequiredHint floating>*This field is required.</RequiredHint>;
+      }
+      if (
+        ys.requestDate &&
+        ys.requestedDate &&
+        ys.requestedDate < ys.requestDate
+      ) {
+        return (
+          <RequiredHint floating>
+            *Requested Due Date cannot be earlier than Request Date.
+          </RequiredHint>
+        );
+      }
+    }
+
+    if (coverType === "yp" && key === "dueDate") {
+      if (showRequiredErrors && !yp.dueDate) {
+        return <RequiredHint floating>*This field is required.</RequiredHint>;
+      }
+      if (yp.requestDate && yp.dueDate && yp.dueDate < yp.requestDate) {
+        return (
+          <RequiredHint floating>
+            *Expected Completion Date cannot be earlier than Request Date.
+          </RequiredHint>
+        );
+      }
+    }
+
+    return fieldError(key) ? (
       <RequiredHint floating={key !== "discipline"} />
     ) : null;
+  };
 
-  const ysInput = (key) => ({
-    value: ys[key],
-    onChange: (e) => setYsField(key)(e.target.value),
-    "data-field": key,
-    className: inputStyle(
-      isMissingRequired(key) || fieldError(key),
-      isAutoFilled(key),
-    ),
-  });
+  const ysInput = (key) => {
+    const hasSpecificError =
+      (key === "projectNo" && isPjNoInvalid) ||
+      (key === "requestedDate" && isDueDateInvalid);
+
+    return {
+      value: ys[key],
+      onChange: (e) => setYsField(key)(e.target.value),
+      onWheel: (e) => e.target.blur(),
+      "data-field": key,
+      className: inputStyle(
+        isMissingRequired(key) || fieldError(key) || hasSpecificError,
+        isAutoFilled(key),
+      ),
+    };
+  };
 
   const setYpField = (key) => (value) => {
     if (key === "documentNo" && duplicateWarning) {
       setDuplicateWarning(null);
     }
-    setYp((prev) => ({ ...prev, [key]: value }));
+    setYp((prev) => {
+      const next = { ...prev, [key]: value };
+      if (
+        key === "requestDate" &&
+        value &&
+        prev.dueDate &&
+        prev.dueDate < value
+      ) {
+        next.dueDate = value;
+      }
+      return next;
+    });
   };
-  const ypInput = (key) => ({
-    value: yp[key],
-    onChange: (e) => setYpField(key)(e.target.value),
-    "data-field": key,
-    className: inputStyle(fieldError(key)),
-  });
+  const ypInput = (key) => {
+    const hasSpecificError = key === "dueDate" && isDueDateInvalid;
+    return {
+      value: yp[key],
+      onChange: (e) => setYpField(key)(e.target.value),
+      onWheel: (e) => e.target.blur(),
+      "data-field": key,
+      className: inputStyle(fieldError(key) || hasSpecificError),
+    };
+  };
   const toggleYp = (key) => setYp((prev) => ({ ...prev, [key]: !prev[key] }));
   // Yes: the name field opens and gets the cursor. No: the name is cleared.
   const selectCompetitor = (value) => {
@@ -669,7 +1452,7 @@ export default function NewRequestFormPage() {
       // so a default like "New" can't pass for a value read from the cover.
       const extract = {
         ...MOCK_COVER_EXTRACT,
-        standard: standardOptions[0]?.value || "jil",
+        standard: MOCK_COVER_EXTRACT.standard || "JIL 1003",
       };
       const { discipline, ...fields } = extract;
       const filled = Object.fromEntries(
@@ -800,15 +1583,62 @@ export default function NewRequestFormPage() {
     const activeFields = { yp, ys }[coverType];
     const userNote = requestNotes[coverType] || "";
 
+    // Check if conditions have already been saved/confirmed
+    const isCalcCondSaved = Boolean(
+      existingRequest?.designConditions?.isSaved ||
+      existingRequest?.designConditions?.isSavedOnServer
+    );
+    const isDrawCondSaved = Boolean(
+      existingRequest?.drawingConditions?.isSaved ||
+      existingRequest?.drawingConditions?.isSavedOnServer
+    );
+
     // ── GUEST USER OR NON-UUID (MOCK): update session storage store only ──
+    const derivedDesignType =
+      workTypes.calc && workTypes.drawing
+        ? "calculation_drawing"
+        : workTypes.drawing
+        ? "drawing"
+        : "calculation";
+
     if (isGuestUser() || !isUuid(requestId)) {
-      updateRequestLocal(requestId, (r) => ({
-        ...r,
-        coverType,
-        fields: activeFields,
-        workTypes,
-        note: userNote,
-      }));
+      updateRequestLocal(requestId, (r) => {
+        return {
+          ...r,
+          coverType,
+          fields: {
+            ...(r?.fields || {}),
+            ...activeFields,
+          },
+          workTypes,
+          designType: derivedDesignType,
+          design_type: derivedDesignType,
+          note: userNote,
+          // CRITICAL: Preserve designConditions and drawingConditions EXACTLY as they were!
+          // Cover Information is strictly separate from Design Conditions and must never overwrite or reset them.
+          designConditions: r?.designConditions?.isSaved
+            ? r.designConditions
+            : existingRequest?.designConditions?.isSaved
+            ? existingRequest.designConditions
+            : r?.designConditions ||
+              existingRequest?.designConditions || {
+                standard: "",
+                windSpeed: activeFields?.windSpeed || "",
+                airDensity: "",
+                isSaved: false,
+              },
+          drawingConditions: r?.drawingConditions?.isSaved
+            ? r.drawingConditions
+            : existingRequest?.drawingConditions?.isSaved
+            ? existingRequest.drawingConditions
+            : r?.drawingConditions ||
+              existingRequest?.drawingConditions || {
+                drawingType: activeFields?.drawingType || "",
+                region: "",
+                isSaved: false,
+              },
+        };
+      });
       setShowSaveConfirmModal(false);
       navigate(`/projects/detail/${requestId}`);
       return;
@@ -817,6 +1647,10 @@ export default function NewRequestFormPage() {
     // ── REGISTERED USER: Call Backend API Gateway to update ──
     setIsSavingEdit(true);
     try {
+      let categories = getCachedPoleCategories();
+      if (!Array.isArray(categories) || categories.length === 0) {
+        categories = await getMasterPoleCategories().catch(() => []);
+      }
       const updateData = buildRequestUpdatePayload({
         projectType,
         coverType,
@@ -824,21 +1658,56 @@ export default function NewRequestFormPage() {
         workTypes,
         notes: userNote || null,
         currentUser: getUser(),
+        existingPoleCategoryId: existingRequest?.poleCategoryId || existingRequest?.pole_category_id,
+        categoriesList: categories,
+        skipConditionsUpdate: true,
+        skipDrawingConditionsUpdate: true,
       });
 
       await updateFullRequest(requestId, updateData);
 
       // Also update local store with latest edited fields so Detail page reflects it immediately
-      updateRequestLocal(requestId, (r) => ({
-        ...r,
-        coverType,
-        fields: activeFields,
-        workTypes,
-        note: userNote,
-        requestNo: updateData.requestUpdate.requestNo,
-        pjNo: updateData.requestUpdate.pjNo,
-        subject: updateData.requestUpdate.subject,
-      }));
+      const activeDesignType = updateData.requestUpdate.designType || derivedDesignType;
+      updateRequestLocal(requestId, (r) => {
+        return {
+          ...r,
+          coverType,
+          fields: {
+            ...(r?.fields || {}),
+            ...activeFields,
+          },
+          workTypes,
+          designType: activeDesignType,
+          design_type: activeDesignType,
+          note: userNote,
+          requestNo: updateData.requestUpdate.requestNo,
+          pjNo: updateData.requestUpdate.pjNo,
+          subject: updateData.requestUpdate.subject,
+          // CRITICAL: Preserve designConditions and drawingConditions EXACTLY as they were!
+          // Cover Information is strictly separate from Design Conditions and must never overwrite or reset them.
+          designConditions: r?.designConditions?.isSaved
+            ? r.designConditions
+            : existingRequest?.designConditions?.isSaved
+            ? existingRequest.designConditions
+            : r?.designConditions ||
+              existingRequest?.designConditions || {
+                standard: "",
+                windSpeed: activeFields?.windSpeed || "",
+                airDensity: "",
+                isSaved: false,
+              },
+          drawingConditions: r?.drawingConditions?.isSaved
+            ? r.drawingConditions
+            : existingRequest?.drawingConditions?.isSaved
+            ? existingRequest.drawingConditions
+            : r?.drawingConditions ||
+              existingRequest?.drawingConditions || {
+                drawingType: activeFields?.drawingType || "",
+                region: "",
+                isSaved: false,
+              },
+        };
+      });
 
       setShowSaveConfirmModal(false);
       navigate(`/projects/detail/${requestId}`);
@@ -858,6 +1727,7 @@ export default function NewRequestFormPage() {
   // Save: if a required field is empty, mark them all and bring the first
   // one into view (focused when it's a text field); otherwise go on.
   const handleSubmit = async () => {
+    if (isSubmitting || isSavingEdit) return;
     if (!coverType) return;
     if (missingRequiredKeys.length > 0) {
       setShowRequiredErrors(true);
@@ -866,7 +1736,52 @@ export default function NewRequestFormPage() {
       );
       first?.scrollIntoView({ behavior: "smooth", block: "center" });
       if (first?.tagName === "INPUT") first.focus({ preventScroll: true });
+
+      if (coverType === "ys") {
+        if (!ys.projectNo || ys.projectNo.trim().length !== 5) {
+          setToast({
+            title: "Invalid Project No.",
+            message: "Project No. (PJNO) must be exactly 5 digits.",
+            type: "warning",
+          });
+          return;
+        }
+        if (ys.requestDate && ys.requestedDate && ys.requestedDate < ys.requestDate) {
+          setToast({
+            title: "Invalid Due Date",
+            message: "Requested Due Date cannot be earlier than Request Date.",
+            type: "warning",
+          });
+          return;
+        }
+      }
       return;
+    }
+
+    if (coverType === "ys") {
+      if (!ys.projectNo || ys.projectNo.trim().length !== 5) {
+        setShowRequiredErrors(true);
+        setToast({
+          title: "Invalid Project No.",
+          message: "Project No. (PJNO) must be exactly 5 digits.",
+          type: "warning",
+        });
+        const first = document.querySelector('[data-field="projectNo"]');
+        first?.scrollIntoView({ behavior: "smooth", block: "center" });
+        if (first?.tagName === "INPUT") first.focus({ preventScroll: true });
+        return;
+      }
+      if (ys.requestDate && ys.requestedDate && ys.requestedDate < ys.requestDate) {
+        setShowRequiredErrors(true);
+        setToast({
+          title: "Invalid Due Date",
+          message: "Requested Due Date cannot be earlier than Request Date.",
+          type: "warning",
+        });
+        const first = document.querySelector('[data-field="requestedDate"]');
+        first?.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
     }
 
     if (isEditMode) {
@@ -878,53 +1793,77 @@ export default function NewRequestFormPage() {
     const userNote = requestNotes[coverType] || "";
 
     const targetNo = isYs ? ys.requestNo : yp.documentNo;
-    const isDup = await checkDuplicateRequestNo(targetNo);
-    if (isDup) {
-      setToast({
-        title: "Request Number Already Exists",
-        message: `Project / Request with number "${targetNo}" is already registered in the system. Please change or adjust the Request No. before saving.`,
-        type: "error",
-      });
-      return;
-    }
 
-    // ── GUEST USER: Store strictly in sessionStorage (mock store) ──
-    if (isGuestUser()) {
-      const request = createRequestLocal({
-        projectType,
-        coverType,
-        fields: activeFields,
-        workTypes,
-        note: userNote,
-        members: [creatorMember()],
-        isNewProject: true,
-        designConditions: {
-          standard: activeFields?.standard || "",
-          airDensity: activeFields?.airDensity || "1.23",
-          windSpeed: activeFields?.windSpeed || "60",
-          isSaved: false,
-        },
-        drawingConditions: {
-          drawingType: activeFields?.drawingType || "",
-          region: "",
-          isSaved: false,
-        },
-        files:
-          isYs && coverFile
-            ? { brief: [fileRecord(coverFile, creatorMember().name)] }
-            : {},
-        createdBy: creatorMember().name,
-      });
-      clearNewRequestDraft();
-      navigate(`/projects/detail/${request.id}`);
-      return;
-    }
-
-    // ── REGISTERED USER: Submit directly to Backend API Gateway (POST /api/requests) ──
+    // Immediately activate loading state so animation appears instantly on click
     setIsSubmitting(true);
     setToast(null);
+
     try {
+      const isDup = await checkDuplicateRequestNo(targetNo);
+      if (isDup) {
+        setIsSubmitting(false);
+        setToast({
+          title: "Request Number Already Exists",
+          message: `Project / Request with number "${targetNo}" is already registered in the system. Please change or adjust the Request No. before saving.`,
+          type: "error",
+        });
+        return;
+      }
+
+      // ── GUEST USER: Store strictly in sessionStorage (mock store) ──
+      if (isGuestUser()) {
+        const creator = creatorMember();
+        const request = createRequestLocal({
+          projectType,
+          coverType,
+          fields: activeFields,
+          workTypes,
+          note: userNote,
+          members: [creator],
+          isNewProject: true,
+          companyName:
+            activeFields?.companyName || activeFields?.department || "",
+          createdByName: creator.name,
+          createdBy: creator.name,
+          picName: activeFields?.pic || "",
+          requesterPicName: activeFields?.pic || "",
+          requestDate:
+            activeFields?.requestDate ||
+            activeFields?.orderDate ||
+            new Date().toISOString().slice(0, 10),
+          dueDate:
+            activeFields?.dueDate ||
+            activeFields?.requestedDate ||
+            activeFields?.deliveryDate ||
+            "",
+          designConditions: {
+            standard: "",
+            airDensity: "",
+            windSpeed: activeFields?.windSpeed || "",
+            isSaved: false,
+          },
+          drawingConditions: {
+            drawingType: activeFields?.drawingType || "",
+            region: "",
+            isSaved: false,
+          },
+          files:
+            isYs && coverFile
+              ? { brief: [fileRecord(coverFile, creator.name)] }
+              : {},
+        });
+        clearNewRequestDraft();
+        navigate(`/projects/detail/${request.id}`);
+        return;
+      }
+
+      // ── REGISTERED USER: Submit directly to Backend API Gateway (POST /api/requests) ──
       const currentUser = getUser();
+      const creator = creatorMember();
+      let categories = getCachedPoleCategories();
+      if (!Array.isArray(categories) || categories.length === 0) {
+        categories = await getMasterPoleCategories().catch(() => []);
+      }
       const payload = buildRequestPayload({
         projectType,
         coverType,
@@ -932,12 +1871,21 @@ export default function NewRequestFormPage() {
         workTypes,
         notes: userNote || null, // never Indonesian
         currentUser,
+        categoriesList: categories,
       });
 
       const response = await createRequestApi(payload);
       const createdId =
         response?.id || response?.request?.id || `req_${Date.now()}`;
       const createdRequestNo = response?.requestNo || payload.requestNo;
+
+      if (payload.finish && isUuid(createdId)) {
+        try {
+          await updateRequestFinish(createdId, payload.finish);
+        } catch (fErr) {
+          console.warn("[handleSubmit] Finish PATCH fallback:", fErr?.message);
+        }
+      }
 
       // Save to local store with server ID so the Detail page reads it immediately
       createRequestLocal({
@@ -951,12 +1899,32 @@ export default function NewRequestFormPage() {
         fields: activeFields,
         workTypes,
         note: userNote,
-        members: [creatorMember()],
+        members: [creator],
         isNewProject: true,
+        companyName:
+          activeFields?.companyName ||
+          activeFields?.department ||
+          payload.requestingDepartmentName ||
+          "",
+        createdByName: creator.name,
+        createdBy: creator.name,
+        picName:
+          activeFields?.pic || payload.sharedDetails?.requesterPicName || "",
+        requesterPicName:
+          activeFields?.pic || payload.sharedDetails?.requesterPicName || "",
+        requestDate:
+          payload?.requestDate ||
+          activeFields?.requestDate ||
+          new Date().toISOString().slice(0, 10),
+        dueDate:
+          payload?.dueDate ||
+          activeFields?.requestedDate ||
+          activeFields?.dueDate ||
+          "",
         designConditions: {
-          standard: activeFields?.standard || "",
-          airDensity: activeFields?.airDensity || "1.23",
-          windSpeed: activeFields?.windSpeed || "60",
+          standard: "",
+          airDensity: "",
+          windSpeed: activeFields?.windSpeed || "",
           isSaved: false,
         },
         drawingConditions: {
@@ -966,9 +1934,8 @@ export default function NewRequestFormPage() {
         },
         files:
           isYs && coverFile
-            ? { brief: [fileRecord(coverFile, creatorMember().name)] }
+            ? { brief: [fileRecord(coverFile, creator.name)] }
             : {},
-        createdBy: creatorMember().name,
       });
 
       clearNewRequestDraft();
@@ -1005,6 +1972,15 @@ export default function NewRequestFormPage() {
   const currentRequestNo = isEditMode
     ? requestNoOf(existingRequest) || existingRequest?.id
     : "";
+
+  if (isEditMode && isLoadingExisting) {
+    return (
+      <EditProjectLoadingSkeleton
+        onBack={() => navigate(`/projects/detail/${requestId}`)}
+        requestNo={currentRequestNo}
+      />
+    );
+  }
 
   return (
     <div className="flex flex-col h-full min-h-screen">
@@ -1472,6 +2448,7 @@ export default function NewRequestFormPage() {
                           </Label>
                           <DateInput
                             {...ysInput("requestedDate")}
+                            minDate={ys.requestDate}
                             onChange={setYsField("requestedDate")}
                           />
                           {ysMissing("requestedDate")}
@@ -1756,14 +2733,10 @@ export default function NewRequestFormPage() {
                                   >
                                     Standard
                                   </Label>
-                                  <FormSelect
-                                    value={ys.standard}
-                                    onChange={setYsField("standard")}
-                                    options={standardOptions}
-                                    placeholder="Select standard..."
-                                    autoFilled={isAutoFilled("standard")}
-                                    clearable
-                                    noneLabel="None / No Standard"
+                                  <input
+                                    type="text"
+                                    {...ysInput("standard")}
+                                    placeholder="e.g. JIL 1003"
                                   />
                                   {ysMissing("standard")}
                                 </div>
@@ -2032,6 +3005,7 @@ export default function NewRequestFormPage() {
                           </Label>
                           <DateInput
                             {...ypInput("dueDate")}
+                            minDate={yp.requestDate}
                             onChange={setYpField("dueDate")}
                           />
                           {requiredHint("dueDate")}
@@ -2675,7 +3649,7 @@ export default function NewRequestFormPage() {
                         <span>
                           {isEditMode
                             ? "Saving Changes..."
-                            : "Saving Request..."}
+                            : "Saving Project..."}
                         </span>
                       </>
                     ) : (
@@ -2683,7 +3657,7 @@ export default function NewRequestFormPage() {
                         <span>
                           {isEditMode
                             ? "Save Changes"
-                            : "Save Request & Continue"}
+                            : "Save Project & Continue"}
                         </span>
                         <ChevronRight className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
                       </>
@@ -2695,7 +3669,7 @@ export default function NewRequestFormPage() {
                       {missingRequiredKeys.length === 1
                         ? "field is"
                         : "fields are"}{" "}
-                      still empty, marked in red above.
+                      still empty or invalid, marked in red above.
                     </p>
                   )}
                 </div>
@@ -2780,15 +3754,15 @@ export default function NewRequestFormPage() {
           aria-live="polite"
           className="fixed inset-0 z-50 bg-slate-900/30 backdrop-blur-[2px] flex items-center justify-center transition-all p-4"
         >
-          <div className="bg-white rounded-2xl shadow-2xl border border-slate-100 p-6 flex flex-col items-center text-center max-w-xs w-full mx-4 transition-all">
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-100 p-6 flex flex-col items-center text-center max-w-sm w-full mx-4 transition-all">
             <div className="w-13 h-13 rounded-2xl bg-gradient-to-tr from-[#0d3b66] to-[#3399cc] flex items-center justify-center text-white shadow-md shadow-blue-500/20 mb-3.5">
               <Loader2 className="w-6 h-6 animate-spin text-white" />
             </div>
             <h3 className="font-semibold text-slate-800 text-sm md:text-base">
-              {isEditMode ? "Saving Changes..." : "Saving Request..."}
+              {isEditMode ? "Saving Changes..." : "Saving Project..."}
             </h3>
             <p className="text-sm text-slate-500 mt-1 leading-relaxed">
-              Please wait while your request is being processed.
+              Please wait while your project is being saved.
             </p>
           </div>
         </div>

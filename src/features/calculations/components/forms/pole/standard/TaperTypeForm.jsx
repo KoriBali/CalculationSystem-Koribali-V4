@@ -5,6 +5,7 @@ import { usePoleStandardData } from "../../../../hooks/usePoleStandardData";
 import { ConfirmResetAllModal } from "../../../modals/ConfirmResetAllModal";
 import { preloadImagesWhenIdle } from "../../../../utils/preloadImages";
 import { FormSelect } from "../../../../../../shared/components/FormSelect";
+import { getMasterPoleStandardHeightGeometry } from "../../../../services/requestService";
 import STANDARD_POLE_DATA from "../../../../data/specStandardPole.json";
 
 // === IMAGES (12 cases: 6 pole types × 2 ground positions) ===
@@ -487,9 +488,17 @@ const LABEL_ANCHOR_TRANSFORM = {
   "bottom-right": "translate(-100%, -100%)",
 };
 
-// Builds the label texts for the selected pole from specStandardPole.json.
+// Konversi nilai dari meter ke mm jika angka berupa meter (mis. 8.0 m -> 8000 mm)
+const toMm = (val) => {
+  if (val == null) return null;
+  const num = Number(val);
+  if (Number.isNaN(num)) return null;
+  return num < 50 ? Math.round(num * 1000) : Math.round(num);
+};
+
+// Builds the label texts for the selected pole from Backend geometry (with specStandardPole.json fallback).
 // Returns null until a height is chosen or when the diagram isn't mapped.
-function getDiagramLabels(poleType, groundPosition, height) {
+function getDiagramLabels(poleType, groundPosition, height, beGeometry = null) {
   if (!height) return null;
   const layout = DIAGRAM_LABEL_LAYOUT[`${poleType}.${groundPosition}`];
   if (!layout) return null;
@@ -521,32 +530,117 @@ function getDiagramLabels(poleType, groundPosition, height) {
   const pole = poles?.[0];
   if (!pole) return null;
 
+  // Ekstrak data dari BE Geometry jika tersedia
+  let beStepPoles = null;
+  let beTopPole = null;
+  let beBottomPole = null;
+  let beTaperPole = null;
+
+  if (
+    beGeometry &&
+    Array.isArray(beGeometry.stepPoles) &&
+    beGeometry.stepPoles.length > 0
+  ) {
+    // Di BE master geometry, stepPoles berurutan dari bawah ke atas berdasarkan topElevationM
+    const sortedAsc = [...beGeometry.stepPoles].sort(
+      (a, b) => Number(a.topElevationM || 0) - Number(b.topElevationM || 0),
+    );
+    const sortedDesc = [...sortedAsc].reverse();
+
+    beStepPoles = sortedAsc;
+    beBottomPole = sortedAsc[0];
+    beTopPole = sortedDesc[0];
+    beTaperPole =
+      sortedAsc.find(
+        (p) => String(p.poleType || "").toLowerCase() === "taper",
+      ) || beTopPole;
+  }
+
   // Spec text describes the tapered section (the only section for IS; the
   // middle one for stepped types like IA).
   const taper = poles.find((p) => p.poleType === "Taper") ?? pole;
-  const thickness = Number(taper.upperThickness).toFixed(1);
+  const fallbackThickness = Number(taper.upperThickness).toFixed(1);
 
-  // Stepped poles (straight → taper → straight): each section's zHeight is
-  // the height of its top end, so section lengths are the differences.
+  // Ambil ketebalan & material dari BE jika ada
+  const beThick =
+    beTaperPole?.thicknessLowerMm ??
+    beTaperPole?.thicknessUpperMm ??
+    beTopPole?.thicknessLowerMm ??
+    fallbackThickness;
+  const beMat =
+    beTaperPole?.materialName ||
+    beTaperPole?.material?.name ||
+    (typeof beTaperPole?.material === "string" ? beTaperPole.material : null) ||
+    taper.material;
+
+  // Stepped poles (straight → taper → straight)
   const [top, middle, bottom] = poles;
   const isStepped = poles.length >= 3;
 
   const heightInMm = numH > 100 ? Math.round(numH) : Math.round(mH * 1000);
+  const totalHeightMm = beGeometry?.height
+    ? beGeometry.height > 100
+      ? Math.round(beGeometry.height)
+      : toMm(beGeometry.height)
+    : heightInMm;
+
+  // Diameters
+  const upperDia =
+    beTopPole?.diameterUpperMm ??
+    beTopPole?.diameterLowerMm ??
+    pole.upperDiameter;
+  const lowerDia = beBottomPole?.diameterLowerMm ?? pole.lowerDiameter;
+
+  let dia1 = top?.upperDiameter;
+  let dia2 = taper.upperDiameter;
+  let dia3 = taper.lowerDiameter;
+  let dia4 = poles[poles.length - 1]?.lowerDiameter;
+
+  let topLen = 0;
+  let midLen = 0;
+  let botLen = 0;
+
+  if (isStepped && middle && bottom) {
+    topLen = ((arm ?? top)?.zHeight ?? 0) - (middle?.zHeight ?? 0);
+    midLen = (middle?.zHeight ?? 0) - (bottom?.zHeight ?? 0);
+    botLen = bottom?.zHeight ?? 0;
+  }
+
+  if (beStepPoles && beStepPoles.length >= 3) {
+    const topSeg = beStepPoles[beStepPoles.length - 1]; // top
+    const midSeg = beStepPoles[1]; // middle taper
+    const botSeg = beStepPoles[0]; // bottom
+
+    dia1 = topSeg.diameterUpperMm ?? topSeg.diameterLowerMm ?? dia1;
+    dia2 = midSeg.diameterUpperMm ?? dia2;
+    dia3 = midSeg.diameterLowerMm ?? dia3;
+    dia4 = botSeg.diameterLowerMm ?? botSeg.diameterUpperMm ?? dia4;
+
+    // Hitung panjang segmen dari topElevationM BE (meter ke mm)
+    const botElevMm = toMm(botSeg.topElevationM);
+    const midElevMm = toMm(midSeg.topElevationM);
+    const topElevMm = toMm(topSeg.topElevationM);
+
+    if (botElevMm) botLen = botElevMm;
+    if (midElevMm && botElevMm) midLen = midElevMm - botElevMm;
+    if (topElevMm && midElevMm) {
+      const armOffset = arm ? pole.zHeight - arm.zHeight : 0;
+      topLen = topElevMm - midElevMm - armOffset;
+    }
+  }
 
   const texts = {
-    upperDiameter: [`φ${pole.upperDiameter}`],
-    poleSpec: [`t${thickness}`, `[JIS G3444 ${taper.material}]`],
-    baseDimension: [`${BASE_DIMENSION_MM}`],
-    lowerDiameter: [`φ${pole.lowerDiameter}`],
-    aboveGroundHeight: [
-      `${heightInMm - UNDER_GL_DEPTH_MM}`,
-    ],
+    upperDiameter: [`φ${upperDia}`],
+    poleSpec: [`t${Number(beThick).toFixed(1)}`, `[JIS G3444 ${beMat}]`],
+    baseDimension: [`${BASE_DIMENSION_MM}`], // 750 mm handhole/base dimension dari FE
+    lowerDiameter: [`φ${lowerDia}`],
+    aboveGroundHeight: [`${totalHeightMm - UNDER_GL_DEPTH_MM}`],
     underGroundDepth: [`${UNDER_GL_DEPTH_MM}`],
     // Stepped poles — diameters top to bottom, then section lengths.
-    diameter1: [`φ${top.upperDiameter}`],
-    diameter2: [`φ${taper.upperDiameter}`],
-    diameter3: [`φ${taper.lowerDiameter}`],
-    diameter4: [`φ${poles[poles.length - 1].lowerDiameter}`],
+    diameter1: [`φ${dia1}`],
+    diameter2: [`φ${dia2}`],
+    diameter3: [`φ${dia3}`],
+    diameter4: [`φ${dia4}`],
     // Arm types — pole top sits above the arm by (pole zHeight − arm
     // zHeight); the arm's own spec goes on its leader.
     ...(arm && {
@@ -565,11 +659,9 @@ function getDiagramLabels(poleType, groundPosition, height) {
       ],
     }),
     ...(isStepped && {
-      // With an arm, the part above it is its own label (poleTopOffset),
-      // so the top section runs from the arm down.
-      topSectionLength: [`${(arm ?? top).zHeight - middle.zHeight}`],
-      taperSectionLength: [`${middle.zHeight - bottom.zHeight}`],
-      bottomSectionLength: [`${bottom.zHeight}`],
+      topSectionLength: [`${topLen}`],
+      taperSectionLength: [`${midLen}`],
+      bottomSectionLength: [`${botLen}`],
     }),
   };
 
@@ -608,6 +700,7 @@ const EMPTY_POLE_STANDARD = {
   poleType: "",
   groundPosition: "",
   height: "",
+  poleStandardHeightId: null,
 };
 
 export function TaperPoleStandardForm({
@@ -662,25 +755,118 @@ export function TaperPoleStandardForm({
     ? "onGL"
     : taperPoleStandard.groundPosition;
 
-  // If poleType and ground position are selected but height is empty (e.g. restored
-  // from draft or standard selection made while options were loading), auto-select
-  // the first available height option.
+  // Ground Position and Height require explicit user selection when changing
+  // type or ground position; we intentionally do not auto-select height so that
+  // stale dimension values from previous selections never linger.
+
+  // If height is present but poleStandardHeightId is missing (e.g. from draft restoration),
+  // sync the matching heightId from the loaded options
   useEffect(() => {
     if (
-      taperPoleStandard.poleType &&
-      heightLookupKey &&
-      !taperPoleStandard.height &&
+      taperPoleStandard.height &&
+      !taperPoleStandard.poleStandardHeightId &&
       currentHeightOptions[heightLookupKey]?.length > 0
     ) {
-      onUpdate({ height: currentHeightOptions[heightLookupKey][0].id });
+      const match = currentHeightOptions[heightLookupKey].find(
+        (opt) => String(opt.id) === String(taperPoleStandard.height),
+      );
+      if (match?.heightId) {
+        onUpdate({ poleStandardHeightId: match.heightId });
+      }
     }
   }, [
-    taperPoleStandard.poleType,
     taperPoleStandard.height,
+    taperPoleStandard.poleStandardHeightId,
     heightLookupKey,
     currentHeightOptions,
     onUpdate,
   ]);
+
+  // Reverse lookup: If poleStandardHeightId is present but poleType or height is missing (e.g. loaded from backend calculation draft),
+  // resolve them from heightOptionsByStandard so the UI selects the correct type, ground position, and height
+  useEffect(() => {
+    const heightId = taperPoleStandard.poleStandardHeightId;
+    if (!heightId || (taperPoleStandard.poleType && taperPoleStandard.height))
+      return;
+
+    if (
+      !heightOptionsByStandard ||
+      Object.keys(heightOptionsByStandard).length === 0
+    )
+      return;
+
+    for (const [shortCode, groups] of Object.entries(heightOptionsByStandard)) {
+      for (const [gPosKey, options] of Object.entries(groups)) {
+        if (Array.isArray(options)) {
+          const found = options.find((opt) => opt.heightId === heightId);
+          if (found) {
+            onUpdate({
+              poleType: shortCode,
+              groundPosition: gPosKey,
+              height: found.id,
+            });
+            return;
+          }
+        }
+      }
+    }
+  }, [
+    taperPoleStandard.poleStandardHeightId,
+    taperPoleStandard.poleType,
+    taperPoleStandard.height,
+    heightOptionsByStandard,
+    onUpdate,
+  ]);
+
+  // Fetch Backend geometry specifications when poleStandardHeightId is selected
+  const [geometryState, setGeometryState] = useState({
+    heightId: null,
+    data: null,
+    isLoading: false,
+  });
+
+  const setBeGeometry = (val = null) =>
+    setGeometryState({
+      heightId: null,
+      data: val,
+      isLoading: false,
+    });
+
+  useEffect(() => {
+    const heightId = taperPoleStandard?.poleStandardHeightId;
+    if (!heightId) {
+      setGeometryState({ heightId: null, data: null, isLoading: false });
+      return;
+    }
+
+    // Reset immediately so stale geometry from previous height is not displayed while fetching
+    setGeometryState({ heightId, data: null, isLoading: true });
+
+    let isMounted = true;
+    getMasterPoleStandardHeightGeometry(heightId)
+      .then((data) => {
+        if (isMounted) {
+          setGeometryState({ heightId, data: data || null, isLoading: false });
+        }
+      })
+      .catch(() => {
+        // If BE geometry is not yet available for this height (e.g. non-calculable height),
+        // gracefully fall back to local spec without throwing or crashing
+        if (isMounted) {
+          setGeometryState({ heightId, data: null, isLoading: false });
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [taperPoleStandard?.poleStandardHeightId]);
+
+  // Synchronously ensure stale geometry from previous height is never passed to getDiagramLabels
+  const effectiveBeGeometry =
+    geometryState.heightId === taperPoleStandard?.poleStandardHeightId
+      ? geometryState.data
+      : null;
 
   const currentImage =
     taperPoleStandard.poleType && taperPoleStandard.groundPosition
@@ -692,17 +878,19 @@ export function TaperPoleStandardForm({
       : null;
 
   // Dimension texts drawn over the diagram (plain On/Under GL diagrams only,
-  // not the Embedment variant).
+  // not the Embedment variant). Prioritizes Backend geometry when available.
   const diagramLabels = isBaseplate
     ? getDiagramLabels(
         taperPoleStandard.poleType,
         taperPoleStandard.groundPosition,
         taperPoleStandard.height,
+        effectiveBeGeometry,
       )
     : getDiagramLabels(
         taperPoleStandard.poleType,
         "embedment",
         taperPoleStandard.height,
+        effectiveBeGeometry,
       );
 
   // ── Highlight labels whose value just changed ──
@@ -745,6 +933,16 @@ export function TaperPoleStandardForm({
     });
   }
 
+  // Clear flash state after animation duration so subsequent updates re-trigger cleanly
+  useEffect(() => {
+    if (flashingLabels.length > 0) {
+      const timer = setTimeout(() => {
+        setFlashingLabels([]);
+      }, 900);
+      return () => clearTimeout(timer);
+    }
+  }, [flashingLabels]);
+
   const diagramLayout = isBaseplate
     ? DIAGRAM_LABEL_LAYOUT[
         `${taperPoleStandard.poleType}.${taperPoleStandard.groundPosition}`
@@ -758,12 +956,20 @@ export function TaperPoleStandardForm({
   const heightField = (
     <>
       <span className="block text-gray-600 text-xs md:text-sm font-medium mb-2">
-        Height <span className="text-red-500 ml-1 font-semibold">*</span>
+        Select Height <span className="text-red-500 ml-1 font-semibold">*</span>
       </span>
       <FormSelect
         id="taperPoleStandard.height"
         value={taperPoleStandard.height}
-        onChange={(val) => onUpdate({ height: val })}
+        onChange={(val) => {
+          const match = (currentHeightOptions[heightLookupKey] || []).find(
+            (opt) => String(opt.id) === String(val),
+          );
+          onUpdate({
+            height: val,
+            poleStandardHeightId: match?.heightId || null,
+          });
+        }}
         options={(currentHeightOptions[heightLookupKey] || []).map((h) => ({
           value: h.id,
           label: h.label,
@@ -798,7 +1004,8 @@ export function TaperPoleStandardForm({
         >
           <div className="px-4 py-3 border-b border-slate-100 bg-slate-50 flex-shrink-0">
             <p className="text-xs md:text-sm font-medium text-slate-500">
-              Pole Standard Type <span className="text-red-500 ml-1 font-semibold">*</span>
+              Select Pole Standard Type{" "}
+              <span className="text-red-500 ml-1 font-semibold">*</span>
             </p>
           </div>
 
@@ -818,46 +1025,39 @@ export function TaperPoleStandardForm({
             ) : !poleStandardLoading &&
               poleStandardError &&
               poleStandardOptions.length === 0 ? (
-                <div className="col-span-2 md:col-span-1 flex items-center justify-between gap-3 px-3 py-2 rounded-lg bg-red-50 border border-red-200">
-                  <p className="text-xs sm:text-sm text-red-600">
-                    Failed to load pole standard options.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={refetchPoleStandard}
-                    className="text-xs sm:text-sm font-medium text-red-600 underline hover:text-red-700 shrink-0"
-                  >
-                    Retry
-                  </button>
-                </div>
-              ) : (
-                poleStandardOptions.map((option) => {
-              const isActive = taperPoleStandard.poleType === option.id;
-              return (
+              <div className="col-span-2 md:col-span-1 flex items-center justify-between gap-3 px-3 py-2 rounded-lg bg-red-50 border border-red-200">
+                <p className="text-xs sm:text-sm text-red-600">
+                  Failed to load pole standard options.
+                </p>
                 <button
-                  key={option.id}
                   type="button"
-                  disabled={readOnly}
-                  onClick={() => {
-                    if (readOnly) return;
-                    const nextGround = !isBaseplate
-                      ? "underGL"
-                      : taperPoleStandard.groundPosition || "onGL";
-                    const optList =
-                      heightOptionsByStandard[option.id]?.[nextGround] || [];
-                    const hasSameHeight = optList.some(
-                      (h) => h.id === taperPoleStandard.height,
-                    );
-                    const nextHeight = hasSameHeight
-                      ? taperPoleStandard.height
-                      : optList[0]?.id || "";
-                    onUpdate({
-                      poleType: option.id,
-                      groundPosition: nextGround,
-                      height: nextHeight,
-                    });
-                  }}
-                  className={`w-full rounded-lg hp:rounded-md border px-4 py-2 lg:py-2.5 text-xs md:text-sm font-medium transition-all text-left
+                  onClick={refetchPoleStandard}
+                  className="text-xs sm:text-sm font-medium text-red-600 underline hover:text-red-700 shrink-0"
+                >
+                  Retry
+                </button>
+              </div>
+            ) : (
+              poleStandardOptions.map((option) => {
+                const isActive = taperPoleStandard.poleType === option.id;
+                return (
+                  <button
+                    key={option.id}
+                    type="button"
+                    disabled={readOnly}
+                    onClick={() => {
+                      if (readOnly) return;
+                      if (taperPoleStandard.poleType === option.id) return;
+                      const nextGround = !isBaseplate ? "underGL" : "";
+                      setBeGeometry(null);
+                      onUpdate({
+                        poleType: option.id,
+                        groundPosition: nextGround,
+                        height: "",
+                        poleStandardHeightId: null,
+                      });
+                    }}
+                    className={`w-full rounded-lg hp:rounded-md border px-4 py-2 lg:py-2.5 text-xs md:text-sm font-medium transition-all text-left
                   ${readOnly ? "cursor-default" : "cursor-pointer"}
                   ${
                     isActive
@@ -866,11 +1066,12 @@ export function TaperPoleStandardForm({
                         ? "border-slate-100 text-slate-400 bg-slate-50/50"
                         : "border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50"
                   }`}
-                >
-                  {option.label}
-                </button>
-              );
-            }))}
+                  >
+                    {option.label}
+                  </button>
+                );
+              })
+            )}
           </div>
           {errors.poleType && (
             <div className="px-4 pb-3">
@@ -891,7 +1092,8 @@ export function TaperPoleStandardForm({
             className="px-4 py-3 border-b border-slate-100 bg-slate-50 flex flex-col xl:flex-row items-start xl:items-center gap-3 xl:gap-4 flex-shrink-0"
           >
             <p className="text-xs md:text-sm font-medium text-slate-500 flex-shrink-0">
-              Ground Position <span className="text-red-500 ml-1 font-semibold">*</span>
+              Select Ground Position{" "}
+              <span className="text-red-500 ml-1 font-semibold">*</span>
             </p>
 
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
@@ -907,19 +1109,13 @@ export function TaperPoleStandardForm({
                       disabled={isGroundDisabled || readOnly}
                       onClick={() => {
                         if (isGroundDisabled || readOnly) return;
-                        const optList =
-                          heightOptionsByStandard[taperPoleStandard.poleType]?.[
-                            option.id
-                          ] || [];
-                        const hasSameHeight = optList.some(
-                          (h) => h.id === taperPoleStandard.height,
-                        );
-                        const nextHeight = hasSameHeight
-                          ? taperPoleStandard.height
-                          : optList[0]?.id || "";
+                        if (taperPoleStandard.groundPosition === option.id)
+                          return;
+                        setBeGeometry(null);
                         onUpdate({
                           groundPosition: option.id,
-                          height: nextHeight,
+                          height: "",
+                          poleStandardHeightId: null,
                         });
                       }}
                       className={`
@@ -1014,41 +1210,6 @@ export function TaperPoleStandardForm({
                       : "justify-center min-w-[80px] xl:flex-shrink-0"
                   }`}
                 >
-                  {!isImageLoaded && (
-                    <div className="absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none p-4">
-                      {/* Technical Silhouette Wireframe Shimmer */}
-                      <div className="absolute inset-0 flex items-center justify-center opacity-30 select-none">
-                        <div className="relative flex flex-col items-center h-4/5 w-16">
-                          {/* Pole top cap */}
-                          <div className="w-5 h-2 rounded-t bg-slate-300 animate-pulse" />
-                          {/* Pole tapered body */}
-                          <div className="flex-1 w-7 bg-gradient-to-b from-slate-200 via-slate-100 to-slate-200 rounded-sm animate-pulse border-x border-slate-300/70" />
-                          {/* Dimension reference ticks */}
-                          <div className="absolute -left-10 top-1/4 w-8 border-t border-dashed border-slate-400" />
-                          <div className="absolute -left-10 top-1/2 w-8 border-t border-dashed border-slate-400" />
-                          <div className="absolute -left-10 top-3/4 w-8 border-t border-dashed border-slate-400" />
-                          <div className="absolute -left-10 top-1/4 bottom-1/4 border-l border-dashed border-slate-400" />
-                          {/* Baseplate indicator */}
-                          <div className="w-16 h-2.5 rounded-b bg-slate-300 animate-pulse" />
-                        </div>
-                      </div>
-
-                      {/* Enterprise Glassmorphic Status Badge */}
-                      <div className="relative z-10 flex items-center gap-3.5 px-5 py-3 rounded-xl bg-white/90 backdrop-blur-md border border-slate-200 shadow-[0_8px_30px_rgb(0,0,0,0.06)]">
-                        <div className="relative flex items-center justify-center w-9 h-9 rounded-lg bg-gradient-to-br from-[#0d3b66] to-[#1a5a92] text-white shadow-sm shrink-0">
-                          <Loader2 className="w-4.5 h-4.5 animate-spin text-white" />
-                        </div>
-                        <div className="text-left">
-                          <p className="text-xs font-semibold text-[#0d3b66] tracking-wide">
-                            Rendering Technical Schematic
-                          </p>
-                          <p className="text-[11px] text-slate-400 font-normal">
-                            Generating pole specifications & dimensions...
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
                   {/* Wrapper sized exactly to the rendered image, so the
                       %-positioned labels line up with the SVG's own
                       coordinates. For mapped diagrams the size is set by CSS
@@ -1072,6 +1233,16 @@ export function TaperPoleStandardForm({
                         : undefined
                     }
                   >
+                    {!isImageLoaded && (
+                      <div className="absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none">
+                        <div className="flex flex-col items-center justify-center gap-2.5">
+                          <Loader2 className="w-8 h-8 animate-spin text-[#1d4ed8]" />
+                          <span className="text-xs font-medium text-slate-400 tracking-wide select-none">
+                            Loading schematic...
+                          </span>
+                        </div>
+                      </div>
+                    )}
                     {/* Height select pinned against the overall-height
                         dimension line (its right edge 8px left of it),
                         vertically centred on it. The left margin on the
@@ -1124,7 +1295,10 @@ export function TaperPoleStandardForm({
                           className={`absolute z-10 w-[120px] sm:w-[150px] xl:w-[160px] ${["IS", "IA"].includes(taperPoleStandard.poleType) ? "bottom-[5%]" : "bottom-[2%]"}`}
                         >
                           <span className="block text-gray-600 text-xs md:text-sm font-medium mb-2">
-                            Embedment Length <span className="text-red-500 ml-1 font-semibold">*</span>
+                            Embedment Length{" "}
+                            <span className="text-red-500 ml-1 font-semibold">
+                              *
+                            </span>
                           </span>
                           <div className="relative">
                             <input
@@ -1154,38 +1328,45 @@ export function TaperPoleStandardForm({
                       )}
 
                     {isImageLoaded &&
-                      diagramLabels?.map((label) => (
-                        // Same size as the Height select's value text
-                        // (FormSelect: text-xs md:text-sm) — keep in sync.
-                        // Keyed by text too, so a changed value remounts and
-                        // its flash animation replays on every change.
-                        <div
-                          key={`${label.key}:${label.lines.join("|")}`}
-                          style={label.style}
-                          className={`absolute pointer-events-none whitespace-nowrap text-xs md:text-sm [--label-lh:15px] md:[--label-lh:18px] leading-[var(--label-lh)] text-[#1d4ed8] rounded-sm ${
-                            label.isCentered ? "text-center" : ""
-                          } ${
-                            flashingLabels.includes(label.key)
-                              ? "animate-[label-flash_0.9s_ease-out] motion-reduce:animate-none"
-                              : ""
-                          }`}
-                        >
-                          {label.isLeader ? (
-                            <>
-                              <div className="px-[3px]">{label.lines[0]}</div>
-                              {/* 1px gap where the SVG's leader line runs */}
-                              <div className="h-px" />
-                              <div className="px-[3px] pt-px">
-                                {label.lines[1]}
-                              </div>
-                            </>
-                          ) : (
-                            label.lines.map((line) => (
-                              <div key={line}>{line}</div>
-                            ))
-                          )}
-                        </div>
-                      ))}
+                      diagramLabels?.map((label) => {
+                        const isFlashing = flashingLabels.includes(label.key);
+                        return (
+                          // Same size as the Height select's value text
+                          // (FormSelect: text-xs md:text-sm) — keep in sync.
+                          // Keyed by text too, so a changed value remounts and
+                          // its flash animation replays on every change.
+                          <div
+                            key={`${label.key}:${label.lines.join("|")}`}
+                            style={label.style}
+                            className={`absolute pointer-events-none whitespace-nowrap text-xs md:text-sm [--label-lh:15px] md:[--label-lh:18px] leading-[var(--label-lh)] text-[#1d4ed8] ${
+                              label.isCentered ? "text-center" : ""
+                            } ${isFlashing ? "z-20" : "z-10"}`}
+                          >
+                            <div
+                              className={`transition-all duration-300 rounded-xs inline-block origin-center ${
+                                isFlashing
+                                  ? "animate-[spec-pop_0.85s_cubic-bezier(0.16,1,0.3,1)] font-semibold motion-reduce:animate-none"
+                                  : ""
+                              }`}
+                            >
+                              {label.isLeader ? (
+                                <>
+                                  <div className="px-[3px]">{label.lines[0]}</div>
+                                  {/* 1px gap where the SVG's leader line runs */}
+                                  <div className="h-px" />
+                                  <div className="px-[3px] pt-px">
+                                    {label.lines[1]}
+                                  </div>
+                                </>
+                              ) : (
+                                label.lines.map((line) => (
+                                  <div key={line}>{line}</div>
+                                ))
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
                   </div>
                 </div>
               </div>
@@ -1228,7 +1409,10 @@ export function TaperPoleStandardForm({
       <ConfirmResetAllModal
         open={showResetModal}
         onClose={() => setShowResetModal(false)}
-        onReset={() => onUpdate(EMPTY_POLE_STANDARD)}
+        onReset={() => {
+          setBeGeometry(null);
+          onUpdate(EMPTY_POLE_STANDARD);
+        }}
         title="Reset all inputs on this section?"
         description="This will clear all inputs entered in this section. This action cannot be undone."
       />

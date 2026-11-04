@@ -29,6 +29,7 @@ export function FormSelect({
   customPlaceholder = "Enter a value",
   clearable = false,
   noneLabel = "None / Not Specified",
+  className = "",
 }) {
   // Loading implies disabled — the trigger can't be opened until options
   // (usually master data) arrive.
@@ -39,14 +40,69 @@ export function FormSelect({
   const menuRef = useRef(null);
   const customInputRef = useRef(null);
 
-  const selectedOption = options.find(
-    (opt) =>
-      String(opt.value) === String(value) ||
-      (Number(opt.value) &&
-        Number(value) &&
-        (Math.round(Number(opt.value) * 1000) === Math.round(Number(value)) ||
-          Math.round(Number(value) * 1000) === Math.round(Number(opt.value)))),
-  );
+  const selectedOption = options.find((opt) => {
+    if (value === undefined || value === null || value === "") return false;
+    const strVal = String(value).trim();
+    const optVal = String(opt.value ?? "").trim();
+    const optLabel = String(opt.label ?? "").trim();
+
+    if (optVal === strVal) return true;
+    if (optVal.toLowerCase() === strVal.toLowerCase()) return true;
+    if (optLabel.toLowerCase() === strVal.toLowerCase()) return true;
+
+    const lowerVal = strVal.toLowerCase();
+    const lowerOpt = optVal.toLowerCase();
+
+    // Standard aliases (e.g. jil vs old_jil vs old_lighting_pole)
+    const isOldStandard = (v) =>
+      v === "jil" ||
+      v === "old_jil" ||
+      v === "old_lighting_pole" ||
+      v === "old_lighting" ||
+      v === "lighting_pole";
+    if (isOldStandard(lowerVal) && isOldStandard(lowerOpt)) {
+      return true;
+    }
+
+    // Drawing type aliases
+    if (
+      (lowerVal.includes("approval") || lowerVal.includes("apd")) &&
+      (lowerOpt.includes("approval") || lowerOpt.includes("apd"))
+    ) {
+      return true;
+    }
+    if (
+      (lowerVal.includes("manufacturer") || lowerVal.includes("mfd")) &&
+      (lowerOpt.includes("manufacturer") || lowerOpt.includes("mfd"))
+    ) {
+      return true;
+    }
+    if (lowerVal.includes("order") && lowerOpt.includes("order")) {
+      return true;
+    }
+    if (lowerVal.includes("meeting") && lowerOpt.includes("meeting")) {
+      return true;
+    }
+
+    // Region aliases
+    if (lowerVal.includes("east") && lowerOpt.includes("east")) {
+      return true;
+    }
+    if (lowerVal.includes("west") && lowerOpt.includes("west")) {
+      return true;
+    }
+
+    if (
+      Number(opt.value) &&
+      Number(value) &&
+      (Math.round(Number(opt.value) * 1000) === Math.round(Number(value)) ||
+        Math.round(Number(value) * 1000) === Math.round(Number(opt.value)))
+    ) {
+      return true;
+    }
+
+    return false;
+  });
 
   // Custom mode = value is set but doesn't match any known option. Computed
   // once as the initial state (covers restoring a previously-saved custom
@@ -128,22 +184,30 @@ export function FormSelect({
           id={id}
           type="text"
           value={value || ""}
+          disabled={isDisabled}
           onChange={(e) => onChange(e.target.value)}
           placeholder={customPlaceholder}
           className={`w-full px-3 md:px-4 py-2 md:py-2.5 rounded-md md:rounded-lg outline-none transition-all text-xs md:text-sm border ${
-            hasError
-              ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
-              : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
-          }`}
+            isDisabled
+              ? "border-gray-300 bg-gray-100 text-gray-500 cursor-not-allowed shadow-none select-none"
+              : hasError
+                ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
+                : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
+          } ${className}`}
         />
         <button
           type="button"
+          disabled={isDisabled}
           title="Choose from list instead"
           onClick={() => {
             setIsCustomMode(false);
             onChange("");
           }}
-          className="shrink-0 flex items-center justify-center w-8 h-8 md:w-9 md:h-9 rounded-md md:rounded-lg border border-gray-300 text-gray-400 hover:border-[#3399cc] hover:text-[#3399cc] transition-colors"
+          className={`shrink-0 flex items-center justify-center w-8 h-8 md:w-9 md:h-9 rounded-md md:rounded-lg border border-gray-300 transition-colors ${
+            isDisabled
+              ? "bg-gray-100 text-gray-300 border-gray-200 cursor-not-allowed"
+              : "text-gray-400 hover:border-[#3399cc] hover:text-[#3399cc]"
+          }`}
         >
           <ArrowLeft className="w-4 h-4" />
         </button>
@@ -160,16 +224,22 @@ export function FormSelect({
         disabled={isDisabled}
         onClick={handleOpen}
         className={`w-full px-3 md:px-4 py-2 md:py-2.5 rounded-md md:rounded-lg outline-none transition-all text-xs md:text-sm border text-left flex justify-between items-center ${
-          isDisabled ? "bg-slate-50/70 cursor-not-allowed" : ""
+          isDisabled
+            ? "border-gray-300 bg-gray-100 text-gray-500 cursor-not-allowed shadow-none select-none"
+            : hasError
+              ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
+              : isOpen
+                ? "border-[#3399cc] bg-white ring-1 ring-[#3399cc]"
+                : autoFilled
+                  ? "border-dashed border-blue-300 bg-blue-50/40 hover:border-[#3399cc]"
+                  : "border-gray-300 bg-white hover:border-[#3399cc]"
         } ${
-          hasError
-            ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
-            : isOpen
-              ? "border-[#3399cc] bg-white ring-1 ring-[#3399cc]"
-              : autoFilled
-                ? "border-dashed border-blue-300 bg-blue-50/40 hover:border-[#3399cc]"
-                : "border-gray-300 bg-white hover:border-[#3399cc]"
-        } ${!selectedOption ? "text-slate-400" : "text-slate-900"}`}
+          isDisabled
+            ? "text-gray-500"
+            : !selectedOption
+              ? "text-slate-400"
+              : "text-slate-900"
+        } ${className}`}
       >
         {loading ? (
           <div className="flex items-center gap-2 min-w-0">

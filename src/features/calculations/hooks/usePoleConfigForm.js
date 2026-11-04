@@ -7,7 +7,7 @@ export function usePoleConfigForm(projectType) {
     projectType,
     "poleConfig",
     {
-      lowestHeight: "0",
+      lowestHeight: "",
       groundPosition: "onGL",
       overdesignFactor: "1",
     },
@@ -18,8 +18,8 @@ export function usePoleConfigForm(projectType) {
   const updatePoleConfig = (updates) => {
     let next = { ...updates };
 
-    if ("groundPosition" in updates) {
-      next.lowestHeight = updates.groundPosition === "onGL" ? 0 : "";
+    if ("groundPosition" in updates && !("lowestHeight" in updates)) {
+      next.lowestHeight = updates.groundPosition === "onGL" ? "" : "";
     }
 
     Utils.updatePoleConfig(poleConfig, next, setPoleConfig);

@@ -3,8 +3,9 @@
 // its cases (each opens a calculation or drawing draft) and its files.
 import { useNavigate, useParams } from "react-router-dom";
 import { Helmet } from "react-helmet";
-import { ArrowLeft, SearchX } from "lucide-react";
+import { ArrowLeft, SearchX, Loader2 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import InitialAssignment from "../components/requests/InitialAssignment";
 import { RequestCases } from "../components/requests/detail/RequestCases";
 import { RequestFiles } from "../components/requests/detail/RequestFiles";
@@ -23,9 +24,14 @@ import {
 } from "../constants/requestFormOptions";
 import { REQUEST_HEADLINE, requestNoOf } from "../constants/requestSummary";
 import { MOCK_WORKERS } from "../data/requestFormMocks";
-import { fileRecord, forgetFileBlob } from "../data/requestStore";
+import {
+  fileRecord,
+  forgetFileBlob,
+  mapItemStatusToCaseStatus,
+  saveRequest,
+} from "../data/requestStore";
 import { useRequestRecord } from "../hooks/useRequestRecord";
-import { createCase } from "../utils/requestCases";
+import { createCase, nextCaseNo } from "../utils/requestCases";
 import {
   deleteCalculationCase,
   deleteDrawingCase,
@@ -34,12 +40,24 @@ import {
   updateCalculationConditions,
   defineDrawingConditions,
   updateDrawingConditions,
+  createCalculationCase,
+  createDrawingCase,
+  updateCalculationCase,
+  updateDrawingCase,
+  fetchAllProjectCases,
+  extractCaseItems,
+  addRequestAssignment,
+  releaseRequestAssignment,
+  getRequestAssignments,
+  getCalculationDraft,
 } from "../services/requestService";
+import { getUsers, getAssignableUsers } from "../../admin/services/userService";
 import { deserializeWorkingSession } from "../utils/coreLogic";
 import { getUser, isGuestUser } from "../../../utils/auth";
 import {
   resolveDesignStandardId,
   resolveDesignStandardCode,
+  resolveDesignStandardLabel,
   resolveRegionId,
   resolveRegionCode,
   canonicalDrawingType,
@@ -56,6 +74,66 @@ import {
   STANDARD_BASEPLATE_TYPE,
   STANDARD_FOUR_RIB_TYPE,
 } from "../constants/standardPoleDefaults";
+
+const getAssigneeUserId = (a) =>
+  a?.assigneeUserId ||
+  a?.assignee_user_id ||
+  a?.assignee?.id ||
+  a?.user?.id ||
+  a?.userId ||
+  a?.user_id ||
+  a?.assigneeId ||
+  a?.assignee_id;
+
+const getAssignmentId = (a) =>
+  a?.id ||
+  a?.assignmentId ||
+  a?.assignment_id ||
+  a?._id;
+
+const isAssignmentActive = (a) => {
+  if (!a) return false;
+  if (
+    a.isReleased === true ||
+    a.is_released === true ||
+    a.released === true
+  ) {
+    return false;
+  }
+  if (
+    a.releasedAt != null ||
+    a.released_at != null ||
+    a.released_date != null
+  ) {
+    return false;
+  }
+  const st = String(
+    a.status ||
+      a.assignment_status ||
+      a.assignmentStatus ||
+      a.state ||
+      "",
+  ).toLowerCase();
+  if (
+    st === "released" ||
+    st === "inactive" ||
+    st === "cancelled" ||
+    st === "revoked" ||
+    st === "closed" ||
+    st === "removed" ||
+    st === "deleted"
+  ) {
+    return false;
+  }
+  if (
+    a.isActive === false ||
+    a.is_active === false ||
+    a.active === false
+  ) {
+    return false;
+  }
+  return true;
+};
 
 const BACK_BUTTON =
   "self-start flex shrink-0 items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap text-white px-3 py-2 sm:px-4 rounded-lg hp:rounded-md text-xs sm:text-sm font-medium border border-white/20 hover:bg-white/10 active:bg-white/15 transition";
@@ -81,8 +159,8 @@ function NotFound({ onBack }) {
         Request not found
       </p>
       <p className="mt-1 max-w-md text-sm text-slate-500">
-        It may have been created in another browser tab. Requests are only kept
-        in this tab until the requests API is connected.
+        The requested project could not be found or you may not have permission
+        to view it.
       </p>
       <button
         type="button"
@@ -95,22 +173,1012 @@ function NotFound({ onBack }) {
   );
 }
 
+function DetailLoadingSkeleton({ onBack }) {
+  return (
+    <div className="flex flex-col h-full min-h-screen relative bg-slate-50">
+      <Helmet>
+        <title>Loading Project... - KORI BALI</title>
+      </Helmet>
+
+      <div className="flex-1 rounded-t-2xl hp:rounded-t-xl bg-gray-50">
+        {/* ── Top Header Skeleton: Gradient blue card matching page header ── */}
+        <div className="w-full max-w-[1440px] mx-auto px-2">
+          <div className="relative overflow-hidden rounded-xl sm:rounded-2xl bg-gradient-to-r from-[#0d3b66] via-[#114674] to-[#1a5a92] shadow-sm px-3 py-3.5 sm:px-4 sm:py-4 md:px-6 2xl:px-8 flex flex-col gap-4">
+            {/* Top row: Back button & Status badge */}
+            <div className="flex items-center justify-between gap-3">
+              <button type="button" onClick={onBack} className={BACK_BUTTON}>
+                <ArrowLeft className="w-4 h-4 shrink-0" />
+                Back to Projects
+              </button>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-white text-[13px] font-medium shadow-xs">
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-cyan-300" />
+                <span className="tracking-wide">
+                  Loading project details...
+                </span>
+              </div>
+            </div>
+
+            {/* Request Number & Title placeholders */}
+            <div className="min-w-0">
+              <div className="h-3 w-24 bg-white/25 rounded-md animate-pulse" />
+              <div className="mt-1.5 h-6 sm:h-7 lg:h-8 w-56 sm:w-80 bg-white/35 rounded-lg animate-pulse" />
+              <div className="mt-2 h-4 w-72 max-w-full bg-white/20 rounded-md animate-pulse" />
+
+              {/* Chips row */}
+              <div className="mt-3 flex flex-wrap gap-2">
+                <div className="h-6 w-20 bg-white/20 rounded-full animate-pulse" />
+                <div className="h-6 w-32 bg-white/20 rounded-full animate-pulse" />
+                <div className="h-6 w-24 bg-white/20 rounded-full animate-pulse" />
+                <div className="h-6 w-20 bg-white/20 rounded-full animate-pulse" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Content Skeletons: matching exact container and spacing ── */}
+        <div className="w-full max-w-[1440px] mx-auto pt-6 pb-24 sm:pb-8 px-2 space-y-4 md:space-y-6">
+          {/* Section: Request Summary Skeleton */}
+          <div>
+            <div className="mb-4 flex items-center gap-2 animate-pulse">
+              <div className="w-1 h-4 md:h-5 bg-slate-300 rounded-full" />
+              <div className="h-4 w-32 md:w-36 bg-slate-200 rounded" />
+            </div>
+            <div className="bg-white px-4 md:px-5 py-5 rounded-xl hp:rounded-lg border border-gray-200">
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2.5 sm:gap-3">
+                {Array.from({ length: 8 }).map((_, idx) => (
+                  <div
+                    key={`sum-skel-${idx}`}
+                    className="px-3.5 py-2.5 rounded-lg border border-gray-200/80 bg-gray-50/70 flex flex-col justify-between h-[70px] animate-pulse"
+                  >
+                    <div className="h-3 w-20 bg-slate-200/80 rounded" />
+                    <div
+                      className="h-4 bg-slate-300/80 rounded"
+                      style={{ width: `${55 + (idx % 4) * 12}%` }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Section: Design Conditions Skeleton */}
+          <div>
+            <div className="mb-4 flex items-center gap-2 animate-pulse">
+              <div className="w-1 h-4 md:h-5 bg-slate-300 rounded-full" />
+              <div className="h-4 w-56 sm:w-72 bg-slate-200 rounded" />
+            </div>
+            <div className="bg-white px-4 md:px-5 py-5 rounded-xl hp:rounded-lg border border-gray-200">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
+                {[80, 120, 105].map((labelWidth, idx) => (
+                  <div
+                    key={`cond-skel-${idx}`}
+                    className="space-y-2 animate-pulse"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div
+                        className="h-3 bg-slate-200 rounded"
+                        style={{ width: `${labelWidth}px` }}
+                      />
+                    </div>
+                    <div className="h-10 w-full bg-slate-50 border border-slate-200 rounded-lg flex items-center px-3">
+                      <div className="h-3.5 bg-slate-200 rounded w-2/3" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Section: Cases Table Skeleton */}
+          <div>
+            <div className="mb-4 flex items-center gap-2 animate-pulse">
+              <div className="w-1 h-4 md:h-5 bg-slate-300 rounded-full" />
+              <div className="h-4 w-48 sm:w-56 bg-slate-200 rounded" />
+            </div>
+            <div className="bg-white rounded-xl hp:rounded-lg border border-gray-200 overflow-hidden shadow-xs">
+              <div className="p-4 border-b border-gray-100 flex items-center justify-between gap-4">
+                <div className="h-9 w-52 sm:w-64 bg-slate-100 rounded-lg border border-slate-200/70 animate-pulse" />
+                <div className="h-9 w-32 bg-slate-200/90 rounded-lg animate-pulse" />
+              </div>
+              <div className="divide-y divide-slate-100">
+                {Array.from({ length: 3 }).map((_, idx) => (
+                  <div
+                    key={`case-skel-${idx}`}
+                    className="p-4 flex items-center justify-between gap-4 animate-pulse"
+                  >
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <div className="w-8 h-8 rounded-lg bg-slate-100 shrink-0 flex items-center justify-center">
+                        <div className="w-4 h-4 rounded bg-slate-200" />
+                      </div>
+                      <div className="space-y-1.5 flex-1 max-w-sm">
+                        <div className="h-4 w-3/4 bg-slate-200/90 rounded" />
+                        <div className="h-3 w-1/2 bg-slate-100 rounded" />
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 shrink-0">
+                      <div className="h-6 w-20 rounded-full bg-slate-100" />
+                      <div className="h-8 w-24 rounded-lg bg-slate-200/80" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const cleanCoverStandard = (val) => {
+  if (!val) return "";
+  if (isUuid(val)) {
+    const label = resolveDesignStandardLabel(val);
+    if (label && label !== "—" && !isUuid(label)) return label;
+    return "";
+  }
+  const s = String(val).trim().toLowerCase();
+  if (
+    s === "new_jil" ||
+    s === "old_lighting_pole" ||
+    s === "old_lighting" ||
+    s === "lighting_pole" ||
+    s === "old_jil" ||
+    s === "haiden" ||
+    s === "v60" ||
+    s === "act" ||
+    s === "tower" ||
+    s === "signboard"
+  ) {
+    const label = resolveDesignStandardLabel(val);
+    if (label && label !== "—" && !isUuid(label)) return label;
+    return "";
+  }
+  return String(val).trim();
+};
+
+const normalizeServerCase = (
+  c,
+  index,
+  defaultWorkType = "calc",
+  userMap = null,
+  currentUser = null,
+) => {
+  const rawWorkType =
+    c.workType || c.work_type || (c.drawingType ? "drawing" : defaultWorkType);
+  const workType = rawWorkType === "drawing" ? "drawing" : "calc";
+  const caseNo =
+    c.caseNo || c.case_no || c.no || String(index + 1).padStart(3, "0");
+  const caseLabel = c.caseLabel || c.case_label || `Case ${caseNo}`;
+  const title = c.title || caseLabel;
+  const poleKind = c.poleKind || c.pole_kind || "standard";
+
+  const ownerUserId =
+    c.ownerUserId || c.owner_user_id || c.assigneeUserId || c.assignee_user_id;
+  const creatorUserId =
+    c.created_by_user_id || c.creator_user_id || c.createdByUserId;
+
+  const currentUserName =
+    currentUser?.fullName || currentUser?.name || currentUser?.username || "";
+  const currentUserId = currentUser?.id ? String(currentUser.id) : "";
+
+  const resolvedOwner =
+    c.ownerName ||
+    c.owner?.fullName ||
+    c.owner?.name ||
+    (ownerUserId && userMap?.get(String(ownerUserId))) ||
+    (ownerUserId && currentUserId && String(ownerUserId) === currentUserId
+      ? currentUserName
+      : null) ||
+    c.assignedTo ||
+    c.owner ||
+    currentUserName ||
+    "Unassigned";
+
+  const resolvedCreatedBy =
+    c.createdByName ||
+    c.creator?.fullName ||
+    c.creator?.name ||
+    (creatorUserId && userMap?.get(String(creatorUserId))) ||
+    (creatorUserId && currentUserId && String(creatorUserId) === currentUserId
+      ? currentUserName
+      : null) ||
+    c.createdBy ||
+    currentUserName ||
+    "Unassigned";
+
+  return {
+    id: c.id,
+    no: caseNo,
+    caseLabel,
+    case_label: caseLabel,
+    title,
+    poleKind,
+    drawingType:
+      c.drawingType ||
+      c.drawing_type ||
+      (workType === "drawing" ? "Approval" : ""),
+    workType,
+    owner: resolvedOwner,
+    createdBy: resolvedCreatedBy,
+    checkedBy:
+      c.checkedByName ||
+      c.checker?.fullName ||
+      c.checker?.name ||
+      c.checkedBy ||
+      null,
+    status: mapItemStatusToCaseStatus(c.status || c.state, index),
+    createdAt: c.createdAt || c.created_at || new Date().toISOString(),
+    lastEdited: c.updatedAt || c.updated_at || null,
+  };
+};
+
+const resolveWorkTypes = (data = {}, existing = null) => {
+  // Prioritize explicit workTypes if specified
+  if (
+    data?.workTypes &&
+    (data.workTypes.calc !== undefined || data.workTypes.drawing !== undefined)
+  ) {
+    return {
+      calc: Boolean(data.workTypes.calc),
+      drawing: Boolean(data.workTypes.drawing),
+    };
+  }
+
+  const dt = (
+    data?.designType ||
+    data?.design_type ||
+    data?.workType ||
+    data?.work_type ||
+    ""
+  ).toLowerCase();
+
+  if (
+    dt === "drawing_calculation" ||
+    dt === "calculation_drawing" ||
+    dt === "calc_drawing" ||
+    dt === "both"
+  ) {
+    return { calc: true, drawing: true };
+  }
+  if (dt === "drawing") {
+    return { calc: false, drawing: true };
+  }
+  if (dt === "calculation" || dt === "calc") {
+    return { calc: true, drawing: false };
+  }
+
+  if (
+    existing?.workTypes &&
+    (existing.workTypes.calc !== undefined ||
+      existing.workTypes.drawing !== undefined)
+  ) {
+    return {
+      calc: Boolean(existing.workTypes.calc),
+      drawing: Boolean(existing.workTypes.drawing),
+    };
+  }
+
+  if (
+    existing &&
+    (existing.calc !== undefined || existing.drawing !== undefined)
+  ) {
+    return {
+      calc: Boolean(existing.calc),
+      drawing: Boolean(existing.drawing),
+    };
+  }
+
+  return { calc: true, drawing: false };
+};
+
 export default function RequestDetailPage() {
   const navigate = useNavigate();
   const { requestId } = useParams();
   const [request, update] = useRequestRecord(requestId);
+  const [loading, setLoading] = useState(!request);
   const [toastModal, setToastModal] = useState(null);
   const [isEditingConditions, setIsEditingConditions] = useState(false);
   const designConditionsRef = useRef(null);
-  const [isEditingDrawingConditions, setIsEditingDrawingConditions] = useState(false);
+  const [isEditingDrawingConditions, setIsEditingDrawingConditions] =
+    useState(false);
   const drawingConditionsRef = useRef(null);
+  const isAddingCaseRef = useRef(false);
+  const [assignableWorkers, setAssignableWorkers] = useState([]);
+  const [designStandards, setDesignStandards] = useState([]);
+  const [regionsList, setRegionsList] = useState([]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    Promise.all([
+      getMasterDesignStandards().catch(() => []),
+      getMasterRegions().catch(() => []),
+      getUsers().catch(() => []),
+      getAssignableUsers().catch(() => []),
+    ]).then(async ([standards, regions, usersRes, assignableRes]) => {
+      if (!isMounted) return;
+
+      const realStandards = Array.isArray(standards)
+        ? standards
+        : standards?.data || [];
+      const realRegions = Array.isArray(regions)
+        ? regions
+        : regions?.data || [];
+      setDesignStandards(realStandards);
+      setRegionsList(realRegions);
+
+      const userMap = new Map();
+      const currentUser = getUser() || {};
+      if (currentUser?.id) {
+        userMap.set(
+          String(currentUser.id),
+          currentUser.fullName || currentUser.name || currentUser.username,
+        );
+      }
+      const allUsers = Array.isArray(usersRes)
+        ? usersRes
+        : usersRes?.items || [];
+      allUsers.forEach((u) => {
+        if (u?.id) {
+          userMap.set(String(u.id), u.fullName || u.name || u.email);
+        }
+      });
+
+      // Prepare assignable workers list from backend GET /api/assignable-users
+      const rawAssignable = Array.isArray(assignableRes)
+        ? assignableRes
+        : assignableRes?.items || assignableRes?.data || [];
+      const sourceWorkers = rawAssignable.length > 0 ? rawAssignable : allUsers;
+      const formattedWorkers = sourceWorkers
+        .filter((u) => u && u.id)
+        .map((u) => ({
+          id: String(u.id),
+          name: u.fullName || u.name || u.username,
+          department:
+            u.department?.name ||
+            u.departmentName ||
+            u.department ||
+            "Engineering Dept.",
+          role: u.role || "",
+        }));
+
+      if (isMounted) {
+        setAssignableWorkers(formattedWorkers);
+      }
+
+      if (!isGuestUser() && isUuid(requestId)) {
+        try {
+          const [
+            serverData,
+            serverCases,
+            serverAssignments,
+          ] = await Promise.all([
+            getRequestById(requestId).catch((err) => {
+              console.warn(
+                "[RequestDetailPage] getRequestById fallback:",
+                err,
+              );
+              return null;
+            }),
+            fetchAllProjectCases(requestId).catch(() => []),
+            getRequestAssignments(requestId).catch(() => null),
+          ]);
+
+          if (serverData && isMounted) {
+            const brand = (
+              serverData.brandMark ||
+              serverData.brand ||
+              serverData.brandLine ||
+              ""
+            ).toLowerCase();
+            const coverType = brand === "yp" ? "yp" : "ys";
+            const projectType =
+              serverData.projectType ||
+              (serverData.poleCategory?.name
+                ? serverData.poleCategory.name.includes("acemast") ||
+                  serverData.poleCategory.name.includes("disaster")
+                  ? "disaster-prevention-project"
+                  : serverData.poleCategory.name.includes("sign")
+                    ? "signboard-project"
+                    : serverData.poleCategory.name.includes("multi")
+                      ? "multi-purpose-project"
+                      : "lighting-project"
+                : null) ||
+              request?.projectType ||
+              "lighting-project";
+
+            const serverCalcCond =
+              serverData.calculationConditions ||
+              serverData.calculation_conditions ||
+              null;
+            const serverDrawingCond =
+              serverData.drawingConditions ||
+              serverData.drawing_conditions ||
+              null;
+
+            const rawStandard =
+              serverCalcCond?.designStandardId ||
+              serverCalcCond?.standard ||
+              "";
+            const resolvedStandard =
+              resolveDesignStandardCode(rawStandard, standards) || "";
+
+            const rawDrawingType = serverDrawingCond?.drawingType || "";
+            const resolvedDrawingType =
+              canonicalDrawingType(rawDrawingType) || "";
+
+            const rawRegion =
+              serverDrawingCond?.regionId || serverDrawingCond?.region || "";
+            const resolvedRegion = resolveRegionCode(rawRegion, regions) || "";
+
+            const sharedDetails =
+              serverData.sharedDetails || serverData.shared_details || {};
+            const ysDetails =
+              serverData.ysDetails || serverData.ys_details || {};
+            const ypDetails =
+              serverData.ypDetails || serverData.yp_details || {};
+
+            const createdByUserId =
+              serverData.created_by_user_id ||
+              serverData.createdByUserId ||
+              serverData.created_by ||
+              serverData.creator?.id ||
+              null;
+
+            const isCreatedByCurrentUser = Boolean(
+              createdByUserId &&
+              currentUser?.id &&
+              String(createdByUserId) === String(currentUser.id),
+            );
+
+            const createdByName =
+              serverData.createdByName ||
+              serverData.creator?.fullName ||
+              serverData.creator?.name ||
+              (createdByUserId && userMap.get(String(createdByUserId))) ||
+              (isCreatedByCurrentUser
+                ? currentUser?.fullName ||
+                  currentUser?.name ||
+                  currentUser?.username
+                : "") ||
+              "";
+
+            const picName =
+              sharedDetails.requesterPicName ||
+              serverData.requesterPicName ||
+              serverData.picName ||
+              "";
+
+            const companyName =
+              serverData.requestingDepartmentName ||
+              serverData.companyName ||
+              "";
+
+            const serverCaseList = [
+              ...extractCaseItems(serverCases),
+              ...extractCaseItems(serverData?.cases),
+              ...extractCaseItems(serverData?.calculationCases),
+              ...extractCaseItems(serverData?.calculation_cases),
+              ...extractCaseItems(serverData?.drawingCases),
+              ...extractCaseItems(serverData?.drawing_cases),
+            ];
+
+            const seenCaseKeys = new Set();
+            const dedupedCases = [];
+            for (const c of serverCaseList) {
+              const k = c.id || c.caseNo || c.case_no || c.no;
+              if (k && !seenCaseKeys.has(k)) {
+                seenCaseKeys.add(k);
+                dedupedCases.push(c);
+              }
+            }
+
+            const normalizedCases = dedupedCases.map((c, idx) =>
+              normalizeServerCase(c, idx, "calc", userMap, currentUser),
+            );
+
+            const creatorMember = {
+              id:
+                createdByUserId ||
+                (isCreatedByCurrentUser ? currentUser.id : "u-creator"),
+              name:
+                createdByName ||
+                (isCreatedByCurrentUser
+                  ? currentUser.fullName || currentUser.name || "You"
+                  : "Unknown"),
+              department:
+                serverData.requestingDepartmentName || "Lighting Dept.",
+              isCreator: true,
+            };
+
+            // Real assigned members: from serverAssignments / serverData.assignments (if any) or user-assigned in r?.members
+            // Note: picName is the requester/client contact person (担当), NOT a project worker.
+            const rawAssignments = Array.isArray(serverAssignments)
+              ? serverAssignments
+              : Array.isArray(serverAssignments?.items)
+                ? serverAssignments.items
+                : Array.isArray(serverAssignments?.data)
+                  ? serverAssignments.data
+                  : Array.isArray(serverData?.assignments)
+                    ? serverData.assignments
+                    : Array.isArray(serverData?.assignments?.items)
+                      ? serverData.assignments.items
+                      : serverAssignments !== null && typeof serverAssignments === "object"
+                        ? []
+                        : null;
+
+            const assignedMembers = (rawAssignments || [])
+              .filter((a) => {
+                if (!isAssignmentActive(a)) return false;
+                const uId = getAssigneeUserId(a);
+                return uId && String(uId) !== String(creatorMember.id);
+              })
+              .map((a) => {
+                const uId = String(getAssigneeUserId(a) || a.id);
+                const aId = getAssignmentId(a);
+                return {
+                  id: uId,
+                  assignmentId: aId,
+                  name:
+                    userMap.get(uId) ||
+                    a.assignee?.fullName ||
+                    a.assignee?.name ||
+                    a.name ||
+                    "Assigned Member",
+                  department:
+                    a.department ||
+                    a.assignee?.department?.name ||
+                    "Engineering Dept.",
+                  isCreator: false,
+                };
+              });
+
+            const members = [creatorMember, ...assignedMembers];
+
+            update((r) => {
+              const workTypes = resolveWorkTypes(serverData, r?.workTypes || r);
+              const merged = {
+                ...(r || {}),
+                ...serverData,
+                id: serverData.id,
+                requestNo: serverData.requestNo,
+                pjNo: serverData.pjNo,
+                subject: serverData.subject,
+                coverType,
+                projectType,
+                workTypes,
+                members:
+                  rawAssignments !== null
+                    ? members
+                    : r?.members?.length
+                      ? r.members
+                      : members,
+                companyName,
+                createdByName,
+                createdBy: createdByName,
+                created_by_user_id: createdByUserId,
+                picName,
+                requesterPicName: picName,
+                note: serverData.notes || serverData.note || r?.note || "",
+                cases:
+                  normalizedCases.length > 0 ? normalizedCases : r?.cases || [],
+                fields: {
+                  ...(r?.fields || {}),
+                  ...(serverData.fields || {}),
+                  // Top-level request identifiers
+                  projectNo:
+                    serverData.pjNo || serverData.fields?.projectNo || r?.fields?.projectNo || "",
+                  projectName:
+                    serverData.subject ||
+                    serverData.fields?.projectName ||
+                    sharedDetails.subject ||
+                    r?.fields?.projectName ||
+                    "",
+                  subject:
+                    serverData.subject || serverData.fields?.subject || r?.fields?.subject || "",
+                  requestNo:
+                    serverData.requestNo || serverData.fields?.requestNo || r?.fields?.requestNo || "",
+                  documentNo:
+                    serverData.requestNo || serverData.fields?.documentNo || r?.fields?.documentNo || "",
+                  companyName:
+                    companyName || serverData.fields?.companyName || r?.fields?.companyName || "",
+                  department:
+                    companyName || serverData.fields?.department || r?.fields?.department || "",
+                  classification:
+                    serverData.requestClassification ||
+                    serverData.request_classification ||
+                    sharedDetails.classification ||
+                    ysDetails.classification ||
+                    serverData.fields?.classification ||
+                    r?.fields?.classification ||
+                    "new",
+                  requestClassification:
+                    serverData.requestClassification ||
+                    serverData.request_classification ||
+                    serverData.fields?.requestClassification ||
+                    r?.fields?.requestClassification ||
+                    "new",
+                  requestDate:
+                    serverData.requestDate ||
+                    serverData.request_date ||
+                    sharedDetails.requestDate ||
+                    serverData.fields?.requestDate ||
+                    r?.fields?.requestDate ||
+                    "",
+                  requestedDate:
+                    serverData.dueDate ||
+                    serverData.due_date ||
+                    ysDetails.requestedDate ||
+                    serverData.fields?.requestedDate ||
+                    r?.fields?.requestedDate ||
+                    "",
+                  dueDate:
+                    serverData.dueDate ||
+                    serverData.due_date ||
+                    ysDetails.requestedDate ||
+                    serverData.fields?.dueDate ||
+                    r?.fields?.dueDate ||
+                    "",
+                  requestType:
+                    serverData.requestType ||
+                    serverData.request_type ||
+                    ysDetails.requestType ||
+                    sharedDetails.requestType ||
+                    serverData.fields?.requestType ||
+                    r?.fields?.requestType ||
+                    "general",
+                  designType:
+                    serverData.designType ||
+                    serverData.design_type ||
+                    serverData.fields?.designType ||
+                    r?.fields?.designType ||
+                    "calculation",
+
+                  // Shared details
+                  pic: picName || sharedDetails.requesterPicName || serverData.fields?.pic || "",
+                  deliveryDate:
+                    sharedDetails.scheduledDeliveryDate ||
+                    serverData.fields?.deliveryDate ||
+                    "",
+                  deliveryQty:
+                    sharedDetails.deliveryQuantity != null
+                      ? String(sharedDetails.deliveryQuantity)
+                      : (serverData.fields?.deliveryQty != null
+                        ? String(serverData.fields.deliveryQty)
+                        : ""),
+                  paperSize:
+                    sharedDetails.paperSize ||
+                    serverData.fields?.paperSize ||
+                    "",
+                  cadFormat:
+                    sharedDetails.cadFormat ||
+                    serverData.fields?.cadFormat ||
+                    "",
+                  deliverCad:
+                    sharedDetails.isCadDataRequested ??
+                    serverData.fields?.deliverCad ??
+                    false,
+
+                  // Cover conditions: strictly from cover fields, never from calculation conditions table
+                  standard:
+                    cleanCoverStandard(ysDetails.designStandardText || ysDetails.design_standard_text) ||
+                    cleanCoverStandard(ypDetails.designStandardText || ypDetails.design_standard_text) ||
+                    cleanCoverStandard(serverData.fields?.standard) ||
+                    "",
+                  windSpeed:
+                    (ysDetails.windSpeedText != null && ysDetails.windSpeedText !== "")
+                      ? String(ysDetails.windSpeedText)
+                      : (ysDetails.wind_speed_text != null && ysDetails.wind_speed_text !== "")
+                        ? String(ysDetails.wind_speed_text)
+                        : (ypDetails.windSpeedText != null && ypDetails.windSpeedText !== "")
+                          ? String(ypDetails.windSpeedText)
+                          : (ypDetails.wind_speed_text != null && ypDetails.wind_speed_text !== "")
+                            ? String(ypDetails.wind_speed_text)
+                            : (serverData.fields?.windSpeed != null && serverData.fields?.windSpeed !== "")
+                              ? String(serverData.fields.windSpeed)
+                              : "",
+                  drawingType:
+                    canonicalDrawingType(sharedDetails.drawingType || sharedDetails.drawing_type) ||
+                    canonicalDrawingType(serverData.fields?.drawingType) ||
+                    "",
+
+                  // YS specific details
+                  ...(coverType === "ys"
+                    ? {
+                        ...ysDetails,
+                        receptionNo:
+                          ysDetails.receiptNo ||
+                          serverData.fields?.receptionNo ||
+                          "",
+                        foundation:
+                          ysDetails.foundationType ||
+                          serverData.fields?.foundation ||
+                          "",
+                        foundationWidth:
+                          ysDetails.foundationWidthX != null
+                            ? String(ysDetails.foundationWidthX)
+                            : serverData.fields?.foundationWidth ||
+                              "",
+                        foundationLength:
+                          ysDetails.foundationWidthY != null
+                            ? String(ysDetails.foundationWidthY)
+                            : serverData.fields?.foundationLength ||
+                              "",
+                        foundationDepth:
+                          ysDetails.embedmentDepth != null
+                            ? String(ysDetails.embedmentDepth)
+                            : serverData.fields?.foundationDepth ||
+                              "",
+                        openingHeight:
+                          ysDetails.openingHeight ||
+                          serverData.fields?.openingHeight ||
+                          "",
+                        openingDirection:
+                          ysDetails.openingDirectionNote ||
+                          serverData.fields?.openingDirection ||
+                          "",
+                        concreteStrength:
+                          ysDetails.concreteStrength ||
+                          serverData.fields?.concreteStrength ||
+                          "",
+                        material:
+                          ysDetails.materialText ||
+                          serverData.fields?.material ||
+                          "",
+                        surfaceTreatment:
+                          serverData.finish?.platingSpec ||
+                          serverData.finish?.plating_spec ||
+                          serverData.finish?.surfaceTreatment ||
+                          serverData.finish?.surface_treatment ||
+                          serverData.fields?.surfaceTreatment ||
+                          r?.fields?.surfaceTreatment ||
+                          "",
+                        coatingType:
+                          serverData.finish?.colorName ||
+                          serverData.finish?.color_name ||
+                          serverData.finish?.coatingType ||
+                          serverData.finish?.coating_type ||
+                          serverData.fields?.coatingType ||
+                          r?.fields?.coatingType ||
+                          "",
+                      }
+                    : {
+                        ...ypDetails,
+                        surfaceTreatment:
+                          serverData.finish?.platingSpec ||
+                          serverData.finish?.plating_spec ||
+                          serverData.finish?.surfaceTreatment ||
+                          serverData.finish?.surface_treatment ||
+                          serverData.fields?.surfaceTreatment ||
+                          r?.fields?.surfaceTreatment ||
+                          "",
+                        coatingType:
+                          serverData.finish?.colorName ||
+                          serverData.finish?.color_name ||
+                          serverData.finish?.coatingType ||
+                          serverData.finish?.coating_type ||
+                          serverData.fields?.coatingType ||
+                          r?.fields?.coatingType ||
+                          "",
+                        tailCode:
+                          ypDetails.tailCode ||
+                          serverData.fields?.tailCode ||
+                          r?.fields?.tailCode ||
+                          "",
+                        calcStrength:
+                          ypDetails.calcStrength ??
+                          serverData.fields?.calcStrength ??
+                          false,
+                        calcDesign:
+                          ypDetails.calcDesign ??
+                          serverData.fields?.calcDesign ??
+                          false,
+                        scopeMain:
+                          ypDetails.scopeMainMember ??
+                          serverData.fields?.scopeMain ??
+                          false,
+                        scopeJoint:
+                          ypDetails.scopeJoint ??
+                          serverData.fields?.scopeJoint ??
+                          false,
+                        scopeFoundation:
+                          ypDetails.scopeFoundation ??
+                          serverData.fields?.scopeFoundation ??
+                          false,
+                        scopeOther:
+                          ypDetails.scopeOther ||
+                          serverData.fields?.scopeOther ||
+                          "",
+                        scopeOtherOn: Boolean(
+                          ypDetails.scopeOther ||
+                          serverData.fields?.scopeOther
+                        ),
+                        draftTracing:
+                          ypDetails.draftingTracing ??
+                          serverData.fields?.draftTracing ??
+                          false,
+                        draftDesign:
+                          ypDetails.draftingDesign ??
+                          serverData.fields?.draftDesign ??
+                          false,
+                        submitTo1:
+                          ypDetails.submissionDestination1 ||
+                          serverData.fields?.submitTo1 ||
+                          "",
+                        submitTo2:
+                          ypDetails.submissionDestination2 ||
+                          serverData.fields?.submitTo2 ||
+                          "",
+                        submitTo3:
+                          ypDetails.submissionDestination3 ||
+                          serverData.fields?.submitTo3 ||
+                          "",
+                        hasCompetitor:
+                          ypDetails.hasCompetitor != null
+                            ? ypDetails.hasCompetitor
+                              ? "yes"
+                              : "no"
+                            : serverData.fields?.hasCompetitor ||
+                              "no",
+                        designOrigin:
+                          ypDetails.designOrigin ||
+                          serverData.fields?.designOrigin ||
+                          "",
+                        scheduleFlex:
+                          ypDetails.scheduleFlexibility ||
+                          serverData.fields?.scheduleFlex ||
+                          "",
+                        paperFrame:
+                          ypDetails.paperFrame ||
+                          serverData.fields?.paperFrame ||
+                          "",
+                        finishedCopies:
+                          ypDetails.finishedCopies != null
+                            ? String(ypDetails.finishedCopies)
+                            : serverData.fields?.finishedCopies ||
+                              "",
+                        platingProviso:
+                          ypDetails.platingProviso ||
+                          serverData.fields?.platingProviso ||
+                          "",
+                      }),
+                },
+                designConditions: (serverCalcCond && (serverCalcCond.designStandardId || serverCalcCond.standard || serverCalcCond.windSpeed != null || serverCalcCond.wind_speed != null))
+                  ? {
+                      standard:
+                        resolvedStandard || r?.designConditions?.standard || "",
+                      windSpeed:
+                        serverCalcCond.windSpeed != null
+                          ? String(serverCalcCond.windSpeed)
+                          : serverCalcCond.wind_speed != null
+                            ? String(serverCalcCond.wind_speed)
+                            : r?.designConditions?.windSpeed ||
+                              "",
+                      airDensity:
+                        serverCalcCond.airDensity != null
+                          ? String(serverCalcCond.airDensity)
+                          : serverCalcCond.air_density != null
+                            ? String(serverCalcCond.air_density)
+                            : r?.designConditions?.airDensity || "1.23",
+                      isSaved: true,
+                      isSavedOnServer: true,
+                    }
+                  : r?.designConditions?.isSaved
+                    ? r.designConditions
+                    : {
+                        standard: r?.designConditions?.standard || "",
+                        windSpeed: r?.designConditions?.windSpeed || r?.fields?.windSpeed || "",
+                        airDensity: r?.designConditions?.airDensity || "",
+                        isSaved: false,
+                      },
+                drawingConditions: (serverDrawingCond && (serverDrawingCond.drawingType || serverDrawingCond.drawing_type || serverDrawingCond.regionId || serverDrawingCond.region))
+                  ? {
+                      drawingType:
+                        resolvedDrawingType ||
+                        r?.drawingConditions?.drawingType ||
+                        "",
+                      region:
+                        resolvedRegion || r?.drawingConditions?.region || "",
+                      isSaved: true,
+                      isSavedOnServer: true,
+                    }
+                  : r?.drawingConditions?.isSaved
+                    ? r.drawingConditions
+                    : {
+                        drawingType: r?.drawingConditions?.drawingType || r?.fields?.drawingType || "",
+                        region: r?.drawingConditions?.region || resolvedRegion || "",
+                        isSaved: false,
+                      },
+                finish:
+                  serverData.finish ||
+                  serverData.finish_details ||
+                  serverData.finishDetails ||
+                  r?.finish ||
+                  null,
+              };
+              saveRequest(merged);
+              return merged;
+            });
+          }
+        } catch (err) {
+          console.warn("[RequestDetailPage] Error fetching data:", err);
+        }
+      }
+
+      if (isMounted) {
+        setLoading(false);
+      }
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [requestId]);
 
   const showToast = () => {};
 
   const handleBeforeAddCase = (targetWorkType) => {
+    // Permission check: only creator or assigned member can add cases
+    const creatorMem = (request?.members || []).find((m) => m.isCreator);
+    const crId =
+      creatorMem?.id ||
+      request?.created_by_user_id ||
+      request?.created_by ||
+      request?.createdByUserId;
+    const crName =
+      creatorMem?.name ||
+      request?.createdBy ||
+      request?.createdByName ||
+      request?.fields?.createdBy ||
+      "";
+    const cUser = getUser() || {};
+    const curUId = cUser.id ? String(cUser.id) : "";
+    const curUName = (
+      cUser.name ||
+      cUser.fullName ||
+      cUser.username ||
+      ""
+    ).toLowerCase();
+    const curUUsername = (cUser.username || "").toLowerCase();
+
+    const isCr = Boolean(
+      (crId && curUId && String(crId) === curUId) ||
+      (crName && curUName && crName.toLowerCase() === curUName) ||
+      (crName && curUUsername && crName.toLowerCase() === curUUsername) ||
+      (crName &&
+        curUName &&
+        crName !== "Unknown" &&
+        crName.toLowerCase().includes(curUName)),
+    );
+
+    const isAssigned = (request?.members || []).some((m) => {
+      const mId = m.id ? String(m.id) : "";
+      const mUserId = m.userId ? String(m.userId) : "";
+      const mName = (m.name || "").toLowerCase();
+      const mUsername = (m.username || "").toLowerCase();
+      return (
+        (curUId && mId && mId === curUId) ||
+        (curUId && mUserId && mUserId === curUId) ||
+        (curUName && mName && mName === curUName) ||
+        (curUUsername && mName && mName === curUUsername) ||
+        (curUUsername && mUsername && mUsername === curUUsername)
+      );
+    });
+
+    if (!isCr && !isAssigned) {
+      setToastModal({
+        title: "Action Not Permitted",
+        message:
+          "Only the request creator and assigned team members can add cases to this project.",
+        type: "danger",
+      });
+      return false;
+    }
+
     if (targetWorkType === "drawing") {
       const isDrawingUnsaved =
-        !request.drawingConditions?.isSaved ||
+        !request?.drawingConditions?.isSaved ||
         isEditingDrawingConditions ||
         drawingConditionsRef.current?.isEditing;
 
@@ -132,7 +1200,7 @@ export default function RequestDetailPage() {
       }
     } else {
       const isUnsaved =
-        !request.designConditions?.isSaved ||
+        !request?.designConditions?.isSaved ||
         isEditingConditions ||
         designConditionsRef.current?.isEditing;
 
@@ -156,11 +1224,17 @@ export default function RequestDetailPage() {
     return true;
   };
 
+  if (loading && !request) {
+    return <DetailLoadingSkeleton onBack={() => navigate("/projects")} />;
+  }
+
   if (!request) return <NotFound onBack={() => navigate("/projects")} />;
 
   const headline = REQUEST_HEADLINE[request.coverType];
   const currentUser = getUser() || {};
-  const currentUserName = currentUser.name || currentUser.username || "";
+  const currentUserName =
+    currentUser.name || currentUser.fullName || currentUser.username || "";
+  const currentUserId = currentUser.id ? String(currentUser.id) : "";
   const me = currentUserName || "Bintarjo Agus Priyadi";
   const userRole = (currentUser.role || "").toLowerCase();
 
@@ -172,51 +1246,147 @@ export default function RequestDetailPage() {
     userRole === "admin_departement";
 
   // Creator check: user who created the project
+  const creatorMember = (request.members || []).find((m) => m.isCreator);
+  const creatorId =
+    creatorMember?.id ||
+    request.created_by_user_id ||
+    request.created_by ||
+    request.createdByUserId ||
+    request.creator?.id ||
+    request.creatorId;
   const creatorName =
-    (request.members || []).find((m) => m.isCreator)?.name ||
+    creatorMember?.name ||
     request.createdBy ||
     request.createdByName ||
+    request.creator?.fullName ||
+    request.creator?.name ||
     request.fields?.createdBy ||
     "";
 
-  const isCreator =
-    Boolean(creatorName) &&
-    Boolean(currentUserName) &&
-    (creatorName.toLowerCase() === currentUserName.toLowerCase() ||
-      creatorName.toLowerCase() === (currentUser.username || "").toLowerCase());
+  const isCreator = Boolean(
+    (creatorId && currentUserId && String(creatorId) === currentUserId) ||
+    (creatorName &&
+      currentUserName &&
+      creatorName.toLowerCase() === currentUserName.toLowerCase()) ||
+    (creatorName &&
+      currentUser.username &&
+      creatorName.toLowerCase() === currentUser.username.toLowerCase()) ||
+    (creatorName &&
+      creatorName.toLowerCase() !== "unknown" &&
+      (creatorName.toLowerCase().includes(currentUserName.toLowerCase()) ||
+        currentUserName.toLowerCase().includes(creatorName.toLowerCase()))),
+  );
 
   // Only project creator or department admin can edit the project
   const canEditProject = isCreator || isAdminDepartment;
 
   // Member check: user assigned to the project members list
   const isAssignedMember =
-    Boolean(currentUserName) &&
-    (request.members || []).some(
-      (m) =>
-        (m.name && m.name.toLowerCase() === currentUserName.toLowerCase()) ||
-        (currentUser.username && m.name && m.name.toLowerCase() === currentUser.username.toLowerCase()) ||
-        (currentUser.id && m.id === currentUser.id),
-    );
+    Boolean(currentUserName || currentUserId) &&
+    (request.members || []).some((m) => {
+      const mId = m.id ? String(m.id) : "";
+      const mUserId = m.userId ? String(m.userId) : "";
+      const mName = (m.name || "").toLowerCase();
+      const mUsername = (m.username || "").toLowerCase();
+      const uName = (currentUserName || "").toLowerCase();
+      const uUsername = (currentUser.username || "").toLowerCase();
+      const uFullName = (currentUser.fullName || "").toLowerCase();
+
+      return (
+        (currentUserId && mId && mId === currentUserId) ||
+        (currentUserId && mUserId && mUserId === currentUserId) ||
+        (uName && mName && mName === uName) ||
+        (uUsername && mName && mName === uUsername) ||
+        (uFullName && mName && mName === uFullName) ||
+        (uUsername && mUsername && mUsername === uUsername)
+      );
+    });
 
   // Can contribute: creator, admin department, or assigned member
   const canContribute = isCreator || isAdminDepartment || isAssignedMember;
 
+  // Can add case: ONLY creator or assigned member (admin department CANNOT add case unless assigned)
+  const canAddCase = isCreator || isAssignedMember;
+
   // Add Case handler
-  const handleAddCase = (workType, details = {}) => {
-    let createdId = null;
-    update((r) => {
-      const newCase = createCase(r, workType, {
-        ...details,
-        owner: details.owner || me,
-        createdBy: me,
+  const handleAddCase = async (workType, details = {}) => {
+    if (isAddingCaseRef.current) {
+      console.warn(
+        "[handleAddCase] Prevented duplicate execution while already adding a case",
+      );
+      return null;
+    }
+    if (!canAddCase) {
+      setToastModal({
+        title: "Action Not Permitted",
+        message:
+          "Only the request creator and assigned team members can add cases to this project.",
+        type: "danger",
       });
-      createdId = newCase.id;
-      return {
-        ...r,
-        cases: [...(r.cases || []), newCase],
-      };
-    });
-    return createdId;
+      return null;
+    }
+    isAddingCaseRef.current = true;
+    try {
+      const isServerReq = !isGuestUser() && isUuid(requestId);
+      const nextNo = nextCaseNo(request?.cases || []);
+      const titleVal = details.title || `Case ${nextNo}`;
+      const poleKindVal = (details.poleKind || "standard").toLowerCase();
+
+      let serverCase = null;
+      if (isServerReq) {
+        try {
+          if (workType === "drawing") {
+            const payload = {
+              poleKind: poleKindVal,
+              title: titleVal,
+              caseLabel: details.caseLabel || titleVal,
+              drawingType:
+                mapDrawingType(
+                  details.drawingType ||
+                    request?.drawingConditions?.drawingType,
+                ) || "approval",
+            };
+            serverCase = await createDrawingCase(requestId, payload);
+          } else {
+            const payload = {
+              poleKind: poleKindVal,
+              title: titleVal,
+              caseLabel: details.caseLabel || titleVal,
+            };
+            serverCase = await createCalculationCase(requestId, payload);
+          }
+        } catch (err) {
+          console.warn(
+            "[handleAddCase] Failed to create case on server, falling back to local:",
+            err?.message,
+          );
+        }
+      }
+
+      let createdId = serverCase?.id || null;
+      update((r) => {
+        const newCase = createCase(r, workType, {
+          ...details,
+          id: serverCase?.id || undefined,
+          no: serverCase?.caseNo || serverCase?.case_no || nextNo,
+          caseLabel:
+            serverCase?.caseLabel ||
+            serverCase?.case_label ||
+            details.caseLabel ||
+            titleVal,
+          owner: details.owner || me,
+          createdBy: me,
+        });
+        createdId = newCase.id;
+        return {
+          ...r,
+          cases: [...(r.cases || []), newCase],
+        };
+      });
+      return createdId;
+    } finally {
+      isAddingCaseRef.current = false;
+    }
   };
 
   // Helper to ensure changing between standard and custom starts with completely fresh/empty inputs
@@ -288,10 +1458,12 @@ export default function RequestDetailPage() {
   };
 
   // Update Case handler
-  const handleUpdateCase = (caseId, updates) => {
+  const handleUpdateCase = async (caseId, updates) => {
     const existingCase = (request.cases || []).find((c) => c.id === caseId);
     const poleKindChanged = Boolean(
-      updates.poleKind && existingCase && existingCase.poleKind !== updates.poleKind,
+      updates.poleKind &&
+      existingCase &&
+      existingCase.poleKind !== updates.poleKind,
     );
 
     update((r) => ({
@@ -308,17 +1480,50 @@ export default function RequestDetailPage() {
       ),
     }));
 
+    if (!isGuestUser() && isUuid(requestId)) {
+      try {
+        const payload = {};
+        if (updates.title) payload.title = updates.title;
+        if (updates.caseLabel || updates.case_label)
+          payload.caseLabel = updates.caseLabel || updates.case_label;
+        if (updates.poleKind) payload.poleKind = updates.poleKind.toLowerCase();
+        if (existingCase?.workType === "drawing") {
+          if (updates.drawingType)
+            payload.drawingType = mapDrawingType(updates.drawingType);
+          await updateDrawingCase(requestId, caseId, payload);
+        } else {
+          await updateCalculationCase(requestId, caseId, payload);
+        }
+      } catch (err) {
+        console.debug(
+          "[handleUpdateCase] Gateway update call skipped/failed:",
+          err?.message,
+        );
+      }
+    }
+
     // If poleKind or title is updated, sync directly into existing draft payload in sessionStorage
-    if (updates.poleKind || updates.title || updates.caseLabel || updates.case_label) {
+    if (
+      updates.poleKind ||
+      updates.title ||
+      updates.caseLabel ||
+      updates.case_label
+    ) {
       try {
         const draftKey = `${request.projectType}_draft_data_${caseId}`;
         const rawDraft = sessionStorage.getItem(draftKey);
         if (rawDraft) {
           const draftObj = JSON.parse(rawDraft);
           if (poleKindChanged) {
-            resetDraftForPoleKindSwitch(draftObj, updates.poleKind, request.projectType);
+            resetDraftForPoleKindSwitch(
+              draftObj,
+              updates.poleKind,
+              request.projectType,
+            );
           } else if (updates.poleKind) {
-            const curCond = draftObj.condition ? JSON.parse(draftObj.condition) : {};
+            const curCond = draftObj.condition
+              ? JSON.parse(draftObj.condition)
+              : {};
             curCond.poleType = updates.poleKind;
             draftObj.condition = JSON.stringify(curCond);
             draftObj.calculation_config = JSON.stringify({
@@ -331,7 +1536,9 @@ export default function RequestDetailPage() {
           sessionStorage.setItem(draftKey, JSON.stringify(draftObj));
 
           // If this case is currently the active working session, also sync the active session
-          const activeDraftId = sessionStorage.getItem(`${request.projectType}_active_draft_id`);
+          const activeDraftId = sessionStorage.getItem(
+            `${request.projectType}_active_draft_id`,
+          );
           if (activeDraftId === caseId) {
             deserializeWorkingSession(request.projectType, draftObj);
           }
@@ -358,12 +1565,15 @@ export default function RequestDetailPage() {
         await deleteCalculationCase(request.id, caseId);
       }
     } catch (err) {
-      console.debug("[handleDeleteCase] Gateway delete call skipped/failed:", err?.message);
+      console.debug(
+        "[handleDeleteCase] Gateway delete call skipped/failed:",
+        err?.message,
+      );
     }
   };
 
   // Open Case draft
-  const handleOpenCase = (c) => {
+  const handleOpenCase = async (c) => {
     if (c.workType === "drawing") {
       const isDrawingUnsaved =
         !request.drawingConditions?.isSaved ||
@@ -406,7 +1616,9 @@ export default function RequestDetailPage() {
     sessionStorage.setItem("projectType", request.projectType);
     const isOwner = Boolean(
       (c.owner && me && c.owner.toLowerCase() === me.toLowerCase()) ||
-      (currentUser?.username && c.owner && c.owner.toLowerCase() === currentUser.username.toLowerCase())
+      (currentUser?.username &&
+        c.owner &&
+        c.owner.toLowerCase() === currentUser.username.toLowerCase()),
     );
     const isLockedStatus =
       c.status === "Ready for check" ||
@@ -434,7 +1646,7 @@ export default function RequestDetailPage() {
 
     // Ensure draft data in sessionStorage contains designConditions and poleType
     const draftKey = `${request.projectType}_draft_data_${c.id}`;
-    const rawDraft = sessionStorage.getItem(draftKey);
+    let rawDraft = sessionStorage.getItem(draftKey);
     let draftObj = null;
     if (rawDraft) {
       try {
@@ -443,8 +1655,31 @@ export default function RequestDetailPage() {
         draftObj = null;
       }
     }
+
+    if (!draftObj && c.workType !== "drawing") {
+      try {
+        const serverDraft = await getCalculationDraft(request.id, c.id);
+        if (serverDraft && Object.keys(serverDraft).length > 0) {
+          const payload =
+            serverDraft?.payload && typeof serverDraft.payload === "object"
+              ? serverDraft.payload
+              : serverDraft?.data && typeof serverDraft.data === "object"
+                ? serverDraft.data
+                : serverDraft;
+          if (payload && Object.keys(payload).length > 0) {
+            draftObj = payload;
+            rawDraft = JSON.stringify(payload);
+            sessionStorage.setItem(draftKey, rawDraft);
+          }
+        }
+      } catch (err) {
+        console.debug("[handleOpenCase] getCalculationDraft fallback:", err?.message);
+      }
+    }
     const designConditions = request.designConditions || {};
-    const poleKind = c.poleKind || (request.projectType === "lighting-project" ? "standard" : "custom");
+    const poleKind =
+      c.poleKind ||
+      (request.projectType === "lighting-project" ? "standard" : "custom");
     const isStandard = poleKind === "standard";
 
     let activeDraft = draftObj;
@@ -487,7 +1722,9 @@ export default function RequestDetailPage() {
         }),
         condition: JSON.stringify(initialCondition),
         drawing_general: JSON.stringify(initialDrawingGeneral),
-        drawing_coupling_location: JSON.stringify(request.drawingConditions?.region || "east_japan"),
+        drawing_coupling_location: JSON.stringify(
+          request.drawingConditions?.region || "east_japan",
+        ),
       };
       if (isStandard) {
         draftPayload.openingType = JSON.stringify(STANDARD_OPENING_TYPE);
@@ -499,10 +1736,24 @@ export default function RequestDetailPage() {
       activeDraft = draftPayload;
     } else {
       try {
-        const curCond = draftObj.condition ? JSON.parse(draftObj.condition) : {};
-        curCond.designStandard = curCond.designStandard || designConditions.standard || "jil";
-        curCond.designWindSpeed = curCond.designWindSpeed || designConditions.windSpeed || "60";
-        curCond.designAirDensity = curCond.designAirDensity || designConditions.airDensity || "1.23";
+        const curCond =
+          draftObj.condition
+            ? typeof draftObj.condition === "string"
+              ? JSON.parse(draftObj.condition)
+              : draftObj.condition
+            : {};
+        const stdCode = resolveDesignStandardCode(designConditions.standard);
+        if (stdCode) {
+          curCond.designStandard = stdCode;
+        } else {
+          curCond.designStandard = curCond.designStandard || "jil";
+        }
+        if (designConditions.windSpeed) {
+          curCond.designWindSpeed = String(designConditions.windSpeed);
+        }
+        if (designConditions.airDensity) {
+          curCond.designAirDensity = String(designConditions.airDensity);
+        }
         const prevPoleType = curCond.poleType;
         if (prevPoleType && prevPoleType !== poleKind) {
           resetDraftForPoleKindSwitch(draftObj, poleKind, request.projectType);
@@ -526,7 +1777,10 @@ export default function RequestDetailPage() {
           }
           if (draftObj.drawing_general) {
             try {
-              const dg = JSON.parse(draftObj.drawing_general);
+              const dg =
+                typeof draftObj.drawing_general === "string"
+                  ? JSON.parse(draftObj.drawing_general)
+                  : draftObj.drawing_general;
               dg.poleType = isStandard ? "Standard Pole" : "Custom Pole";
               if (request.drawingConditions?.drawingType) {
                 dg.drawingType = request.drawingConditions.drawingType;
@@ -535,7 +1789,9 @@ export default function RequestDetailPage() {
               }
               if (request.drawingConditions?.region) {
                 dg.region = request.drawingConditions.region;
-                draftObj.drawing_coupling_location = JSON.stringify(request.drawingConditions.region);
+                draftObj.drawing_coupling_location = JSON.stringify(
+                  request.drawingConditions.region,
+                );
               }
               draftObj.drawing_general = JSON.stringify(dg);
             } catch {}
@@ -552,8 +1808,10 @@ export default function RequestDetailPage() {
         // Cleanse incomplete reports: if calculation steps haven't all finished or cover report info is missing
         const hasPole = Boolean(draftObj.results);
         const hasOp = !curCond.openingEnabled || Boolean(draftObj.calculatedOp);
-        const hasBp = !curCond.baseplateEnabled || Boolean(draftObj.calculatedBaseplate);
-        const hasFd = !curCond.foundationEnabled || Boolean(draftObj.calculatedFoundation);
+        const hasBp =
+          !curCond.baseplateEnabled || Boolean(draftObj.calculatedBaseplate);
+        const hasFd =
+          !curCond.foundationEnabled || Boolean(draftObj.calculatedFoundation);
         let rawCover = null;
         try {
           rawCover = draftObj.cover
@@ -566,9 +1824,10 @@ export default function RequestDetailPage() {
         }
         const hasCoverInfo = Boolean(
           rawCover &&
-            (rawCover.reportNumber?.trim() || rawCover.calculationNumber?.trim()) &&
-            rawCover.author?.trim() &&
-            (rawCover.responsibleDepartment?.trim() || rawCover.region?.trim())
+          (rawCover.reportNumber?.trim() ||
+            rawCover.calculationNumber?.trim()) &&
+          rawCover.author?.trim() &&
+          (rawCover.responsibleDepartment?.trim() || rawCover.region?.trim()),
         );
 
         if (!hasPole || !hasOp || !hasBp || !hasFd || !hasCoverInfo) {
@@ -586,6 +1845,8 @@ export default function RequestDetailPage() {
 
     deserializeWorkingSession(request.projectType, activeDraft);
     sessionStorage.setItem(`${request.projectType}_active_draft_id`, c.id);
+    sessionStorage.setItem(`case_request_id_${c.id}`, request.id);
+    sessionStorage.setItem("active_request_id", request.id);
 
     const targetPath =
       c.workType === "drawing"
@@ -594,14 +1855,81 @@ export default function RequestDetailPage() {
     navigate(targetPath);
   };
 
-  const handleViewCaseReport = (c) => {
+  const handleViewCaseReport = async (c) => {
     sessionStorage.setItem("projectType", request.projectType);
     sessionStorage.setItem(`${request.projectType}_active_draft_id`, c.id);
+    sessionStorage.setItem(`case_request_id_${c.id}`, request.id);
+    sessionStorage.setItem("active_request_id", request.id);
     const draftKey = `${request.projectType}_draft_data_${c.id}`;
-    const rawDraft = sessionStorage.getItem(draftKey);
+    let rawDraft = sessionStorage.getItem(draftKey);
+    if (!rawDraft && c.workType !== "drawing") {
+      try {
+        const serverDraft = await getCalculationDraft(request.id, c.id);
+        if (serverDraft && Object.keys(serverDraft).length > 0) {
+          const payload =
+            serverDraft?.payload && typeof serverDraft.payload === "object"
+              ? serverDraft.payload
+              : serverDraft?.data && typeof serverDraft.data === "object"
+                ? serverDraft.data
+                : serverDraft;
+          if (payload && Object.keys(payload).length > 0) {
+            rawDraft = JSON.stringify(payload);
+            sessionStorage.setItem(draftKey, rawDraft);
+          }
+        }
+      } catch (err) {
+        console.debug("[handleViewCaseReport] getCalculationDraft fallback:", err?.message);
+      }
+    }
     if (rawDraft) {
       try {
         const draftObj = JSON.parse(rawDraft);
+        const stdCode = resolveDesignStandardCode(
+          request.designConditions?.standard,
+        );
+        if (stdCode) {
+          let curCond = {};
+          try {
+            curCond = draftObj.condition
+              ? typeof draftObj.condition === "string"
+                ? JSON.parse(draftObj.condition)
+                : draftObj.condition
+              : {};
+          } catch {
+            curCond = {};
+          }
+          curCond.designStandard = stdCode;
+          if (request.designConditions?.windSpeed)
+            curCond.designWindSpeed = request.designConditions.windSpeed;
+          if (request.designConditions?.airDensity)
+            curCond.designAirDensity = request.designConditions.airDensity;
+          draftObj.condition = JSON.stringify(curCond);
+
+          if (draftObj.reportSnapshot) {
+            try {
+              const snap =
+                typeof draftObj.reportSnapshot === "string"
+                  ? JSON.parse(draftObj.reportSnapshot)
+                  : draftObj.reportSnapshot;
+              if (snap) {
+                if (!snap.condition) snap.condition = {};
+                snap.condition.designStandard = stdCode;
+                if (request.designConditions?.windSpeed)
+                  snap.condition.designWindSpeed =
+                    request.designConditions.windSpeed;
+                if (request.designConditions?.airDensity)
+                  snap.condition.designAirDensity =
+                    request.designConditions.airDensity;
+                draftObj.reportSnapshot = JSON.stringify(snap);
+                sessionStorage.setItem(
+                  `${request.projectType}_reportSnapshot`,
+                  JSON.stringify(snap),
+                );
+              }
+            } catch {}
+          }
+          sessionStorage.setItem(draftKey, JSON.stringify(draftObj));
+        }
         deserializeWorkingSession(request.projectType, draftObj);
       } catch (err) {
         console.error("Failed to deserialize draft for report:", err);
@@ -610,144 +1938,233 @@ export default function RequestDetailPage() {
     navigate(`/projects/${request.projectType}/${c.id}/report`);
   };
 
-  useEffect(() => {
-    let isMounted = true;
-
-    Promise.all([
-      getMasterDesignStandards().catch(() => []),
-      getMasterRegions().catch(() => []),
-    ]).then(([standards, regions]) => {
-      if (!isMounted) return;
-
-      if (!isGuestUser() && isUuid(requestId)) {
-        getRequestById(requestId)
-          .then((serverData) => {
-            if (serverData && isMounted) {
-              update((r) => {
-                const serverCalcCond =
-                  serverData.calculationConditions ||
-                  serverData.conditions ||
-                  null;
-                const serverDrawingCond =
-                  serverData.drawingConditions ||
-                  null;
-
-                const rawStandard =
-                  serverCalcCond?.designStandardId ||
-                  serverCalcCond?.standard ||
-                  serverData.fields?.standard ||
-                  r?.designConditions?.standard;
-                const resolvedStandard =
-                  resolveDesignStandardCode(rawStandard, standards) || "jil";
-
-                const rawDrawingType =
-                  serverDrawingCond?.drawingType ||
-                  serverData.fields?.drawingType ||
-                  r?.drawingConditions?.drawingType;
-                const resolvedDrawingType =
-                  canonicalDrawingType(rawDrawingType) || "APD (Approval Drawing)";
-
-                const rawRegion =
-                  serverDrawingCond?.regionId ||
-                  serverDrawingCond?.region ||
-                  serverData.fields?.region ||
-                  r?.drawingConditions?.region;
-                const resolvedRegion =
-                  resolveRegionCode(rawRegion, regions) || "east_japan";
-
-                return {
-                  ...r,
-                  ...serverData,
-                  // Keep the original Cover Information in fields intact as immutable reference
-                  fields: {
-                    ...(serverData.fields || {}),
-                    ...(r?.fields || {}),
-                  },
-                  designConditions: serverCalcCond
-                    ? {
-                        standard: resolvedStandard,
-                        windSpeed:
-                          serverCalcCond.windSpeed != null
-                            ? String(serverCalcCond.windSpeed)
-                            : r?.designConditions?.windSpeed || "60",
-                        airDensity:
-                          serverCalcCond.airDensity != null
-                            ? String(serverCalcCond.airDensity)
-                            : r?.designConditions?.airDensity || "1.23",
-                        isSaved: true,
-                        isSavedOnServer: true,
-                      }
-                    : r?.designConditions,
-                  drawingConditions: serverDrawingCond
-                    ? {
-                        drawingType: resolvedDrawingType,
-                        region: resolvedRegion,
-                        isSaved: true,
-                        isSavedOnServer: true,
-                      }
-                    : r?.drawingConditions,
-                };
-              });
-            }
-          })
-          .catch((err) => {
-            console.warn("[RequestDetailPage] getRequestById fallback to local store:", err);
-          });
-      }
-    });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [requestId]);
-
   // Save Design Conditions handler
   const handleSaveDesignConditions = async (conditions) => {
-    update((r) => ({
-      ...r,
-      isNewProject: false,
-      designConditions: {
-        ...conditions,
-        isSaved: true,
-      },
-      // r.fields is intentionally NOT overwritten to preserve the original Cover Information reference
-    }));
+    update((r) => {
+      const stdCode = resolveDesignStandardCode(conditions.standard);
+      // Synchronize all existing case drafts in this request with the new design conditions
+      (r.cases || []).forEach((c) => {
+        try {
+          const draftKey = `${r.projectType}_draft_data_${c.id}`;
+          const raw = sessionStorage.getItem(draftKey);
+          if (raw) {
+            const draftObj = JSON.parse(raw);
+            let curCond = {};
+            try {
+              curCond = draftObj.condition
+                ? typeof draftObj.condition === "string"
+                  ? JSON.parse(draftObj.condition)
+                  : draftObj.condition
+                : {};
+            } catch {
+              curCond = {};
+            }
+            if (stdCode) curCond.designStandard = stdCode;
+            if (conditions.windSpeed)
+              curCond.designWindSpeed = conditions.windSpeed;
+            if (conditions.airDensity)
+              curCond.designAirDensity = conditions.airDensity;
+            draftObj.condition = JSON.stringify(curCond);
+
+            if (draftObj.reportSnapshot) {
+              try {
+                const snap =
+                  typeof draftObj.reportSnapshot === "string"
+                    ? JSON.parse(draftObj.reportSnapshot)
+                    : draftObj.reportSnapshot;
+                if (snap) {
+                  if (!snap.condition) snap.condition = {};
+                  if (stdCode) snap.condition.designStandard = stdCode;
+                  if (conditions.windSpeed)
+                    snap.condition.designWindSpeed = conditions.windSpeed;
+                  if (conditions.airDensity)
+                    snap.condition.designAirDensity = conditions.airDensity;
+                  draftObj.reportSnapshot = JSON.stringify(snap);
+                }
+              } catch {}
+            }
+            sessionStorage.setItem(draftKey, JSON.stringify(draftObj));
+          }
+        } catch (e) {
+          console.warn(
+            "Failed to sync case draft with updated design conditions:",
+            e,
+          );
+        }
+      });
+
+      // Also sync current active working session in sessionStorage if it belongs to this project
+      try {
+        const rawCond = sessionStorage.getItem(`${r.projectType}_condition`);
+        if (rawCond) {
+          const condObj = JSON.parse(rawCond);
+          if (stdCode) condObj.designStandard = stdCode;
+          if (conditions.windSpeed)
+            condObj.designWindSpeed = conditions.windSpeed;
+          if (conditions.airDensity)
+            condObj.designAirDensity = conditions.airDensity;
+          sessionStorage.setItem(
+            `${r.projectType}_condition`,
+            JSON.stringify(condObj),
+          );
+        }
+        const rawSnap = sessionStorage.getItem(
+          `${r.projectType}_reportSnapshot`,
+        );
+        if (rawSnap) {
+          const snapObj = JSON.parse(rawSnap);
+          if (!snapObj.condition) snapObj.condition = {};
+          if (stdCode) snapObj.condition.designStandard = stdCode;
+          if (conditions.windSpeed)
+            snapObj.condition.designWindSpeed = conditions.windSpeed;
+          if (conditions.airDensity)
+            snapObj.condition.designAirDensity = conditions.airDensity;
+          sessionStorage.setItem(
+            `${r.projectType}_reportSnapshot`,
+            JSON.stringify(snapObj),
+          );
+        }
+      } catch (e) {
+        console.warn(
+          "Failed to sync active session storage with updated design conditions:",
+          e,
+        );
+      }
+
+      return {
+        ...r,
+        isNewProject: false,
+        workTypes: resolveWorkTypes(r, r?.workTypes),
+        designConditions: {
+          ...conditions,
+          isSaved: true,
+        },
+      };
+    });
 
     if (!isGuestUser() && isUuid(requestId)) {
       try {
+        let currentStandards = designStandards;
+        if (!Array.isArray(currentStandards) || currentStandards.length === 0) {
+          currentStandards = await getMasterDesignStandards();
+          setDesignStandards(currentStandards);
+        }
+        const stdId = resolveDesignStandardId(
+          conditions.standard,
+          currentStandards,
+          request?.poleCategoryId,
+        );
+        if (!stdId) {
+          throw new Error(
+            "Unable to resolve design standard ID for: " + conditions.standard,
+          );
+        }
+        const numWind =
+          conditions.windSpeed != null && String(conditions.windSpeed).trim() !== ""
+            ? Number(conditions.windSpeed)
+            : null;
+        const validWind =
+          numWind != null && !isNaN(numWind) && numWind > 0 ? numWind : null;
+
+        const numAir =
+          conditions.airDensity != null && String(conditions.airDensity).trim() !== ""
+            ? Number(conditions.airDensity)
+            : 1.23;
+        const validAir =
+          numAir != null && !isNaN(numAir) && numAir > 0 ? numAir : 1.23;
+
         const payload = {
-          designStandardId: resolveDesignStandardId(conditions.standard),
-          windSpeed: conditions.windSpeed ? Number(conditions.windSpeed) : null,
-          airDensity: Number(conditions.airDensity),
+          designStandardId: String(stdId).trim(),
+          windSpeed: validWind,
+          airDensity: validAir,
+        };
+
+        let apiSaved = false;
+        const getErrText = (err) => {
+          const d =
+            err?.response?.data?.detail ||
+            err?.response?.data?.message ||
+            err?.message ||
+            "";
+          if (typeof d === "string") return d;
+          if (Array.isArray(d))
+            return d.map((x) => x?.msg || JSON.stringify(x)).join("; ");
+          if (typeof d === "object") return JSON.stringify(d);
+          return String(d || "");
+        };
+
+        const isNotDef = (err) => {
+          const detail = getErrText(err);
+          const st = err?.response?.status;
+          return (
+            st === 404 ||
+            st === 400 ||
+            /have not been defined|not defined|use POST|not found|doesn't exist/i.test(
+              detail,
+            )
+          );
+        };
+        const isAlreadyDef = (err) => {
+          const detail = getErrText(err);
+          const st = err?.response?.status;
+          return (
+            st === 409 ||
+            st === 400 ||
+            /already defined|already exists|already created|use PATCH/i.test(
+              detail,
+            )
+          );
         };
 
         if (request?.designConditions?.isSavedOnServer) {
-          await updateCalculationConditions(requestId, payload);
-        } else {
+          try {
+            await updateCalculationConditions(requestId, payload);
+            apiSaved = true;
+          } catch (patchErr) {
+            if (isNotDef(patchErr)) {
+              await defineCalculationConditions(requestId, payload);
+              apiSaved = true;
+            } else {
+              throw patchErr;
+            }
+          }
+        }
+
+        if (!apiSaved) {
           try {
             await defineCalculationConditions(requestId, payload);
-          } catch (err) {
-            if (
-              err.response?.status === 400 ||
-              err.response?.status === 409 ||
-              err.response?.status === 422
-            ) {
+            apiSaved = true;
+          } catch (postErr) {
+            if (isAlreadyDef(postErr)) {
               await updateCalculationConditions(requestId, payload);
+              apiSaved = true;
             } else {
-              throw err;
+              throw postErr;
             }
           }
         }
 
         update((r) => ({
           ...r,
+          workTypes: resolveWorkTypes(r, r?.workTypes),
           designConditions: {
             ...(r.designConditions || {}),
+            ...conditions,
+            isSaved: true,
             isSavedOnServer: true,
           },
         }));
       } catch (err) {
         console.error("Failed to save calculation conditions to API:", err);
+        setToastModal({
+          title: "Save Conditions Failed",
+          message:
+            err.response?.data?.detail ||
+            err.message ||
+            "Failed to save calculation conditions to server.",
+          type: "danger",
+        });
+        throw err;
       }
     }
   };
@@ -757,6 +2174,7 @@ export default function RequestDetailPage() {
     update((r) => ({
       ...r,
       isNewProject: false,
+      workTypes: resolveWorkTypes(r, r?.workTypes),
       drawingConditions: {
         ...conditions,
         isSaved: true,
@@ -766,31 +2184,90 @@ export default function RequestDetailPage() {
 
     if (!isGuestUser() && isUuid(requestId)) {
       try {
+        let currentRegions = regionsList;
+        if (!Array.isArray(currentRegions) || currentRegions.length === 0) {
+          currentRegions = await getMasterRegions();
+          setRegionsList(currentRegions);
+        }
+        const resolvedRegId = resolveRegionId(conditions.region, currentRegions);
+        if (!resolvedRegId) {
+          throw new Error("Unable to resolve region ID for: " + conditions.region);
+        }
+        const mappedDrawing = mapDrawingType(conditions.drawingType) || "approval";
+
         const payload = {
-          regionId: resolveRegionId(conditions.region),
-          drawingType: mapDrawingType(conditions.drawingType) || "approval",
+          regionId: String(resolvedRegId).trim(),
+          drawingType: mappedDrawing,
+        };
+
+        let apiSaved = false;
+        const getErrText = (err) => {
+          const d =
+            err?.response?.data?.detail ||
+            err?.response?.data?.message ||
+            err?.message ||
+            "";
+          if (typeof d === "string") return d;
+          if (Array.isArray(d))
+            return d.map((x) => x?.msg || JSON.stringify(x)).join("; ");
+          if (typeof d === "object") return JSON.stringify(d);
+          return String(d || "");
+        };
+
+        const isNotDef = (err) => {
+          const detail = getErrText(err);
+          const st = err?.response?.status;
+          return (
+            st === 404 ||
+            st === 400 ||
+            /have not been defined|not defined|use POST|not found|doesn't exist/i.test(
+              detail,
+            )
+          );
+        };
+        const isAlreadyDef = (err) => {
+          const detail = getErrText(err);
+          const st = err?.response?.status;
+          return (
+            st === 409 ||
+            st === 400 ||
+            /already defined|already exists|already created|use PATCH/i.test(
+              detail,
+            )
+          );
         };
 
         if (request?.drawingConditions?.isSavedOnServer) {
-          await updateDrawingConditions(requestId, payload);
-        } else {
+          try {
+            await updateDrawingConditions(requestId, payload);
+            apiSaved = true;
+          } catch (patchErr) {
+            if (isNotDef(patchErr)) {
+              await defineDrawingConditions(requestId, payload);
+              apiSaved = true;
+            } else {
+              throw patchErr;
+            }
+          }
+        }
+
+        if (!apiSaved) {
           try {
             await defineDrawingConditions(requestId, payload);
-          } catch (err) {
-            if (
-              err.response?.status === 400 ||
-              err.response?.status === 409 ||
-              err.response?.status === 422
-            ) {
+            apiSaved = true;
+          } catch (postErr) {
+            if (isAlreadyDef(postErr)) {
               await updateDrawingConditions(requestId, payload);
+              apiSaved = true;
             } else {
-              throw err;
+              throw postErr;
             }
           }
         }
 
         update((r) => ({
           ...r,
+          workTypes: resolveWorkTypes(r, r?.workTypes),
           drawingConditions: {
             ...(r.drawingConditions || {}),
             isSavedOnServer: true,
@@ -798,6 +2275,15 @@ export default function RequestDetailPage() {
         }));
       } catch (err) {
         console.error("Failed to save drawing conditions to API:", err);
+        setToastModal({
+          title: "Save Conditions Failed",
+          message:
+            err.response?.data?.detail ||
+            err.message ||
+            "Failed to save drawing conditions to server.",
+          type: "danger",
+        });
+        throw err;
       }
     }
   };
@@ -825,29 +2311,228 @@ export default function RequestDetailPage() {
     }));
   };
 
-  const hasCalc = Boolean(request.workTypes?.calc);
-  const hasDrawing = Boolean(request.workTypes?.drawing);
+  const resolvedWorkTypes = resolveWorkTypes(request, request?.workTypes);
+  const hasCalc = Boolean(resolvedWorkTypes.calc);
+  const hasDrawing = Boolean(resolvedWorkTypes.drawing);
   const requestNo = requestNoOf(request);
 
   const chips = [
-    request.coverType !== "yp" && labelOf(COVER_TYPE_OPTIONS, request.coverType, "id"),
+    request.coverType !== "yp" &&
+      labelOf(COVER_TYPE_OPTIONS, request.coverType, "id"),
     projectTypeLabel(request.projectType),
-    [
-      request.workTypes?.calc && "Calculation",
-      request.workTypes?.drawing && "Drawing",
-    ]
+    [hasCalc && "Calculation", hasDrawing && "Drawing"]
       .filter(Boolean)
       .join(" & "),
-    labelOf(REQUEST_TYPE_OPTIONS, request.fields?.requestType),
+    labelOf(
+      REQUEST_TYPE_OPTIONS,
+      request.fields?.requestType ||
+        request.requestType ||
+        request.request_type,
+    ),
   ].filter(Boolean);
+
+  const handleAssignMembersChange = async (updatedMembers) => {
+    const previousMembers = request?.members || [];
+
+    // Optimistic Update: Langsung update state lokal seketika agar item muncul & beranimasi tanpa lag
+    update((r) => ({ ...r, members: updatedMembers }));
+
+    // Guest or local dummy request: langsung selesai
+    if (isGuestUser() || !isUuid(requestId)) {
+      showToast("Assignment updated successfully.");
+      return;
+    }
+    const previousMemberIds = new Set(previousMembers.map((m) => String(m.id)));
+    const updatedMemberIds = new Set(updatedMembers.map((m) => String(m.id)));
+
+    const newlyAdded = updatedMembers.filter(
+      (m) => !m.isCreator && !previousMemberIds.has(String(m.id)),
+    );
+    const removed = previousMembers.filter(
+      (m) => !m.isCreator && !updatedMemberIds.has(String(m.id)),
+    );
+
+    try {
+      // 1. Process Newly Added Members on Server
+      for (const m of newlyAdded) {
+        if (!isUuid(m.id)) {
+          console.warn("[handleAssignMembersChange] Skipped non-UUID worker:", m.id);
+          continue;
+        }
+        const wt =
+          request?.workTypes?.drawing && !request?.workTypes?.calc
+            ? "drawing"
+            : "calculation";
+        const res = await addRequestAssignment(requestId, {
+          assigneeUserId: m.id,
+          workType: wt,
+        });
+        const createdAssignmentId = getAssignmentId(res || {});
+        if (createdAssignmentId) {
+          m.assignmentId = createdAssignmentId;
+        }
+      }
+
+      // 2. Process Removed Members on Server
+      if (removed.length > 0) {
+        let serverList = [];
+        try {
+          const raw = await getRequestAssignments(requestId);
+          serverList = Array.isArray(raw) ? raw : raw?.items || raw?.data || [];
+        } catch (fetchErr) {
+          console.warn(
+            "[handleAssignMembersChange] Failed to fetch server assignments for removal:",
+            fetchErr,
+          );
+        }
+
+        for (const m of removed) {
+          let aId = m.assignmentId;
+          // If assignmentId is missing or equals user id, find the real assignmentId from serverList
+          if (!aId || String(aId) === String(m.id)) {
+            const found = serverList.find((a) => {
+              const uId = getAssigneeUserId(a);
+              const itemId = getAssignmentId(a);
+              const nameMatch =
+                m.name &&
+                (a.assignee?.fullName === m.name ||
+                  a.assignee?.name === m.name ||
+                  a.name === m.name);
+              return (
+                (uId && String(uId) === String(m.id)) ||
+                (itemId && String(itemId) === String(m.id)) ||
+                nameMatch
+              );
+            });
+            if (found) {
+              aId = getAssignmentId(found);
+              m.assignmentId = aId;
+            }
+          }
+
+          if (aId) {
+            try {
+              await releaseRequestAssignment(requestId, aId);
+            } catch (relErr) {
+              const st = relErr?.response?.status;
+              const detail = String(
+                relErr?.response?.data?.detail ||
+                  relErr?.response?.data?.message ||
+                  relErr?.message ||
+                  "",
+              );
+              const isAlreadyReleased =
+                st === 404 ||
+                /already released|not found|does not exist|is released/i.test(
+                  detail,
+                );
+
+              if (!isAlreadyReleased) {
+                console.warn(
+                  "[handleAssignMembersChange] Failed to release assignment on server:",
+                  relErr?.response?.data || relErr?.message,
+                );
+                throw relErr;
+              }
+            }
+          } else {
+            console.warn(
+              "[handleAssignMembersChange] Could not resolve assignmentId for member (already released or untracked):",
+              m,
+            );
+          }
+        }
+      }
+
+      // 3. Re-fetch fresh assignments directly from Backend to ensure authoritative state
+      const removedUserIds = new Set(removed.map((m) => String(m.id)));
+      const removedAssignmentIds = new Set(
+        removed
+          .map((m) => String(m.assignmentId || ""))
+          .filter(Boolean),
+      );
+
+      let syncedMembers = updatedMembers;
+      try {
+        const freshRaw = await getRequestAssignments(requestId);
+        const freshList = Array.isArray(freshRaw)
+          ? freshRaw
+          : freshRaw?.items || freshRaw?.data || [];
+
+        const creator = previousMembers.find((m) => m.isCreator) || {
+          id: currentUser?.id || "u-creator",
+          name: currentUser?.fullName || currentUser?.name || "You",
+          department: "Lighting Dept.",
+          isCreator: true,
+        };
+
+        syncedMembers = [
+          creator,
+          ...freshList
+            .filter((a) => {
+              if (!isAssignmentActive(a)) return false;
+              const uId = getAssigneeUserId(a);
+              const aId = getAssignmentId(a);
+              // Ignore creator
+              if (uId && String(uId) === String(creator.id)) return false;
+              // Ignore members that were explicitly removed in this call!
+              if (uId && removedUserIds.has(String(uId))) return false;
+              if (aId && removedAssignmentIds.has(String(aId))) return false;
+              if (a.id && removedUserIds.has(String(a.id))) return false;
+              return true;
+            })
+            .map((a) => {
+              const uId = String(getAssigneeUserId(a) || a.id);
+              const aId = getAssignmentId(a);
+              const existing = updatedMembers.find(
+                (x) => String(x.id) === uId || String(x.id) === String(aId),
+              );
+              return {
+                id: uId,
+                assignmentId: aId,
+                name:
+                  existing?.name ||
+                  a.assignee?.fullName ||
+                  a.assignee?.name ||
+                  a.name ||
+                  "Assigned Member",
+                department:
+                  existing?.department ||
+                  a.department ||
+                  a.assignee?.department?.name ||
+                  "Engineering Dept.",
+                isCreator: false,
+              };
+            }),
+        ];
+      } catch (freshErr) {
+        console.warn("[handleAssignMembersChange] Re-fetch assignments failed:", freshErr);
+      }
+
+      update((r) => ({ ...r, members: syncedMembers }));
+      showToast("Assignment updated successfully.");
+    } catch (err) {
+      console.error("[handleAssignMembersChange] Assignment operation failed:", err);
+      // Rollback to previous members if backend rejects the assignment
+      update((r) => ({ ...r, members: previousMembers }));
+      const detail =
+        err?.response?.data?.detail ||
+        err?.response?.data?.message ||
+        err?.message ||
+        "Failed to update member assignment.";
+      setToastModal({
+        title: "Assignment Failed",
+        message: typeof detail === "string" ? detail : JSON.stringify(detail),
+        type: "danger",
+      });
+    }
+  };
 
   return (
     <div className="flex flex-col h-full min-h-screen relative">
       <Helmet>
         <title>{requestNo || "Project"} - KORI BALI</title>
       </Helmet>
-
-
 
       <div className="flex-1 rounded-t-2xl hp:rounded-t-xl bg-gray-50">
         {/* ── Header: same blue card and width as the New Request form ── */}
@@ -864,11 +2549,15 @@ export default function RequestDetailPage() {
             <div className="min-w-0">
               <p className="text-xs sm:text-sm text-white/60">Request No.</p>
               <h1 className="mt-0.5 text-lg sm:text-xl lg:text-2xl font-semibold text-white break-words">
-                {requestNo || "—"}
+                {requestNo || request.requestNo || "—"}
               </h1>
-              {request.fields?.[headline.title] && (
+              {(request.fields?.[headline.title] ||
+                request.subject ||
+                request.projectName) && (
                 <p className="mt-1 text-sm sm:text-base text-white/80 break-words">
-                  {request.fields[headline.title]}
+                  {request.fields?.[headline.title] ||
+                    request.subject ||
+                    request.projectName}
                 </p>
               )}
               <div className="mt-3 flex flex-wrap gap-2">
@@ -883,54 +2572,74 @@ export default function RequestDetailPage() {
         <div className="w-full max-w-[1440px] mx-auto pt-6 pb-24 sm:pb-8 px-2 space-y-4 md:space-y-6">
           {/* ── Section: Request Summary ── */}
           <div>
-            <SectionTitle>Request Summary</SectionTitle>
+            <SectionTitle>Project Details</SectionTitle>
             <SectionCard>
               <RequestSummary
                 request={request}
-                onEdit={canEditProject ? () => navigate(`/projects/edit/${request.id}`) : null}
+                onEdit={
+                  canEditProject
+                    ? () => navigate(`/projects/edit/${request.id}`)
+                    : null
+                }
               />
             </SectionCard>
           </div>
 
           {/* ── Section 1: Design Conditions for Calculation Cases ── */}
-          {hasCalc && (
-            <div id="design-conditions-section">
-              <SectionTitle>
-                Design Conditions for Calculation Cases
-              </SectionTitle>
-              <SectionCard>
-                <DesignConditionsSection
-                  ref={designConditionsRef}
-                  request={request}
-                  canEdit={canContribute}
-                  onSave={handleSaveDesignConditions}
-                  onToast={showToast}
-                  onShowToastModal={(msg) => setToastModal({ message: msg })}
-                  onEditModeChange={setIsEditingConditions}
-                />
-              </SectionCard>
-            </div>
-          )}
+          <AnimatePresence mode="wait">
+            {hasCalc && (
+              <motion.div
+                key="design-conditions-calc-section"
+                id="design-conditions-section"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12 }}
+                transition={{ duration: 0.28, ease: "easeOut" }}
+              >
+                <SectionTitle>
+                  Design Conditions for Calculation Cases
+                </SectionTitle>
+                <SectionCard>
+                  <DesignConditionsSection
+                    ref={designConditionsRef}
+                    request={request}
+                    canEdit={canContribute}
+                    onSave={handleSaveDesignConditions}
+                    onToast={showToast}
+                    onShowToastModal={(msg) => setToastModal({ message: msg })}
+                    onEditModeChange={setIsEditingConditions}
+                  />
+                </SectionCard>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* ── Section 2: Design Conditions for Drawing Cases ── */}
-          {hasDrawing && (
-            <div id="drawing-conditions-section">
-              <SectionTitle>
-                Design Conditions for Drawing Cases
-              </SectionTitle>
-              <SectionCard>
-                <DrawingConditionsSection
-                  ref={drawingConditionsRef}
-                  request={request}
-                  canEdit={canContribute}
-                  onSave={handleSaveDrawingConditions}
-                  onToast={showToast}
-                  onShowToastModal={(msg) => setToastModal({ message: msg })}
-                  onEditModeChange={setIsEditingDrawingConditions}
-                />
-              </SectionCard>
-            </div>
-          )}
+          <AnimatePresence mode="wait">
+            {hasDrawing && (
+              <motion.div
+                key="design-conditions-drawing-section"
+                id="drawing-conditions-section"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12 }}
+                transition={{ duration: 0.28, ease: "easeOut" }}
+              >
+                <SectionTitle>Design Conditions for Drawing Cases</SectionTitle>
+                <SectionCard>
+                  <DrawingConditionsSection
+                    ref={drawingConditionsRef}
+                    request={request}
+                    canEdit={canContribute}
+                    onSave={handleSaveDrawingConditions}
+                    onToast={showToast}
+                    onShowToastModal={(msg) => setToastModal({ message: msg })}
+                    onEditModeChange={setIsEditingDrawingConditions}
+                  />
+                </SectionCard>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* ── Section: Assignment ── */}
           <div>
@@ -939,11 +2648,12 @@ export default function RequestDetailPage() {
               <InitialAssignment
                 members={request.members || []}
                 canManageMembers={canEditProject}
-                onChange={(members) => {
-                  update((r) => ({ ...r, members }));
-                  showToast("Assignment updated successfully.");
-                }}
-                workers={MOCK_WORKERS}
+                onChange={handleAssignMembersChange}
+                workers={
+                  assignableWorkers.length > 0
+                    ? assignableWorkers
+                    : MOCK_WORKERS
+                }
               />
             </SectionCard>
           </div>
@@ -955,6 +2665,7 @@ export default function RequestDetailPage() {
               <RequestCases
                 request={request}
                 canContribute={canContribute}
+                canAddCase={canAddCase}
                 onAddCase={handleAddCase}
                 onUpdateCase={handleUpdateCase}
                 onDeleteCase={handleDeleteCase}

@@ -54,12 +54,18 @@ export const getDesignStandardText = (value) => {
   switch (value) {
     case "v60":
       return "V60";
+    case "old_lighting_pole":
+    case "old_lighting":
+    case "lighting_pole":
     case "jil":
+    case "old_jil":
       return "JIL日本照明器具工業会規格等に準拠する。";
+    case "new_jil":
+      return "新JIL日本照明器具工業会規格等に準拠する。";
     case "haiden":
       return "Haiden";
     default:
-      return "";
+      return value || "";
   }
 };
 
@@ -68,16 +74,31 @@ export const getDesignStandardText = (value) => {
 export const normalizeCover = (rawCover) => {
   if (!rawCover || typeof rawCover !== "object") return {};
 
-  const reportNumber =
+  let reportNumber =
     rawCover.reportNumber || rawCover.calculationNumber || "";
-  const title1 = rawCover.title1 || rawCover.projectName || "";
-  const title2 =
+  let title1 = rawCover.title1 || rawCover.projectName || "";
+  let title2 =
     rawCover.title2 !== undefined
       ? rawCover.title2
       : rawCover.coverTopText !== undefined
         ? rawCover.coverTopText
         : "";
   const title3 = rawCover.title3 || rawCover.coverBottomText || "";
+
+  // Strip legacy dummy placeholders so user is required to input real project info
+  if (
+    reportNumber === "WS76509-001" ||
+    reportNumber === "1111" ||
+    reportNumber === "KB-2026-001"
+  ) {
+    reportNumber = "";
+  }
+  if (title1 === "江戸川フラワーガーデン" || title1 === "1") {
+    title1 = "";
+  }
+  if (title2 === "強度検討" && (!title1 || rawCover.title1 === "江戸川フラワーガーデン")) {
+    title2 = "";
+  }
 
   const mgmtParts = [
     rawCover.region,
@@ -142,12 +163,18 @@ export const getDesignStandardTextMultiple = (value) => {
   switch (value) {
     case "v60":
       return "V60";
+    case "old_lighting_pole":
+    case "old_lighting":
+    case "lighting_pole":
     case "jil":
+    case "old_jil":
       return "ＪＩＬ日本照明器具工業会規格に準拠する。";
+    case "new_jil":
+      return "新ＪＩＬ日本照明器具工業会規格に準拠する。";
     case "haiden":
       return "Haiden";
     default:
-      return "";
+      return value || "";
   }
 };
 

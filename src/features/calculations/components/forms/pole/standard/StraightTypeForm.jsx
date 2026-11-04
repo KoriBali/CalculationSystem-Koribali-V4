@@ -1,10 +1,12 @@
 import { RotateCcw, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { GROUND_POSITION_OPTIONS } from "../../../../constants/straightPoleStandardOptions";
 import { getThicknessOptions } from "../../../../logic/pole/standard/straightPoleLogic";
 import { usePoleStandardData } from "../../../../hooks/usePoleStandardData";
 import { ConfirmResetAllModal } from "../../../modals/ConfirmResetAllModal";
 import { FormSelect } from "../../../../../../shared/components/FormSelect";
+import { AdaptiveGroundPositionInput } from "../common/AdaptiveGroundPositionInput";
+import STANDARD_POLE_DATA from "../../../../data/specStandardPole.json";
 
 // === IMAGES ===
 const onGlImg = "/images/on-gl.svg";
@@ -99,6 +101,34 @@ export function StraightPoleStandardForm({
     tplMap,
   );
 
+  // Derive human-readable spec for the currently selected combination
+  const selectedCombinationSpec = useMemo(() => {
+    if (!straightPoleStandard.combination) return null;
+    const pole =
+      STANDARD_POLE_DATA?.straight?.[straightPoleStandard.combination];
+    if (!pole || !Array.isArray(pole.poles) || pole.poles.length < 2)
+      return null;
+    return {
+      upperD: pole.poles[0]?.lowerDiameter || pole.poles[0]?.upperDiameter,
+      lowerD: pole.poles[1]?.lowerDiameter || pole.poles[1]?.upperDiameter,
+      material: pole.poles[0]?.material || "STK400",
+    };
+  }, [straightPoleStandard.combination]);
+
+  // Enrich combination options with upper pole diameter for clear readability
+  const combinationOptions = useMemo(() => {
+    const list = combinations[straightPoleStandard.combinationGroup] || [];
+    return list.map((c) => {
+      const pole = STANDARD_POLE_DATA?.straight?.[c];
+      const upperD =
+        pole?.poles?.[0]?.lowerDiameter || pole?.poles?.[0]?.upperDiameter;
+      return {
+        value: c,
+        label: upperD ? `${c} (Upper ø${upperD} mm)` : c,
+      };
+    });
+  }, [combinations, straightPoleStandard.combinationGroup]);
+
   // Diagram image changes based on selected ground position
   const currentImage =
     groundPositionImageMap[straightPoleStandard.groundPosition] ?? onGlImg;
@@ -111,7 +141,8 @@ export function StraightPoleStandardForm({
       {/* ── Select Pole Standard ── */}
       <div className="mb-6">
         <SectionTitle>
-          Pole Standard Type <span className="text-red-500 ml-1 font-semibold">*</span>
+          Select Pole Standard Type{" "}
+          <span className="text-red-500 ml-1 font-semibold">*</span>
         </SectionTitle>
         <div className="border border-slate-200 rounded-xl hp:rounded-lg p-4 sm:p-6 bg-white shadow-sm">
           {poleStandardLoading && steppedPoleOptions.length === 0 ? (
@@ -179,7 +210,8 @@ export function StraightPoleStandardForm({
                 {/* Lower pole diameter group — resets combination on change */}
                 <div>
                   <h4 className="block text-gray-700 text-sm mb-3 hp:text-xs hp:mb-2">
-                    Select Lower Pole Diameter (mm) <span className="text-red-500 ml-1 font-semibold">*</span>
+                    Select Lower Pole Diameter (mm){" "}
+                    <span className="text-red-500 ml-1 font-semibold">*</span>
                   </h4>
                   {poleStandardLoading && combinationGroups.length === 0 ? (
                     <div className="grid grid-cols-3 gap-3">
@@ -231,33 +263,70 @@ export function StraightPoleStandardForm({
                 {/* Combination dropdown — resets thickness on change */}
                 <div className="relative">
                   <h4 className="block text-gray-700 text-sm mb-3 hp:text-xs hp:mb-2">
-                    Select Pole Combination <span className="text-red-500 ml-1 font-semibold">*</span>
+                    Select Pole Combination{" "}
+                    <span className="text-red-500 ml-1 font-semibold">*</span>
                   </h4>
 
-                  {poleStandardLoading && !straightPoleStandard.combinationGroup ? (
+                  {poleStandardLoading &&
+                  !straightPoleStandard.combinationGroup ? (
                     <div className="border border-slate-200 rounded-lg hp:rounded-md px-4 py-2 lg:py-2.5 bg-slate-50 flex items-center justify-between animate-pulse">
                       <div className="w-32 h-3.5 bg-slate-200/80 rounded" />
                       <div className="w-4 h-4 rounded bg-slate-200/80" />
                     </div>
                   ) : straightPoleStandard.combinationGroup ? (
-                    <FormSelect
-                      value={straightPoleStandard.combination}
-                      disabled={readOnly}
-                      onChange={(val) =>
-                        onUpdate({
-                          combination: val,
-                          upperThickness: "", // reset downstream fields
-                          lowerThickness: "",
-                        })
-                      }
-                      options={(
-                        combinations[straightPoleStandard.combinationGroup] ||
-                        []
-                      ).map((c) => ({ value: c, label: c }))}
-                      loading={poleStandardLoading}
-                      hasError={!!errors.combination}
-                      placeholder="Select Combination"
-                    />
+                    <>
+                      <FormSelect
+                        value={straightPoleStandard.combination}
+                        disabled={readOnly}
+                        onChange={(val) =>
+                          onUpdate({
+                            combination: val,
+                            upperThickness: "", // reset downstream fields
+                            lowerThickness: "",
+                          })
+                        }
+                        options={combinationOptions}
+                        loading={poleStandardLoading}
+                        hasError={!!errors.combination}
+                        placeholder="Select Combination"
+                      />
+
+                      {/* Combination Dimension Specs Info Box */}
+                      {selectedCombinationSpec && (
+                        <div className="hidden mt-2.5 p-2.5 rounded-lg bg-blue-50/70 border border-blue-200/80 text-xs flex flex-wrap items-center gap-x-3 gap-y-1 text-slate-700">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-slate-500 font-medium">
+                              Upper Pole:
+                            </span>
+                            <span className="font-semibold text-[#0d3b66]">
+                              ø{selectedCombinationSpec.upperD} mm
+                            </span>
+                          </div>
+                          <span className="hidden sm:inline text-slate-300">
+                            •
+                          </span>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-slate-500 font-medium">
+                              Lower Pole:
+                            </span>
+                            <span className="font-semibold text-[#0d3b66]">
+                              ø{selectedCombinationSpec.lowerD} mm
+                            </span>
+                          </div>
+                          <span className="hidden sm:inline text-slate-300">
+                            •
+                          </span>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-slate-500 font-medium">
+                              Material:
+                            </span>
+                            <span className="font-semibold text-[#0d3b66]">
+                              {selectedCombinationSpec.material}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </>
                   ) : (
                     <SelectFirst message="Select lower pole diameter first" />
                   )}
@@ -273,9 +342,13 @@ export function StraightPoleStandardForm({
                     {/* Upper thickness — depends on combination */}
                     <div>
                       <h4 className="block text-gray-700 text-sm mb-3 hp:text-xs hp:mb-2">
-                        Upper Pole Thickness <span className="text-red-500 ml-1 font-semibold">*</span>
+                        Upper Pole Thickness{" "}
+                        <span className="text-red-500 ml-1 font-semibold">
+                          *
+                        </span>
                       </h4>
-                      {poleStandardLoading && straightPoleStandard.combination ? (
+                      {poleStandardLoading &&
+                      straightPoleStandard.combination ? (
                         <div className="border border-slate-200 rounded-lg hp:rounded-md px-4 py-2 lg:py-2.5 bg-slate-50 flex items-center justify-between animate-pulse">
                           <div className="w-24 h-3.5 bg-slate-200/80 rounded" />
                           <div className="w-4 h-4 rounded bg-slate-200/80" />
@@ -308,7 +381,10 @@ export function StraightPoleStandardForm({
                     {/* Upper length — free input */}
                     <div>
                       <h4 className="block text-gray-700 text-sm mb-3 hp:text-xs hp:mb-2">
-                        Upper Pole Length <span className="text-red-500 ml-1 font-semibold">*</span>
+                        Upper Pole Length{" "}
+                        <span className="text-red-500 ml-1 font-semibold">
+                          *
+                        </span>
                       </h4>
                       <div className="relative">
                         <input
@@ -338,9 +414,13 @@ export function StraightPoleStandardForm({
                     {/* Lower thickness — depends on combination */}
                     <div>
                       <h4 className="block text-gray-700 text-sm mb-3 hp:text-xs hp:mb-2">
-                        Lower Pole Thickness <span className="text-red-500 ml-1 font-semibold">*</span>
+                        Lower Pole Thickness{" "}
+                        <span className="text-red-500 ml-1 font-semibold">
+                          *
+                        </span>
                       </h4>
-                      {poleStandardLoading && straightPoleStandard.combination ? (
+                      {poleStandardLoading &&
+                      straightPoleStandard.combination ? (
                         <div className="border border-slate-200 rounded-lg hp:rounded-md px-4 py-2 lg:py-2.5 bg-slate-50 flex items-center justify-between animate-pulse">
                           <div className="w-24 h-3.5 bg-slate-200/80 rounded" />
                           <div className="w-4 h-4 rounded bg-slate-200/80" />
@@ -373,7 +453,10 @@ export function StraightPoleStandardForm({
                     {/* Lower length — free input */}
                     <div>
                       <h4 className="block text-gray-700 text-sm mb-3 hp:text-xs hp:mb-2">
-                        Lower Pole Length <span className="text-red-500 ml-1 font-semibold">*</span>
+                        Lower Pole Length{" "}
+                        <span className="text-red-500 ml-1 font-semibold">
+                          *
+                        </span>
                       </h4>
                       <div className="relative">
                         <input
@@ -456,10 +539,16 @@ export function StraightPoleStandardForm({
                       <div className="hp:w-full w-auto">
                         <label className="block text-xs md:text-sm mb-2 text-gray-700">
                           <span className="hidden hp:inline">
-                            Embedment Length (l) <span className="text-red-500 ml-1 font-semibold">*</span>
+                            Embedment Length (l){" "}
+                            <span className="text-red-500 ml-1 font-semibold">
+                              *
+                            </span>
                           </span>
                           <span className="hp:hidden inline">
-                            Embedment Length <span className="text-red-500 ml-1 font-semibold">*</span>
+                            Embedment Length{" "}
+                            <span className="text-red-500 ml-1 font-semibold">
+                              *
+                            </span>
                           </span>
                         </label>
                         <div className="relative">
@@ -501,122 +590,20 @@ export function StraightPoleStandardForm({
 
               {/* Baseplate mode — shown when baseplate is enabled */}
               {condition.baseplateEnabled && (
-                <div className="grid grid-cols-1 gap-4 hp:gap-2">
-                  <h4 className="block text-sm hp:text-xs text-gray-700">
-                    Select Ground Position <span className="text-red-500 ml-1 font-semibold">*</span>
-                  </h4>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
-                    {GROUND_POSITION_OPTIONS.map((opt) => {
-                      const isActive =
-                        straightPoleStandard.groundPosition === opt.id;
-                      const isOnGL = opt.id === "onGL";
-                      const disabled = isOnGL || !isActive;
-                      const img = groundPositionImageMap[opt.id] ?? onGlImg;
-                      const imgD = groundPositionImageMapD[opt.id] ?? onGlImg;
-
-                      return (
-                        <div
-                          key={opt.id}
-                          onClick={() => {
-                            if (isActive) return;
-                            onUpdate({
-                              groundPosition: opt.id,
-                              lowestHeight: opt.id === "onGL" ? "0" : "",
-                            });
-                          }}
-                          className={`flex flex-col gap-4 rounded-xl hp:rounded-lg border-2 p-4 cursor-pointer transition-all
-                          ${
-                            isActive
-                              ? "border-[#3399cc] bg-[#f0f8ff]"
-                              : "border-gray-100 bg-gray-50 hover:border-gray-200 hover:bg-gray-100"
-                          }`}
-                        >
-                          {/* Label */}
-                          <p
-                            className={`text-xs md:text-sm font-semibold ${isActive ? "text-[#0d3b66]" : "text-gray-400"}`}
-                          >
-                            {opt.label}
-                          </p>
-
-                          {/* Diagram */}
-                          <div className="flex flex-col 2xl:flex-row 2xl:items-end 2xl:justify-center gap-4 h-auto 2xl:h-52">
-                            {/* Gambar A dibawah ukuran 2xl */}
-                            <img
-                              src={imgD}
-                              alt={opt.label}
-                              className={`2xl:hidden h-40 md:h-48 w-full object-contain transition-all ${!isActive ? "opacity-40" : ""}`}
-                            />
-                            {/* Lowest Height input */}
-                            <div className="mb-2 w-full 2xl:w-auto">
-                              <label
-                                className={`block text-xs md:text-sm mb-2 md:mb-2 ${isActive ? "text-gray-700" : "text-gray-300"}`}
-                              >
-                                <span className="2xl:hidden">
-                                  Lowest Height (h)
-                                </span>
-                                <span className="hidden 2xl:inline">
-                                  Lowest Height
-                                </span>
-                              </label>
-                              <div className="relative">
-                                <input
-                                  type="number"
-                                  value={
-                                    isOnGL
-                                      ? "0"
-                                      : isActive
-                                        ? straightPoleStandard.lowestHeight
-                                        : ""
-                                  }
-                                  readOnly={!isActive}
-                                  placeholder={
-                                    isActive && !isOnGL ? "Input height" : "—"
-                                  }
-                                  onMouseDown={() => {
-                                    if (!isActive) {
-                                      onUpdate({
-                                        groundPosition: opt.id,
-                                        lowestHeight:
-                                          opt.id === "onGL" ? "0" : "",
-                                      });
-                                    }
-                                  }}
-                                  onChange={(e) =>
-                                    !disabled &&
-                                    onUpdate({ lowestHeight: e.target.value })
-                                  }
-                                  onWheel={(e) => e.target.blur()}
-                                  className={`w-full pl-3 md:pl-4 pr-9 py-2 lg:py-2.5 rounded-lg hp:rounded-md text-xs md:text-sm outline-none transition-all border
-                                    ${
-                                      disabled
-                                        ? "bg-gray-100 border-gray-200 text-gray-400"
-                                        : errors.lowestHeight
-                                          ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
-                                          : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
-                                    }`}
-                                />
-                                <span className="absolute right-3 xl:right-4 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
-                                  mm
-                                </span>
-                              </div>
-                              {isActive && errors.lowestHeight && (
-                                <p className="text-[10px] text-red-500 mt-1">
-                                  *{errors.lowestHeight}
-                                </p>
-                              )}
-                            </div>
-                            {/* Gambar B jika ukuran layar 2xl */}
-                            <img
-                              src={img}
-                              alt={opt.label}
-                              className={`hidden 2xl:block 2xl:h-full 2xl:w-auto object-contain transition-all ${!isActive ? "opacity-40" : ""}`}
-                            />
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
+                <div className="w-full">
+                  <AdaptiveGroundPositionInput
+                    value={straightPoleStandard.lowestHeight ?? ""}
+                    groundPosition={
+                      straightPoleStandard.groundPosition ?? "onGL"
+                    }
+                    onChange={({ lowestHeight, groundPosition }) => {
+                      onUpdate({ lowestHeight, groundPosition });
+                    }}
+                    error={errors.lowestHeight}
+                    disabled={readOnly}
+                    label="Lowest Height"
+                    required={true}
+                  />
                 </div>
               )}
             </div>

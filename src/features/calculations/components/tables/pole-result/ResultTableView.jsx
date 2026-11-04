@@ -16,6 +16,9 @@ export function ResultsTableView({
   resultsDo,
   resultsOhw,
   resultsArm,
+  display = null,
+  calculationKey = 0,
+  isStale = false,
 }) {
   // Page index for each section — reserved for future pagination
   const [page] = useState(0);
@@ -32,7 +35,7 @@ export function ResultsTableView({
   const hasResults = results.length > 0;
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mt-12">
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
       {/* Top accent strip — thin gradient line, matches the other result tables */}
       <div
         aria-hidden="true"
@@ -83,7 +86,13 @@ export function ResultsTableView({
       {/* {hasResults && (currentDo || currentOhw || currentArm) && <div className="border-t border-gray-200 my-8" />} */}
 
       {/* ── Summary Table ── */}
-      {hasResults && <SummaryResultTable resultPole={results} />}
+      {hasResults && (
+        <SummaryResultTable
+          resultPole={results}
+          display={display}
+          calculationKey={calculationKey}
+        />
+      )}
 
       {/* ── Empty State ── */}
       {!hasResults && (

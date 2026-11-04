@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Outlet, Navigate } from "react-router-dom";
-import { handleSessionTransition } from "../utils/coreLogic";
+import { handleSessionTransitionAsync } from "../utils/coreLogic";
 import { ReadOnlyContext, useCaseReadOnly } from "../contexts/ReadOnlyContext";
 
 export default function DraftSessionGuard() {
@@ -9,9 +9,20 @@ export default function DraftSessionGuard() {
   const readOnlyState = useCaseReadOnly(draftId);
 
   useEffect(() => {
-    // Process the transition (auto-saving previous if any, and loading this one)
-    handleSessionTransition(type, draftId);
-    setIsReady(true);
+    let isCancelled = false;
+    async function initSession() {
+      try {
+        await handleSessionTransitionAsync(type, draftId);
+      } catch (err) {
+        console.warn("[DraftSessionGuard] Transition error:", err);
+      } finally {
+        if (!isCancelled) setIsReady(true);
+      }
+    }
+    initSession();
+    return () => {
+      isCancelled = true;
+    };
   }, [type, draftId]);
 
   if (!isReady) {

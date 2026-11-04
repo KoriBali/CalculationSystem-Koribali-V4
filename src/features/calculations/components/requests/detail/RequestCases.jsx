@@ -23,6 +23,7 @@ import {
   Users,
   User,
   RotateCcw,
+  Loader2,
 } from "lucide-react";
 import { poleTypeOptions } from "../../../constants/poleTypeOptions";
 import { formatShortDate } from "../../../utils/requestForm";
@@ -95,6 +96,7 @@ function WorkTypeDisplay({ workType }) {
 export function RequestCases({
   request,
   canContribute = true,
+  canAddCase = false,
   onAddCase, // (workType, details) => void
   onUpdateCase, // (caseId, updates) => void
   onDeleteCase, // (caseId) => void
@@ -215,16 +217,34 @@ export function RequestCases({
     });
   }, [cases, scopeFilter, workTypeFilter, me]);
 
+  // Ref guard against concurrent executions
+  const isSubmittingCaseRef = useRef(false);
+
   // Handler for adding case from modal
-  const handleCreateCaseSubmit = (workType, details) => {
-    const createdId = onAddCase(workType, details);
-    setAddModalType(null);
-    if (createdId) {
-      setRecentlyAddedId(createdId);
-      setTimeout(() => setRecentlyAddedId(null), 3500);
+  const handleCreateCaseSubmit = async (workType, details) => {
+    if (isSubmittingCaseRef.current) return null;
+    if (!canAddCase) {
+      if (onShowToastModal) {
+        onShowToastModal(
+          "Only the request creator and assigned team members can add cases to this project."
+        );
+      }
+      return null;
     }
-    if (onToast) {
-      onToast(`Case "${details.title}" added successfully.`);
+    isSubmittingCaseRef.current = true;
+    try {
+      const createdId = await onAddCase(workType, details);
+      setAddModalType(null);
+      if (createdId) {
+        setRecentlyAddedId(createdId);
+        setTimeout(() => setRecentlyAddedId(null), 3500);
+      }
+      if (onToast) {
+        onToast(`Case "${details.title}" added successfully.`);
+      }
+      return createdId;
+    } finally {
+      isSubmittingCaseRef.current = false;
     }
   };
 
@@ -239,7 +259,7 @@ export function RequestCases({
         </p>
 
         {/* ── Header Button: + Add Case ▾ ── */}
-        {canContribute && (
+        {canAddCase && (
           <div ref={addMenuRef} className="relative self-start sm:self-auto shrink-0">
             {allowedWorkTypes.length === 0 ? null : allowedWorkTypes.length === 1 ? (
               <button
@@ -720,7 +740,7 @@ export function RequestCases({
       )}
 
       {/* ── MODAL: Add Case ── */}
-      {addModalType && (
+      {canAddCase && addModalType && (
         <AddCaseModal
           workType={addModalType}
           request={request}
@@ -787,7 +807,7 @@ export function RequestCases({
 // ─────────────────────────────────────────────────────────────────────────────
 // MODAL: Add Case
 // ─────────────────────────────────────────────────────────────────────────────
-function AddCaseModal({ workType, request, onClose, onSubmit }) {
+function AddCaseModal({ workType, request, existingCases = [], onClose, onSubmit }) {
   const isCalc = workType === "calc";
   const defaultTitle =
     request.fields?.subject || request.fields?.projectName || "New Case";
@@ -796,29 +816,36 @@ function AddCaseModal({ workType, request, onClose, onSubmit }) {
   const [poleKind, setPoleKind] = useState("standard"); // 'standard' | 'custom'
   const [touched, setTouched] = useState(false);
   const [showCustomPoleModal, setShowCustomPoleModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isValid = caseLabel.trim() !== "" && poleKind !== "";
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setTouched(true);
-    if (!isValid) return;
+    if (!isValid || isSubmitting) return;
 
     if (!isCalc && poleKind === "custom") {
       setShowCustomPoleModal(true);
       return;
     }
 
-    onSubmit({
-      title: caseLabel.trim() || defaultTitle,
-      poleKind,
-      drawingType: !isCalc ? "Approval" : "",
-      caseLabel: caseLabel.trim(),
-      case_label: caseLabel.trim(),
-      owner: getUser()?.name || request.createdBy || "Bintarjo Agus Priyadi",
-      createdBy: getUser()?.name || request.createdBy || "Bintarjo Agus Priyadi",
-      status: "Not started",
-    });
+    setIsSubmitting(true);
+    try {
+      await onSubmit({
+        title: caseLabel.trim() || defaultTitle,
+        poleKind,
+        drawingType: !isCalc ? "Approval" : "",
+        caseLabel: caseLabel.trim(),
+        case_label: caseLabel.trim(),
+        owner: getUser()?.name || request.createdBy || "Bintarjo Agus Priyadi",
+        createdBy: getUser()?.name || request.createdBy || "Bintarjo Agus Priyadi",
+        status: "Not started",
+      });
+    } catch (err) {
+      console.error("[AddCaseModal] Error submitting case:", err);
+      setIsSubmitting(false);
+    }
   };
 
   const hasLabelError = touched && !caseLabel.trim();
@@ -857,11 +884,12 @@ function AddCaseModal({ workType, request, onClose, onSubmit }) {
                 id="caseLabel"
                 type="text"
                 value={caseLabel}
+                disabled={isSubmitting}
                 onChange={(e) => setCaseLabel(e.target.value)}
                 onBlur={() => setTouched(true)}
                 placeholder="e.g. /001 or Case-01"
                 required
-                className={`${inputStyle(hasLabelError)} text-slate-800 placeholder-slate-400`}
+                className={`${inputStyle(hasLabelError)} text-slate-800 placeholder-slate-400 disabled:opacity-60 disabled:bg-slate-100 disabled:cursor-not-allowed`}
               />
               {hasLabelError ? (
                 <p className="mt-1 text-[11px] text-red-500 font-medium">
@@ -888,9 +916,10 @@ function AddCaseModal({ workType, request, onClose, onSubmit }) {
                     <button
                       key={option.id}
                       type="button"
+                      disabled={isSubmitting}
                       title={option.desc}
                       onClick={() => setPoleKind(option.id)}
-                      className={`group w-full flex items-center justify-between px-3 xl:px-4 py-2.5 lg:py-3 relative overflow-hidden rounded-lg border transition-all duration-300 cursor-pointer active:scale-[0.98] ${isActive
+                      className={`group w-full flex items-center justify-between px-3 xl:px-4 py-2.5 lg:py-3 relative overflow-hidden rounded-lg border transition-all duration-300 cursor-pointer active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-75 ${isActive
                           ? "border-blue-500 bg-blue-50 shadow-sm ring-1 ring-blue-50"
                           : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
                         }`}
@@ -943,16 +972,24 @@ function AddCaseModal({ workType, request, onClose, onSubmit }) {
               <button
                 type="button"
                 onClick={onClose}
-                className="px-5 py-2.5 rounded-lg hp:rounded-md font-medium text-xs sm:text-sm bg-[#eef2f6] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:bg-[#e2e8f0] transition-colors"
+                disabled={isSubmitting}
+                className="px-5 py-2.5 rounded-lg hp:rounded-md font-medium text-xs sm:text-sm bg-[#eef2f6] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:bg-[#e2e8f0] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                disabled={!isValid}
-                className="px-5 py-2.5 rounded-lg hp:rounded-md font-medium text-xs sm:text-sm bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 transition-all"
+                disabled={!isValid || isSubmitting}
+                className="inline-flex items-center justify-center gap-2 min-w-[130px] px-5 py-2.5 rounded-lg hp:rounded-md font-medium text-xs sm:text-sm bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 transition-all"
               >
-                Create case
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-white" />
+                    <span>Creating case...</span>
+                  </>
+                ) : (
+                  <span>Create case</span>
+                )}
               </button>
             </div>
           </div>

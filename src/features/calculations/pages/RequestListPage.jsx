@@ -13,12 +13,15 @@ import { ToastModal } from "../components/modals/ToastModal";
 import {
   deleteRequest as deleteRequestApi,
   getRequests,
+  getRequestById,
 } from "../services/requestService";
 import {
   deleteRequest as deleteRequestLocal,
   getAllRequests,
 } from "../data/requestStore";
-import { isGuestUser } from "../../../utils/auth";
+import { getUser, isGuestUser } from "../../../utils/auth";
+import { getUsers } from "../../admin/services/userService";
+import api from "../../../config/api";
 import { MOCK_REQUESTS, LINES } from "../data/mockRequests";
 import {
   REQUEST_TABS,
@@ -131,20 +134,31 @@ const classificationLabel = (key) =>
   CLASSIFICATIONS.find((c) => c.key === key)?.label ?? key;
 
 const WORK_TYPE_LABELS = {
-  both: "Calculation & Drawing",
+  both: "Calculation and drawing",
   drawing: "Drawing",
   calc: "Calculation",
 };
 
 const getRequestWorkType = (r) => {
+  if (!r) return "calc";
+  const dt = r.designType || r.design_type;
+  if (
+    dt === "drawing_calculation" ||
+    dt === "both" ||
+    (r.workTypes?.calc && r.workTypes?.drawing)
+  ) {
+    return "both";
+  }
   const isCalc =
-    r.designType === "calculation" ||
-    r.workTypes?.calc ||
-    r.items?.some((i) => i.work_type === "calc");
+    dt === "calculation" ||
+    Boolean(r.workTypes?.calc) ||
+    r.items?.some((i) => i.work_type === "calc") ||
+    r.cases?.some((c) => c.workType === "calc");
   const isDrawing =
-    r.designType === "drawing" ||
-    r.workTypes?.drawing ||
-    r.items?.some((i) => i.work_type === "drawing");
+    dt === "drawing" ||
+    Boolean(r.workTypes?.drawing) ||
+    r.items?.some((i) => i.work_type === "drawing") ||
+    r.cases?.some((c) => c.workType === "drawing");
 
   if (isCalc && isDrawing) return "both";
   if (isDrawing) return "drawing";
@@ -247,12 +261,123 @@ export default function RequestListPage() {
         return;
       }
 
-      // Registered User: read live from API Gateway
+      // Registered User: read live directly from API Gateway (no mock store mixing)
       try {
-        const res = await getRequests();
-        const items = Array.isArray(res) ? res : res?.items || res?.data || [];
+        const [usersRes, assignableRes, reqsRes] = await Promise.all([
+          getUsers().catch(() => []),
+          api
+            .get("/api/assignable-users")
+            .then((r) => r?.data?.data || r?.data || [])
+            .catch(() => []),
+          getRequests(),
+        ]);
+
+        const items = Array.isArray(reqsRes)
+          ? reqsRes
+          : reqsRes?.items || reqsRes?.data || [];
+
+        // Fetch detailed data from GET /api/requests/{id} in parallel for the current items
+        // so that data from child tables (such as shared_details for PIC) is populated directly from the BE gateway
+        const detailsList = await Promise.all(
+          items.map((s) => (s?.id ? getRequestById(s.id).catch(() => null) : null))
+        );
+
+        const currentUser = getUser();
+
+        // Build a user name lookup map from backend users
+        const userMap = new Map();
+        if (currentUser?.id) {
+          userMap.set(
+            String(currentUser.id),
+            currentUser.fullName || currentUser.name
+          );
+        }
+        const allUsers = [
+          ...(Array.isArray(usersRes) ? usersRes : usersRes?.items || []),
+          ...(Array.isArray(assignableRes)
+            ? assignableRes
+            : assignableRes?.items || []),
+        ];
+        allUsers.forEach((u) => {
+          if (u?.id) {
+            userMap.set(String(u.id), u.fullName || u.name || u.email);
+          }
+        });
+
+        const normalized = items.map((s, idx) => {
+          const detail = detailsList[idx] || {};
+          const full = { ...s, ...detail };
+
+          const createdByUserId =
+            full.created_by_user_id || full.createdByUserId || full.created_by;
+
+          const resolvedCreatedByName =
+            full.createdByName ||
+            full.creator?.fullName ||
+            full.creator?.name ||
+            (createdByUserId && userMap.get(String(createdByUserId))) ||
+            (createdByUserId &&
+            String(createdByUserId) === String(currentUser?.id)
+              ? currentUser?.fullName || currentUser?.name
+              : null) ||
+            null;
+
+          // Company Name from backend: stored in requestingDepartmentName
+          const companyName =
+            full.requestingDepartmentName ||
+            full.requesting_department_name ||
+            full.companyName ||
+            "";
+
+          // PIC: Stored in child table shared_details (requesterPicName)
+          const pic =
+            full.sharedDetails?.requesterPicName ||
+            full.shared_details?.requester_pic_name ||
+            full.requesterPicName ||
+            full.picName ||
+            "";
+
+          // Receipt No from backend (ysDetails or top-level)
+          const receiptNo =
+            full.ysDetails?.receiptNo ||
+            full.ys_details?.receipt_no ||
+            full.receiptNo ||
+            full.receipt_no ||
+            full.receptionNo ||
+            full.fields?.receptionNo ||
+            full.fields?.receiptNo ||
+            "";
+
+          const dt = full.designType || full.design_type || "calculation";
+          const workTypes = {
+            calc: dt === "drawing_calculation" || dt === "calculation",
+            drawing: dt === "drawing_calculation" || dt === "drawing",
+          };
+
+          return {
+            ...full,
+            pjNo: full.pjNo || full.pj_no || "",
+            requestNo: full.requestNo || full.request_no || "",
+            subject: full.subject || "",
+            companyName,
+            receiptNo,
+            requesterPicName: pic,
+            picName: pic,
+            createdByName: resolvedCreatedByName,
+            requestType: full.requestType || full.request_type || "general",
+            requestClassification:
+              full.requestClassification || full.request_classification || "new",
+            requestDate: full.requestDate || full.request_date || "",
+            dueDate: full.dueDate || full.due_date || "",
+            status: full.status || "in_progress",
+            designType: dt,
+            workTypes,
+            cases: Array.isArray(full.cases) ? full.cases : [],
+          };
+        });
+
         if (isMounted) {
-          setRawRequests(items);
+          setRawRequests(normalized);
         }
       } catch (err) {
         console.warn("[RequestListPage] Live requests fetch failed:", err?.message);
@@ -485,7 +610,7 @@ export default function RequestListPage() {
         `${STICKY_PROJECT} bg-white ${STICKY_ROW_HOVER} transition-colors whitespace-nowrap`,
       render: (r) => (
         <span className="font-semibold text-slate-900 tabular-nums">
-          {r.pjNo || r.fields?.projectNo || "12345"}
+          {r.pjNo || r.fields?.projectNo || "—"}
         </span>
       ),
     },
@@ -494,38 +619,42 @@ export default function RequestListPage() {
       label: "Project name",
       th: "min-w-[220px]",
       td: () => "text-slate-700 break-words",
-      render: (r) => r.subject || r.fields?.projectName || "Route 16 Lighting",
+      render: (r) => r.subject || r.fields?.projectName || "—",
     },
     {
       key: "requestNo",
       label: "Request no.",
       th: "w-[1%] whitespace-nowrap",
       td: () => "whitespace-nowrap text-slate-700 tabular-nums",
-      render: (r) => r.requestNo || r.fields?.requestNo || "REQ-0001",
+      render: (r) => r.requestNo || r.fields?.requestNo || "—",
     },
     {
       key: "client",
       label: "Company name",
       th: "min-w-[160px]",
       td: () => "text-slate-600 break-words",
-      render: (r) => r.companyName || r.fields?.companyName || "Tokyo Electric Co., Ltd.",
+      render: (r) => r.companyName || "—",
     },
     {
       key: "classification",
       label: "Classification",
       th: "w-[1%]",
       td: () => "whitespace-nowrap text-slate-700",
-      render: (r) => {
-        const val = r.requestClassification || r.classification || r.fields?.classification || "new";
-        return classificationLabel(val);
-      },
+      render: (r) => classificationLabel(r.requestClassification || "new"),
+    },
+    {
+      key: "receiptNo",
+      label: "Receipt no.",
+      th: "w-[1%] whitespace-nowrap",
+      td: () => "whitespace-nowrap text-slate-700 tabular-nums",
+      render: (r) => r.receiptNo || "—",
     },
     {
       key: "japanPic",
       label: "PIC",
       th: "whitespace-nowrap",
       td: () => "text-slate-600 whitespace-nowrap",
-      render: (r) => r.requesterPicName || r.picName || "Tanaka Shinji",
+      render: (r) => r.requesterPicName || "—",
     },
     {
       key: "workType",
@@ -570,7 +699,7 @@ export default function RequestListPage() {
       label: "Request date",
       th: "w-[1%]",
       td: () => "whitespace-nowrap text-slate-700",
-      render: (r) => formatDate(r.requestDate || r.fields?.requestDate || "2026-10-01"),
+      render: (r) => formatDate(r.requestDate) || "—",
     },
     activeTab === "done"
       ? {
@@ -583,7 +712,7 @@ export default function RequestListPage() {
             const closed = describeClosed(r);
             return (
               <>
-                <span className="block">{closed?.text || formatDate(r.closedAt || r.updatedAt || "2026-10-15")}</span>
+                <span className="block">{closed?.text || formatDate(r.closedAt) || "—"}</span>
                 {closed?.hint && (
                   <span
                     className={`block mt-0.5 text-xs font-medium ${CLOSED_TONE[closed.tone]}`}
@@ -602,13 +731,13 @@ export default function RequestListPage() {
           td: () => "whitespace-nowrap",
           render: (r) => {
             const due = describeDue(r, { closed: r.tab === "done" });
-            const text = due?.text || formatDate(r.dueDate || r.fields?.dueDate || "2026-10-25");
+            const text = due?.text && due.text !== "—" ? due.text : formatDate(r.dueDate);
             return (
               <>
                 <span className={`block ${DUE_TONE[due?.tone || "normal"]}`}>
-                  {text}
+                  {text || "—"}
                 </span>
-                {due?.hint && (
+                {due?.hint && text && (
                   <span
                     className={`block mt-0.5 text-xs font-medium ${DUE_TONE[due.tone]}`}
                   >
@@ -853,6 +982,11 @@ export default function RequestListPage() {
                         {/* Classification */}
                         <td className="px-3 py-3.5 whitespace-nowrap">
                           <div className="w-12 h-3.5 bg-slate-200/60 rounded" />
+                        </td>
+
+                        {/* Receipt no. */}
+                        <td className="px-3 py-3.5 whitespace-nowrap">
+                          <div className="w-20 h-3.5 bg-slate-200/60 rounded" />
                         </td>
 
                         {/* PIC */}

@@ -1,7 +1,10 @@
 // Auto-fill defaults for specific design standards
 export const STANDARD_DEFAULTS = {
-  v60: { designWindSpeed: "60", designAirDensity: "1.23" }, // key sudah diupdate
+  v60: { designWindSpeed: "60", designAirDensity: "1.23" },
   jil: { designWindSpeed: "60", designAirDensity: "1.23" },
+  old_jil: { designWindSpeed: "60", designAirDensity: "1.23" },
+  old_lighting_pole: { designWindSpeed: "60", designAirDensity: "1.23" },
+  new_jil: { designWindSpeed: "60", designAirDensity: "1.23" },
 };
 
 // Returns updated object with auto-filled values if standard has defaults

@@ -44,7 +44,7 @@ export const caseWorkTypesFor = (workTypes) =>
   Object.keys(CASE_WORK_TYPES).filter((key) => workTypes[key]);
 
 // "001", "002", … — continues after the highest one so far.
-const nextCaseNo = (cases) =>
+export const nextCaseNo = (cases) =>
   String(Math.max(0, ...cases.map((c) => Number(c.no))) + 1).padStart(3, "0");
 
 // ─── Project Setup, filled in from the request ───────────────────────────────
@@ -84,7 +84,7 @@ const setupIdentityFrom = (request) => {
 // A new case plus its draft: set to the case's discipline and with Project
 // Setup filled in from the request, so it opens ready to work on.
 export const createCase = (request, workType, options = {}) => {
-  const id = `draft_${Date.now()}`;
+  const id = options.id || `draft_${Date.now()}`;
   const workflow = {
     projectMode: CASE_WORK_TYPES[workType].projectMode,
     withReport: false,
@@ -107,7 +107,7 @@ export const createCase = (request, workType, options = {}) => {
     drawingType:
       options.drawingType ||
       canonicalDrawingType(request.drawingConditions?.drawingType) ||
-      (workType === "drawing" ? "Approval" : ""),
+      "",
     region:
       resolveRegionCode(request.drawingConditions?.region) || "east_japan",
     drawingNumber: "",
@@ -143,13 +143,13 @@ export const createCase = (request, workType, options = {}) => {
     `${request.projectType}_draft_data_${id}`,
     JSON.stringify(draftData),
   );
-  const nextNo = nextCaseNo(request.cases || []);
+  const nextNo = options.no || nextCaseNo(request.cases || []);
   const fallbackTitle =
     request.fields?.subject ||
     request.fields?.projectName ||
     `Case ${nextNo}`;
 
-  const caseLabelVal = options.caseLabel || options.case_label || "";
+  const caseLabelVal = options.caseLabel || options.case_label || `Case ${nextNo}`;
 
   return {
     id,
@@ -164,8 +164,8 @@ export const createCase = (request, workType, options = {}) => {
     owner: options.owner || request.createdBy || "Unassigned",
     createdBy: options.createdBy || options.owner || request.createdBy || "Unassigned",
     status: options.status || "Not started",
-    createdAt: new Date().toISOString(),
-    lastEdited: null,
+    createdAt: options.createdAt || new Date().toISOString(),
+    lastEdited: options.lastEdited || null,
   };
 };
 

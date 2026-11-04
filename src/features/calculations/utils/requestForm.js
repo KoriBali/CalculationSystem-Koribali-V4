@@ -35,8 +35,8 @@ export const workTypesFrom = (value) =>
 export const creatorMember = () => {
   const user = getUser();
   return {
-    id: "me",
-    name: user?.name || "Guest User",
+    id: user?.id || "me",
+    name: user?.fullName || user?.name || "Guest User",
     department: user?.department?.name || user?.departmentName || "",
     isCreator: true,
     calc: true,

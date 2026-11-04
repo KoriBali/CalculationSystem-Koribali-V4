@@ -7,7 +7,8 @@ export const designStandardOptions = {
     { value: "haiden", label: "Haiden" },
   ],
   "lighting-project": [
-    { value: "jil", label: "JIL 1003" },
+    { value: "old_lighting_pole", label: "Old Lighting Pole" },
+    { value: "new_jil", label: "New JIL" },
     { value: "haiden", label: "Haiden" },
   ],
   "signboard-project": [
@@ -16,7 +17,8 @@ export const designStandardOptions = {
   ],
   "multi-purpose-project": [
     { value: "v60", label: "V60" },
-    { value: "jil", label: "JIL 1003" },
+    { value: "old_lighting_pole", label: "Old Lighting Pole" },
+    { value: "new_jil", label: "New JIL" },
     { value: "haiden", label: "Haiden" },
   ],
 };

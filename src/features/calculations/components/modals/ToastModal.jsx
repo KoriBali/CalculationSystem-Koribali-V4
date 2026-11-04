@@ -34,15 +34,15 @@ export const ToastModal = ({
 
           {/* Modal Card */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            initial={{ opacity: 0, scale: 0.9, y: 16 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 10 }}
-            transition={{ type: "spring", damping: 20, stiffness: 300 }}
+            exit={{ opacity: 0, scale: 0.92, y: 8 }}
+            transition={{ type: "spring", damping: 25, stiffness: 350 }}
             className={`
-              relative bg-white shadow-[0_20px_60px_rgba(0,0,0,0.2)]
+              relative bg-white shadow-[0_24px_50px_-12px_rgba(15,23,42,0.18)] border border-slate-100/80
               ${toast.type === "success"
-                ? "w-full max-w-[280px] sm:max-w-[340px] rounded-3xl p-8 sm:p-10 flex flex-col items-center text-center"
-                : "w-full max-w-xs sm:max-w-fit rounded-2xl sm:rounded-3xl p-4 sm:p-7"
+                ? "w-full max-w-[320px] sm:max-w-[360px] rounded-3xl p-8 flex flex-col items-center text-center"
+                : "w-full max-w-[420px] rounded-2xl p-6 sm:p-7"
               }
             `}
           >
@@ -57,21 +57,21 @@ export const ToastModal = ({
                     damping: 20,
                     delay: 0.1,
                   }}
-                  className="w-20 h-20 sm:w-24 sm:h-24 mb-6 rounded-full bg-green-100 flex items-center justify-center relative"
+                  className="w-20 h-20 sm:w-24 sm:h-24 mb-6 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center relative shadow-xs"
                 >
                   <motion.div
                     initial={{ scale: 0, rotate: -45 }}
                     animate={{ scale: 1, rotate: 0 }}
                     transition={{ type: "spring", stiffness: 400, damping: 20, delay: 0.2 }}
                   >
-                    <Check className="w-10 h-10 sm:w-12 sm:h-12 text-green-600 stroke-[3]" />
+                    <Check className="w-10 h-10 sm:w-12 sm:h-12 text-emerald-600 stroke-[3]" />
                   </motion.div>
                 </motion.div>
                 <motion.h3 
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
-                  className="text-gray-800 font-bold text-lg sm:text-xl mb-2"
+                  className="text-slate-900 font-bold text-lg sm:text-xl mb-2"
                 >
                   Success!
                 </motion.h3>
@@ -79,32 +79,40 @@ export const ToastModal = ({
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4 }}
-                  className="text-gray-500 font-medium text-sm sm:text-base"
+                  className="text-slate-600 font-medium text-sm sm:text-base leading-relaxed"
                 >
                   {toast.message}
                 </motion.p>
               </>
             ) : (
               <>
-                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-3 sm:gap-4 mb-4 sm:mb-6 text-center sm:text-left">
-                  <div className="flex-shrink-0 flex items-center justify-center border w-12 h-12 rounded-xl bg-amber-50 text-amber-500 border-amber-300 mx-auto sm:mx-0">
-                    <AlertCircle className="w-6 h-6 sm:w-7 sm:h-7" />
+                {/* Header with Icon and Title */}
+                <div className="flex items-start gap-4">
+                  <div
+                    className={`flex-shrink-0 flex items-center justify-center w-11 h-11 rounded-xl shadow-xs ${
+                      toast.type === "error"
+                        ? "bg-rose-50 text-rose-600 border border-rose-200/70"
+                        : "bg-amber-50 text-amber-600 border border-amber-200/70"
+                    }`}
+                  >
+                    <AlertCircle className="w-5 h-5 sm:w-6 sm:h-6" />
                   </div>
-                  <div className="flex flex-col justify-center min-h-[48px]">
-                    {toast.title && (
-                      <h4 className="text-slate-900 font-bold text-sm sm:text-base mb-1">
-                        {toast.title}
-                      </h4>
-                    )}
-                    <p className="text-slate-700 font-medium leading-relaxed text-xs sm:text-sm">
+
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-slate-900 font-bold text-sm sm:text-base tracking-tight mb-1">
+                      {toast.title || (toast.type === "error" ? "Calculation Notice" : "Notice")}
+                    </h4>
+                    <p className="text-slate-600 font-normal leading-relaxed text-xs sm:text-sm">
                       {toast.message}
                     </p>
                   </div>
                 </div>
-                <div className="flex justify-center sm:justify-end mt-2">
+
+                {/* Footer Action */}
+                <div className="mt-6 pt-3 border-t border-slate-100 flex items-center justify-end">
                   <button
                     onClick={onClose}
-                    className="w-full sm:w-auto px-6 py-2.5 sm:px-8 sm:py-2 rounded-lg text-sm font-semibold transition-all shadow-sm active:scale-95 bg-[#0d3b66] text-white hover:bg-[#092b4d] cursor-pointer"
+                    className="w-full sm:w-auto min-w-[96px] px-6 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-xs active:scale-98 bg-[#0d3b66] text-white hover:bg-[#0a2e50] cursor-pointer"
                   >
                     OK
                   </button>

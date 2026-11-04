@@ -15,11 +15,12 @@ export default function LightingPoleReport({
   isSchematicGenerating,
   onEditSchematic,
   onRegenerateSchematic,
+  officialReport,
 }) {
   // 1. blocks memo
   const blocks = useMemo(
-    () => createBlocks(results, resultsDo, poleConfig),
-    [results, resultsDo, poleConfig],
+    () => createBlocks(results, resultsDo, poleConfig, officialReport),
+    [results, resultsDo, poleConfig, officialReport],
   );
 
   // 2. ref untuk measurement
@@ -61,6 +62,7 @@ export default function LightingPoleReport({
       cover={cover}
       condition={condition}
       results={results}
+      officialReport={officialReport}
       pages={pages}
       schematicSvg={schematicSvg}
       isSchematicEdited={isSchematicEdited}

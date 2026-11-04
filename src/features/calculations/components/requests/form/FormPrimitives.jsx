@@ -84,12 +84,12 @@ export function SectionCard({ children }) {
 // `floating`: positioned just below the field (in the gap to the next row) so
 // it doesn't make the field taller and throw a bottom-aligned row out of
 // line; the field's wrapper must be `relative`.
-export function RequiredHint({ floating = true }) {
+export function RequiredHint({ floating = true, children }) {
   return (
     <p
-      className={`${floating ? "absolute left-0 top-full" : ""} mt-1 text-[11px] md:text-xs text-red-500 whitespace-nowrap`}
+      className={`${floating ? "absolute left-0 top-full" : ""} mt-1 text-[11px] md:text-xs text-red-500 whitespace-normal sm:whitespace-nowrap`}
     >
-      *This field is required.
+      {children || "*This field is required."}
     </p>
   );
 }

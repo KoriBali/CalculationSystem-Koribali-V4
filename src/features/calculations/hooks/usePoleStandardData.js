@@ -123,15 +123,18 @@ function deriveHeightOptions(taperEntries) {
 
   taperEntries.forEach((entry) => {
     const shortCode = extractShortCode(entry.name);
-    const rawHeights = (entry.poleStandardHeights || []).map((h) =>
-      Number(h.height),
-    );
-    if (rawHeights.length === 0) return;
+    const rawItems = entry.poleStandardHeights || [];
+    if (rawItems.length === 0) return;
 
-    // Convert mm to meters if needed (e.g. 8000 -> 8, 8300 -> 8.3)
-    const heights = rawHeights.map((h) => {
-      const inMeters = h > 100 ? h / 1000 : h;
-      return Math.round(inMeters * 10) / 10;
+    const heightMap = new Map();
+    const heights = [];
+
+    rawItems.forEach((item) => {
+      const hRaw = Number(item.height);
+      const inMeters = hRaw > 100 ? hRaw / 1000 : hRaw;
+      const roundedM = Math.round(inMeters * 10) / 10;
+      heightMap.set(Math.round(roundedM * 10), item.id);
+      heights.push(roundedM);
     });
 
     const heightSet = new Set(heights.map((h) => Math.round(h * 10)));
@@ -152,6 +155,7 @@ function deriveHeightOptions(taperEntries) {
 
     const toOption = (h) => ({
       id: String(h),
+      heightId: heightMap.get(Math.round(h * 10)) || null,
       label: `${Math.round(h * 1000)} mm`,
     });
 

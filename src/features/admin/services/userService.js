@@ -5,6 +5,11 @@ export const getUsers = async (params = {}) => {
   return data?.data || data;
 };
 
+export const getAssignableUsers = async (params = {}) => {
+  const { data } = await api.get("/api/assignable-users", { params });
+  return data?.data || data;
+};
+
 export const createUser = async (payload) => {
   const { data } = await api.post("/api/users", payload);
   return data?.data || data;

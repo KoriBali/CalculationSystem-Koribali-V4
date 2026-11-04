@@ -1,12 +1,24 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { saveWorkingSessionToDraft } from "../../calculations/utils/coreLogic";
 import { normalizeCover } from "../utils/reportFormatters";
+import {
+  createCaseRun,
+  getCaseRunReport,
+  saveReportHeader,
+  buildReportHeaderPayload,
+} from "../../calculations/services/requestService";
+import { findRequestOfCase } from "../../calculations/data/requestStore";
 
 // ─── HOOK ────────────────────────────────────────────────────────────────────
 
 // Handles report generation — validates cover, builds payload, navigates to report page
 export function useReport(projectType) {
   const navigate = useNavigate();
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+  const [reportError, setReportError] = useState(null);
+
+  const clearReportError = () => setReportError(null);
 
   // ── Read helper ──
   // Reads and parses a value from sessionStorage by key
@@ -39,33 +51,45 @@ export function useReport(projectType) {
   ) => {
     // Pole results are always required regardless of flags
     if (!results?.length) {
-      showToast(
-        "No pole calculation results available. Please calculate first.",
-      );
+      if (showToast) {
+        showToast(
+          "No pole calculation results available. Please calculate first.",
+          "error",
+        );
+      }
       return false;
     }
 
     // Opening result — only required if openingEnabled
     if (openingEnabled && !hasResult(calculatedOp)) {
-      showToast(
-        "Opening calculation result is missing. Please calculate the opening first.",
-      );
+      if (showToast) {
+        showToast(
+          "Opening calculation result is missing. Please calculate the opening first.",
+          "error",
+        );
+      }
       return false;
     }
 
     // Baseplate result — only required if baseplateEnabled
     if (baseplateEnabled && !hasResult(calculatedBaseplate)) {
-      showToast(
-        "Baseplate calculation result is missing. Please calculate the baseplate first.",
-      );
+      if (showToast) {
+        showToast(
+          "Baseplate calculation result is missing. Please calculate the baseplate first.",
+          "error",
+        );
+      }
       return false;
     }
 
     // Foundation result — only required if foundationEnabled
     if (foundationEnabled && !hasResult(calculatedFoundation)) {
-      showToast(
-        "Foundation calculation result is missing. Please calculate the foundation first.",
-      );
+      if (showToast) {
+        showToast(
+          "Foundation calculation result is missing. Please calculate the foundation first.",
+          "error",
+        );
+      }
       return false;
     }
 
@@ -146,9 +170,30 @@ export function useReport(projectType) {
     coverOverride = null,
     draftIdOverride = null,
   } = {}) => {
+    setIsGeneratingReport(true);
+    setReportError(null);
+
+    const startTime = Date.now();
+    const ensureMinimumWait = async (minMs = 1200) => {
+      const elapsed = Date.now() - startTime;
+      if (elapsed < minMs) {
+        await new Promise((r) => setTimeout(r, minMs - elapsed));
+      }
+    };
+
     // Pole calculation must have been run
     if (!isCalculated) {
-      if (showToast) showToast("Please calculate first.");
+      await ensureMinimumWait(400);
+      const err = {
+        title: "Calculation Not Run Yet",
+        message:
+          "Please calculate the pole results first before generating the report preview.",
+        details: "isCalculated is false or results array is empty.",
+        status: "NOT_CALCULATED",
+      };
+      setReportError(err);
+      setIsGeneratingReport(false);
+      if (showToast) showToast(err.message, "error");
       return false;
     }
 
@@ -177,7 +222,24 @@ export function useReport(projectType) {
       calculatedFoundation,
       showToast,
     );
-    if (!isResultsValid) return false;
+    if (!isResultsValid) {
+      await ensureMinimumWait(400);
+      const missingSteps = [];
+      if (!results?.length) missingSteps.push("Pole Calculation");
+      if (openingEnabled && !hasResult(calculatedOp)) missingSteps.push("Opening Calculation");
+      if (baseplateEnabled && !hasResult(calculatedBaseplate)) missingSteps.push("Baseplate Calculation");
+      if (foundationEnabled && !hasResult(calculatedFoundation)) missingSteps.push("Foundation Calculation");
+
+      const err = {
+        title: "Incomplete Calculation Steps",
+        message: `Cannot preview report because the following steps have not been calculated: ${missingSteps.join(", ")}. Please complete them first.`,
+        details: { missingSteps, openingEnabled, baseplateEnabled, foundationEnabled },
+        status: "INCOMPLETE_CALCULATION",
+      };
+      setReportError(err);
+      setIsGeneratingReport(false);
+      return false;
+    }
 
     // Read poleConfig from storage
     const poleConfig = read("poleConfig", {}) || {};
@@ -224,23 +286,153 @@ export function useReport(projectType) {
       })(),
     };
 
+    const activeDraftId = draftIdOverride || sessionStorage.getItem(`${projectType}_active_draft_id`);
+    const foundReq = activeDraftId ? findRequestOfCase(activeDraftId) : null;
+    const reqId = foundReq?.request?.id || sessionStorage.getItem("active_request_id");
+    const taperStandard = read("taperPoleStandard", {}) || {};
+    const poleHeightId =
+      taperStandard?.poleStandardHeightId ||
+      poleConfig?.taperPoleStandard?.poleStandardHeightId ||
+      liveCondition?.taperPoleStandard?.poleStandardHeightId;
+
+    let officialReport = null;
+    let runId = null;
+
+    if (reqId && activeDraftId && poleHeightId) {
+      try {
+        const std = String(liveCondition?.designStandard || liveCondition?.standard || "").toLowerCase();
+        const isOldJil =
+          (std.includes("jil") ||
+            std.includes("lighting") ||
+            std === "old_lighting_pole" ||
+            std === "old_jil" ||
+            std === "jil") &&
+          !std.includes("new");
+
+        const rawDoList =
+          Array.isArray(resultsDo) && resultsDo.length > 0
+            ? resultsDo
+            : Array.isArray(poleConfig?.directObjects) && poleConfig.directObjects.length > 0
+              ? poleConfig.directObjects
+              : [];
+
+        const doList = rawDoList.map((d) => {
+          const rawH = Number(d.zHeight || 8000);
+          const elevationM = rawH > 100 ? rawH / 1000 : rawH;
+          return {
+            name: d.name || "灯具",
+            objectKind: isOldJil ? "omni" : (d.type || "omni"),
+            frontAreaM2: Number(d.frontArea || 0.1),
+            sideAreaM2: isOldJil ? null : (d.sideArea != null ? Number(d.sideArea) : null),
+            fixedAngleDeg: isOldJil ? null : (d.fixAngle != null ? Number(d.fixAngle) : null),
+            massPerUnitKg: Number(d.weight || 14),
+            elevationM,
+            baseWindCoefficient: Number(d.nnC || d.baseWindCoefficient || 1.0),
+            quantity: Number(d.quantity || 1),
+          };
+        });
+
+        const runResult = await createCaseRun(reqId, activeDraftId, {
+          poleStandardHeightId: poleHeightId,
+          directObjects: doList,
+        });
+
+        const resolvedRunId = runResult?.run?.id || runResult?.id;
+        if (resolvedRunId) {
+          runId = resolvedRunId;
+          sessionStorage.setItem(`${projectType}_latest_run_id`, runId);
+          sessionStorage.setItem(`${projectType}_${activeDraftId}_latest_run_id`, runId);
+          try {
+            officialReport = await getCaseRunReport(reqId, activeDraftId, runId);
+          } catch (repErr) {
+            console.warn("getCaseRunReport failed:", repErr);
+            throw repErr;
+          }
+        }
+      } catch (runErr) {
+        console.error("Backend calculation run error:", runErr);
+        await ensureMinimumWait(600);
+
+        const status =
+          runErr?.response?.status ||
+          runErr?.status ||
+          (runErr?.response ? "HTTP Error" : "Network Error");
+
+        const respData = runErr?.response?.data;
+        let detailMessage = "Failed to process calculation on the calculation engine server.";
+
+        if (typeof respData?.detail === "string") {
+          detailMessage = respData.detail;
+        } else if (Array.isArray(respData?.detail)) {
+          detailMessage = respData.detail
+            .map(
+              (item) =>
+                `${item?.loc ? item.loc.join(" -> ") : "Parameter"}: ${item?.msg || "invalid"}`,
+            )
+            .join("\n");
+        } else if (respData?.message) {
+          detailMessage = respData.message;
+        } else if (runErr?.message) {
+          detailMessage = runErr.message;
+        }
+
+        setReportError({
+          title:
+            status === 422
+              ? "Calculation Validation Failed (HTTP 422)"
+              : "Unable to Generate Report",
+          message: detailMessage,
+          details: respData || runErr?.message || runErr,
+          status,
+        });
+        setIsGeneratingReport(false);
+        return false;
+      }
+    }
+
+    await ensureMinimumWait(600);
+    setIsGeneratingReport(false);
+
+    const finalReportPayload = {
+      ...reportPayload,
+      ...(runId ? { runId } : {}),
+      ...(officialReport ? { officialReport } : {}),
+    };
+
     // Persist snapshot so report page can access it on reload
     sessionStorage.setItem(`${projectType}_hasReport`, "true");
     sessionStorage.setItem(
       `${projectType}_reportSnapshot`,
-      JSON.stringify(reportPayload),
+      JSON.stringify(finalReportPayload),
     );
     sessionStorage.setItem(`${projectType}_cover`, JSON.stringify(cover));
 
-    const activeDraftId = draftIdOverride || sessionStorage.getItem(`${projectType}_active_draft_id`);
+    // Persist report header to backend API
+    if (activeDraftId && reqId && cover) {
+      try {
+        const headerPayload = buildReportHeaderPayload(cover);
+        saveReportHeader(reqId, activeDraftId, headerPayload).catch((err) => {
+          console.debug("[useReport] saveReportHeader background error:", err?.message);
+        });
+      } catch (err) {
+        console.debug("[useReport] saveReportHeader error:", err);
+      }
+    }
+
     if (activeDraftId) {
       saveWorkingSessionToDraft(projectType, activeDraftId);
-      navigate(`/projects/${projectType}/${activeDraftId}/report`, { state: reportPayload });
+      navigate(`/projects/${projectType}/${activeDraftId}/report`, { state: finalReportPayload });
     } else {
-      navigate(`/projects/${projectType}`, { state: reportPayload });
+      navigate(`/projects/${projectType}`, { state: finalReportPayload });
     }
     return true;
   };
 
-  return { makeReport };
+  return {
+    makeReport,
+    isGeneratingReport,
+    reportError,
+    setReportError,
+    clearReportError,
+  };
 }

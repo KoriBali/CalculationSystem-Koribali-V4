@@ -5,7 +5,13 @@ export function useProjectStorage(projectType, key, defaultValue) {
 
   const [state, setState] = useState(() => {
     const saved = sessionStorage.getItem(storageKey);
-    return saved ? JSON.parse(saved) : defaultValue;
+    if (!saved) return defaultValue;
+    try {
+      return JSON.parse(saved);
+    } catch (err) {
+      console.warn(`[useProjectStorage] Failed to parse ${storageKey}:`, err);
+      return defaultValue;
+    }
   });
 
   // Tracks the latest value so functional updates can be resolved (and

@@ -74,6 +74,20 @@ const PROJECT_METADATA = {
     description:
       "Evaluate safety factors and load capacities for emergency alert and disaster warning systems.",
   },
+  "disaster-prevention": {
+    id: "disaster-prevention-project",
+    title: "Disaster Prevention Project",
+    icon: Shield,
+    description:
+      "Evaluate safety factors and load capacities for emergency alert and disaster warning systems.",
+  },
+  disaster_prevention: {
+    id: "disaster-prevention-project",
+    title: "Disaster Prevention Project",
+    icon: Shield,
+    description:
+      "Evaluate safety factors and load capacities for emergency alert and disaster warning systems.",
+  },
   acemast: {
     id: "disaster-prevention-project",
     title: "Disaster Prevention Project",
@@ -82,6 +96,20 @@ const PROJECT_METADATA = {
       "Evaluate safety factors and load capacities for emergency alert and disaster warning systems.",
   },
   "multi-purpose-project": {
+    id: "multi-purpose-project",
+    title: "Multi-purpose Project",
+    icon: Layers,
+    description:
+      "Comprehensive analysis for structures supporting various multi-purpose load attachments.",
+  },
+  "multi-purpose": {
+    id: "multi-purpose-project",
+    title: "Multi-purpose Project",
+    icon: Layers,
+    description:
+      "Comprehensive analysis for structures supporting various multi-purpose load attachments.",
+  },
+  multi_purpose: {
     id: "multi-purpose-project",
     title: "Multi-purpose Project",
     icon: Layers,
@@ -124,21 +152,39 @@ const mapCategories = (apiCategories) => {
   return apiCategories
     .filter((cat) => cat.isActive !== false)
     .map((cat) => {
-      const key = String(cat.name || "").toLowerCase().trim();
+      const rawKey = String(cat.name || "").toLowerCase().trim();
+      const normalizedKey = rawKey.replace(/_/g, "-");
       const meta =
-        PROJECT_METADATA[key] ||
-        PROJECT_METADATA[`${key}-project`] || {
-          id: `${key}-project`,
-          title: `${cat.name ? cat.name[0].toUpperCase() + cat.name.slice(1) : "Pole"} Project`,
-          icon: Layers,
-          description: `Comprehensive analysis and structural configuration for ${cat.name || "pole"} installations.`,
+        PROJECT_METADATA[rawKey] ||
+        PROJECT_METADATA[normalizedKey] ||
+        PROJECT_METADATA[`${normalizedKey}-project`] ||
+        PROJECT_METADATA[`${rawKey}-project`];
+
+      if (meta) {
+        return {
+          id: meta.id,
+          title: meta.title,
+          icon: meta.icon,
+          description: meta.description, // Crucial: preserved explanation per user request
+          backendCategory: cat,
         };
+      }
+
+      const words = String(cat.name || "Pole")
+        .replace(/[_-]+/g, " ")
+        .trim()
+        .split(/\s+/)
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+        .join(" ");
+      const title = words.toLowerCase().endsWith("project")
+        ? words
+        : `${words} Project`;
 
       return {
-        id: meta.id,
-        title: meta.title,
-        icon: meta.icon,
-        description: meta.description, // Crucial: preserved explanation per user request
+        id: `${normalizedKey}-project`,
+        title,
+        icon: Layers,
+        description: `Comprehensive analysis and structural configuration for ${words.toLowerCase()} installations.`,
         backendCategory: cat,
       };
     })

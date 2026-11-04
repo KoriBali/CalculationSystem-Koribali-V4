@@ -8,6 +8,7 @@ import React, {
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import LightingPoleReport from "../templates/lighting-pole/LightingPoleReport";
+import NewJilReport from "../templates/new-jil/NewJilReport";
 import AcemastReport from "../templates/acemast/AcemastReport";
 import SignboardReport from "../templates/signboard/SignboardReport";
 import MultipleReport from "../templates/multiple/MultipleReport";
@@ -38,11 +39,25 @@ import {
   deserializeWorkingSession,
   saveWorkingSessionToDraft,
   clearActiveDraftId,
+  resolveRequestIdForCase,
 } from "../../../calculations/utils/coreLogic";
 import { CoverFormModal } from "../../../calculations/components/modals/CoverFormModal";
 import { ToastModal } from "../../../calculations/components/modals/ToastModal";
 import { useReadOnly } from "../../../calculations/contexts/ReadOnlyContext";
 import { getUser } from "../../../../utils/auth";
+import { findRequestOfCase } from "../../../calculations/data/requestStore";
+import { resolveDesignStandardCode } from "../../../calculations/utils/requestPayloadMapper";
+import {
+  getCaseRuns,
+  getCaseRunReport,
+  getCaseReport,
+  getReportHeader,
+  saveReportHeader,
+  buildReportHeaderPayload,
+  normalizeReportHeaderResponse,
+} from "../../../calculations/services/requestService";
+import { ReportLoadingModal } from "../modals/ReportLoadingModal";
+import { ReportErrorModal } from "../modals/ReportErrorModal";
 
 // ─── COMPONENT ───────────────────────────────────────────────────────────────
 
@@ -67,6 +82,11 @@ export function ReportView() {
       }
     }
   }, [params.type, params.draftId]);
+
+  const [officialReportFromApi, setOfficialReportFromApi] = useState(null);
+  const [serverCover, setServerCover] = useState(null);
+  const [isLoadingReport, setIsLoadingReport] = useState(false);
+  const [reportError, setReportError] = useState(null);
 
   // ── Load report data ──
   // Prioritize route state (fresh navigation), fallback to sessionStorage snapshot (reload),
@@ -94,6 +114,131 @@ export function ReportView() {
       return location.state || null;
     }
   }, [location.state, projectType, draftId]);
+
+  const hasFetchedRef = useRef(false);
+
+  // Auto-fetch official calculation report from backend if missing (e.g. reload or direct URL)
+  const fetchOfficialReport = useCallback(
+    async (isRetry = false) => {
+      // If we already have official report from snapshot or state, no need to fetch
+      if (storedSnapshot?.officialReport || (officialReportFromApi && !isRetry)) {
+        return;
+      }
+      // If already fetched and not a manual retry, prevent duplicate calls
+      if (hasFetchedRef.current && !isRetry) {
+        return;
+      }
+      if (!draftId) return;
+
+      const foundReq = findRequestOfCase(draftId);
+      let reqId = foundReq?.request?.id || sessionStorage.getItem("active_request_id");
+      if (!reqId) {
+        reqId = await resolveRequestIdForCase(draftId);
+      }
+      if (!reqId) return;
+
+      hasFetchedRef.current = true;
+      setIsLoadingReport(true);
+      setReportError(null);
+
+      try {
+        const caseRunKey = `${projectType}_${draftId}_latest_run_id`;
+        let runId = sessionStorage.getItem(caseRunKey) || sessionStorage.getItem(`${projectType}_latest_run_id`);
+
+        // Always query server runs to ensure we target the latest official calculation run
+        const runsRes = await getCaseRuns(reqId, draftId).catch((err) => {
+          console.warn("Failed to get case runs from server:", err);
+          return null;
+        });
+        const runs = Array.isArray(runsRes) ? runsRes : runsRes?.items || runsRes?.runs || [];
+
+        if (runs.length > 0) {
+          const hasTimestamps = runs.some(
+            (r) => r.createdAt || r.created_at || r.runAt || r.run_at
+          );
+          let newestRun = null;
+          if (hasTimestamps) {
+            const sortedRuns = [...runs].sort((a, b) => {
+              const timeA = new Date(a.createdAt || a.created_at || a.runAt || a.run_at || 0).getTime();
+              const timeB = new Date(b.createdAt || b.created_at || b.runAt || b.run_at || 0).getTime();
+              return timeB - timeA;
+            });
+            newestRun = sortedRuns[0];
+          } else {
+            // In API responses without timestamps, the last element is the newest run
+            newestRun = runs[runs.length - 1];
+          }
+
+          if (newestRun?.id) {
+            runId = newestRun.id;
+            sessionStorage.setItem(caseRunKey, runId);
+            sessionStorage.setItem(`${projectType}_latest_run_id`, runId);
+          }
+        } else if (!runId) {
+          runId = sessionStorage.getItem(`${projectType}_latest_run_id`);
+        }
+
+        let rep = null;
+        if (runId) {
+          try {
+            rep = await getCaseRunReport(reqId, draftId, runId);
+          } catch (runErr) {
+            console.warn("getCaseRunReport fallback:", runErr?.message);
+          }
+        }
+        if (!rep) {
+          try {
+            rep = await getCaseReport(reqId, draftId);
+          } catch (dErr) {
+            console.debug("getCaseReport direct fallback:", dErr?.message);
+          }
+        }
+        if (rep) {
+          setOfficialReportFromApi(rep);
+        }
+
+        // Fetch server report header in parallel
+        try {
+          const headerData = await getReportHeader(reqId, draftId);
+          if (headerData) {
+            setServerCover(normalizeReportHeaderResponse(headerData));
+          }
+        } catch (hErr) {
+          console.debug("[fetchOfficialReport] getReportHeader error:", hErr?.message);
+        }
+      } catch (err) {
+        console.warn("Auto-fetch official report error in ReportView:", err);
+        const status = err?.response?.status || (err?.response ? "HTTP Error" : "Network Error");
+        const detailMsg =
+          err?.response?.data?.detail ||
+          err?.response?.data?.message ||
+          err?.message ||
+          "Failed to load official report from the backend server.";
+        setReportError({
+          title: status === 422 ? "Report Validation Failed (HTTP 422)" : "Unable to Load Report",
+          message:
+            typeof detailMsg === "string"
+              ? detailMsg
+              : "The server could not provide report data for this calculation.",
+          details: err?.response?.data || err?.message || err,
+          status,
+        });
+      } finally {
+        setIsLoadingReport(false);
+      }
+    },
+    [draftId, projectType, Boolean(storedSnapshot?.officialReport)],
+  );
+
+  useEffect(() => {
+    if (!storedSnapshot?.officialReport && !officialReportFromApi && !hasFetchedRef.current) {
+      fetchOfficialReport();
+    }
+  }, [fetchOfficialReport, storedSnapshot?.officialReport, officialReportFromApi]);
+
+  const handleRetryFetch = useCallback(() => {
+    fetchOfficialReport(true);
+  }, [fetchOfficialReport]);
 
   const reportData = useMemo(() => {
     let storedPole = null;
@@ -160,9 +305,75 @@ export function ReportView() {
     return isNaN(n) ? fallback : n;
   };
 
+  const effectiveOfficialReport = reportData?.officialReport || officialReportFromApi;
+
   // ── Normalize results to ensure all numeric fields are numbers ──
   const results = useMemo(() => {
-    return (reportData?.results || []).map((r, idx) => {
+    const official = effectiveOfficialReport;
+    const isOldJil = (() => {
+      const std = String(reportData?.condition?.designStandard || reportData?.condition?.standard || "").toLowerCase();
+      return (
+        (std.includes("jil") ||
+          std.includes("lighting") ||
+          std === "old_lighting_pole" ||
+          std === "old_jil" ||
+          std === "jil") &&
+        !std.includes("new")
+      );
+    })();
+
+    const rawList =
+      official?.specifications && official.specifications.length > 0
+        ? official.specifications
+        : official?.sections && official.sections.length > 0
+          ? official.sections
+          : official?.geometry?.stepPoles && official.geometry.stepPoles.length > 0
+            ? official.geometry.stepPoles.map((sp, idx) => ({
+                name: sp.name || `Pole ${idx + 1}`,
+                material: sp.material || sp.materialName || "STK400",
+                lowerDiameter: sp.diameterLowerMm || sp.lowerDiameterMm || sp.lowerDiameter,
+                upperDiameter: sp.diameterUpperMm || sp.upperDiameterMm || sp.upperDiameter,
+                lowerThickness: sp.thicknessLowerMm || sp.thicknessMm || sp.lowerThickness,
+                upperThickness: sp.thicknessUpperMm || sp.upperThicknessMm || sp.thicknessMm || sp.upperThickness,
+                sectionModulus: sp.sectionModulusCm3 || sp.sectionModulus,
+                momentInertia: sp.momentOfInertiaCm4 || sp.momentInertia,
+                radiusGyration: sp.radiusOfGyrationCm || sp.radiusGyration,
+                sectionArea: sp.crossSectionAreaCm2 || sp.crossSectionalAreaCm2 || sp.crossSectionArea || sp.sectionArea,
+                crossSectionArea: sp.crossSectionAreaCm2 || sp.crossSectionalAreaCm2 || sp.crossSectionArea || sp.sectionArea,
+                unitWeightKgM: sp.unitWeightKgM || sp.unitWeight,
+                zHeight: sp.zHeightMm || sp.zHeight,
+                heightSection: sp.lengthMm || sp.heightSection,
+                bendingMoment: sp.bendingMoment,
+                shearStress: sp.shearStress,
+                bendingStress: sp.bendingStress,
+                combinedStress: sp.combinedStress,
+                safetyRatio: sp.safetyRatio || sp.safetyFactor,
+              }))
+            : reportData?.results || [];
+
+    if (isOldJil) {
+      // Untuk Old JIL: Data murni apa adanya dari backend tanpa default angka dummy
+      return rawList.map((r, idx) => {
+        if (!r) return {};
+        const sectionItem = official?.sections?.[idx] || null;
+        return {
+          ...r,
+          name: r.name || r.poleName || `Pole ${idx + 1}`,
+          material: r.materialName || r.material || "",
+          lowerDiameter: r.diameterMm ?? r.lowerDiameter,
+          lowerThickness: r.thicknessMm ?? r.lowerThickness,
+          sectionModulus: r.sectionModulusCm3 ?? r.sectionModulus ?? sectionItem?.sectionModulusCm3 ?? null,
+          sectionModulusCm3: r.sectionModulusCm3 ?? sectionItem?.sectionModulusCm3 ?? null,
+          momentInertia: r.momentOfInertiaCm4 ?? r.momentInertia,
+          radiusGyration: r.radiusOfGyrationCm ?? r.radiusGyration,
+          sectionArea: r.crossSectionAreaCm2 ?? r.crossSectionalAreaCm2 ?? r.crossSectionArea ?? r.sectionArea,
+          crossSectionArea: r.crossSectionAreaCm2 ?? r.crossSectionalAreaCm2 ?? r.crossSectionArea ?? r.sectionArea,
+          fixLoad: r.unitWeightKgM ?? r.unitWeight ?? r.fixLoad,
+        };
+      });
+    }
+
+    return rawList.map((r, idx) => {
       if (!r) return {};
       return {
         ...r,
@@ -189,34 +400,110 @@ export function ReportView() {
         safetyRatio: num(r.safetyRatio, 0.65),
       };
     });
-  }, [reportData]);
+  }, [reportData, effectiveOfficialReport]);
+
+  // ── Schematic setup (Standard Pole IA, IS, LA, LS, TA, TS & Standard Straight) ──
+  const taperPoleStandard = useMemo(() => {
+    if (reportData?.taperPoleStandard) return reportData.taperPoleStandard;
+    try {
+      return (
+        JSON.parse(
+          sessionStorage.getItem(`${projectType}_taperPoleStandard`) || "null",
+        ) || {}
+      );
+    } catch {
+      return {};
+    }
+  }, [reportData, projectType]);
+
+  const straightPoleStandard = useMemo(() => {
+    if (reportData?.straightPoleStandard) return reportData.straightPoleStandard;
+    try {
+      return (
+        JSON.parse(
+          sessionStorage.getItem(`${projectType}_straightPoleStandard`) || "null",
+        ) || {}
+      );
+    } catch {
+      return {};
+    }
+  }, [reportData, projectType]);
 
   const resultsDo = useMemo(() => {
-    return (reportData?.resultsDo || []).map((d) => {
-      if (!d) return {};
-      return {
-        ...d,
-        weight: num(d.weight, 14),
-        fixLoad: num(d.fixLoad || d.weight, 14),
-        frontArea: num(d.frontArea, 0.1),
-        sideArea: num(d.sideArea, 0.1),
-        cf: num(d.cf, 1.1),
-        windLoadAreaFront: num(d.windLoadAreaFront, 60),
-        windLoadAreaSide: num(d.windLoadAreaSide, 40),
-        zHeight: num(d.zHeight, 10000),
-      };
-    });
-  }, [reportData]);
+    const isCustom =
+      reportData?.condition?.poleType === "custom" ||
+      reportData?.poleConfig?.poleType === "custom";
+    const stdType = isCustom
+      ? ""
+      : String(
+          reportData?.taperPoleStandard?.poleType ||
+            taperPoleStandard?.poleType ||
+            reportData?.condition?.standardPoleType ||
+            "",
+        ).toUpperCase();
+    if (["LA", "LS", "TA", "TS"].includes(stdType)) {
+      return [];
+    }
+    const rawDoList =
+      Array.isArray(reportData?.resultsDo) && reportData.resultsDo.length > 0
+        ? reportData.resultsDo
+        : Array.isArray(reportData?.poleConfig?.directObjects) &&
+            reportData.poleConfig.directObjects.length > 0
+          ? reportData.poleConfig.directObjects
+          : [];
+    return rawDoList
+      .filter((d) => d && d?.sourceType !== "arm")
+      .map((d) => {
+        return {
+          ...d,
+          name: d?.name || "灯具",
+          weight: num(d?.weight, 14),
+          fixLoad: num(d?.fixLoad || d?.weight, 14),
+          frontArea: num(d?.frontArea, 0.1),
+          sideArea: num(d?.sideArea, 0.1),
+          cf: num(d?.cf, 1.1),
+          windLoadAreaFront: num(d?.windLoadAreaFront, 60),
+          windLoadAreaSide: num(d?.windLoadAreaSide, 40),
+          zHeight: num(d?.zHeight, 10000),
+        };
+      });
+  }, [reportData, taperPoleStandard]);
   const resultsOhw = reportData?.resultsOhw || [];
   const resultsArm = reportData?.resultsArm || [];
   const [editedCover, setEditedCover] = useState(null);
   const [showEditCoverModal, setShowEditCoverModal] = useState(false);
 
   const cover = useMemo(() => {
-    return normalizeCover(editedCover || reportData?.cover || {});
-  }, [editedCover, reportData]);
+    const baseCover =
+      editedCover ||
+      serverCover ||
+      effectiveOfficialReport?.cover ||
+      effectiveOfficialReport?.reportHeader ||
+      reportData?.cover ||
+      {};
+    return normalizeCover(baseCover);
+  }, [editedCover, serverCover, effectiveOfficialReport, reportData]);
 
-  const condition = reportData?.condition || {};
+  const parentRequest = useMemo(() => {
+    if (!draftId) return null;
+    return findRequestOfCase(draftId)?.request || null;
+  }, [draftId]);
+
+  const condition = useMemo(() => {
+    const cond = { ...(reportData?.condition || {}) };
+    if (parentRequest?.designConditions?.standard) {
+      const stdCode = resolveDesignStandardCode(parentRequest.designConditions.standard);
+      if (stdCode) {
+        cond.designStandard = stdCode;
+      }
+    }
+    if (taperPoleStandard?.poleType) {
+      cond.standardPoleType = cond.standardPoleType || taperPoleStandard.poleType;
+      cond.taperPoleStandard = cond.taperPoleStandard || taperPoleStandard;
+    }
+    return cond;
+  }, [reportData, parentRequest, taperPoleStandard]);
+
   const poleConfig = reportData?.poleConfig || {};
 
   // Optional sections — only present in payload if their flag was enabled in condition
@@ -261,6 +548,22 @@ export function ReportView() {
     if (draftId) {
       saveWorkingSessionToDraft(projectType, draftId);
     }
+
+    // Persist report header to backend API
+    const foundReq = draftId ? findRequestOfCase(draftId) : null;
+    const reqId =
+      foundReq?.request?.id || sessionStorage.getItem("active_request_id");
+    if (reqId || draftId) {
+      try {
+        const payload = buildReportHeaderPayload(normalizedCover);
+        saveReportHeader(reqId, draftId, payload).catch((err) => {
+          console.debug("[ReportView] saveReportHeader background error:", err?.message);
+        });
+      } catch (err) {
+        console.debug("[ReportView] saveReportHeader error:", err);
+      }
+    }
+
     setShowEditCoverModal(false);
   };
 
@@ -321,32 +624,6 @@ export function ReportView() {
     }, 2000);
   };
 
-  // ── Schematic setup (Standard Pole IA, IS, LA, LS, TA, TS & Standard Straight) ──
-  const taperPoleStandard = useMemo(() => {
-    if (reportData?.taperPoleStandard) return reportData.taperPoleStandard;
-    try {
-      return (
-        JSON.parse(
-          sessionStorage.getItem(`${projectType}_taperPoleStandard`) || "null",
-        ) || {}
-      );
-    } catch {
-      return {};
-    }
-  }, [reportData, projectType]);
-
-  const straightPoleStandard = useMemo(() => {
-    if (reportData?.straightPoleStandard) return reportData.straightPoleStandard;
-    try {
-      return (
-        JSON.parse(
-          sessionStorage.getItem(`${projectType}_straightPoleStandard`) || "null",
-        ) || {}
-      );
-    } catch {
-      return {};
-    }
-  }, [reportData, projectType]);
 
   const poleTypeStandard = useMemo(() => {
     if (reportData?.poleTypeStandard) return reportData.poleTypeStandard;
@@ -446,12 +723,20 @@ export function ReportView() {
   const renderReport = () => {
     const commonProps = {
       cover,
-      condition,
+      condition: {
+        ...condition,
+        windPressureNM2: effectiveOfficialReport?.windPressureNM2,
+        allowableStressNMm2: effectiveOfficialReport?.allowableStressNMm2,
+        ...(effectiveOfficialReport?.designWindSpeedMS
+          ? { designWindSpeed: effectiveOfficialReport.designWindSpeedMS }
+          : {}),
+      },
       poleConfig,
       results,
       resultsDo,
       resultsOhw,
       resultsArm,
+      officialReport: effectiveOfficialReport,
       schematicSvg: reportSchematicSvg,
       isSchematicEdited: Boolean(schematicData?.editedSvg),
       isSchematicGenerating: isGenerating,
@@ -460,7 +745,23 @@ export function ReportView() {
     };
 
     switch (projectType) {
-      case "lighting-project":
+      case "lighting-project": {
+        const std = String(condition?.designStandard || "").toLowerCase();
+        const isNewJil = std === "new_jil" || std === "new jil" || std.includes("new");
+
+        if (isNewJil) {
+          return (
+            <div id="report-a4">
+              <NewJilReport
+                {...commonProps}
+                calculatedOp={calculatedOp}
+                calculatedBaseplate={calculatedBaseplate}
+                calculatedFoundation={calculatedFoundation}
+              />
+            </div>
+          );
+        }
+
         return (
           <div id="report-a4">
             <LightingPoleReport
@@ -471,6 +772,7 @@ export function ReportView() {
             />
           </div>
         );
+      }
 
       case "disaster-prevention-project":
         return (
@@ -547,6 +849,19 @@ export function ReportView() {
             </div>
           </div>
         </div>
+
+        {/* ── Report Auto-fetch Loading & Error Modals ── */}
+        <ReportLoadingModal open={isLoadingReport} />
+        <ReportErrorModal
+          open={Boolean(reportError)}
+          onClose={() => setReportError(null)}
+          title={reportError?.title}
+          message={reportError?.message}
+          details={reportError?.details}
+          status={reportError?.status}
+          onRetry={handleRetryFetch}
+          onBackToCalculation={onBackCalculation}
+        />
       </div>
     );
   }
@@ -688,11 +1003,25 @@ export function ReportView() {
         open={showEditCoverModal}
         onClose={() => setShowEditCoverModal(false)}
         projectType={projectType}
+        draftId={draftId}
         onConfirm={handleSaveCover}
         isEditMode={true}
       />
 
       <ToastModal toast={toast} onClose={() => setToast(null)} />
+
+      {/* ── Report Loading & Error Modals ── */}
+      <ReportLoadingModal open={isLoadingReport} />
+      <ReportErrorModal
+        open={Boolean(reportError)}
+        onClose={() => setReportError(null)}
+        title={reportError?.title}
+        message={reportError?.message}
+        details={reportError?.details}
+        status={reportError?.status}
+        onRetry={handleRetryFetch}
+        onBackToCalculation={onBackCalculation}
+      />
     </div>
   );
 }

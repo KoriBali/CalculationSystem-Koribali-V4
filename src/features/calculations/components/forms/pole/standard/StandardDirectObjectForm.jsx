@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import PropTypes from "prop-types";
 import { RotateCcw } from "lucide-react";
 import { useMasterData } from "../../../../hooks/useMasterData";
@@ -61,6 +62,7 @@ export function StandardDirectObjectForm({
   taperPoleStandard = {},
   readOnly = false,
   onResetDefault,
+  isOldJil = false,
 }) {
   const {
     objectTypeOptions,
@@ -73,10 +75,14 @@ export function StandardDirectObjectForm({
     { value: "directional", label: "Directional" },
   ];
 
-  const availableTypeOptions =
-    objectTypeOptions && objectTypeOptions.length > 0
+  const availableTypeOptions = useMemo(() => {
+    if (isOldJil) {
+      return [{ value: "omni", label: "Omni" }];
+    }
+    return objectTypeOptions && objectTypeOptions.length > 0
       ? objectTypeOptions
       : fallbackTypeOptions;
+  }, [isOldJil, objectTypeOptions]);
 
   const isPoleSelected =
     Boolean(taperPoleStandard?.poleType) && Boolean(taperPoleStandard?.height);
@@ -131,7 +137,7 @@ export function StandardDirectObjectForm({
               .trim()
               .toUpperCase();
             const isArmPoleType = ["LS", "LA", "TA", "TS"].some((t) =>
-              poleTypeUpper.startsWith(t)
+              poleTypeUpper.startsWith(t),
             );
             const isArmObject =
               isArmPoleType ||
@@ -139,10 +145,14 @@ export function StandardDirectObjectForm({
               directObject.armIndex !== undefined ||
               Boolean(
                 directObject.sourceLabel &&
-                  (directObject.sourceLabel.includes("アーム") ||
-                    directObject.sourceLabel.toLowerCase().includes("arm"))
+                (directObject.sourceLabel.includes("アーム") ||
+                  directObject.sourceLabel.toLowerCase().includes("arm")),
               );
             const distanceLabel = isArmObject ? "H-Distance" : "Height";
+
+            const isStandardTaperIsIa =
+              poleTypeUpper === "IS" || poleTypeUpper === "IA";
+            const isHeightReadOnly = readOnly || isStandardTaperIsIa;
 
             return (
               <div
@@ -190,7 +200,8 @@ export function StandardDirectObjectForm({
                   {/* Object Name */}
                   <div className="relative col-span-2 xl:flex-[2] min-w-0 hp:w-full hp:col-span-2">
                     <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-                      Object Name <span className="text-red-500 ml-1 font-semibold">*</span>
+                      Object Name{" "}
+                      <span className="text-red-500 ml-1 font-semibold">*</span>
                     </label>
                     <input
                       id={`do-${directObject.idDo}-name`}
@@ -212,23 +223,32 @@ export function StandardDirectObjectForm({
                   {/* Type */}
                   <div className="relative xl:w-[130px] xl:flex-none min-w-0 hp:w-full">
                     <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-                      Type <span className="text-red-500 ml-1 font-semibold">*</span>
+                      Type{" "}
+                      <span className="text-red-500 ml-1 font-semibold">*</span>
+                      {isOldJil && !readOnly && (
+                        <span className="ml-1 text-[13px] text-gray-400 font-normal">
+                          (Omni only)
+                        </span>
+                      )}
                     </label>
                     <FormSelect
                       id={`do-${directObject.idDo}-type`}
-                      value={directObject.type || "omni"}
-                      onChange={(val) =>
-                        onUpdate(directObject.idDo, { type: val })
-                      }
+                      value={isOldJil ? "omni" : directObject.type || "omni"}
+                      onChange={(val) => {
+                        if (!isOldJil) {
+                          onUpdate(directObject.idDo, { type: val });
+                        }
+                      }}
                       options={availableTypeOptions}
                       loading={objectTypesLoading}
                       disabled={
                         readOnly ||
+                        isOldJil ||
                         Boolean(
                           objectTypesError && objectTypeOptions.length === 0,
                         )
                       }
-                      hasError={Boolean(doError.type)}
+                      hasError={!isOldJil && Boolean(doError.type)}
                       placeholder="Select Type"
                     />
                     <ErrorStyle
@@ -240,7 +260,8 @@ export function StandardDirectObjectForm({
                   {/* Front Area */}
                   <div className="relative xl:flex-1 min-w-0 hp:w-full">
                     <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-                      Front Area <span className="text-red-500 ml-1 font-semibold">*</span>
+                      Front Area{" "}
+                      <span className="text-red-500 ml-1 font-semibold">*</span>
                     </label>
                     <div className="relative">
                       <input
@@ -272,7 +293,10 @@ export function StandardDirectObjectForm({
                   {directObject.type === "directional" && (
                     <div className="relative xl:flex-1 min-w-0 hp:w-full">
                       <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-                        Side Area <span className="text-red-500 ml-1 font-semibold">*</span>
+                        Side Area{" "}
+                        <span className="text-red-500 ml-1 font-semibold">
+                          *
+                        </span>
                       </label>
                       <div className="relative">
                         <input
@@ -304,7 +328,8 @@ export function StandardDirectObjectForm({
                   {/* Weight */}
                   <div className="relative xl:flex-1 min-w-0 hp:w-full">
                     <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-                      Weight <span className="text-red-500 ml-1 font-semibold">*</span>
+                      Weight{" "}
+                      <span className="text-red-500 ml-1 font-semibold">*</span>
                     </label>
                     <div className="relative">
                       <input
@@ -335,7 +360,13 @@ export function StandardDirectObjectForm({
                   {/* Height or H-Distance */}
                   <div className="relative xl:flex-1 min-w-0 hp:w-full">
                     <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-                      {distanceLabel} <span className="text-red-500 ml-1 font-semibold">*</span>
+                      {distanceLabel}{" "}
+                      <span className="text-red-500 ml-1 font-semibold">*</span>
+                      {isHeightReadOnly && !readOnly && (
+                        <span className="ml-1 text-[13px] text-gray-400 font-normal">
+                          (Read only)
+                        </span>
+                      )}
                     </label>
                     <div className="relative">
                       <input
@@ -344,14 +375,23 @@ export function StandardDirectObjectForm({
                         min={0}
                         step="any"
                         value={directObject.zHeight ?? ""}
-                        disabled={readOnly}
-                        onChange={(e) =>
-                          onUpdate(directObject.idDo, {
-                            zHeight: e.target.value,
-                          })
+                        readOnly={isHeightReadOnly}
+                        disabled={isHeightReadOnly}
+                        title={
+                          isHeightReadOnly && !readOnly
+                            ? "Standard pole mounting height (read-only)"
+                            : undefined
+                        }
+                        onChange={
+                          isHeightReadOnly
+                            ? undefined
+                            : (e) =>
+                                onUpdate(directObject.idDo, {
+                                  zHeight: e.target.value,
+                                })
                         }
                         onWheel={(e) => e.target.blur()}
-                        className={`${inputStyle(doError.zHeight, readOnly)} pl-3 2xl:pl-4 pr-8`}
+                        className={`${inputStyle(doError.zHeight, isHeightReadOnly)} pl-3 2xl:pl-4 pr-8`}
                       />
                       <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs md:text-sm text-gray-500 pointer-events-none">
                         mm
@@ -366,7 +406,8 @@ export function StandardDirectObjectForm({
                   {/* nnC */}
                   <div className="relative xl:flex-[0.8] min-w-0 hp:w-full">
                     <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-                      nnC <span className="text-red-500 ml-1 font-semibold">*</span>
+                      nnC{" "}
+                      <span className="text-red-500 ml-1 font-semibold">*</span>
                     </label>
                     <input
                       id={`do-${directObject.idDo}-nnC`}
@@ -390,7 +431,8 @@ export function StandardDirectObjectForm({
                   {/* Quantity */}
                   <div className="relative xl:flex-[0.8] min-w-0 hp:w-full">
                     <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-                      Quantity <span className="text-red-500 ml-1 font-semibold">*</span>
+                      Quantity{" "}
+                      <span className="text-red-500 ml-1 font-semibold">*</span>
                     </label>
                     <div className="relative">
                       <input
@@ -422,7 +464,10 @@ export function StandardDirectObjectForm({
                   {directObject.type === "directional" && (
                     <div className="relative xl:flex-1 min-w-0 hp:w-full">
                       <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-                        Fix Angle <span className="text-red-500 ml-1 font-semibold">*</span>
+                        Fix Angle{" "}
+                        <span className="text-red-500 ml-1 font-semibold">
+                          *
+                        </span>
                       </label>
                       <div className="relative">
                         <input
@@ -467,4 +512,5 @@ StandardDirectObjectForm.propTypes = {
   taperPoleStandard: PropTypes.object,
   readOnly: PropTypes.bool,
   onResetDefault: PropTypes.func,
+  isOldJil: PropTypes.bool,
 };

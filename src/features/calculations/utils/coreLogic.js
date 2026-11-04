@@ -1,5 +1,61 @@
 import { findRequestOfCase, updateRequest } from "../data/requestStore";
 import { getUser } from "../../../utils/auth";
+import {
+  saveCalculationDraft,
+  getCalculationDraft,
+  deleteCalculationDraft,
+  getRequests,
+  fetchAllProjectCases,
+} from "../services/requestService";
+
+/**
+ * Resolves the request ID owning a specific case, checking session storage, local store, and backend API.
+ */
+export const resolveRequestIdForCase = async (caseId) => {
+  if (!caseId) return null;
+  const fromSession =
+    sessionStorage.getItem(`case_request_id_${caseId}`) ||
+    sessionStorage.getItem("active_request_id");
+  if (fromSession) return fromSession;
+
+  const found = findRequestOfCase(caseId);
+  if (found?.request?.id) {
+    sessionStorage.setItem(`case_request_id_${caseId}`, found.request.id);
+    return found.request.id;
+  }
+
+  try {
+    const res = await getRequests();
+    const items = Array.isArray(res) ? res : res?.items || res?.data || [];
+    for (const req of items) {
+      if (!req?.id) continue;
+      if (req.cases && req.cases.some((c) => c.id === caseId)) {
+        sessionStorage.setItem(`case_request_id_${caseId}`, req.id);
+        sessionStorage.setItem("active_request_id", req.id);
+        return req.id;
+      }
+    }
+
+    // Secondary fallback: query cases endpoint for candidate requests (top 20)
+    for (const req of items.slice(0, 20)) {
+      if (!req?.id) continue;
+      try {
+        const cases = await fetchAllProjectCases(req.id);
+        if (cases && cases.some((c) => c.id === caseId)) {
+          sessionStorage.setItem(`case_request_id_${caseId}`, req.id);
+          sessionStorage.setItem("active_request_id", req.id);
+          return req.id;
+        }
+      } catch {
+        // continue search
+      }
+    }
+  } catch (err) {
+    console.debug("[resolveRequestIdForCase] getRequests fallback search:", err?.message);
+  }
+
+  return null;
+};
 
 // ===============================================================================
 // FUNCTIONS: Check whether the session contains any meaningful calculation data
@@ -68,6 +124,8 @@ export const DATA_KEYS = [
   "isCalculatedOp",
   "isCalculatedBp",
   "isCalculatedFd",
+  "displayResult",
+  "display",
 ];
 
 /**
@@ -125,9 +183,24 @@ export const hasCoverData = (projectType) => {
     const raw = sessionStorage.getItem(`${projectType}_cover`);
     if (!raw) return false;
     const data = JSON.parse(raw);
+    const reportNum = (data.reportNumber?.trim() || data.calculationNumber?.trim() || "");
+    const title1 = (data.title1?.trim() || data.projectName?.trim() || "");
+
+    const isDummy =
+      !reportNum ||
+      reportNum === "WS76509-001" ||
+      reportNum === "1111" ||
+      reportNum === "KB-2026-001" ||
+      !title1 ||
+      title1 === "江戸川フラワーガーデン" ||
+      title1 === "1";
+
+    if (isDummy) return false;
+
     return Boolean(
       data &&
-        (data.reportNumber?.trim() || data.calculationNumber?.trim()) &&
+        reportNum &&
+        title1 &&
         data.author?.trim() &&
         (data.responsibleDepartment?.trim() ||
           data.region?.trim() ||
@@ -250,18 +323,206 @@ export const serializeWorkingSession = (projectType) => {
   return data;
 };
 
+// Builds clean backend calculation draft payload matching Backend CalculationInput schema:
+// Allowed keys: poleStandardHeightId, directObjects, overheadWires, arms, groundPosition, embedmentLengthMm, recopyCatalog
+export const buildCalculationDraftPayload = (projectType, sessionData) => {
+  const getParsed = (key) => {
+    const raw = sessionData?.[key] || sessionStorage.getItem(`${projectType}_${key}`);
+    if (!raw) return null;
+    try {
+      return typeof raw === "string" ? JSON.parse(raw) : raw;
+    } catch {
+      return null;
+    }
+  };
+
+  const taperStandard = getParsed("taperPoleStandard");
+  const straightStandard = getParsed("straightPoleStandard");
+  const poleConfig = getParsed("poleConfig");
+  const rawDo = getParsed("directObjects") || [];
+  const rawOhw = getParsed("overheadWires") || [];
+  const rawArms = getParsed("arms") || [];
+
+  const poleStandardHeightId =
+    taperStandard?.poleStandardHeightId ||
+    straightStandard?.poleStandardHeightId ||
+    null;
+
+  const directObjects = (Array.isArray(rawDo) ? rawDo : []).map((d) => {
+    const rawH = Number(d.zHeight || 8000);
+    const elevationM = rawH > 100 ? rawH / 1000 : rawH;
+    return {
+      name: d.name || "灯具",
+      objectKind: d.type === "directional" ? "directional" : "omni",
+      frontAreaM2: Number(d.frontArea || 0.1),
+      sideAreaM2:
+        d.sideArea != null && d.sideArea !== "" ? Number(d.sideArea) : null,
+      fixedAngleDeg:
+        d.fixAngle != null && d.fixAngle !== "" ? Number(d.fixAngle) : null,
+      massPerUnitKg: Number(d.weight || 14),
+      elevationM,
+      baseWindCoefficient: Number(d.nnC || 1.0),
+      quantity: Number(d.quantity || 1),
+    };
+  });
+
+  const overheadWires = (Array.isArray(rawOhw) ? rawOhw : []).map((w) => ({
+    name: w.name || "Overhead Wire",
+    massPerLengthKgM: Number(w.weightPerM || w.massPerLengthKgM || 0),
+    diameterMm: Number(w.diameterMm || 0),
+    elevationM: Number(
+      w.elevationM || (w.zHeight ? Number(w.zHeight) / 1000 : 0)
+    ),
+    spanLengthM: Number(w.spanLengthM || 0),
+    sagRatioPercent: Number(w.sagRatioPercent || 0),
+    baseWindCoefficient: Number(w.baseWindCoefficient || 1.0),
+    fixedAngleDeg:
+      w.fixedAngleDeg != null && w.fixedAngleDeg !== ""
+        ? Number(w.fixedAngleDeg)
+        : null,
+    verticalAngleDeg:
+      w.verticalAngleDeg != null && w.verticalAngleDeg !== ""
+        ? Number(w.verticalAngleDeg)
+        : null,
+  }));
+
+  const arms = (Array.isArray(rawArms) ? rawArms : []).map((a) => ({
+    name: a.name || "Arm",
+    materialId: a.materialId || null,
+    diameterMm: Number(a.diameterMm || 0),
+    thicknessMm: Number(a.thicknessMm || 0),
+    totalLengthM: Number(a.totalLengthM || 0),
+    exposedLengthM: Number(a.exposedLengthM || 0),
+    installationHeightM: Number(a.installationHeightM || 0),
+    fixedAngleDeg:
+      a.fixedAngleDeg != null && a.fixedAngleDeg !== ""
+        ? Number(a.fixedAngleDeg)
+        : null,
+    objects: Array.isArray(a.objects) ? a.objects : [],
+  }));
+
+  const rawGp =
+    taperStandard?.groundPosition ||
+    straightStandard?.groundPosition ||
+    poleConfig?.groundPosition;
+  const groundPosition =
+    rawGp === "underGL" || rawGp === "under_gl" ? "under_gl" : "on_gl";
+
+  const rawEmb =
+    taperStandard?.embedmentLength ||
+    straightStandard?.embedmentLength ||
+    poleConfig?.embedmentLength;
+  const embedmentLengthMm =
+    rawEmb != null && rawEmb !== "" ? Number(rawEmb) : null;
+
+  return {
+    poleStandardHeightId,
+    directObjects,
+    overheadWires,
+    arms,
+    groundPosition,
+    embedmentLengthMm,
+  };
+};
+
 // Deserializes a draft object into the active working session
 export const deserializeWorkingSession = (projectType, draftData) => {
   clearCalculationSession(projectType); // Clear existing first
   if (draftData) {
-    Object.entries(draftData).forEach(([key, val]) => {
-      sessionStorage.setItem(`${projectType}_${key}`, val);
+    const rawData =
+      draftData?.payload && typeof draftData.payload === "object"
+        ? draftData.payload
+        : draftData;
+
+    Object.entries(rawData).forEach(([key, val]) => {
+      if (val === null || val === undefined) return;
+      const strVal = typeof val === "string" ? val : JSON.stringify(val);
+      sessionStorage.setItem(`${projectType}_${key}`, strVal);
     });
+
+    // If this draft is in backend CalculationInput format (e.g. loaded from server in another browser),
+    // unpack it into the frontend session keys
+    if (rawData.poleStandardHeightId && !rawData.taperPoleStandard) {
+      const isUnderGl =
+        rawData.groundPosition === "under_gl" || rawData.groundPosition === "underGL";
+      const groundPosUi = isUnderGl ? "underGL" : "onGL";
+
+      sessionStorage.setItem(`${projectType}_poleTypeStandard`, "taper");
+
+      sessionStorage.setItem(
+        `${projectType}_taperPoleStandard`,
+        JSON.stringify({
+          poleStandardHeightId: rawData.poleStandardHeightId,
+          groundPosition: groundPosUi,
+        })
+      );
+
+      sessionStorage.setItem(
+        `${projectType}_poleConfig`,
+        JSON.stringify({
+          groundPosition: groundPosUi,
+          embedmentLength:
+            rawData.embedmentLengthMm != null
+              ? String(rawData.embedmentLengthMm)
+              : "",
+        })
+      );
+
+      if (
+        Array.isArray(rawData.directObjects) &&
+        rawData.directObjects.length > 0
+      ) {
+        const uiDo = rawData.directObjects.map((d, idx) => ({
+          id: `do_${idx + 1}`,
+          name: d.name || "灯具",
+          type: d.objectKind === "directional" ? "directional" : "omni",
+          frontArea: d.frontAreaM2 != null ? String(d.frontAreaM2) : "0.1",
+          sideArea: d.sideAreaM2 != null ? String(d.sideAreaM2) : "",
+          fixAngle: d.fixedAngleDeg != null ? String(d.fixedAngleDeg) : "",
+          weight: d.massPerUnitKg != null ? String(d.massPerUnitKg) : "14",
+          zHeight:
+            d.elevationM != null
+              ? String(
+                  Number(d.elevationM) > 100
+                    ? d.elevationM
+                    : Number(d.elevationM) * 1000
+                )
+              : "8000",
+          nnC:
+            d.baseWindCoefficient != null
+              ? String(d.baseWindCoefficient)
+              : "1.0",
+          quantity: d.quantity != null ? Number(d.quantity) : 1,
+        }));
+        sessionStorage.setItem(
+          `${projectType}_directObjects`,
+          JSON.stringify(uiDo)
+        );
+      }
+
+      if (!sessionStorage.getItem(`${projectType}_condition`)) {
+        sessionStorage.setItem(
+          `${projectType}_condition`,
+          JSON.stringify({
+            designStandard: "jil",
+            designWindSpeed: "60",
+            designAirDensity: "1.23",
+            poleType: "standard",
+            openingEnabled: true,
+            baseplateEnabled: true,
+            foundationEnabled: false,
+          })
+        );
+      }
+    }
+
     // Ensure calculation_config matches condition if condition is present
     try {
-      const rawCond = draftData.condition;
+      const rawCond =
+        rawData.condition || sessionStorage.getItem(`${projectType}_condition`);
       if (rawCond) {
-        const cond = typeof rawCond === "string" ? JSON.parse(rawCond) : rawCond;
+        const cond =
+          typeof rawCond === "string" ? JSON.parse(rawCond) : rawCond;
         sessionStorage.setItem(
           `${projectType}_calculation_config`,
           JSON.stringify({
@@ -279,7 +540,7 @@ export const deserializeWorkingSession = (projectType, draftData) => {
 };
 
 // Saves the current working session to a specific draft ID
-export const saveWorkingSessionToDraft = (projectType, draftId, defaultTitle = "Untitled") => {
+export const saveWorkingSessionToDraft = async (projectType, draftId, defaultTitle = "Untitled") => {
   if (sessionStorage.getItem("case_read_only") === "true") {
     return null;
   }
@@ -294,7 +555,7 @@ export const saveWorkingSessionToDraft = (projectType, draftId, defaultTitle = "
   const tryExtract = (raw) => {
     if (!raw) return null;
     try {
-      const obj = JSON.parse(raw);
+      const obj = typeof raw === "string" ? JSON.parse(raw) : raw;
       return {
         name: obj.projectName?.trim() || null,
         requestNo: obj.requestNo?.trim() || null,
@@ -323,7 +584,11 @@ export const saveWorkingSessionToDraft = (projectType, draftId, defaultTitle = "
 
   // Cleanse incomplete reports: report must only exist if all calculation steps and cover info are complete
   try {
-    const cond = data.condition ? JSON.parse(data.condition) : {};
+    const cond = data.condition
+      ? typeof data.condition === "string"
+        ? JSON.parse(data.condition)
+        : data.condition
+      : {};
     const hasPole = Boolean(data.results && data.results !== "null");
     const hasOp = !cond.openingEnabled || Boolean(data.calculatedOp && data.calculatedOp !== "null");
     const hasBp = !cond.baseplateEnabled || Boolean(data.calculatedBaseplate && data.calculatedBaseplate !== "null");
@@ -402,14 +667,62 @@ export const saveWorkingSessionToDraft = (projectType, draftId, defaultTitle = "
   } catch {
     // ignore
   }
+
+  // Also persist draft to backend database asynchronously
+  const isDrawing =
+    draftId.startsWith("drawing") ||
+    sessionStorage.getItem("projectMode") === "drawing";
+  if (draftId && !isDrawing) {
+    try {
+      const reqId = await resolveRequestIdForCase(draftId);
+      if (reqId) {
+        const draftPayload = buildCalculationDraftPayload(projectType, data);
+        if (draftPayload.poleStandardHeightId) {
+          await saveCalculationDraft(reqId, draftId, draftPayload);
+          console.info(
+            `[saveWorkingSessionToDraft] Synced draft ${draftId} to backend request ${reqId}`
+          );
+        } else {
+          console.info(
+            `[saveWorkingSessionToDraft] Pole height not selected yet; draft saved locally.`
+          );
+        }
+      } else {
+        console.warn(
+          "[saveWorkingSessionToDraft] Could not resolve request ID for draft:",
+          draftId
+        );
+      }
+    } catch (apiErr) {
+      console.warn(
+        "[saveWorkingSessionToDraft] Backend database sync failed, kept in local session storage:",
+        apiErr?.response?.data || apiErr?.message
+      );
+      // Non-blocking: Do not re-throw error so the UI save is never broken or interrupted
+    }
+  }
+
+  return data;
 };
 
 export const deleteDraft = (projectType, draftId) => {
-  // Remove data
+  // Remove data locally
   sessionStorage.removeItem(`${projectType}_draft_data_${draftId}`);
   // Update index
   const drafts = getDraftsIndex(projectType);
   saveDraftsIndex(projectType, drafts.filter(d => d.id !== draftId));
+
+  // Also remove from backend database
+  try {
+    resolveRequestIdForCase(draftId)
+      .then((reqId) => {
+        if (reqId && draftId) {
+          return deleteCalculationDraft(reqId, draftId);
+        }
+        return null;
+      })
+      .catch(() => {});
+  } catch {}
 };
 
 // Manages switching between drafts. If the user navigated away from a draft without saving,
@@ -439,17 +752,53 @@ export const hasDraftChanged = (projectType, draftId) => {
   return false;
 };
 
-export const handleSessionTransition = (projectType, targetDraftId) => {
+export const handleSessionTransitionAsync = async (projectType, targetDraftId) => {
   const activeDraftId = sessionStorage.getItem(`${projectType}_active_draft_id`);
   
   if (activeDraftId && activeDraftId !== targetDraftId) {
     // Auto-save the previous draft before transitioning
-    saveWorkingSessionToDraft(projectType, activeDraftId);
+    try {
+      await saveWorkingSessionToDraft(projectType, activeDraftId);
+    } catch (saveErr) {
+      console.warn("[handleSessionTransitionAsync] Previous draft auto-save error:", saveErr);
+    }
   }
 
-  if (targetDraftId && targetDraftId !== activeDraftId) {
-    const draftData = getDraftData(projectType, targetDraftId);
-    deserializeWorkingSession(projectType, draftData); // Load target draft into working session
+  // Check if active session already has loaded condition data
+  const hasLoadedData = sessionStorage.getItem(`${projectType}_condition`) !== null;
+
+  if (targetDraftId && (targetDraftId !== activeDraftId || !hasLoadedData)) {
+    let draftData = getDraftData(projectType, targetDraftId);
+
+    // If not in sessionStorage (e.g. opened in another browser or after session cleared), fetch from DB
+    if (!draftData) {
+      try {
+        const reqId = await resolveRequestIdForCase(targetDraftId);
+        if (reqId) {
+          const serverDraft = await getCalculationDraft(reqId, targetDraftId);
+          if (serverDraft && Object.keys(serverDraft).length > 0) {
+            draftData =
+              serverDraft?.payload && typeof serverDraft.payload === "object"
+                ? serverDraft.payload
+                : serverDraft?.data && typeof serverDraft.data === "object"
+                  ? serverDraft.data
+                  : serverDraft;
+            if (draftData && Object.keys(draftData).length > 0) {
+              sessionStorage.setItem(
+                `${projectType}_draft_data_${targetDraftId}`,
+                JSON.stringify(draftData)
+              );
+            }
+          }
+        }
+      } catch (fetchErr) {
+        console.debug("[handleSessionTransitionAsync] Server draft fetch failed/empty:", fetchErr?.message);
+      }
+    }
+
+    if (draftData) {
+      deserializeWorkingSession(projectType, draftData); // Load target draft into working session
+    }
     sessionStorage.setItem(`${projectType}_active_draft_id`, targetDraftId);
   } else if (!targetDraftId) {
     clearCalculationSession(projectType);
@@ -507,6 +856,12 @@ export const handleSessionTransition = (projectType, targetDraftId) => {
       // ignore
     }
   }
+};
+
+export const handleSessionTransition = (projectType, targetDraftId) => {
+  handleSessionTransitionAsync(projectType, targetDraftId).catch((err) => {
+    console.debug("[handleSessionTransition] Error during async transition:", err);
+  });
 };
 
 export const clearActiveDraftId = (projectType) => {

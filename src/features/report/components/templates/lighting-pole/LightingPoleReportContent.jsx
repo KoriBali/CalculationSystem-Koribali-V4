@@ -8,16 +8,28 @@ import {
 import { SchematicReportPage } from "../../pages/SchematicReportPage";
 import "../../../styles/report.css";
 
-const toNumFixed = (val, digits = 1) => {
-  if (val === undefined || val === null || val === "") return "";
+const formatRawVal = (val, fallback = "") => {
+  if (val === undefined || val === null || val === "") return fallback;
+  return String(val);
+};
+
+const toFixed1 = (val, fallback = "") => {
+  if (val === undefined || val === null || val === "") return fallback;
   const n = Number(val);
-  return isNaN(n) ? "" : n.toFixed(digits);
+  return Number.isNaN(n) ? String(val) : n.toFixed(1);
+};
+
+const toFixed2 = (val, fallback = "") => {
+  if (val === undefined || val === null || val === "") return fallback;
+  const n = Number(val);
+  return Number.isNaN(n) ? String(val) : n.toFixed(2);
 };
 
 export default function LightingPoleReportContent({
   cover = {},
   condition = {},
   results = [],
+  officialReport = null,
   pages = [],
   schematicSvg = null,
   isSchematicEdited = false,
@@ -117,7 +129,7 @@ export default function LightingPoleReportContent({
                 :
               </span>
               <span className="page1-text">
-                V = {condition?.designWindSpeed ?? ""} m/s
+                V = {formatRawVal(officialReport?.designWindSpeedMS ?? condition?.designWindSpeed)} m/s
               </span>
             </div>
 
@@ -143,12 +155,16 @@ export default function LightingPoleReportContent({
                   </span>
                   <span className="jp tracking-[0.1em] mr-[3px]">空気密度</span>
                   <span>
-                    ρ = {condition?.designAirDensity ?? ""} N・sec<sup>2</sup>/m
+                    ρ = {formatRawVal(condition?.designAirDensity)} N・sec<sup>2</sup>/m
                     <sup>4</sup>
                   </span>
                 </div>
                 <div className="ml-[19px]">
-                  q = 1/2・ρ・V<sup>2</sup> = 2214.0 N/m<sup>2</sup>
+                  q = 1/2・ρ・V<sup>2</sup> ={" "}
+                  {toFixed1(
+                    officialReport?.windPressureNM2 ?? condition?.windPressureNM2
+                  )}{" "}
+                  N/m<sup>2</sup>
                 </div>
 
                 <div className="flex justify-start">
@@ -158,8 +174,6 @@ export default function LightingPoleReportContent({
                 <div className="flex justify-start ml-[19px]">
                   <span className="jp tracking-[0.1em] mr-[2px]">○鋼管:</span>
                   <span className="mr-9">0.7</span>
-                  {/* <span className="jp tracking-[0.1em] mr-[2px]">灯具:</span>
-                  <span>1.0</span> */}
                 </div>
 
                 <div className="flex justify-start">
@@ -186,7 +200,7 @@ export default function LightingPoleReportContent({
               <div className="flex ml-[44px]">
                 <span className="mr-[4px] tracking-[0.1em]">sfb</span>
                 <span>
-                  = 235 N/mm<sup>2</sup>
+                  = {formatRawVal(officialReport?.allowableStressNMm2 ?? condition?.allowableStressNMm2)} N/mm<sup>2</sup>
                 </span>
               </div>
             </div>
@@ -201,70 +215,86 @@ export default function LightingPoleReportContent({
               </div>
 
               <div className="ml-[44px] grid grid-cols-2 gap-y-[20px] w-[45%]">
-                {results?.map((r, index) => (
-                  <React.Fragment key={index}>
-                    <div className="flex flex-col">
-                      <div className="flex">
-                        <span className="mr-1 jp tracking-[0.1em]">
-                          {r?.name ?? ""}:
-                        </span>
-                        <span className="jp">φ</span>
-                        <span className="tracking-[0.05em]">
-                          {toNumFixed(r?.lowerDiameter, 1)}
-                        </span>
-                        <span className="text-[10.5pt] mx-[1.5px]">×</span>
-                        <span className="tracking-[0.05em]">
-                          t{toNumFixed(r?.lowerThickness, 1)}
-                        </span>
-                      </div>
-                      <div className="flex justify-start">
-                        <div className="flex flex-col mr-1">
-                          <div>w</div>
-                          <div>I</div>
-                          <div>i</div>
+                {results?.map((r, index) => {
+                  const zVal =
+                    r?.sectionModulusCm3 ??
+                    r?.sectionModulus ??
+                    officialReport?.sections?.[index]?.sectionModulusCm3 ??
+                    officialReport?.sections?.[index]?.sectionModulus ??
+                    null;
+                  const wVal = r?.unitWeightKgM ?? r?.unitWeight ?? r?.fixLoad;
+                  const iVal = r?.momentOfInertiaCm4 ?? r?.momentInertia;
+                  const radVal = r?.radiusOfGyrationCm ?? r?.radiusGyration;
+                  const aVal =
+                    r?.crossSectionalAreaCm2 ??
+                    r?.crossSectionArea ??
+                    r?.sectionArea;
+
+                  return (
+                    <React.Fragment key={index}>
+                      <div className="flex flex-col">
+                        <div className="flex">
+                          <span className="mr-1 jp tracking-[0.1em]">
+                            {r?.name || r?.poleName || `Pole-${index + 1}`}:
+                          </span>
+                          <span className="jp">φ</span>
+                          <span className="tracking-[0.05em]">
+                            {formatRawVal(r?.diameterMm ?? r?.lowerDiameter)}
+                          </span>
+                          <span className="text-[10.5pt] mx-[1.5px]">×</span>
+                          <span className="tracking-[0.05em]">
+                            t{formatRawVal(r?.thicknessMm ?? r?.lowerThickness)}
+                          </span>
                         </div>
-                        <div className="flex flex-col mr-1">
-                          <div className="page1-text">=</div>
-                          <div className="page1-text">=</div>
-                          <div className="page1-text">=</div>
-                        </div>
-                        <div className="flex flex-col">
-                          <div className="tracking-[0.05em]">
-                            {toNumFixed(r?.fixLoad, 2)} kg/m
+                        <div className="flex justify-start">
+                          <div className="flex flex-col mr-1">
+                            <div>w</div>
+                            <div>I</div>
+                            <div>i</div>
                           </div>
-                          <div className="tracking-[0.05em]">
-                            {toNumFixed(r?.momentInertia, 2)} cm<sup>4</sup>
+                          <div className="flex flex-col mr-1">
+                            <div className="page1-text">=</div>
+                            <div className="page1-text">=</div>
+                            <div className="page1-text">=</div>
                           </div>
-                          <div className="tracking-[0.05em]">
-                            {toNumFixed(r?.radiusGyration, 2)} cm
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex flex-col">
-                      <div className="flex">{r?.material ?? ""}</div>
-                      <div className="flex justify-start">
-                        <div className="flex flex-col mr-1">
-                          <div>A</div>
-                          <div>Z</div>
-                        </div>
-                        <div className="flex flex-col mr-1">
-                          <div className="page1-text">=</div>
-                          <div className="page1-text">=</div>
-                        </div>
-                        <div className="flex flex-col">
-                          <div className="tracking-[0.05em]">
-                            {toNumFixed(r?.crossSectionArea ?? r?.sectionArea, 2)} cm
-                            <sup>2</sup>
-                          </div>
-                          <div className="tracking-[0.05em]">
-                            {toNumFixed(r?.sectionModulus, 2)} cm<sup>3</sup>
+                          <div className="flex flex-col">
+                            <div className="tracking-[0.05em]">
+                              {toFixed2(wVal)} kg/m
+                            </div>
+                            <div className="tracking-[0.05em]">
+                              {toFixed2(iVal)} cm<sup>4</sup>
+                            </div>
+                            <div className="tracking-[0.05em]">
+                              {toFixed2(radVal)} cm
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  </React.Fragment>
-                ))}
+                      <div className="flex flex-col">
+                        <div className="flex">{r?.materialName || r?.material || ""}</div>
+                        <div className="flex justify-start">
+                          <div className="flex flex-col mr-1">
+                            <div>A</div>
+                            <div>Z</div>
+                          </div>
+                          <div className="flex flex-col mr-1">
+                            <div className="page1-text">=</div>
+                            <div className="page1-text">=</div>
+                          </div>
+                          <div className="flex flex-col">
+                            <div className="tracking-[0.05em]">
+                              {toFixed2(aVal)} cm
+                              <sup>2</sup>
+                            </div>
+                            <div className="tracking-[0.05em]">
+                              {toFixed2(zVal)} cm<sup>3</sup>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </React.Fragment>
+                  );
+                })}
               </div>
             </div>
           </div>

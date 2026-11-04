@@ -286,12 +286,28 @@ export function DateInput({
   onChange,
   className = "",
   placeholder = "yyyy-mm-dd",
+  minDate,
+  maxDate,
   ...rest
 }) {
   const [open, setOpen] = useState(false);
   // Calendar body: the days, or the month / year grid from the header.
   const [view, setView] = useState("days");
   const iconRef = useRef(null);
+
+  const parsedMinDate =
+    typeof minDate === "string"
+      ? toDate(minDate)
+      : minDate instanceof Date
+        ? minDate
+        : undefined;
+  const parsedMaxDate =
+    typeof maxDate === "string"
+      ? toDate(maxDate)
+      : maxDate instanceof Date
+        ? maxDate
+        : undefined;
+
   // Picking a month or year in the header changes the date right away,
   // keeping its day: the field then shows what the header shows. With no
   // date yet there's no day to keep, so it only moves the calendar.
@@ -320,6 +336,8 @@ export function DateInput({
         selected={toDate(value)}
         onChange={(date) => onChange(toIso(date))}
         onChangeRaw={maskInputEvent}
+        minDate={parsedMinDate}
+        maxDate={parsedMaxDate}
         open={open}
         onSelect={() => showCalendar(false)}
         // A click on the icon is "outside" too — the icon's own toggle

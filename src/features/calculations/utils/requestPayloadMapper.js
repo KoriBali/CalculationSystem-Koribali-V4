@@ -20,6 +20,7 @@ export const resolvePoleCategoryId = (typeOrId, categoriesList = null) => {
     categoriesList && categoriesList.length > 0
       ? categoriesList
       : getCachedPoleCategories();
+  if (!Array.isArray(list) || list.length === 0) return null;
   const key = String(typeOrId).toLowerCase().trim();
   const found = list.find((c) => {
     const name = String(c.name || "").toLowerCase().trim();
@@ -29,39 +30,75 @@ export const resolvePoleCategoryId = (typeOrId, categoriesList = null) => {
       (key.includes("light") && name.includes("light")) ||
       (key.includes("sign") && name.includes("sign")) ||
       ((key.includes("disaster") || key.includes("acemast")) &&
-        name.includes("acemast")) ||
+        (name.includes("acemast") || name.includes("disaster"))) ||
       ((key.includes("multi") || key.includes("multiple")) &&
         name.includes("multi"))
-    );
-  });
-  return found?.id || typeOrId;
-};
-
-// Dynamic resolver for designStandardId from backend master data (zero hardcoded UUIDs)
-export const resolveDesignStandardId = (std, standardsList = null) => {
-  if (!std) return null;
-  if (isUuid(std)) return std.trim();
-  const list = standardsList && standardsList.length > 0 ? standardsList : getCachedDesignStandards();
-  const key = String(std).toLowerCase().trim();
-  const found = list.find((s) => {
-    const name = String(s.name || "").toLowerCase().trim();
-    const code = String(s.code || "").toLowerCase().trim();
-    return (
-      s.id === std ||
-      name === key ||
-      code === key ||
-      (key.includes("jil") && (name.includes("jil") || code.includes("jil"))) ||
-      (key.includes("haiden") && (name.includes("haiden") || code.includes("haiden"))) ||
-      ((key.includes("act") || key.includes("law")) && (name.includes("act") || name.includes("law"))) ||
-      (key.includes("v60") && (name.includes("v60") || code.includes("v60"))) ||
-      (key.includes("tower") && (name.includes("tower") || code.includes("tower"))) ||
-      (key.includes("signboard") && (name.includes("signboard") || code.includes("signboard")))
     );
   });
   return found?.id || null;
 };
 
-// Resolves UUID or code to frontend standard code ('jil' | 'haiden' | 'v60' | 'act' | 'tower' | 'signboard')
+// Dynamic resolver for designStandardId from backend master data (zero hardcoded UUIDs)
+export const resolveDesignStandardId = (std, standardsList = null, categoryId = null) => {
+  if (!std) return null;
+  if (isUuid(std)) return std.trim();
+  const list = standardsList && standardsList.length > 0 ? standardsList : getCachedDesignStandards();
+  if (!Array.isArray(list) || list.length === 0) return null;
+  const key = String(std).toLowerCase().trim();
+
+  const matchInList = (items) =>
+    items.find((s) => {
+      const name = String(s.name || "").toLowerCase().trim();
+      const code = String(s.code || "").toLowerCase().trim();
+      if (s.id === std || name === key || code === key) return true;
+
+      // Handle New JIL vs Old Lighting Pole / Old JIL
+      if (key === "new_jil" || key === "new jil" || key === "newjil") {
+        return name.includes("new") && name.includes("jil");
+      }
+      if (
+        key === "old_lighting_pole" ||
+        key === "old lighting pole" ||
+        key === "old_lighting" ||
+        key === "lighting_pole" ||
+        key === "old_jil" ||
+        key === "old jil" ||
+        key === "oldjil" ||
+        key === "jil"
+      ) {
+        return (
+          (name.includes("old") && (name.includes("lighting") || name.includes("pole") || name.includes("jil"))) ||
+          code.includes("old") ||
+          code.includes("lighting_pole") ||
+          (name.includes("lighting") && name.includes("pole") && !name.includes("new")) ||
+          (name.includes("jil") && !name.includes("new"))
+        );
+      }
+
+      if (key === "act" || key.includes("act") || key.includes("law")) {
+        return name.includes("act") || name.includes("law");
+      }
+      if (key === "tower" || key.includes("tower")) return name.includes("tower");
+      if (key === "haiden" || key.includes("haiden")) return name.includes("haiden");
+      if (key === "v60" || key.includes("v60")) return name.includes("v60");
+      if (key === "signboard" || key.includes("sign")) return name.includes("sign");
+
+      return false;
+    });
+
+  if (categoryId) {
+    const categoryItems = list.filter(
+      (s) => s.poleCategoryId === categoryId || !s.poleCategoryId
+    );
+    const catFound = matchInList(categoryItems);
+    if (catFound) return catFound.id;
+  }
+
+  const found = matchInList(list);
+  return found?.id || null;
+};
+
+// Resolves UUID or code to frontend standard code ('old_lighting_pole' | 'new_jil' | 'haiden' | 'v60' | 'act' | 'tower' | 'signboard')
 // Dynamically matches against backend master data design standards list (ZERO hardcoded UUIDs)
 export const resolveDesignStandardCode = (val, standardsList = null) => {
   if (!val) return "";
@@ -77,31 +114,49 @@ export const resolveDesignStandardCode = (val, standardsList = null) => {
   if (found) {
     const name = String(found.name || "").toLowerCase();
     const code = String(found.code || "").toLowerCase();
-    if (name.includes("jil") || code.includes("jil")) return "jil";
+    if (name.includes("new") && name.includes("jil")) return "new_jil";
+    if (name.includes("old") && (name.includes("lighting") || name.includes("pole") || name.includes("jil"))) return "old_lighting_pole";
+    if (code.includes("old_lighting_pole") || code.includes("old_lighting") || code.includes("old_jil")) return "old_lighting_pole";
+    if (name.includes("lighting") && name.includes("pole") && !name.includes("new")) return "old_lighting_pole";
+    if (name.includes("jil") || code.includes("jil")) return "old_lighting_pole";
     if (name.includes("haiden") || code.includes("haiden")) return "haiden";
     if (name.includes("v60") || code.includes("v60")) return "v60";
-    if (name.includes("act") || name.includes("law") || code.includes("act")) return "act";
+    if (name.includes("act") || code.includes("act")) return "act";
     if (name.includes("tower") || code.includes("tower")) return "tower";
-    if (name.includes("signboard") || code.includes("signboard")) return "signboard";
+    if (name.includes("sign") || code.includes("sign")) return "signboard";
     return found.code || found.name?.toLowerCase() || trimmed;
   }
 
   const key = trimmed.toLowerCase();
-  if (key.includes("jil")) return "jil";
-  if (key.includes("haiden")) return "haiden";
-  if (key.includes("v60")) return "v60";
-  if (key.includes("act") || key.includes("law")) return "act";
-  if (key.includes("tower")) return "tower";
-  if (key.includes("signboard")) return "signboard";
-  return trimmed;
+  if (key === "new_jil" || key === "new jil" || key === "newjil") return "new_jil";
+  if (
+    key === "old_lighting_pole" ||
+    key === "old lighting pole" ||
+    key === "old_lighting" ||
+    key === "lighting_pole" ||
+    key === "old_jil" ||
+    key === "old jil" ||
+    key === "oldjil" ||
+    key === "jil"
+  ) return "old_lighting_pole";
+  if (key === "haiden" || key.includes("haiden")) return "haiden";
+  if (key === "v60" || key.includes("v60")) return "v60";
+  if (key === "act" || key.includes("act") || key.includes("law")) return "act";
+  if (key === "tower" || key.includes("tower")) return "tower";
+  if (key === "signboard" || key.includes("sign")) return "signboard";
+  return "";
 };
 
 // Resolves UUID or code to human-readable standard label
 export const resolveDesignStandardLabel = (val, projectType = null, standardsList = null) => {
   const code = resolveDesignStandardCode(val, standardsList);
   switch (code) {
+    case "new_jil":
+      return "New JIL";
+    case "old_lighting_pole":
+    case "old_jil":
     case "jil":
-      return "JIL 1003";
+      return "Old Lighting Pole";
     case "haiden":
       return "Haiden";
     case "v60":
@@ -133,6 +188,7 @@ export const resolveRegionId = (reg, regionsList = null) => {
   if (!reg) return null;
   if (isUuid(reg)) return reg.trim();
   const list = regionsList && regionsList.length > 0 ? regionsList : getCachedRegions();
+  if (!Array.isArray(list) || list.length === 0) return null;
   const key = String(reg).toLowerCase().trim();
   const found = list.find((r) => {
     const code = String(r.code || "").toLowerCase().trim();
@@ -195,6 +251,8 @@ export function buildRequestPayload({
   workTypes = { calc: true, drawing: true },
   notes = null,
   currentUser = null,
+  poleCategoryId = null,
+  categoriesList = null,
 }) {
   const brandLine = coverType === "yp" ? "yp" : "ys";
 
@@ -248,7 +306,6 @@ export function buildRequestPayload({
 
   const requestDate =
     formatDate(fields.requestDate) ||
-    formatDate(fields.requestedDate) ||
     todayStr;
 
   const defaultDue = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
@@ -257,6 +314,7 @@ export function buildRequestPayload({
 
   const dueDate =
     formatDate(fields.dueDate) ||
+    formatDate(fields.requestedDate) ||
     formatDate(fields.deliveryDate) ||
     defaultDue;
 
@@ -276,49 +334,62 @@ export function buildRequestPayload({
       : null;
 
   // 9. Conditions
+  const resolvedCategoryId =
+    (isUuid(poleCategoryId) ? poleCategoryId.trim() : null) ||
+    resolvePoleCategoryId(projectType, categoriesList);
+  const resolvedStdCode = resolveDesignStandardCode(fields.standard);
   const conditions = {
-    designStandardId: resolveDesignStandardId(fields.standard),
-    windSpeed: fields.windSpeed ? Number(fields.windSpeed) : 60,
-    airDensity: fields.airDensity ? Number(fields.airDensity) : 1.23,
+    designStandardId: resolveDesignStandardId(fields.standard, null, resolvedCategoryId),
+    windSpeed: fields.windSpeed ? Number(fields.windSpeed) : null,
+    airDensity: fields.airDensity
+      ? Number(fields.airDensity)
+      : resolvedStdCode === "jil" || resolvedStdCode === "new_jil" || resolvedStdCode === "old_jil" || resolvedStdCode === "old_lighting_pole"
+      ? 1.23
+      : null,
   };
 
   // 10. Shared Details
+  const cleanStr = (val, maxLen) => {
+    if (val === null || val === undefined) return null;
+    const s = String(val).trim();
+    if (!s) return null;
+    return maxLen ? s.slice(0, maxLen) : s;
+  };
+
   const sharedDetails = {
-    scheduledDeliveryDate: fields.deliveryDate ? String(fields.deliveryDate) : null,
-    deliveryQuantity: toPositiveInt(fields.deliveryQty),
-    requesterPicName: fields.pic ? String(fields.pic).trim() : null,
-    drawingType:
-      mapDrawingType(fields.drawingType || fields.deliverType) ||
-      (workTypes.drawing ? "approval" : null),
-    paperSize: fields.paperSize ? String(fields.paperSize) : null,
+    scheduledDeliveryDate: cleanStr(fields.deliveryDate, 100),
+    deliveryQuantity: toPositiveInt(fields.deliveryQty || fields.quantityUnits),
+    requesterPicName: cleanStr(fields.pic, 120),
+    drawingType: mapDrawingType(fields.drawingType || fields.deliverType) || null,
+    paperSize: cleanStr(fields.paperSize, 50),
     isCadDataRequested: Boolean(fields.deliverCad || fields.cadFormat),
-    cadFormat: fields.cadFormat ? String(fields.cadFormat) : null,
+    cadFormat: cleanStr(fields.cadFormat, 50),
   };
 
   // 11. YP Details (if brandLine === "yp")
   let ypDetails = null;
   if (brandLine === "yp") {
     ypDetails = {
-      tailCode: fields.tailCode ? String(fields.tailCode).slice(0, 10) : null,
+      tailCode: cleanStr(fields.tailCode, 10),
       calcStrength: Boolean(fields.calcStrength),
       calcDesign: Boolean(fields.calcDesign),
       scopeMainMember: Boolean(fields.scopeMain),
       scopeJoint: Boolean(fields.scopeJoint),
       scopeFoundation: Boolean(fields.scopeFoundation),
-      scopeOther: fields.scopeOther ? String(fields.scopeOther).slice(0, 200) : null,
+      scopeOther: cleanStr(fields.scopeOther, 200),
       draftingTracing: Boolean(fields.draftTracing),
       draftingDesign: Boolean(fields.draftDesign),
-      submissionDestination1: fields.submitTo1 ? String(fields.submitTo1).slice(0, 200) : null,
-      submissionDestination2: fields.submitTo2 ? String(fields.submitTo2).slice(0, 200) : null,
-      submissionDestination3: fields.submitTo3 ? String(fields.submitTo3).slice(0, 200) : null,
+      submissionDestination1: cleanStr(fields.submitTo1, 200),
+      submissionDestination2: cleanStr(fields.submitTo2, 200),
+      submissionDestination3: cleanStr(fields.submitTo3, 200),
       hasCompetitor: fields.hasCompetitor === "yes",
       designOrigin: ["development", "proposal", "existing", "customer_spec"].includes(fields.designOrigin)
         ? fields.designOrigin
         : null,
-      scheduleFlexibility: fields.scheduleFlex ? String(fields.scheduleFlex).slice(0, 200) : null,
-      paperFrame: fields.paperFrame ? String(fields.paperFrame).slice(0, 100) : null,
+      scheduleFlexibility: cleanStr(fields.scheduleFlex, 200),
+      paperFrame: cleanStr(fields.paperFrame, 100),
       finishedCopies: toPositiveInt(fields.finishedCopies),
-      platingProviso: fields.platingProviso ? String(fields.platingProviso) : null,
+      platingProviso: cleanStr(fields.platingProviso),
     };
   }
 
@@ -326,17 +397,18 @@ export function buildRequestPayload({
   let ysDetails = null;
   if (brandLine === "ys") {
     ysDetails = {
-      receiptNo: fields.receptionNo ? String(fields.receptionNo).slice(0, 100) : null,
-      materialText: fields.material ? String(fields.material).slice(0, 200) : null,
+      receiptNo: cleanStr(fields.receptionNo, 100),
+      materialText: cleanStr(fields.material, 200),
       materialId: isUuid(fields.materialId) ? fields.materialId : null,
       foundationType: mapFoundationType(fields.foundation),
       foundationWidthX: toPositiveNumber(fields.foundationWidth),
       foundationWidthY: toPositiveNumber(fields.foundationLength),
       embedmentDepth: toPositiveNumber(fields.foundationDepth),
-      designStandardText: fields.standard ? String(fields.standard).slice(0, 200) : null,
-      openingHeight: fields.openingHeight ? String(fields.openingHeight).slice(0, 100) : null,
-      concreteStrength: fields.concreteStrength ? String(fields.concreteStrength).slice(0, 200) : null,
-      openingDirectionNote: fields.openingDirection ? String(fields.openingDirection) : null,
+      designStandardText: cleanStr(fields.standard, 200),
+      windSpeedText: cleanStr(fields.windSpeed, 100),
+      openingHeight: cleanStr(fields.openingHeight, 100),
+      concreteStrength: cleanStr(fields.concreteStrength, 200),
+      openingDirectionNote: cleanStr(fields.openingDirection),
     };
   }
 
@@ -354,9 +426,22 @@ export function buildRequestPayload({
     });
   }
 
+  // 14. Finish: map surfaceTreatment and coatingType into backend Finish schema
+  const finish =
+    fields.surfaceTreatment || fields.coatingType
+      ? {
+          treatmentOption: fields.coatingType ? "plating_painting" : "plating_only",
+          platingType: "standard",
+          platingSpec: cleanStr(fields.surfaceTreatment, 100),
+          colorName: cleanStr(fields.coatingType, 100),
+        }
+      : null;
+
   return {
     brandLine,
-    poleCategoryId: resolvePoleCategoryId(projectType) || projectType || "lighting-project",
+    poleCategoryId:
+      (isUuid(poleCategoryId) ? poleCategoryId.trim() : null) ||
+      resolvePoleCategoryId(projectType, categoriesList),
     requestNo,
     pjNo,
     requestType,
@@ -370,7 +455,7 @@ export function buildRequestPayload({
     sharedDetails,
     ypDetails,
     ysDetails,
-    finish: null,
+    finish,
     assignments,
   };
 }
@@ -541,7 +626,15 @@ export function buildRequestUpdatePayload({
   workTypes = { calc: true, drawing: true },
   notes = null,
   currentUser = null,
+  existingPoleCategoryId = null,
+  categoriesList = null,
+  skipConditionsUpdate = false,
+  skipDrawingConditionsUpdate = false,
 }) {
+  const resolvedCategoryId =
+    (isUuid(existingPoleCategoryId) ? existingPoleCategoryId.trim() : null) ||
+    resolvePoleCategoryId(projectType, categoriesList);
+
   const full = buildRequestPayload({
     projectType,
     coverType,
@@ -549,26 +642,50 @@ export function buildRequestUpdatePayload({
     workTypes,
     notes,
     currentUser,
+    poleCategoryId: resolvedCategoryId,
+    categoriesList,
   });
 
+  const requestUpdate = {
+    requestType: full.requestType,
+    designType: full.designType,
+    requestClassification: full.requestClassification,
+    notes: full.notes,
+  };
+
+  if (full.requestNo && full.requestNo.trim()) {
+    requestUpdate.requestNo = full.requestNo.trim();
+  }
+  if (full.pjNo && full.pjNo.trim()) {
+    requestUpdate.pjNo = full.pjNo.trim();
+  }
+  if (full.subject && full.subject.trim()) {
+    requestUpdate.subject = full.subject.trim();
+  }
+  requestUpdate.requestDate = full.requestDate || null;
+  requestUpdate.dueDate = full.dueDate || null;
+  if (full.requestingDepartmentName && full.requestingDepartmentName.trim()) {
+    requestUpdate.requestingDepartmentName = full.requestingDepartmentName.trim();
+  }
+
+  // Only include poleCategoryId if it is a valid UUID
+  if (isUuid(resolvedCategoryId)) {
+    requestUpdate.poleCategoryId = resolvedCategoryId;
+  }
+
   return {
-    requestUpdate: {
-      poleCategoryId: full.poleCategoryId,
-      requestNo: full.requestNo,
-      pjNo: full.pjNo,
-      requestType: full.requestType,
-      designType: full.designType,
-      requestClassification: full.requestClassification,
-      subject: full.subject,
-      requestDate: full.requestDate,
-      dueDate: full.dueDate,
-      requestingDepartmentName: full.requestingDepartmentName,
-      notes: full.notes,
-    },
+    requestUpdate,
     sharedDetails: full.sharedDetails,
     ysDetails: full.ysDetails,
     ypDetails: full.ypDetails,
-    conditions: full.conditions,
+    finish: full.finish || {
+      treatmentOption: null,
+      platingType: null,
+      platingSpec: null,
+      colorName: null,
+    },
+    conditions: null,
+    skipDrawingConditionsUpdate: true,
     coverType,
   };
 }

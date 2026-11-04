@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Helmet } from "react-helmet";
 import { useParams, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus,
   CheckCircle,
@@ -16,6 +17,10 @@ import {
   ClipboardPaste,
   CircleDot,
   Lock,
+  Loader2,
+  AlertCircle,
+  AlertTriangle,
+  RefreshCw,
 } from "lucide-react";
 
 import { HeaderCalculationPage } from "../../layout/HeaderCalculationPage";
@@ -44,6 +49,8 @@ import { usePoleStandardForm } from "../../../hooks/usePoleStandardForm";
 import { usePoleConfigForm } from "../../../hooks/usePoleConfigForm";
 import { usePoleCalculation } from "../../../hooks/usePoleCalculation";
 import { useReport } from "../../../../report/hooks/useReport";
+import { ReportLoadingModal } from "../../../../report/components/modals/ReportLoadingModal";
+import { ReportErrorModal } from "../../../../report/components/modals/ReportErrorModal";
 
 import { FinishCalculationModal } from "../../modals/FinishCalculationModal";
 import { ConfirmSaveDatabaseModal } from "../../modals/ConfirmSaveDatabaseModal";
@@ -55,7 +62,10 @@ import {
 } from "../../../utils/coreLogic";
 import { clearCalculationSession } from "../../../utils";
 import { CustomPoleModal } from "../../modals/CustomPoleModal";
-import { activeDraftRequestPath, submitCaseForCheck } from "../../../utils/requestCases";
+import {
+  activeDraftRequestPath,
+  submitCaseForCheck,
+} from "../../../utils/requestCases";
 import { getUser } from "../../../../../utils/auth";
 
 // Helper to extract all standard objects (both directObjects and armObjects) from spec
@@ -147,6 +157,17 @@ export default function PoleFormView() {
 
   const isCalculationAndDrawing = workflow.projectMode === "both";
 
+  const std = String(
+    condition.designStandard || condition.standard || "",
+  ).toLowerCase();
+  const isOldJil =
+    (std.includes("jil") ||
+      std.includes("lighting") ||
+      std === "old_lighting_pole" ||
+      std === "old_jil" ||
+      std === "jil") &&
+    !std.includes("new");
+
   // ── UI-only accordion state — lives in page, not in hooks ──
   const [isExpandedPole, setIsExpandedPole] = useState(true);
   const [isExpandedDo, setIsExpandedDo] = useState(true);
@@ -179,6 +200,43 @@ export default function PoleFormView() {
     expandArm: setIsExpandedArm,
   });
 
+  // Manage smooth progress bar animation so it hits 100% full before showing results
+  const [calcProgress, setCalcProgress] = useState(15);
+  const [isFinishingCalc, setIsFinishingCalc] = useState(false);
+
+  useEffect(() => {
+    let timer;
+    if (calculation.loading) {
+      setIsFinishingCalc(true);
+      setCalcProgress(20);
+      timer = setInterval(() => {
+        setCalcProgress((prev) => {
+          if (prev < 45) return prev + 14;
+          if (prev < 70) return prev + 7;
+          if (prev < 88) return prev + 3;
+          return prev;
+        });
+      }, 130);
+    } else if (isFinishingCalc) {
+      // Calculation finished from backend: glide to 100% full smoothly
+      setCalcProgress(100);
+      const finishTimer = setTimeout(() => {
+        setIsFinishingCalc(false);
+      }, 350);
+      return () => clearTimeout(finishTimer);
+    }
+    return () => clearInterval(timer);
+  }, [calculation.loading, isFinishingCalc]);
+
+  useEffect(() => {
+    if (calculation.calculationError) {
+      setIsFinishingCalc(false);
+      setCalcProgress(0);
+    }
+  }, [calculation.calculationError]);
+
+  const isShowingCalcLoading = calculation.loading || isFinishingCalc;
+
   const report = useReport(projectType);
 
   // Automatically select taper pole in calculation & drawing mode
@@ -210,7 +268,10 @@ export default function PoleFormView() {
   // why nothing happened instead of just doing nothing.
   const handleFinish = () => {
     if (!calculation.isCalculated) {
-      calculation.showToast("Click \"Calculate Results\" first", "error");
+      calculation.showToast(
+        "Please calculate pole results first before proceeding.",
+        "error",
+      );
       return;
     }
     const result = calculation.finish();
@@ -233,6 +294,9 @@ export default function PoleFormView() {
 
   const handleGenerateReportClick = () => {
     setShowFinishModal(false);
+    if (draftId) {
+      saveWorkingSessionToDraft(projectType, draftId);
+    }
     if (hasCoverData(projectType)) {
       handleConfirmCover();
     } else {
@@ -329,14 +393,38 @@ export default function PoleFormView() {
       group[nominalKey] ||
       group[String(rawH)] ||
       group[String(mHeight)];
-    return getStandardPoleObjects(selectedPole);
+    const objects = getStandardPoleObjects(selectedPole);
+    if (isOldJil) {
+      return objects.map((obj) => ({
+        ...obj,
+        type: "omni",
+        sideArea: null,
+        fixAngle: null,
+      }));
+    }
+    return objects;
   }, [
     isStandardTaper,
     condition.baseplateEnabled,
     poleStandardForm.taperPoleStandard.poleType,
     poleStandardForm.taperPoleStandard.groundPosition,
     poleStandardForm.taperPoleStandard.height,
+    isOldJil,
   ]);
+
+  // Ensure all direct objects are omni when Old JIL is active
+  useEffect(() => {
+    if (isOldJil && doForm.directObjects.some((d) => d.type !== "omni")) {
+      doForm.setDirectObjects((prev) =>
+        prev.map((d) => ({
+          ...d,
+          type: "omni",
+          sideArea: null,
+          fixAngle: null,
+        })),
+      );
+    }
+  }, [isOldJil, doForm.directObjects, doForm.setDirectObjects]);
 
   // Sync default direct & arm objects from specStandardPole.json when standard taper pole selection changes
   useEffect(() => {
@@ -373,14 +461,14 @@ export default function PoleFormView() {
     if (defaultSpec) {
       doForm.updateDo(idDo, {
         name: defaultSpec.name,
-        type: defaultSpec.type,
+        type: isOldJil ? "omni" : defaultSpec.type,
         frontArea: defaultSpec.frontArea,
-        sideArea: defaultSpec.sideArea,
+        sideArea: isOldJil ? null : defaultSpec.sideArea,
         weight: defaultSpec.weight,
         zHeight: defaultSpec.zHeight,
         nnC: defaultSpec.nnC,
         quantity: defaultSpec.quantity,
-        fixAngle: defaultSpec.fixAngle,
+        fixAngle: isOldJil ? null : defaultSpec.fixAngle,
       });
     }
   };
@@ -410,7 +498,6 @@ export default function PoleFormView() {
         <HeaderCalculationPage />
 
         <div className="w-full max-w-[1440px] mx-auto pt-0 pb-24 sm:pb-8 px-2">
-
           {/* ── Pole Specifications ── */}
           <div
             className="
@@ -529,7 +616,8 @@ export default function PoleFormView() {
                       />
 
                       {(poleStandardForm.poleTypeStandard.type === "taper" ||
-                        poleStandardForm.poleTypeStandard.type === "tapered") && (
+                        poleStandardForm.poleTypeStandard.type ===
+                          "tapered") && (
                         <TaperPoleStandardForm
                           taperPoleStandard={poleStandardForm.taperPoleStandard}
                           onUpdate={poleStandardForm.updateTaperPoleStandard}
@@ -539,14 +627,13 @@ export default function PoleFormView() {
                         />
                       )}
 
-                      {poleStandardForm.poleTypeStandard.type === "straight" && (
+                      {poleStandardForm.poleTypeStandard.type ===
+                        "straight" && (
                         <StraightPoleStandardForm
                           straightPoleStandard={
                             poleStandardForm.straightPoleStandard
                           }
-                          onUpdate={
-                            poleStandardForm.updateStraightPoleStandard
-                          }
+                          onUpdate={poleStandardForm.updateStraightPoleStandard}
                           errors={poleStandardForm.straightPoleErrors}
                           condition={condition}
                           readOnly={isReadOnly}
@@ -563,7 +650,10 @@ export default function PoleFormView() {
                       <div className="flex items-center justify-between mb-4 hp:mb-2">
                         <h3 className="text-[#0d3b66] mb-2 flex items-center gap-2 text-xs md:text-sm font-medium hp:text-xs hp:gap-1">
                           <div className="w-1 h-5 bg-[#3399cc] rounded-full hp:h-4" />
-                          Structural Design <span className="text-red-500 ml-1 font-semibold">*</span>
+                          Structural Design{" "}
+                          <span className="text-red-500 ml-1 font-semibold">
+                            *
+                          </span>
                         </h3>
                       </div>
                       <PoleConfigForm
@@ -586,7 +676,9 @@ export default function PoleFormView() {
                               {" "}
                               with detailed specifications
                             </span>
-                            <span className="text-red-500 ml-1 font-semibold">*</span>
+                            <span className="text-red-500 ml-1 font-semibold">
+                              *
+                            </span>
                           </h3>
                         </div>
                       </div>
@@ -944,6 +1036,7 @@ export default function PoleFormView() {
                         resetCurrentDo={doForm.resetDo}
                         handleAddDo={doForm.addDo}
                         readOnly={isReadOnly}
+                        isOldJil={isOldJil}
                       />
                     ) : (
                       <StandardDirectObjectForm
@@ -954,6 +1047,7 @@ export default function PoleFormView() {
                         taperPoleStandard={poleStandardForm.taperPoleStandard}
                         readOnly={isReadOnly}
                         onResetDefault={handleResetStandardDirectObject}
+                        isOldJil={isOldJil}
                       />
                     )}
                   </div>
@@ -962,8 +1056,8 @@ export default function PoleFormView() {
             </>
           )}
 
-          {/* ── Overhead Wire ── */}
-          {(isCustomMode || isStandardTaper) && (
+          {/* ── Overhead Wire (Hidden for Old JIL Standard Taper) ── */}
+          {(isCustomMode || (isStandardTaper && !isOldJil)) && (
             <>
               <div
                 className="
@@ -1166,24 +1260,29 @@ export default function PoleFormView() {
                 >
                   <div className="min-h-0 overflow-hidden">
                     <div className="px-6 pt-6 hp:p-4">
-                      <div className="flex items-center justify-between mb-6 xl:mb-4 hp:items-start hp:flex-col hp:gap-6 hp:mb-6">
-                        <h3 className="text-[#0d3b66] flex items-center gap-2 text-xs md:text-sm font-medium hp:text-xs hp:gap-1">
-                          <div className="w-1 h-5 bg-[#3399cc] rounded-full hp:h-4" />
-                          <span className="font-semibold">
-                            Configure up to 6 Arms
+                      <div className="flex items-center justify-between mb-4 hp:items-start hp:flex-col hp:gap-4 hp:mb-4">
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-[#0d3b66] flex items-center gap-2 text-xs md:text-sm font-medium hp:text-xs hp:gap-1">
+                            <div className="w-1 h-5 bg-[#3399cc] rounded-full hp:h-4" />
+                            <span className="font-semibold">
+                              Configure up to 10 Arms
+                            </span>
+                            <span className="font-medium hp:hidden text-gray-500">
+                              {" "}
+                              with detailed specifications
+                            </span>
+                          </h3>
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                            {armForm.arms.length} / 10
                           </span>
-                          <span className="font-medium hp:hidden">
-                            {" "}
-                            with detailed specifications
-                          </span>
-                        </h3>
+                        </div>
                         <button
                           onClick={armForm.addArm}
-                          disabled={armForm.arms.length >= 6}
-                          className={`flex justify-center items-center gap-2 p-2.5 sm:px-4 sm:py-2 md:px-5 lg:py-2.5 rounded-lg hp:rounded-md font-medium shadow-sm text-sm hp:text-xs hp:px-4 hp:self-center transition-all
+                          disabled={armForm.arms.length >= 10}
+                          className={`flex justify-center items-center gap-2 p-2.5 sm:px-4 sm:py-2 md:px-5 lg:py-2 rounded-lg hp:rounded-md font-medium shadow-sm text-sm hp:text-xs hp:px-4 hp:self-center transition-all
                           ${
-                            armForm.arms.length >= 6
-                              ? "bg-gray-300 text-black opacity-40"
+                            armForm.arms.length >= 10
+                              ? "bg-gray-300 text-black opacity-40 cursor-not-allowed"
                               : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:scale-105"
                           }`}
                         >
@@ -1193,25 +1292,38 @@ export default function PoleFormView() {
                       </div>
 
                       {/* Arm tabs */}
-                      <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-1 xl:gap-2 overflow-x-auto whitespace-nowrap scroll-smooth scrollbar-hide">
+                      <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 py-1">
                         {armForm.arms.map((arm, index) => {
                           const isActive = armForm.activeTabArm === arm.idArm;
+                          const hasError = Boolean(
+                            armForm.armsErrors?.[arm.idArm] &&
+                            Object.keys(armForm.armsErrors[arm.idArm]).length >
+                              0,
+                          );
                           return (
                             <button
                               key={arm.idArm}
+                              type="button"
                               onClick={() => armForm.setActiveTabArm(arm.idArm)}
-                              className={`flex items-center gap-2 px-5 xl:px-6 py-2 rounded-lg border-[1.5px] text-sm 
-                                font-medium transition-all
+                              className={`flex items-center gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg border-[1.5px] text-sm font-medium transition-all
                                 hp:px-3 hp:py-1.5 hp:text-xs hp:rounded-md
                                 ${
                                   isActive
                                     ? "border-blue-500 bg-blue-50 text-blue-700"
-                                    : "border-gray-200 bg-gray-50 text-gray-500 hover:bg-gray-100 hover:border-gray-300"
+                                    : hasError
+                                      ? "border-red-300 bg-red-50/50 text-red-600 hover:bg-red-50"
+                                      : "border-gray-200 bg-gray-50 text-gray-500 hover:bg-gray-100 hover:border-gray-300"
                                 }`}
                             >
                               <span
                                 className={`w-2 h-2 rounded-full flex-shrink-0 transition-colors
-                                ${isActive ? "bg-blue-500" : "bg-gray-300"}`}
+                                ${
+                                  hasError && !isActive
+                                    ? "bg-red-500"
+                                    : isActive
+                                      ? "bg-blue-500"
+                                      : "bg-gray-300"
+                                }`}
                               />
                               <span className="hp:hidden">Arm {index + 1}</span>
                               <span className="hidden hp:inline">
@@ -1221,7 +1333,7 @@ export default function PoleFormView() {
                           );
                         })}
                       </div>
-                      <div className="mt-5 border-t border-gray-200" />
+                      <div className="mt-4 border-t border-gray-200" />
                     </div>
 
                     {/* Active arm input */}
@@ -1438,13 +1550,12 @@ export default function PoleFormView() {
             {/* Back => returns to Initial Input step */}
             <button
               onClick={() =>
-                navigate(
-                  `/projects/${projectType}/${draftId}/initial`,
-                )
+                navigate(`/projects/${projectType}/${draftId}/initial`)
               }
+              disabled={isShowingCalcLoading}
               className="flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-3 hp:py-2 md:px-6
               rounded-lg hp:rounded-md font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] text-sm
-              ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm transition-colors flex-shrink-0"
+              ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm transition-colors flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <ChevronLeft className="w-4 md:w-5 h-4 md:h-5 hp:w-4 hp:h-4" />
               <span className="hp:hidden">Back</span>
@@ -1464,65 +1575,210 @@ export default function PoleFormView() {
                 >
                   <Lock className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
                   <span className="hp:text-[11px] whitespace-nowrap">
-                    {calculation.isCalculated ? "Results Locked" : "Calculation Locked"}
+                    {calculation.isCalculated
+                      ? "Results Locked"
+                      : "Calculation Locked"}
                   </span>
                 </button>
               ) : (
                 <button
+                  type="button"
                   onClick={calculation.calculate}
-                  className={`flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-4 hp:py-2 md:px-6
-                  rounded-lg hp:rounded-md font-medium text-sm transition-all
+                  disabled={isShowingCalcLoading}
+                  className={`inline-flex justify-center items-center gap-2 min-w-[160px] px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-4 hp:py-2 md:px-6
+                  rounded-lg hp:rounded-md font-medium text-sm transition-all duration-200 shadow-sm
                   ${
-                    calculation.isCalculated
-                      ? "bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm"
-                      : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
+                    isShowingCalcLoading
+                      ? "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white opacity-50 cursor-not-allowed"
+                      : calculation.isInputsChanged
+                        ? "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white ring-2 ring-sky-300 ring-offset-2 ring-offset-white shadow-md hover:brightness-110 active:scale-[0.98] cursor-pointer"
+                        : calculation.isCalculated
+                          ? "bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] cursor-pointer"
+                          : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 cursor-pointer"
                   }`}
                 >
-                  <Calculator className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+                  {isShowingCalcLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin text-white" />
+                  ) : calculation.isInputsChanged ? (
+                    <RefreshCw className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+                  ) : (
+                    <Calculator className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
+                  )}
                   <span className="hp:text-[11px] whitespace-nowrap">
-                    Calculate Results
+                    {isShowingCalcLoading
+                      ? "Calculating..."
+                      : calculation.isInputsChanged
+                        ? "Recalculate Results"
+                        : "Calculate Results"}
                   </span>
                 </button>
               )}
 
-              {/* Next/Finish button — becomes the primary button once
-                  calculated (mirrors Calculate stepping aside above),
-                  regardless of whether this is a mid-flow "Next" or the
-                  final step's label. */}
+              {/* Next/Finish button — strictly disabled when calculating or uncalculated */}
               <button
-                onClick={isReadOnly ? () => navigate(`/projects/${projectType}/${draftId}/opening`) : handleFinish}
-                aria-disabled={!calculation.isCalculated && !isReadOnly}
+                type="button"
+                disabled={
+                  isShowingCalcLoading ||
+                  (!calculation.isCalculated && !isReadOnly)
+                }
+                onClick={
+                  isReadOnly
+                    ? () =>
+                        navigate(`/projects/${projectType}/${draftId}/opening`)
+                    : handleFinish
+                }
+                aria-disabled={
+                  isShowingCalcLoading ||
+                  (!calculation.isCalculated && !isReadOnly)
+                }
                 title={
                   isReadOnly
                     ? "Next: Opening"
                     : !calculation.isCalculated
-                      ? 'Click "Calculate Results" first'
+                      ? "Please calculate pole results first before proceeding"
                       : calculation.buttonLabel
                 }
                 className={`flex justify-center items-center gap-2 px-5 py-2.5 sm:py-2 lg:py-2.5 hp:px-3 hp:py-2 md:px-6
                 rounded-lg hp:rounded-md font-medium transition-all text-sm
                 ${
-                  !calculation.isCalculated && !isReadOnly
-                    ? "bg-gray-100 text-gray-400 ring-1 ring-inset ring-gray-200 cursor-not-allowed shadow-none"
-                    : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm"
+                  isShowingCalcLoading ||
+                  (!calculation.isCalculated && !isReadOnly)
+                    ? "bg-gray-100 text-gray-400 ring-1 ring-inset ring-gray-200 cursor-not-allowed shadow-none opacity-60"
+                    : "bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm cursor-pointer"
                 }`}
               >
-                <span className="hp:hidden">{isReadOnly ? "Next: Opening" : calculation.buttonLabel}</span>
+                <span className="hp:hidden">
+                  {isReadOnly ? "Next: Opening" : calculation.buttonLabel}
+                </span>
                 <ChevronRight className="w-4 md:w-5 h-4 md:h-5 hp:w-4 hp:h-4" />
               </button>
             </div>
           </div>
 
-          {/* Results table */}
-          <div id="results-pole">
-            {calculation.showResults && (
-              <ResultsTableView
-                results={calculation.results}
-                resultsDo={calculation.resultsDo}
-                resultsOhw={calculation.resultsOhw}
-                resultsArm={calculation.resultsArm}
-              />
-            )}
+          {/* Results table container with reactive animated states */}
+          <div id="results-pole" className="mt-8">
+            <AnimatePresence mode="wait">
+              {/* 1. Clean, Minimalist Enterprise Loading State (Single Focal Point) */}
+              {isShowingCalcLoading && (
+                <motion.div
+                  key="calc-loading-clean"
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.2 }}
+                  className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden"
+                >
+                  {/* Top accent line — exact match with ResultsTableView */}
+                  <div className="h-1.5 bg-gradient-to-r from-[#0d3b66] to-[#3399cc]" />
+
+                  {/* Header — clean, identical to ResultsTableView (no duplicate spinning loader) */}
+                  <div className="px-6 py-5 hp:px-4 hp:py-3 flex items-center justify-between border-b border-gray-200">
+                    <div className="flex items-center gap-3 hp:gap-2">
+                      <div className="bg-blue-50 p-2 hp:p-1.5 rounded-lg shrink-0">
+                        <Calculator className="w-6 h-6 hp:w-5 hp:h-5 text-[#0d3b66]" />
+                      </div>
+                      <div>
+                        <h2 className="text-[#0d3b66] text-sm hp:text-xs font-semibold mb-0.5">
+                          Calculation Results
+                        </h2>
+                        <p className="text-slate-500 text-xs font-medium hp:hidden">
+                          Calculating structural analysis & safety factors...
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-50 border border-slate-200 text-slate-600 text-[13px] font-medium">
+                      <span className="w-2 h-2 rounded-full bg-[#3399cc] animate-pulse" />
+                      <span>Calculating...</span>
+                    </div>
+                  </div>
+
+                  {/* Center Body — Clean direct layout without top icon */}
+                  <div className="py-12 px-6 text-center max-w-2xl mx-auto space-y-4">
+                    {/* Title & Subtitle */}
+                    <div>
+                      <h3 className="text-slate-800 text-sm sm:text-base font-medium tracking-tight">
+                        Evaluating pole structural capacity...
+                      </h3>
+                    </div>
+
+                    {/* Progressive Bar & Technical Labels */}
+                    <div className="max-w-lg mx-auto pt-2 space-y-2">
+                      <div className="h-3 w-full bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/80 relative">
+                        <div
+                          className="h-full rounded-full bg-gradient-to-r from-[#0d3b66] via-[#3399cc] to-[#38bdf8] shadow-xs relative overflow-hidden transition-all duration-300 ease-out"
+                          style={{ width: `${calcProgress}%` }}
+                        >
+                          <div className="absolute inset-y-0 w-1/2 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-laser-sweep" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* 2. Error state if backend calculation failed */}
+              {!isShowingCalcLoading && calculation.calculationError && (
+                <motion.div
+                  key="calc-error-card"
+                  initial={{ opacity: 0, scale: 0.98, y: 10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.98 }}
+                  transition={{ duration: 0.25 }}
+                  className="bg-white rounded-2xl border border-rose-200/90 shadow-sm overflow-hidden"
+                >
+                  <div className="h-1 bg-gradient-to-r from-red-500 to-rose-500" />
+                  <div className="p-6 hp:p-4">
+                    <div className="flex flex-col sm:flex-row items-start gap-4">
+                      <div className="w-11 h-11 rounded-xl bg-rose-50 border border-rose-200/70 text-rose-600 flex items-center justify-center shrink-0 shadow-xs">
+                        <AlertCircle className="w-5 h-5 sm:w-6 sm:h-6" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight mb-2">
+                          Calculation Incomplete
+                        </h3>
+
+                        {/* Reason Callout */}
+                        <div className="p-3.5 rounded-xl bg-rose-50/60 border border-rose-100/90 text-[13px] text-rose-900 font-medium leading-relaxed">
+                          {calculation.calculationError}
+                        </div>
+
+                        {/* Clear English explanation */}
+                        <p className="text-[13px] text-slate-500 mt-2.5 leading-relaxed">
+                          The structural calculation could not be completed with
+                          the current configuration. Previous evaluation data
+                          has been reset to maintain data integrity. Please
+                          review your design conditions or retry.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* 3. Results state with transition animation */}
+              {!isShowingCalcLoading &&
+                !calculation.calculationError &&
+                calculation.showResults && (
+                  <motion.div
+                    key={`results-container-${calculation.calculationKey}`}
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="space-y-4"
+                  >
+                    <ResultsTableView
+                      results={calculation.results}
+                      resultsDo={calculation.resultsDo}
+                      resultsOhw={calculation.resultsOhw}
+                      resultsArm={calculation.resultsArm}
+                      display={calculation.displayResult}
+                      calculationKey={calculation.calculationKey}
+                    />
+                  </motion.div>
+                )}
+            </AnimatePresence>
           </div>
         </div>
       </div>
@@ -1604,6 +1860,22 @@ export default function PoleFormView() {
         projectType={projectType}
         draftId={draftId}
         onConfirm={handleConfirmCover}
+      />
+
+      {/* ── Report Generation Loading & Error Modals ── */}
+      <ReportLoadingModal open={report.isGeneratingReport} />
+      <ReportErrorModal
+        open={Boolean(report.reportError)}
+        onClose={report.clearReportError}
+        title={report.reportError?.title}
+        message={report.reportError?.message}
+        details={report.reportError?.details}
+        status={report.reportError?.status}
+        onRetry={() => {
+          report.clearReportError();
+          handleConfirmCover();
+        }}
+        onBackToCalculation={report.clearReportError}
       />
     </div>
   );

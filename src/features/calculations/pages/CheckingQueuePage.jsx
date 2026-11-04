@@ -186,8 +186,17 @@ function parseRequestForQueue(request, currentUserName) {
     completed: [],
   };
 
-  let hasCalc = request.workTypes?.calc || request.designType === "calculation";
-  let hasDrawing = request.workTypes?.drawing || request.designType === "drawing";
+  const dt = (request.designType || request.design_type || "").toLowerCase();
+  let hasCalc =
+    Boolean(request.workTypes?.calc) ||
+    dt === "calculation" ||
+    dt === "drawing_calculation" ||
+    dt === "both";
+  let hasDrawing =
+    Boolean(request.workTypes?.drawing) ||
+    dt === "drawing" ||
+    dt === "drawing_calculation" ||
+    dt === "both";
 
   const draftersSet = new Set();
   const checkersSet = new Set();
@@ -277,7 +286,8 @@ function parseRequestForQueue(request, currentUserName) {
     companyName:
       request.fields?.companyName ||
       request.companyName ||
-      "Tokyo Electric Co., Ltd.",
+      request.requestingDepartmentName ||
+      "—",
     dueDate:
       request.fields?.requestedDate ||
       request.fields?.dueDate ||
@@ -798,7 +808,7 @@ export default function CheckingQueuePage() {
         label: "Company name",
         th: "min-w-[160px]",
         td: () => "text-slate-600 break-words",
-        render: (r) => r.companyName || r.fields?.companyName || "Tokyo Electric Co., Ltd.",
+        render: (r) => r.companyName || r.fields?.companyName || r.requestingDepartmentName || "—",
       },
       {
         key: "workType",

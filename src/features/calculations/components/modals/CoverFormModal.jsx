@@ -8,6 +8,13 @@ import {
   Label,
 } from "../forms/cover/coverFieldPrimitives";
 import { FormSelect } from "../../../../shared/components/FormSelect";
+import {
+  getReportHeader,
+  saveReportHeader,
+  buildReportHeaderPayload,
+  normalizeReportHeaderResponse,
+} from "../../services/requestService";
+import { findRequestOfCase } from "../../data/requestStore";
 
 // Master-data region/author options come as {value, label} where `value` is
 // the code — combine into "CODE - Name" for clear and consistent display.
@@ -18,6 +25,8 @@ export function CoverFormModal({
   open,
   onClose,
   projectType,
+  draftId,
+  requestId,
   onConfirm,
   isEditMode = false,
   submitText,
@@ -27,6 +36,7 @@ export function CoverFormModal({
 
   useEffect(() => {
     if (open) {
+      let populated = false;
       try {
         const raw = sessionStorage.getItem(`${projectType}_cover`);
         if (raw) {
@@ -35,41 +45,38 @@ export function CoverFormModal({
             parsed.reportNumber === "1111" &&
             (parsed.title1 === "1" || !parsed.title1);
 
-          const rawReportNumber = parsed.reportNumber || parsed.calculationNumber;
-          const rawTitle1 = parsed.title1 || parsed.projectName;
+          const isLegacyDummy =
+            parsed.reportNumber === "WS76509-001" ||
+            parsed.calculationNumber === "WS76509-001" ||
+            parsed.reportNumber === "KB-2026-001" ||
+            parsed.title1 === "江戸川フラワーガーデン" ||
+            parsed.projectName === "江戸川フラワーガーデン";
+
+          const rawReportNumber =
+            !isTestDraft && !isLegacyDummy
+              ? (parsed.reportNumber || parsed.calculationNumber || "")
+              : "";
+          const rawTitle1 =
+            !isTestDraft && !isLegacyDummy
+              ? (parsed.title1 || parsed.projectName || "")
+              : "";
           const rawTitle2 =
-            parsed.title2 !== undefined
-              ? parsed.title2
-              : parsed.coverTopText !== undefined
-                ? parsed.coverTopText
-                : undefined;
+            !isTestDraft && !isLegacyDummy
+              ? (parsed.title2 !== undefined
+                  ? parsed.title2 === "強度検討" ? "" : parsed.title2
+                  : parsed.coverTopText !== undefined
+                    ? parsed.coverTopText === "強度検討" ? "" : parsed.coverTopText
+                    : "")
+              : "";
           const rawTitle3 = parsed.title3 || parsed.coverBottomText || "";
 
           coverForm.updateCover({
-            reportNumber:
-              !isTestDraft && rawReportNumber
-                ? rawReportNumber
-                : DEFAULT_COVER.reportNumber,
-            calculationNumber:
-              !isTestDraft && rawReportNumber
-                ? rawReportNumber
-                : DEFAULT_COVER.calculationNumber,
-            title1:
-              !isTestDraft && rawTitle1
-                ? rawTitle1
-                : DEFAULT_COVER.title1,
-            projectName:
-              !isTestDraft && rawTitle1
-                ? rawTitle1
-                : DEFAULT_COVER.projectName,
-            title2:
-              !isTestDraft && rawTitle2 !== undefined
-                ? rawTitle2
-                : DEFAULT_COVER.title2,
-            coverTopText:
-              !isTestDraft && rawTitle2 !== undefined
-                ? rawTitle2
-                : DEFAULT_COVER.coverTopText,
+            reportNumber: rawReportNumber || DEFAULT_COVER.reportNumber,
+            calculationNumber: rawReportNumber || DEFAULT_COVER.calculationNumber,
+            title1: rawTitle1 || DEFAULT_COVER.title1,
+            projectName: rawTitle1 || DEFAULT_COVER.projectName,
+            title2: rawTitle2 !== undefined ? rawTitle2 : DEFAULT_COVER.title2,
+            coverTopText: rawTitle2 !== undefined ? rawTitle2 : DEFAULT_COVER.coverTopText,
             title3: rawTitle3,
             coverBottomText: rawTitle3,
             region: parsed.region || DEFAULT_COVER.region,
@@ -85,15 +92,50 @@ export function CoverFormModal({
                 : DEFAULT_COVER.responsibleDepartment,
             date: parsed.date || DEFAULT_COVER.date,
           });
+
+          if (rawReportNumber || rawTitle1) {
+            populated = true;
+          }
         } else {
           coverForm.updateCover(DEFAULT_COVER);
         }
       } catch (e) {
         console.error("Failed to sync cover data:", e);
       }
+
+      // If not populated from valid sessionStorage, try loading from backend report header
+      const foundReq = draftId ? findRequestOfCase(draftId) : null;
+      const reqId =
+        requestId ||
+        foundReq?.request?.id ||
+        sessionStorage.getItem("active_request_id");
+      if ((reqId || draftId) && !populated) {
+        getReportHeader(reqId, draftId)
+          .then((header) => {
+            if (header) {
+              const norm = normalizeReportHeaderResponse(header);
+              coverForm.updateCover({
+                reportNumber: norm.reportNumber || DEFAULT_COVER.reportNumber,
+                calculationNumber: norm.calculationNumber || DEFAULT_COVER.calculationNumber,
+                title1: norm.title1 || DEFAULT_COVER.title1,
+                projectName: norm.projectName || DEFAULT_COVER.projectName,
+                title2: norm.title2 !== undefined ? norm.title2 : DEFAULT_COVER.title2,
+                coverTopText: norm.coverTopText !== undefined ? norm.coverTopText : DEFAULT_COVER.coverTopText,
+                title3: norm.title3 || "",
+                coverBottomText: norm.coverBottomText || "",
+                region: norm.region || DEFAULT_COVER.region,
+                author: norm.author || DEFAULT_COVER.author,
+                responsibleDepartment:
+                  norm.responsibleDepartment || DEFAULT_COVER.responsibleDepartment,
+                date: norm.date || DEFAULT_COVER.date,
+              });
+            }
+          })
+          .catch(() => {});
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, projectType]);
+  }, [open, projectType, draftId, requestId]);
 
   const {
     regionOptions,
@@ -133,6 +175,24 @@ export function CoverFormModal({
       };
       coverForm.updateCover(updatedCover);
       sessionStorage.setItem(`${projectType}_cover`, JSON.stringify(updatedCover));
+
+      // Persist to backend report header endpoint
+      const foundReq = draftId ? findRequestOfCase(draftId) : null;
+      const reqId =
+        requestId ||
+        foundReq?.request?.id ||
+        sessionStorage.getItem("active_request_id");
+      if (reqId || draftId) {
+        try {
+          const payload = buildReportHeaderPayload(updatedCover);
+          saveReportHeader(reqId, draftId, payload).catch((err) => {
+            console.debug("[CoverFormModal] saveReportHeader background error:", err?.message);
+          });
+        } catch (err) {
+          console.debug("[CoverFormModal] saveReportHeader error:", err);
+        }
+      }
+
       onConfirm(updatedCover);
     }
   };

@@ -10,8 +10,22 @@ import STANDARD_POLE_DATA from "../../calculations/data/specStandardPole.json";
 export function getDummyReportPayload(projectType = "lighting-project", customPoleStandard = null) {
   const dataTaper = STANDARD_POLE_DATA?.tapered || STANDARD_POLE_DATA?.taper || {};
 
+  let resolvedTaperStandard = customPoleStandard;
+  if (!resolvedTaperStandard) {
+    try {
+      resolvedTaperStandard = JSON.parse(
+        sessionStorage.getItem(`${projectType}_taperPoleStandard`) ||
+          sessionStorage.getItem("lighting-project_taperPoleStandard") ||
+          sessionStorage.getItem("taperPoleStandard") ||
+          "null",
+      );
+    } catch {
+      resolvedTaperStandard = null;
+    }
+  }
+
   // Default to IA onGL 10m if none provided
-  const taperPole = customPoleStandard || {
+  const taperPole = resolvedTaperStandard || {
     poleType: "IA",
     groundPosition: "onGL",
     height: "10",
@@ -95,16 +109,46 @@ export function getDummyReportPayload(projectType = "lighting-project", customPo
     judgment: "O.K",
   }));
 
-  const rawDOs = selectedPole.directObjects || [
-    {
-      name: "灯具",
-      type: "directional",
-      frontArea: "0.1",
-      sideArea: "0.1",
-      weight: "14",
-      zHeight: String(taperPole.height ? Number(taperPole.height) * 1000 : 10000),
-    },
-  ];
+  let storedDOs = null;
+  try {
+    storedDOs = JSON.parse(
+      sessionStorage.getItem(`${projectType}_directObjects`) ||
+        sessionStorage.getItem("directObjects") ||
+        "null",
+    );
+  } catch {}
+
+  const isArmPoleType = ["LA", "LS", "TA", "TS"].includes(poleType);
+  const isDirectObjectPoleType = ["IA", "IS"].includes(poleType);
+
+  let rawDOs = [];
+  if (isDirectObjectPoleType) {
+    // Only IA and IS have direct objects mounted directly to the pole
+    rawDOs =
+      Array.isArray(storedDOs) && storedDOs.length > 0
+        ? storedDOs.filter((d) => d?.sourceType !== "arm")
+        : (selectedPole.directObjects || [
+            {
+              name: "灯具",
+              type: "directional",
+              frontArea: "0.15",
+              sideArea: "0.1",
+              weight: "14",
+              zHeight: String(
+                taperPole.height ? Number(taperPole.height) * 1000 : 10000,
+              ),
+            },
+          ]);
+  } else if (isArmPoleType) {
+    // Types LA, LS, TA, TS have objects mounted on arms (Arm Objects), NOT Direct Objects
+    rawDOs = [];
+  } else {
+    // Custom or standard without arms: only keep if not arm objects
+    rawDOs =
+      Array.isArray(storedDOs) && storedDOs.length > 0
+        ? storedDOs.filter((d) => d?.sourceType !== "arm")
+        : (selectedPole.directObjects || []);
+  }
 
   const resultsDo = rawDOs.map((d) => ({
     name: d.name || "灯具",
@@ -119,7 +163,19 @@ export function getDummyReportPayload(projectType = "lighting-project", customPo
     cf: 1.1,
   }));
 
-  const rawArms = selectedPole.arms || [];
+  let storedArms = null;
+  try {
+    storedArms = JSON.parse(
+      sessionStorage.getItem(`${projectType}_arms`) || "null",
+    );
+  } catch {}
+
+  const rawArms =
+    (selectedPole.arms && selectedPole.arms.length > 0)
+      ? selectedPole.arms
+      : (Array.isArray(storedArms) && storedArms.length > 0)
+        ? storedArms
+        : [];
   const resultsArm = rawArms.map((a, idx) => ({
     name: a.name || `Arm ${idx + 1}`,
     material: a.material || "STK400",
@@ -134,7 +190,7 @@ export function getDummyReportPayload(projectType = "lighting-project", customPo
     sectionArea: 6.8,
     sectionModulus: 4.5,
     momentInertia: 14.2,
-    armObjects: [],
+    armObjects: a.armObjects || [],
   }));
 
   let storedCover = null;
@@ -212,6 +268,30 @@ export function getDummyReportPayload(projectType = "lighting-project", customPo
     results,
     resultsDo,
     resultsArm,
-    resultsOhw: [],
+    resultsOhw: (() => {
+      try {
+        const storedOhw = JSON.parse(
+          sessionStorage.getItem(`${projectType}_overheadWires`) ||
+            sessionStorage.getItem("overheadWires") ||
+            "null",
+        );
+        if (Array.isArray(storedOhw) && storedOhw.length > 0) return storedOhw;
+        if (
+          Array.isArray(selectedPole?.overheadWires) &&
+          selectedPole.overheadWires.length > 0
+        ) {
+          return selectedPole.overheadWires;
+        }
+        if (
+          Array.isArray(selectedPole?.overHeadWires) &&
+          selectedPole.overHeadWires.length > 0
+        ) {
+          return selectedPole.overHeadWires;
+        }
+        return [];
+      } catch {
+        return [];
+      }
+    })(),
   };
 }

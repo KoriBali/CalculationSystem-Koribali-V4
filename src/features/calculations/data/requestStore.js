@@ -18,41 +18,15 @@ const fileBlobs = new Map();
 
 const readAll = () => {
   try {
-    const raw = JSON.parse(sessionStorage.getItem(STORAGE_KEY)) ?? {};
-    let changed = false;
-    for (const key of Object.keys(raw)) {
-      const item = raw[key];
-      if (item) {
-        if (item.fields && (item.fields.windSpeed === "34" || !item.fields.windSpeed)) {
-          item.fields.windSpeed = "60";
-          changed = true;
-        }
-        const isNewUnsaved = Boolean(
-          item.isNewProject &&
-          !item.designConditions?.isSaved &&
-          (!item.cases || item.cases.length === 0)
-        );
-        if (!item.designConditions || typeof item.designConditions.isSaved !== "boolean") {
-          item.designConditions = {
-            standard: item.designConditions?.standard || item.fields?.standard || "jil",
-            airDensity: item.designConditions?.airDensity || item.fields?.airDensity || "1.23",
-            windSpeed: item.designConditions?.windSpeed || item.fields?.windSpeed || "60",
-            isSaved: !isNewUnsaved,
-          };
-          changed = true;
-        } else if (!isNewUnsaved && (!item.designConditions.standard || !item.designConditions.windSpeed || !item.designConditions.isSaved)) {
-          item.designConditions.standard = item.designConditions.standard || item.fields?.standard || "jil";
-          item.designConditions.airDensity = item.designConditions.airDensity || item.fields?.airDensity || "1.23";
-          item.designConditions.windSpeed = item.designConditions.windSpeed || item.fields?.windSpeed || "60";
-          item.designConditions.isSaved = true;
-          changed = true;
-        }
-      }
+    const fromSession = JSON.parse(sessionStorage.getItem(STORAGE_KEY));
+    if (fromSession && typeof fromSession === "object" && Object.keys(fromSession).length > 0) {
+      return fromSession;
     }
-    if (changed) {
-      writeAll(raw);
+    const fromLocal = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (fromLocal && typeof fromLocal === "object" && Object.keys(fromLocal).length > 0) {
+      return fromLocal;
     }
-    return raw;
+    return fromSession ?? fromLocal ?? {};
   } catch {
     return {};
   }
@@ -60,12 +34,13 @@ const readAll = () => {
 const writeAll = (all) => {
   try {
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
   } catch {
     // Storage full or blocked — the change is lost on reload.
   }
 };
 
-const mapItemStatusToCaseStatus = (st, idx) => {
+export const mapItemStatusToCaseStatus = (st, idx) => {
   if (typeof st === "object" && st?.label) return st.label;
   if (!st) return idx === 0 ? "In progress" : "Not started";
   switch (st) {
@@ -368,19 +343,54 @@ export const createRequest = (data) => {
       windSpeed: "",
       isSaved: false,
     },
+    drawingConditions: data?.drawingConditions || {
+      drawingType: "",
+      region: "",
+      isSaved: false,
+    },
     ...data,
   };
   writeAll({ ...readAll(), [request.id]: request });
   return request;
 };
 
+export const saveRequest = (request) => {
+  if (!request?.id) return null;
+  const all = readAll();
+  const current = all[request.id] || {};
+  const merged = {
+    ...current,
+    ...request,
+    designConditions:
+      request.designConditions !== undefined
+        ? request.designConditions
+        : current.designConditions,
+    drawingConditions:
+      request.drawingConditions !== undefined
+        ? request.drawingConditions
+        : current.drawingConditions,
+    cases:
+      Array.isArray(request.cases) && request.cases.length > 0
+        ? request.cases
+        : current.cases || [],
+    members:
+      Array.isArray(request.members) && request.members.length > 0
+        ? request.members
+        : current.members || [],
+  };
+  all[request.id] = merged;
+  writeAll(all);
+  return merged;
+};
+
 // `change(request)` returns the updated request; returns it, or null when
 // the request doesn't exist.
 export const updateRequest = (id, change) => {
   const all = readAll();
-  if (!all[id]) return null;
-  const updated = change(all[id]);
-  writeAll({ ...all, [id]: updated });
+  const current = all[id] || {};
+  const updated = typeof change === "function" ? change(current) : { ...current, ...change };
+  all[id] = updated;
+  writeAll(all);
   return updated;
 };
 
@@ -413,3 +423,5 @@ export const fileRecord = (file, uploadedBy, meta = {}) => {
 export const fileBlob = (id) => fileBlobs.get(id) ?? null;
 
 export const forgetFileBlob = (id) => fileBlobs.delete(id);
+
+export const getLocalRequestsMap = () => readAll();

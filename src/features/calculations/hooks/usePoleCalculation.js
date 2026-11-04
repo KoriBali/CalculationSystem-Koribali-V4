@@ -7,6 +7,7 @@ import { executePoleCalculation } from "../logic/pole/poleCalculation";
 import { scrollToFirstError, scrollToFirstNestedError } from "../utils/scrollToError";
 import { notifyCalculationProgressChanged } from "../utils/calculationProgressEvent";
 import { saveWorkingSessionToDraft } from "../utils/coreLogic";
+import { findRequestOfCase } from "../data/requestStore";
 import * as Utils from "../utils";
 import { normalizeCover } from "../../report/utils/reportFormatters";
 
@@ -82,6 +83,11 @@ export function usePoleCalculation({
     "showResults",
     false,
   );
+  const [displayResult, setDisplayResult] = useProjectStorage(
+    projectType,
+    "displayResult",
+    null,
+  );
 
   // ── UI state ──
   const [isCalculated, setIsCalculated] = useProjectStorage(
@@ -91,6 +97,10 @@ export function usePoleCalculation({
   );
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState(null);
+  const [calculationError, setCalculationError] = useState(null);
+  const [calculationKey, setCalculationKey] = useState(0);
+  const [isInputsChanged, setIsInputsChanged] = useState(false);
+  const hasCalculatedRef = useRef(Boolean(isCalculated && results && results.length > 0));
 
   const showToast = (message, type = "error") => setToast({ message, type });
 
@@ -98,6 +108,8 @@ export function usePoleCalculation({
   useEffect(() => {
     if ((!results || results.length === 0) && isCalculated) {
       setIsCalculated(false);
+      hasCalculatedRef.current = false;
+      setIsInputsChanged(false);
       sessionStorage.removeItem(`${projectType}_isCalculatedPole`);
       notifyCalculationProgressChanged();
     }
@@ -139,9 +151,13 @@ export function usePoleCalculation({
 
     if (!hasChanged) return;
 
-    if (isCalculated) {
-      setIsCalculated(false);
+    if (hasCalculatedRef.current && results && results.length > 0) {
+      setIsInputsChanged(true);
     }
+
+    setIsCalculated(false);
+    setCalculationError(null);
+    sessionStorage.removeItem(`${projectType}_isCalculatedPole`);
 
     // Opening, Baseplate, and Foundation each take one of their calculation
     // parameters from Pole's result — so once Pole's own inputs change
@@ -215,27 +231,27 @@ export function usePoleCalculation({
   // karena BE adalah sumber kebenaran untuk field kalkulasi.
 
   // Merge poles: tiap pole input + result BE berdasarkan index
-  const mergePoles = (beResults, resolvedPoles) =>
-    (resolvedPoles || []).map((pole, i) => {
+  const mergePoles = (beResults, resolvedPoles) => {
+    const baseList =
+      Array.isArray(resolvedPoles) && resolvedPoles.length > 0
+        ? resolvedPoles
+        : Array.isArray(beResults) && beResults.length > 0
+          ? beResults
+          : [];
+    return baseList.map((pole, i) => {
       const be = beResults?.[i] || {};
       return {
         ...pole,
-        fb: be.fb ?? 123.45,
-        stb: be.stb ?? 100,
-        sts: be.sts ?? 90,
-        stc: be.stc ?? 80,
-        sectionArea: be.sectionArea ?? 10.5,
-        sectionModulus: be.sectionModulus ?? 8.2,
-        momentInertia: be.momentInertia ?? 25.4,
-        ip: be.ip ?? 12.1,
-        radiusGyration: be.radiusGyration ?? 3.6,
-        taperRatio: be.taperRatio ?? 1.5,
-        typeofTaper: be.typeofTaper ?? (pole.poleType || "Linear"),
-        heightSection: be.heightSection ?? (pole.zHeight ? Number(pole.zHeight) : 500),
-        description: be.description || pole.description || pole.name || `Section ${i + 1}`,
         ...be,
+        description:
+          be.description ||
+          be.name ||
+          pole.description ||
+          pole.name ||
+          `Pole ${i + 1}`,
       };
     });
+  };
 
   // Merge direct objects: tiap DO input + result BE berdasarkan index
   const mergeDirectObjects = (beResults, resolvedDo) =>
@@ -361,6 +377,10 @@ export function usePoleCalculation({
 
     try {
       setLoading(true);
+      setCalculationError(null);
+
+      const foundReq = draftId ? findRequestOfCase(draftId) : null;
+      const requestId = foundReq?.request?.id || null;
 
       const data = await executePoleCalculation({
         condition,
@@ -372,6 +392,8 @@ export function usePoleCalculation({
         arms: validation.resolvedArms,
         straightPoleStandard: poleStandardForm.straightPoleStandard,
         taperPoleStandard: poleStandardForm.taperPoleStandard,
+        requestId,
+        caseId: draftId,
       });
 
       // Merge input FE + hasil kalkulasi BE sebelum disimpan ke state
@@ -383,8 +405,16 @@ export function usePoleCalculation({
         mergeOverheadWires(data.resultsOhw, validation.resolvedOverheadWires),
       );
       setResultsArm(mergeArms(data.resultsArm, validation.resolvedArms));
+      if (data.display) {
+        setDisplayResult(data.display);
+      }
       setShowResults(true);
       setIsCalculated(true);
+      hasCalculatedRef.current = true;
+      setIsInputsChanged(false);
+      setCalculationError(null);
+      setCalculationKey((prev) => prev + 1);
+      sessionStorage.setItem(`${projectType}_isCalculatedPole`, "true");
       // Let Header re-read sessionStorage now — otherwise the Opening tab
       // stays locked-looking until the user also clicks Next and navigates.
       notifyCalculationProgressChanged();
@@ -393,7 +423,14 @@ export function usePoleCalculation({
         .getElementById("results-pole")
         ?.scrollIntoView({ behavior: "smooth", block: "start" });
     } catch (err) {
-      showToast(err?.message || "Something went wrong");
+      console.error("Calculation failed:", err);
+      const errMsg = err?.message || "Something went wrong during calculation";
+      setCalculationError(errMsg);
+      setIsCalculated(false);
+      setShowResults(false);
+      sessionStorage.removeItem(`${projectType}_isCalculatedPole`);
+      notifyCalculationProgressChanged();
+      showToast(errMsg, "error");
     } finally {
       setLoading(false);
     }
@@ -466,12 +503,16 @@ export function usePoleCalculation({
     resultsDo,
     resultsOhw,
     resultsArm,
+    displayResult,
     showResults,
 
     isCalculated,
     loading,
     toast,
     buttonLabel,
+    calculationError,
+    calculationKey,
+    isInputsChanged,
 
     setToast,
 

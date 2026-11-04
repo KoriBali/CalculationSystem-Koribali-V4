@@ -5,12 +5,13 @@ import {
   forwardRef,
   useImperativeHandle,
 } from "react";
-import { Edit3, Info, Lightbulb } from "lucide-react";
+import { Edit3, Info, Lightbulb, Loader2 } from "lucide-react";
 import { designStandardOptions } from "../../../constants/designStandards";
 import { FormSelect } from "../../../../../shared/components/FormSelect";
 import {
   resolveDesignStandardCode,
   resolveDesignStandardLabel,
+  isUuid,
 } from "../../../utils/requestPayloadMapper";
 
 const inputStyle = (hasError = false) =>
@@ -42,56 +43,78 @@ export const DesignConditionsSection = forwardRef(
   ) {
     // Check if conditions have been saved or if this is an existing project.
     // Only freshly created projects that haven't been confirmed yet start in edit mode (Gambar 1).
-    // All existing projects (or once saved) display in read-only summary mode with Edit button (Gambar 2).
-    const isNewUnsaved = Boolean(
-      request.isNewProject &&
-      !request.designConditions?.isSaved &&
-      (!request.cases || request.cases.length === 0)
+    // A project's design conditions are saved ONLY if explicitly confirmed by user or server
+    const isSaved = Boolean(
+      request.designConditions?.isSaved || request.designConditions?.isSavedOnServer
     );
-    const isSaved = !isNewUnsaved;
 
     const [isEditing, setIsEditing] = useState(!isSaved);
+    const [isSaving, setIsSaving] = useState(false);
     const [errors, setErrors] = useState({});
 
-    // Standard options for this request's project pole type
+    // Standard options for this request's project pole type (normalized to prevent empty list)
+    const resolvedProjectType = useMemo(() => {
+      const pt = String(request.projectType || "").toLowerCase().trim().replace(/_/g, "-");
+      if (pt.includes("disaster") || pt.includes("acemast")) return "disaster-prevention-project";
+      if (pt.includes("sign")) return "signboard-project";
+      if (pt.includes("multi")) return "multi-purpose-project";
+      if (pt.includes("light")) return "lighting-project";
+      return pt.endsWith("-project") ? pt : `${pt}-project`;
+    }, [request.projectType]);
+
     const activeOptions = useMemo(
-      () => designStandardOptions[request.projectType] || [],
-      [request.projectType],
+      () =>
+        designStandardOptions[resolvedProjectType] ||
+        designStandardOptions[request.projectType] ||
+        designStandardOptions["lighting-project"] ||
+        [],
+      [resolvedProjectType, request.projectType],
     );
 
-    // Helper to find matching option from activeOptions, resolving any UUID or text variant
+    // Helper to find exact matching option from activeOptions, resolving any UUID or text variant
     const findStandardOption = (val) => {
       if (!val) return null;
       const code = resolveDesignStandardCode(val);
       const s = String(val).toLowerCase().trim();
-      return activeOptions.find((o) => {
-        const ov = o.value.toLowerCase();
-        const ol = o.label.toLowerCase();
-        return (
-          ov === code.toLowerCase() ||
-          ov === s ||
-          ol === s ||
-          (code === "jil" && ov === "jil") ||
-          (s.includes("jil") && ov === "jil") ||
-          (s.includes("haiden") && ov === "haiden") ||
-          (s.includes("v60") && ov === "v60") ||
-          ((s.includes("act") || s.includes("law")) && ov === "act") ||
-          (s.includes("tower") && ov === "tower") ||
-          (s.includes("signboard") && ov === "signboard")
-        );
-      });
+      return (
+        activeOptions.find((o) => {
+          const ov = o.value.toLowerCase().trim();
+          const ol = o.label.toLowerCase().trim();
+          const isOldStd = (v) =>
+            v === "jil" ||
+            v === "old_jil" ||
+            v === "old_lighting_pole" ||
+            v === "old_lighting" ||
+            v === "lighting_pole";
+          return (
+            (code && ov === code.toLowerCase()) ||
+            (isOldStd(code) && isOldStd(ov)) ||
+            (code === "new_jil" && ov === "new_jil") ||
+            ov === s ||
+            ol === s
+          );
+        }) || null
+      );
     };
 
+    const isJilStd = (s) =>
+      Boolean(
+        s &&
+          (s === "jil" ||
+            s === "old_jil" ||
+            s === "old_lighting_pole" ||
+            s === "old_lighting" ||
+            s === "lighting_pole" ||
+            s === "new_jil" ||
+            String(s).toLowerCase().includes("jil") ||
+            String(s).toLowerCase().includes("lighting"))
+      );
+
     // Reference values from cover information (original request input, kept immutable as reference)
-    const rawCoverStandard = request.fields?.standard;
+    const rawCoverStandard = isUuid(request.fields?.standard) ? "" : request.fields?.standard;
     const hasCoverStandard = Boolean(rawCoverStandard && String(rawCoverStandard).trim());
     const matchedCoverOption = hasCoverStandard ? findStandardOption(rawCoverStandard) : null;
-    const coverStandardCode =
-      matchedCoverOption?.value ||
-      (hasCoverStandard ? resolveDesignStandardCode(rawCoverStandard) : "");
-    const coverStandardLabel =
-      matchedCoverOption?.label ||
-      (coverStandardCode ? resolveDesignStandardLabel(coverStandardCode, request.projectType) : "");
+    const coverStandardCode = matchedCoverOption?.value || "";
 
     const rawCoverWindSpeed = request.fields?.windSpeed;
     const hasCoverWindSpeed =
@@ -102,67 +125,98 @@ export const DesignConditionsSection = forwardRef(
 
     // Build reference info text: shows only what was actually specified in Cover Information
     const referenceParts = [];
-    if (coverStandardLabel) referenceParts.push(`Standard ${coverStandardLabel}`);
+    if (hasCoverStandard) {
+      const coverLabel =
+        matchedCoverOption?.label ||
+        resolveDesignStandardLabel(rawCoverStandard, request.projectType) ||
+        String(rawCoverStandard).trim();
+      referenceParts.push(`Standard ${coverLabel}`);
+    }
     if (coverWindSpeed) referenceParts.push(`Wind speed ${coverWindSpeed} m/s`);
-    const referenceInfoText =
-      referenceParts.length > 0
-        ? `Reference from Cover Information: ${referenceParts.join(" · ")}`
-        : null;
+    const hasCoverReference = referenceParts.length > 0;
+    const referenceInfoText = hasCoverReference
+      ? `Reference from Cover Information: ${referenceParts.join(" · ")}`
+      : "Reference from Cover Information: None (not specified in Cover Information)";
 
-    // Default initial values: if cover reference was filled, use it as initial value; otherwise use standard defaults
-    const defaultStandard =
-      coverStandardCode || (request.projectType === "lighting-project" ? "jil" : "v60");
-    const defaultWindSpeed = coverWindSpeed || "60";
-    const defaultAirDensity = "1.23";
+    // Default initial values: ONLY wind speed enters from cover reference as default if not saved yet
+    const defaultStandard = "";
+    const defaultWindSpeed = coverWindSpeed || "";
+    const defaultAirDensity = "";
 
-    // Saved / current calculation conditions (resolves UUIDs to standard code e.g. 'jil')
+    // Saved / current calculation conditions (resolves UUIDs to standard code e.g. 'old_jil')
     const rawSavedStandard = request.designConditions?.standard;
     const matchedSaved = findStandardOption(rawSavedStandard);
-    const currentStandard =
-      matchedSaved?.value ||
-      resolveDesignStandardCode(rawSavedStandard) ||
-      defaultStandard;
-    const currentAirDensity = request.designConditions?.airDensity || defaultAirDensity;
-    const currentWindSpeed = request.designConditions?.windSpeed || defaultWindSpeed;
+    const currentStandard = isSaved
+      ? (matchedSaved?.value || resolveDesignStandardCode(rawSavedStandard) || "")
+      : "";
+    const currentAirDensity = isSaved
+      ? (request.designConditions?.airDensity || "")
+      : "";
+    const currentWindSpeed = isSaved
+      ? (request.designConditions?.windSpeed || "")
+      : (coverWindSpeed || "");
 
-    // Form states in edit mode - automatically populated from reference if not yet saved
+    // Form states in edit mode - only wind speed starts with cover reference as default if unsaved
     const [standard, setStandard] = useState(
-      currentStandard || defaultStandard
+      currentStandard || ""
     );
     const [airDensity, setAirDensity] = useState(
-      currentAirDensity || defaultAirDensity
+      currentAirDensity || ""
     );
     const [windSpeed, setWindSpeed] = useState(
-      currentWindSpeed || defaultWindSpeed
+      currentWindSpeed || ""
     );
 
-    // Adjust state during render if request or saved status changes
+    // Adjust state during render if request id or saved status changes
+    // CRITICAL: Do NOT wipe in-progress user inputs on background re-renders when isSaved is false!
     const [prevReqData, setPrevReqData] = useState({
       id: request.id,
       saved: isSaved,
-      cond: request.designConditions,
     });
 
     if (
       prevReqData.id !== request.id ||
-      prevReqData.saved !== isSaved ||
-      prevReqData.cond !== request.designConditions
+      prevReqData.saved !== isSaved
     ) {
       setPrevReqData({
         id: request.id,
         saved: isSaved,
-        cond: request.designConditions,
       });
       if (!isSaved) {
         setIsEditing(true);
       }
+      const nextStd = isSaved
+        ? (findStandardOption(request.designConditions?.standard)?.value ||
+           resolveDesignStandardCode(request.designConditions?.standard) || "")
+        : "";
+      const nextWind = isSaved
+        ? (request.designConditions?.windSpeed || "")
+        : (coverWindSpeed || "");
+      const nextAir = isSaved
+        ? (request.designConditions?.airDensity || "")
+        : "";
+      setStandard(nextStd);
+      setWindSpeed(nextWind);
+      setAirDensity(nextAir);
+    }
+
+    // When conditions are already saved, sync with external updates when not actively editing
+    const savedCondKey = isSaved && !isEditing
+      ? `${request.designConditions?.standard}_${request.designConditions?.windSpeed}_${request.designConditions?.airDensity}`
+      : "";
+    const [prevSavedKey, setPrevSavedKey] = useState(savedCondKey);
+
+    if (isSaved && !isEditing && savedCondKey !== prevSavedKey) {
+      setPrevSavedKey(savedCondKey);
       const nextStd =
         findStandardOption(request.designConditions?.standard)?.value ||
         resolveDesignStandardCode(request.designConditions?.standard) ||
-        defaultStandard;
+        "";
+      const nextWind = request.designConditions?.windSpeed || "";
+      const nextAir = request.designConditions?.airDensity || "";
       setStandard(nextStd);
-      setWindSpeed(request.designConditions?.windSpeed || defaultWindSpeed);
-      setAirDensity(request.designConditions?.airDensity || defaultAirDensity);
+      setWindSpeed(nextWind);
+      setAirDensity(nextAir);
     }
 
     // Notify parent whenever edit mode changes
@@ -205,7 +259,7 @@ export const DesignConditionsSection = forwardRef(
       },
     }));
 
-    // When standard changes, auto-fill wind speed & air density for JIL or V60
+    // When standard changes, validate and auto-fill air density & wind speed if standard is JIL
     const handleStandardChange = (val) => {
       setStandard(val);
       setErrors((prev) => {
@@ -214,18 +268,19 @@ export const DesignConditionsSection = forwardRef(
         return next;
       });
 
-      if (val === "jil" || val === "v60") {
-        setWindSpeed("60");
-        setAirDensity("1.23");
+      if (isJilStd(val)) {
+        if (!airDensity || String(airDensity).trim() === "") {
+          setAirDensity("1.23");
+        }
+        if (!windSpeed || String(windSpeed).trim() === "") {
+          setWindSpeed("60");
+        }
         setErrors((prev) => {
           const next = { ...prev };
-          delete next.standard;
-          delete next.windSpeed;
           delete next.airDensity;
+          delete next.windSpeed;
           return next;
         });
-      } else if (val) {
-        if (!airDensity) setAirDensity("1.23");
       }
     };
 
@@ -248,22 +303,22 @@ export const DesignConditionsSection = forwardRef(
     };
 
     const handleStartEdit = () => {
-      setStandard(currentStandard || defaultStandard);
-      setAirDensity(currentAirDensity || defaultAirDensity);
-      setWindSpeed(currentWindSpeed || defaultWindSpeed);
+      setStandard(currentStandard || "");
+      setAirDensity(currentAirDensity || "");
+      setWindSpeed(currentWindSpeed || coverWindSpeed || "");
       setErrors({});
       setIsEditing(true);
     };
 
     const handleCancel = () => {
-      setStandard(currentStandard || defaultStandard);
-      setAirDensity(currentAirDensity || defaultAirDensity);
-      setWindSpeed(currentWindSpeed || defaultWindSpeed);
+      setStandard(currentStandard || "");
+      setAirDensity(currentAirDensity || "");
+      setWindSpeed(currentWindSpeed || coverWindSpeed || "");
       setErrors({});
       setIsEditing(false);
     };
 
-    const handleSave = (e) => {
+    const handleSave = async (e) => {
       e?.preventDefault();
       const errs = {};
       if (!standard || !standard.trim()) {
@@ -295,17 +350,24 @@ export const DesignConditionsSection = forwardRef(
         return;
       }
 
-      onSave({
-        standard,
-        airDensity: String(airDensity),
-        windSpeed: String(windSpeed),
-        isSaved: true,
-      });
+      setIsSaving(true);
+      try {
+        await onSave?.({
+          standard,
+          airDensity: String(airDensity),
+          windSpeed: String(windSpeed),
+          isSaved: true,
+        });
 
-      setErrors({});
-      setIsEditing(false);
-      if (onToast) {
-        onToast("Design conditions saved successfully.");
+        setErrors({});
+        setIsEditing(false);
+        if (onToast) {
+          onToast("Design conditions saved successfully.");
+        }
+      } catch (err) {
+        // Handled by onSave error modal/toast
+      } finally {
+        setIsSaving(false);
       }
     };
 
@@ -348,7 +410,7 @@ export const DesignConditionsSection = forwardRef(
                 </span>
                 <div className="mt-1">
                   <span className="text-sm font-medium text-gray-800 break-words">
-                    {standardLabel}
+                    {standardLabel || "—"}
                   </span>
                 </div>
               </div>
@@ -360,11 +422,13 @@ export const DesignConditionsSection = forwardRef(
                 </span>
                 <div className="mt-1 flex items-baseline">
                   <span className="text-sm font-medium text-gray-800">
-                    {currentWindSpeed}
+                    {currentWindSpeed || "—"}
                   </span>
-                  <span className="ml-1 text-sm text-gray-500 font-normal">
-                    m/s
-                  </span>
+                  {currentWindSpeed && (
+                    <span className="ml-1 text-sm text-gray-500 font-normal">
+                      m/s
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -375,37 +439,30 @@ export const DesignConditionsSection = forwardRef(
                 </span>
                 <div className="mt-1 flex items-baseline">
                   <span className="text-sm font-medium text-gray-800">
-                    {currentAirDensity}
+                    {currentAirDensity || "—"}
                   </span>
-                  <span className="ml-1 text-sm text-gray-500 font-normal">
-                    N·sec²/m⁴
-                  </span>
+                  {currentAirDensity && (
+                    <span className="ml-1 text-sm text-gray-500 font-normal">
+                      N·sec²/m⁴
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
 
             {/* Simple Reference Info Box */}
-            {referenceInfoText && (
-              <div className="flex items-start sm:items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg hp:rounded-md px-4 py-2.5 text-xs md:text-sm text-gray-500">
-                <Info className="w-4 h-4 shrink-0 text-gray-400 mt-0.5 sm:mt-0" />
-                <span>{referenceInfoText}</span>
-              </div>
-            )}
+            <div className="flex items-start sm:items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg hp:rounded-md px-4 py-2.5 text-xs md:text-sm text-gray-500">
+              <Info className="w-4 h-4 shrink-0 text-gray-400 mt-0.5 sm:mt-0" />
+              <span>{referenceInfoText}</span>
+            </div>
           </div>
         ) : (
           /* ── EDIT / INITIAL INPUT MODE (Mandatory First Input) ── */
           <form onSubmit={handleSave} className="space-y-3">
             <div className="pb-2.5 border-b border-gray-100 flex items-center justify-between">
-              <div>
-                <h4 className="text-xs sm:text-sm font-semibold text-slate-800">
-                  {isSaved
-                    ? "Edit Design Conditions for Calculation Cases"
-                    : "Design Conditions for Calculation Cases"}
-                </h4>
-                <p className="text-[14px] text-gray-500 mt-0.5">
-                  Structural criteria applied across all calculation cases in this project.
-                </p>
-              </div>
+              <p className="text-[14px] text-gray-500">
+                Structural criteria applied across all calculation cases in this project.
+              </p>
             </div>
 
             {/* Interactive Guidance Banner (Shown on initial unconfirmed state) */}
@@ -413,16 +470,33 @@ export const DesignConditionsSection = forwardRef(
               <div className="flex items-start gap-3 px-4 py-3 rounded-lg bg-sky-50/70 border border-sky-200/80 text-xs sm:text-sm">
                 <Lightbulb className="w-4 h-4 text-[#3399cc] shrink-0 mt-0.5" />
                 <div className="flex-1 leading-relaxed">
-                  <span className="font-semibold text-slate-800">
-                    Values are prefilled from Cover Information.{" "}
-                  </span>
-                  <span className="text-slate-600">
-                    You can adjust any field directly below if needed, or click{" "}
-                    <strong className="font-semibold text-[#0d3b66]">
-                      Save Design Conditions
-                    </strong>{" "}
-                    to confirm and proceed to cases.
-                  </span>
+                  {hasCoverReference ? (
+                    <>
+                      <span className="font-semibold text-slate-800">
+                        Values are prefilled from Cover Information.{" "}
+                      </span>
+                      <span className="text-slate-600">
+                        You can adjust any field directly below if needed, or click{" "}
+                        <strong className="font-semibold text-[#0d3b66]">
+                          Save Design Conditions
+                        </strong>{" "}
+                        to confirm and proceed to cases.
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="font-semibold text-slate-800">
+                        No design criteria specified in Cover Information.{" "}
+                      </span>
+                      <span className="text-slate-600">
+                        Please specify Design Standard, Wind Speed, and Air Density below, then click{" "}
+                        <strong className="font-semibold text-[#0d3b66]">
+                          Save Design Conditions
+                        </strong>{" "}
+                        to confirm and proceed to cases.
+                      </span>
+                    </>
+                  )}
                 </div>
               </div>
             )}
@@ -494,12 +568,10 @@ export const DesignConditionsSection = forwardRef(
             </div>
 
             {/* Simple Reference Info Box */}
-            {referenceInfoText && (
-              <div className="flex items-start sm:items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg hp:rounded-md px-4 py-2.5 text-xs md:text-sm text-gray-500">
-                <Info className="w-4 h-4 shrink-0 text-gray-400 mt-0.5 sm:mt-0" />
-                <span>{referenceInfoText}</span>
-              </div>
-            )}
+            <div className="flex items-start sm:items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg hp:rounded-md px-4 py-2.5 text-xs md:text-sm text-gray-500">
+              <Info className="w-4 h-4 shrink-0 text-gray-400 mt-0.5 sm:mt-0" />
+              <span>{referenceInfoText}</span>
+            </div>
 
             {/* Footer buttons (Without "Applies to all calculation cases" text) */}
             <div className="pt-2 flex justify-end items-center gap-2.5">
@@ -507,16 +579,29 @@ export const DesignConditionsSection = forwardRef(
                 <button
                   type="button"
                   onClick={handleCancel}
-                  className="px-4 py-2 rounded-lg hp:rounded-md text-xs sm:text-sm font-medium bg-[#eef2f6] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:bg-[#e2e8f0] transition-colors"
+                  disabled={isSaving}
+                  className="px-5 py-2.5 rounded-lg hp:rounded-md font-medium text-xs sm:text-sm bg-[#eef2f6] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:bg-[#e2e8f0] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Cancel
                 </button>
               )}
               <button
                 type="submit"
-                className="px-5 py-2 rounded-lg hp:rounded-md text-xs sm:text-sm font-medium text-white bg-gradient-to-r from-[#0d3b66] to-[#3399cc] hover:brightness-110 shadow-sm active:scale-95 transition-all"
+                disabled={isSaving}
+                className="inline-flex items-center justify-center gap-2 min-w-[140px] px-5 py-2.5 rounded-lg hp:rounded-md font-medium text-xs sm:text-sm bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 transition-all"
               >
-                {isSaved ? "Save changes" : "Save Design Conditions"}
+                {isSaving ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-white" />
+                    <span>Saving...</span>
+                  </>
+                ) : (
+                  <span>
+                    {isSaved
+                      ? "Save changes"
+                      : "Save Design Conditions"}
+                  </span>
+                )}
               </button>
             </div>
           </form>

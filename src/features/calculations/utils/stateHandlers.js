@@ -150,7 +150,7 @@ export const pastePole = (id, setPoles, poleClipboard) => {
 // ====================================================
 // Function for Direct Object Input
 // ====================================================
-// FUNCTION: Add a new direct object (max 25 object) By Input
+// FUNCTION: Add a new direct object (max 10 object) By Input
 export const syncDoByInput = (
   inputValue,
   directObjects,
@@ -162,7 +162,7 @@ export const syncDoByInput = (
 
   if (!targetCount || targetCount < 0) return;
 
-  const safeTarget = Math.min(targetCount, 25);
+  const safeTarget = Math.min(targetCount, 10);
   const currentCount = directObjects.length;
 
   // case 1: imput jumlah yang sama
@@ -202,9 +202,9 @@ export const syncDoByInput = (
   }
 };
 
-// FUNCTION: Add a new direct object (max 25 object) By Click
+// FUNCTION: Add a new direct object (max 10 object) By Click
 export const addDo = (directObjects, setDirectObjects, idRef) => {
-  if (directObjects.length >= 25) return;
+  if (directObjects.length >= 10) return;
 
   idRef.current += 1;
   const newId = idRef.current.toString();
@@ -433,9 +433,9 @@ export const resetCurrentOhw = (setOverheadWires, overheadWires, id) => {
 // ====================================================
 // Function for Arm Input
 // ====================================================
-// FUNCTION: Add a new arm (max 6 arm)
+// FUNCTION: Add a new arm (max 10 arm)
 export const addArm = (arms, setArms, setActiveTabArm, armIdRef) => {
-  if (arms.length >= 6) return;
+  if (arms.length >= 10) return;
 
   armIdRef.current += 1;
   const newId = armIdRef.current.toString();

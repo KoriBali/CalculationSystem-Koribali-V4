@@ -206,16 +206,10 @@ export function getRequestItems(request) {
       };
     });
   }
-  if (Array.isArray(request.items)) {
+  if (Array.isArray(request.items) && request.items.length > 0) {
     return request.items;
   }
-  return [
-    {
-      caseNo: "001",
-      work_type: request.workTypes?.drawing ? "drawing" : "calc",
-      status: ITEM_STATUS.IN_PROGRESS,
-    },
-  ];
+  return [];
 }
 
 // Placement rule, checked in order:
@@ -245,6 +239,14 @@ export function describeRequest(request) {
   }
   const items = getRequestItems(request);
   const tab = requestTab(request);
+
+  if (items.length === 0) {
+    return {
+      key: "in_progress",
+      label: "In progress",
+      detail: "—",
+    };
+  }
 
   if (tab === "mine") {
     const corrections = byStatus(items, ITEM_STATUS.INTERNAL_CORRECTION);
@@ -363,9 +365,16 @@ export function formatDate(value) {
 // Due-date cell: the date plus how urgent it is.
 //   tone: "overdue" | "soon" (≤ 3 days) | "normal" | "none" (no date)
 export function describeDue(request, { closed = false } = {}) {
-  if (!request.dueDate) return { text: "", hint: null, tone: "none" };
-  const due = new Date(`${request.dueDate}T00:00:00`);
-  const text = formatDate(request.dueDate);
+  const rawDue =
+    request?.dueDate ||
+    request?.fields?.dueDate ||
+    request?.fields?.requestedDate ||
+    request?.fields?.deliveryDate;
+  if (!rawDue) return { text: "—", hint: null, tone: "none" };
+  const dateStr = typeof rawDue === "string" ? rawDue.slice(0, 10) : "";
+  const due = new Date(dateStr.length === 10 ? `${dateStr}T00:00:00` : rawDue);
+  if (isNaN(due.getTime())) return { text: "—", hint: null, tone: "none" };
+  const text = formatDate(dateStr || rawDue);
   if (closed) return { text, hint: null, tone: "normal" };
 
   const today = new Date();

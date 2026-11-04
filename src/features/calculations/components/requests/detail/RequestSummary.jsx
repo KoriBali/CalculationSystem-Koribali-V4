@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronDown, Pencil } from "lucide-react";
+import { ChevronDown, Edit3 } from "lucide-react";
 import { REQUEST_SUMMARY } from "../../../constants/requestSummary";
 
 function Field({ label, jp, value, wide }) {
@@ -7,16 +7,16 @@ function Field({ label, jp, value, wide }) {
 
   return (
     <div
-      className={`px-3.5 py-2.5 rounded-lg border transition-all ${wide ? "sm:col-span-2 xl:col-span-4" : ""
-        } ${isFilled
+      className={`px-3.5 py-2.5 rounded-lg border transition-all ${
+        wide ? "sm:col-span-2 xl:col-span-4" : ""
+      } ${
+        isFilled
           ? "bg-gray-50/70 hover:bg-gray-50 border-gray-200/80"
           : "bg-gray-50/30 border-dashed border-gray-200/80"
-        }`}
+      }`}
     >
       <dt className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
-        <span className="text-[13px] font-medium text-gray-500">
-          {label}
-        </span>
+        <span className="text-[13px] font-medium text-gray-500">{label}</span>
         {jp && (
           <>
             <span aria-hidden="true" className="text-gray-400">
@@ -29,8 +29,9 @@ function Field({ label, jp, value, wide }) {
         )}
       </dt>
       <dd
-        className={`mt-1 text-xs sm:text-sm break-words whitespace-pre-line leading-relaxed ${isFilled ? "font-medium text-gray-800" : "text-gray-400 italic"
-          }`}
+        className={`mt-1 text-xs sm:text-sm break-words whitespace-pre-line leading-relaxed ${
+          isFilled ? "font-medium text-gray-800" : "text-gray-400 italic"
+        }`}
       >
         {value || "—"}
       </dd>
@@ -82,8 +83,8 @@ export function RequestSummary({ request, onEdit }) {
             onClick={onEdit}
             className="inline-flex items-center gap-1.5 h-8.5 px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-xs active:scale-95 transition-all shrink-0"
           >
-            <Pencil className="w-3.5 h-3.5 text-[#0d3b66]" />
-            <span>Edit Project</span>
+            <Edit3 className="w-3.5 h-3.5 text-[#0d3b66]" />
+            <span>Edit</span>
           </button>
         )}
       </div>
@@ -117,8 +118,9 @@ export function RequestSummary({ request, onEdit }) {
                 : `Show all details (${rest.length} more sections)`}
             </span>
             <ChevronDown
-              className={`w-3.5 h-3.5 transition-transform duration-200 ${showAll ? "rotate-180" : ""
-                }`}
+              className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                showAll ? "rotate-180" : ""
+              }`}
             />
           </button>
         </div>

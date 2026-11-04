@@ -99,8 +99,7 @@ export const MOCK_COVER_EXTRACT = {
   companyName: "YSポール(東京営業所－YSPOLE)",
   projectNo: "77732",
   projectName: "宮下児童遊園",
-  // Standard is picked from this project type's list at auto-fill time.
-  standard: "",
+  standard: "JIL 1003",
   windSpeed: "60",
   foundation: "square",
   foundationWidth: "800",

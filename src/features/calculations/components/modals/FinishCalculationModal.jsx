@@ -69,11 +69,18 @@ export function FinishCalculationModal({ open, onClose, onSaveDraft, onSaveDatab
               )}
             </div>
             <div className="flex-1">
-              <h3 className="font-bold text-slate-800 text-sm group-hover:text-blue-700 transition-colors">
-                {isDrawingMode ? "Preview Drawing Output" : "Preview Report First"}
-              </h3>
+              <div className="flex items-center gap-2">
+                <h3 className="font-bold text-slate-800 text-sm group-hover:text-blue-700 transition-colors">
+                  {isDrawingMode ? "Preview Drawing Output" : "Preview Report First"}
+                </h3>
+                <span className="text-[10px] font-semibold px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full border border-blue-200/60 shrink-0">
+                  Auto-saves draft
+                </span>
+              </div>
               <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5 leading-snug">
-                {isDrawingMode ? "Preview the AutoCAD drawing output (Coming Soon)." : "Preview results in PDF report format before submitting."}
+                {isDrawingMode
+                  ? "Preview AutoCAD drawing output. Automatically saves your progress to draft."
+                  : "Preview results in PDF report format. Automatically saves calculation to draft."}
               </p>
             </div>
             <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-slate-400 group-hover:text-blue-500 transition-colors shrink-0" />

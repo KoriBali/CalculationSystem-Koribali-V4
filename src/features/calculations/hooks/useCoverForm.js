@@ -5,14 +5,14 @@ import { CoverSchema } from "../schemas/cover/CoverSchema";
 
 // ─── CONSTANTS ───────────────────────────────────────────────────────────────
 
-// Default prefilled cover state — temporary auto-fill defaults
+// Default prefilled cover state — report number and titles start empty so user is required to input them
 export const DEFAULT_COVER = {
-  reportNumber: "WS76509-001",
-  calculationNumber: "WS76509-001",
-  title1: "江戸川フラワーガーデン",
-  projectName: "江戸川フラワーガーデン",
-  title2: "強度検討",
-  coverTopText: "強度検討",
+  reportNumber: "",
+  calculationNumber: "",
+  title1: "",
+  projectName: "",
+  title2: "",
+  coverTopText: "",
   title3: "",
   coverBottomText: "",
   region: "A",

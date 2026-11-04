@@ -19,6 +19,8 @@ import {
 import { clearCalculationSession } from "../../../utils";
 import { useOpeningForm } from "../../../hooks/useOpeningForm";
 import { useReport } from "../../../../report/hooks/useReport";
+import { ReportLoadingModal } from "../../../../report/components/modals/ReportLoadingModal";
+import { ReportErrorModal } from "../../../../report/components/modals/ReportErrorModal";
 import { useState } from "react";
 import { activeDraftRequestPath, submitCaseForCheck } from "../../../utils/requestCases";
 import { useReadOnly } from "../../../contexts/ReadOnlyContext";
@@ -35,7 +37,7 @@ export default function OpeningFormView() {
 
   // ── Hooks ──
   const opening = useOpeningForm();
-  const { makeReport } = useReport(projectType);
+  const report = useReport(projectType);
   const { isReadOnly } = useReadOnly();
 
   // Opens cover modal if this is the last step, otherwise navigates to next.
@@ -58,7 +60,7 @@ export default function OpeningFormView() {
   };
 
   const handleConfirmCover = async (overrideCover) => {
-    const success = await makeReport({
+    const success = await report.makeReport({
       isCalculated: opening.isCalculated,
       showToast: opening.showToast,
       coverOverride: overrideCover,
@@ -71,6 +73,9 @@ export default function OpeningFormView() {
 
   const handleGenerateReportClick = () => {
     setShowFinishModal(false);
+    if (draftId) {
+      saveWorkingSessionToDraft(projectType, draftId);
+    }
     if (hasCoverData(projectType)) {
       handleConfirmCover();
     } else {
@@ -247,6 +252,22 @@ export default function OpeningFormView() {
         projectType={projectType}
         draftId={draftId}
         onConfirm={handleConfirmCover}
+      />
+
+      {/* ── Report Generation Loading & Error Modals ── */}
+      <ReportLoadingModal open={report.isGeneratingReport} />
+      <ReportErrorModal
+        open={Boolean(report.reportError)}
+        onClose={report.clearReportError}
+        title={report.reportError?.title}
+        message={report.reportError?.message}
+        details={report.reportError?.details}
+        status={report.reportError?.status}
+        onRetry={() => {
+          report.clearReportError();
+          handleConfirmCover();
+        }}
+        onBackToCalculation={report.clearReportError}
       />
     </>
   );

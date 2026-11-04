@@ -6,6 +6,7 @@
 // Field:   { label, jp?, value(fields, request) → string, wide? }
 //   An empty string reads as "—". `wide`: the whole row (long text).
 import { designStandardOptions } from "./designStandards";
+import { resolveDesignStandardLabel, isUuid } from "../utils/requestPayloadMapper";
 import {
   CAD_FORMAT_OPTIONS,
   CALC_TYPE_OPTIONS,
@@ -55,13 +56,29 @@ const joined = (keys, separator) => (f) =>
     .filter(Boolean)
     .join(separator);
 
-const discipline = (_, request) =>
-  [
-    request.workTypes.calc && "Calculation",
-    request.workTypes.drawing && "Drawing",
-  ]
-    .filter(Boolean)
-    .join(" & ");
+const discipline = (_, request) => {
+  const dt = (request?.designType || request?.design_type || "").toLowerCase();
+  const isBoth =
+    dt === "drawing_calculation" ||
+    dt === "calculation_drawing" ||
+    dt === "calc_drawing" ||
+    dt === "both" ||
+    (request?.workTypes?.calc && request?.workTypes?.drawing);
+  if (isBoth) return "Calculation and drawing";
+
+  const isCalc =
+    request?.workTypes?.calc ||
+    dt === "calculation" ||
+    dt === "calc";
+  const isDrawing =
+    request?.workTypes?.drawing ||
+    dt === "drawing";
+
+  if (isCalc && isDrawing) return "Calculation and drawing";
+  if (isDrawing) return "Drawing";
+  if (isCalc) return "Calculation";
+  return "—";
+};
 const deliverables = (f) =>
   [labelOf(DELIVER_TYPE_OPTIONS, f.deliverType), f.deliverCad && "CAD Data"]
     .filter(Boolean)
@@ -74,12 +91,36 @@ const platingProviso = (f) =>
   [labelOf(PLATING_PROVISO_OPTIONS, f.platingProviso), f.platingProvisoText]
     .filter(Boolean)
     .join(": ");
-const designStandard = (f, request) =>
-  labelOf(designStandardOptions[request.projectType] ?? [], f.standard);
+const designStandard = (f, request) => {
+  if (!f?.standard || isUuid(f.standard)) return "";
+  const match = (designStandardOptions[request?.projectType] ?? []).find(
+    (o) =>
+      o.value.toLowerCase() === (f.standard || "").toLowerCase() ||
+      o.label.toLowerCase() === (f.standard || "").toLowerCase()
+  );
+  if (match?.label) return match.label;
+  return (
+    resolveDesignStandardLabel(f.standard, request?.projectType) ||
+    f.standard ||
+    ""
+  );
+};
 const note = (_, request) => request.note ?? "";
 
-const hasCalc = (request) => request.workTypes.calc;
-const hasDrawing = (request) => request.workTypes.drawing;
+const hasCalc = (request) =>
+  Boolean(
+    request?.workTypes?.calc ||
+    request?.designType === "calculation" ||
+    request?.designType === "drawing_calculation" ||
+    request?.designType === "both"
+  );
+const hasDrawing = (request) =>
+  Boolean(
+    request?.workTypes?.drawing ||
+    request?.designType === "drawing" ||
+    request?.designType === "drawing_calculation" ||
+    request?.designType === "both"
+  );
 
 // ─── Sections per cover type ─────────────────────────────────────────────────
 const NOTE_SECTION = {
@@ -335,4 +376,8 @@ export const REQUEST_HEADLINE = {
   ys: { no: "requestNo", title: "projectName" },
 };
 export const requestNoOf = (request) =>
-  request.fields[REQUEST_HEADLINE[request.coverType].no] ?? "";
+  request?.fields?.[REQUEST_HEADLINE[request?.coverType]?.no] ||
+  request?.requestNo ||
+  request?.request_no ||
+  request?.documentNo ||
+  "";

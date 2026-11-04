@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import { CheckCircle2, XCircle, HelpCircle } from "lucide-react";
 import { getRows } from "../../../utils/formatResultTableRows";
 
@@ -26,11 +27,11 @@ function StatusBadge({ value, limit }) {
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm hp:text-[10px] font-semibold
+      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm hp:text-[10px] font-semibold transition-all
       ${
         isOk
-          ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-          : "bg-red-50 text-red-700 border border-red-200"
+          ? "bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-xs"
+          : "bg-red-50 text-red-700 border border-red-200 shadow-xs"
       }`}
     >
       {isOk ? (
@@ -55,7 +56,7 @@ const WIND_CONDITIONS = [
   "Oblique Wind Condition",
 ];
 
-function ConditionTable({ label, rows }) {
+function ConditionTable({ label, rows, calculationKey = 0 }) {
   return (
     <div className="mb-8 last:mb-0">
       {/* Condition divider */}
@@ -67,9 +68,7 @@ function ConditionTable({ label, rows }) {
         <div className="flex-1 h-px bg-gray-200" />
       </div>
 
-      {/* Table container — solid white + shadow, lifted off the tinted
-          tray behind it (the pole card), so it reads as its own surface
-          instead of blending into the surrounding white. */}
+      {/* Table container — solid white + shadow */}
       <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
         <table className="min-w-full table-fixed text-sm hp:text-[10px]">
           <colgroup>
@@ -98,31 +97,52 @@ function ConditionTable({ label, rows }) {
 
           <tbody>
             {rows.map((row, i) => {
-              // NOTE: safetyFactor/limit still fall back to the same
-              // placeholder values (0.9 / 1.0) the original code hardcoded
-              // for every single row. Wire these to row.safetyFactor /
-              // row.limit once getRows() returns real per-row values —
-              // right now every pole, every condition, always reads OK.
-              const safetyFactor = row.safetyFactor ?? 0.9;
+              const rawSf =
+                row.safetyFactor != null && row.safetyFactor !== "-"
+                  ? row.safetyFactor
+                  : null;
+              const safetyFactor =
+                rawSf != null && !Number.isNaN(Number(rawSf))
+                  ? Number(Number(rawSf).toFixed(3))
+                  : null;
               const limit = row.limit ?? 1.0;
               return (
-                <tr
-                  key={i}
+                <motion.tr
+                  key={`${calculationKey}-${i}-${row.description}`}
+                  initial={{ opacity: 0.35, backgroundColor: "rgba(224, 242, 254, 0.5)" }}
+                  animate={{ opacity: 1, backgroundColor: "transparent" }}
+                  transition={{ duration: 0.45, delay: i * 0.04 }}
                   className="border-b border-gray-300 last:border-b-0 divide-x divide-gray-200 hover:bg-slate-50/60 transition-colors"
                 >
                   <td className="px-4 py-3 hp:px-3 hp:py-2 text-center text-slate-500 tabular-nums">
                     {i + 1}
                   </td>
-                  <td className="px-4 py-3 hp:px-3 hp:py-2 text-slate-700 truncate">
+                  <td className="px-4 py-3 hp:px-3 hp:py-2 text-slate-700 truncate font-medium">
                     {row.description}
                   </td>
-                  <td className="px-4 py-3 hp:px-3 hp:py-2 text-right text-slate-700 tabular-nums font-medium">
-                    {safetyFactor}
+                  <td className="px-4 py-3 hp:px-3 hp:py-2 text-right text-slate-700 tabular-nums font-semibold">
+                    <motion.span
+                      key={`${calculationKey}-${safetyFactor ?? "none"}`}
+                      initial={{ scale: 1.18, color: "#0284c7" }}
+                      animate={{ scale: 1, color: "#1e293b" }}
+                      transition={{ duration: 0.35 }}
+                      className="inline-block"
+                    >
+                      {safetyFactor != null ? safetyFactor : "-"}
+                    </motion.span>
                   </td>
                   <td className="px-4 py-3 hp:px-3 hp:py-2 text-center">
-                    <StatusBadge value={safetyFactor} limit={limit} />
+                    <motion.div
+                      key={`${calculationKey}-${safetyFactor ?? "none"}`}
+                      initial={{ scale: 0.88, opacity: 0.6 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ duration: 0.3 }}
+                      className="inline-flex justify-center"
+                    >
+                      <StatusBadge value={safetyFactor} limit={limit} />
+                    </motion.div>
                   </td>
-                </tr>
+                </motion.tr>
               );
             })}
           </tbody>
@@ -132,11 +152,82 @@ function ConditionTable({ label, rows }) {
   );
 }
 
-export function SummaryResultTable({ resultPole }) {
+export function SummaryResultTable({ resultPole, display = null, isOldJil = null, calculationKey = 0 }) {
+  const detectedOldJil = isOldJil ?? (() => {
+    try {
+      const cond = JSON.parse(
+        sessionStorage.getItem("lighting-project_condition") ||
+        sessionStorage.getItem("condition") ||
+        "{}"
+      );
+      const std = String(cond.designStandard || cond.standard || "").toLowerCase();
+      return (
+        (std.includes("jil") ||
+          std.includes("lighting") ||
+          std === "old_lighting_pole" ||
+          std === "old_jil" ||
+          std === "jil") &&
+        !std.includes("new")
+      );
+    } catch {
+      return false;
+    }
+  })();
+
+  const conditionsToRender = detectedOldJil ? ["Direct Wind"] : WIND_CONDITIONS;
+
   return (
     <div className="mx-6 my-6 space-y-6 hp:mx-2 hp:mt-4 hp:mb-8">
       {resultPole.map((_, poleIndex) => {
-        const rows = getRows(poleIndex, resultPole);
+        // If real backend display.checks, positions, sections, or governing is provided, map directly from it
+        const posList =
+          (Array.isArray(display?.checks) && display.checks.length > 0
+            ? display.checks
+            : null) ||
+          (Array.isArray(display?.positions) && display.positions.length > 0
+            ? display.positions
+            : null) ||
+          (Array.isArray(display?.sections) && display.sections.length > 0
+            ? display.sections
+            : null) ||
+          (display?.governing ? [display.governing] : null) ||
+          (Array.isArray(display) && display.length > 0 ? display : null);
+
+        const rows =
+          posList && posList.length > 0
+            ? posList.map((pos, pIdx) => {
+                const rawRatio =
+                  pos.utilizationRatio ??
+                  pos.utilization_ratio ??
+                  pos.safetyFactor ??
+                  pos.safety_factor ??
+                  pos.safetyRatio ??
+                  pos.stressRatio ??
+                  pos.ratio ??
+                  pos.value;
+                const sf =
+                  rawRatio != null && !Number.isNaN(Number(rawRatio))
+                    ? Number(Number(rawRatio).toFixed(3))
+                    : resultPole[pIdx]?.safetyFactor ??
+                      resultPole[poleIndex]?.safetyFactor ??
+                      null;
+                const desc =
+                  pos.name ||
+                  pos.evaluatedPoleName ||
+                  pos.poleName ||
+                  resultPole[pIdx]?.description ||
+                  resultPole[pIdx]?.name ||
+                  resultPole[poleIndex]?.description ||
+                  resultPole[poleIndex]?.name ||
+                  `Pole-${pIdx + 1}`;
+                return {
+                  description: desc,
+                  safetyFactor: sf,
+                  limit: pos.limit ?? pos.allowableRatio ?? 1.0,
+                };
+              })
+            : getRows(poleIndex, resultPole);
+
         return (
           <div
             key={poleIndex}
@@ -150,8 +241,13 @@ export function SummaryResultTable({ resultPole }) {
               </h3>
             </div>
 
-            {WIND_CONDITIONS.map((label) => (
-              <ConditionTable key={label} label={label} rows={rows} />
+            {conditionsToRender.map((label) => (
+              <ConditionTable
+                key={label}
+                label={label}
+                rows={rows}
+                calculationKey={calculationKey}
+              />
             ))}
           </div>
         );

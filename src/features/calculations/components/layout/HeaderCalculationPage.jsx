@@ -114,6 +114,7 @@ export function HeaderCalculationPage() {
   const scrollRef = useRef(null);
   const [showLeftScroll, setShowLeftScroll] = useState(false);
   const [showRightScroll, setShowRightScroll] = useState(false);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
 
   // Once scrolled, the sticky header can be folded into a slim pill on the
   // left (like the sidebar) so it stops covering the form. Flow height never
@@ -590,7 +591,7 @@ export function HeaderCalculationPage() {
   };
 
   // ─── SAVE AND LEAVE ──────────────────────────────────────────────────────
-  const handleSaveAndLeave = () => {
+  const handleSaveAndLeave = async () => {
     if (isReadOnly) {
       setShowDraftModal(false);
       clearCalculationSession(type);
@@ -599,12 +600,19 @@ export function HeaderCalculationPage() {
       return;
     }
 
-    saveWorkingSessionToDraft(type, draftId);
-
-    setToast({
-      message: "Draft successfully saved!",
-      type: "success",
-    });
+    try {
+      await saveWorkingSessionToDraft(type, draftId);
+      setToast({
+        message: "Draft successfully saved!",
+        type: "success",
+      });
+    } catch (err) {
+      console.warn("[handleSaveAndLeave] Save error:", err);
+      setToast({
+        message: "Draft saved locally.",
+        type: "info",
+      });
+    }
 
     setShowDraftModal(false);
 
@@ -613,11 +621,11 @@ export function HeaderCalculationPage() {
       clearActiveDraftId(type);
 
       navigate(requestPathForDraft(draftId));
-    }, 2500);
+    }, 2000);
   };
 
   // ─── QUICK SAVE ──────────────────────────────────────────────────────────
-  const handleQuickSave = () => {
+  const handleQuickSave = async () => {
     if (isReadOnly) {
       setToast({
         message:
@@ -627,12 +635,29 @@ export function HeaderCalculationPage() {
       return;
     }
 
-    saveWorkingSessionToDraft(type, draftId);
+    setIsSavingDraft(true);
+    try {
+      await saveWorkingSessionToDraft(type, draftId);
 
-    setToast({
-      message: "Draft successfully saved!",
-      type: "success",
-    });
+      setToast({
+        message: "Draft successfully saved!",
+        type: "success",
+      });
+    } catch (err) {
+      console.warn("Save draft error:", err);
+      const detailMsg =
+        err?.response?.data?.detail ||
+        err?.response?.data?.message ||
+        err?.message;
+      setToast({
+        message: detailMsg
+          ? `Draft saved locally. (${detailMsg})`
+          : "Draft saved locally.",
+        type: "warning",
+      });
+    } finally {
+      setIsSavingDraft(false);
+    }
   };
 
   // ─── DISCARD ─────────────────────────────────────────────────────────────
@@ -751,22 +776,29 @@ export function HeaderCalculationPage() {
 
             <button
               type="button"
+              disabled={isSavingDraft}
               data-readonly-trigger={isReadOnly ? "true" : undefined}
               onClick={isReadOnly ? handleToggleReadOnlyPopover : handleQuickSave}
               title={
                 isReadOnly
                   ? `Read-Only: Assigned to ${caseOwner || "another engineer"}`
+                  : isSavingDraft
+                  ? "Saving Draft..."
                   : "Save Draft"
               }
               aria-label={
                 isReadOnly
                   ? `Read-Only: Assigned to ${caseOwner || "another engineer"}`
+                  : isSavingDraft
+                  ? "Saving Draft..."
                   : "Save Draft"
               }
-              className="flex items-center justify-center w-[38px] h-[38px] shrink-0 rounded-lg hover:bg-white/10 active:bg-white/15 transition text-amber-300"
+              className="flex items-center justify-center w-[38px] h-[38px] shrink-0 rounded-lg hover:bg-white/10 active:bg-white/15 transition text-amber-300 disabled:opacity-60"
             >
               {isReadOnly ? (
                 <Lock className="w-4 h-4 text-amber-300" />
+              ) : isSavingDraft ? (
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin shrink-0" />
               ) : (
                 <Save className="w-4 h-4" />
               )}
@@ -961,12 +993,21 @@ export function HeaderCalculationPage() {
                   ) : (
                     <button
                       type="button"
+                      disabled={isSavingDraft}
                       onClick={handleQuickSave}
-                      className="flex items-center justify-center gap-1 sm:gap-2 px-3 py-2 sm:px-4 shrink-0 whitespace-nowrap border rounded-lg hp:rounded-md text-xs sm:text-sm font-medium transition bg-white/10 hover:bg-white/20 active:bg-white/25 border-white/20 text-white"
+                      className="flex items-center justify-center gap-1 sm:gap-2 px-3 py-2 sm:px-4 shrink-0 whitespace-nowrap border rounded-lg hp:rounded-md text-xs sm:text-sm font-medium transition bg-white/10 hover:bg-white/20 active:bg-white/25 border-white/20 text-white disabled:opacity-60"
                     >
-                      <Save className="w-4 h-4 shrink-0" />
-                      <span className="hidden sm:inline">Save Draft</span>
-                      <span className="sm:hidden">Save</span>
+                      {isSavingDraft ? (
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin shrink-0" />
+                      ) : (
+                        <Save className="w-4 h-4 shrink-0" />
+                      )}
+                      <span className="hidden sm:inline">
+                        {isSavingDraft ? "Saving..." : "Save Draft"}
+                      </span>
+                      <span className="sm:hidden">
+                        {isSavingDraft ? "..." : "Save"}
+                      </span>
                     </button>
                   )}
 

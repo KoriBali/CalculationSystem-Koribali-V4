@@ -1,5 +1,6 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   UserPlus,
   Search,
@@ -176,234 +177,305 @@ export default function InitialAssignment({
 
       {/* ── Members List ── */}
       <div className="rounded-lg hp:rounded-md border border-gray-200 bg-white overflow-hidden divide-y divide-gray-100">
-        {members.map((m) => (
-          <div
-            key={m.id}
-            className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-slate-50/70 transition-colors"
-          >
-            <div className="flex items-center gap-3 min-w-0">
-              <Avatar name={m.name} strong={m.isCreator} />
-              <div className="flex items-center gap-2.5 min-w-0">
-                <span className="font-medium text-slate-800 text-xs sm:text-sm truncate">
-                  {m.name}
-                </span>
-                {m.isCreator ? (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-sky-50 text-sky-700 ring-1 ring-inset ring-sky-200/80">
-                    {currentUserName && m.name?.toLowerCase() === currentUserName
-                      ? "Creator · You"
-                      : "Creator"}
+        <AnimatePresence initial={false}>
+          {members.map((m) => (
+            <motion.div
+              key={m.id}
+              layout
+              initial={{
+                opacity: 0,
+                height: 0,
+                y: -8,
+                backgroundColor: "rgba(224, 242, 254, 0.4)",
+              }}
+              animate={{
+                opacity: 1,
+                height: "auto",
+                y: 0,
+                backgroundColor: "rgba(255, 255, 255, 1)",
+              }}
+              exit={{
+                opacity: 0,
+                height: 0,
+                y: -8,
+                backgroundColor: "rgba(254, 242, 242, 0.4)",
+              }}
+              transition={{
+                duration: 0.32,
+                ease: [0.16, 1, 0.3, 1],
+              }}
+              className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-slate-50/70 transition-colors"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <Avatar name={m.name} strong={m.isCreator} />
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <span className="font-medium text-slate-800 text-xs sm:text-sm truncate">
+                    {m.name}
                   </span>
-                ) : (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600 ring-1 ring-inset ring-slate-200/80">
-                    Member
-                  </span>
-                )}
+                  {m.isCreator ? (
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-sky-50 text-sky-700 ring-1 ring-inset ring-sky-200/80">
+                      {currentUserName && m.name?.toLowerCase() === currentUserName
+                        ? "Creator · You"
+                        : "Creator"}
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600 ring-1 ring-inset ring-slate-200/80">
+                      Member
+                    </span>
+                  )}
+                </div>
               </div>
-            </div>
 
-            {/* Lock / Remove button */}
-            <div>
-              {m.isCreator ? (
-                <span
-                  title="The request creator is always assigned"
-                  className="inline-flex items-center justify-center w-8 h-8 text-slate-300"
-                >
-                  <Lock className="w-4 h-4" />
-                </span>
-              ) : canManage ? (
-                <button
-                  type="button"
-                  onClick={() => setMemberToRemove(m)}
-                  title={`Remove ${m.name}`}
-                  className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              ) : null}
-            </div>
-          </div>
-        ))}
+              {/* Lock / Remove button */}
+              <div>
+                {m.isCreator ? (
+                  <span
+                    title="The request creator is always assigned"
+                    className="inline-flex items-center justify-center w-8 h-8 text-slate-300"
+                  >
+                    <Lock className="w-4 h-4" />
+                  </span>
+                ) : canManage ? (
+                  <button
+                    type="button"
+                    onClick={() => setMemberToRemove(m)}
+                    title={`Remove ${m.name}`}
+                    className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 active:scale-90 transition-all"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                ) : null}
+              </div>
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
 
       {/* Hint if only creator is assigned */}
-      {members.length === 1 && canManage && (
-        <p className="text-xs sm:text-sm text-gray-500 flex items-center gap-2 mt-2 font-normal">
-          <Users className="w-4 h-4 text-slate-400 shrink-0" />
-          Only you are assigned right now. Click "Assign Member" above to add colleagues.
-        </p>
-      )}
+      <AnimatePresence>
+        {members.length === 1 && canManage && (
+          <motion.p
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.25 }}
+            className="text-xs sm:text-sm text-gray-500 flex items-center gap-2 mt-2 font-normal"
+          >
+            <Users className="w-4 h-4 text-slate-400 shrink-0" />
+            Only you are assigned right now. Click "Assign Member" above to add colleagues.
+          </motion.p>
+        )}
+      </AnimatePresence>
 
       {/* ── Confirmation Modal: Remove Member (matches screenshot) ── */}
-      {memberToRemove &&
-        createPortal(
-          <div className="fixed inset-0 z-[999] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm px-4 animate-in fade-in duration-200">
-            <div className="w-full max-w-xs sm:max-w-md bg-white border border-gray-200 rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-8 text-center animate-in zoom-in-95 duration-200">
-              {/* Danger icon */}
-              <div className="mx-auto mb-3 flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-red-100 rounded-full">
-                <AlertCircle className="w-6 h-6 sm:w-8 sm:h-8 text-red-500" />
-              </div>
+      {createPortal(
+        <AnimatePresence>
+          {memberToRemove && (
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center px-4">
+              {/* Backdrop */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setMemberToRemove(null)}
+                className="absolute inset-0 bg-slate-900/40 backdrop-blur-xs cursor-pointer"
+              />
 
-              {/* Title */}
-              <h2 className="text-center font-bold text-sm sm:text-base text-gray-900 mb-1 sm:mb-2">
-                Remove member?
-              </h2>
-
-              {/* Description */}
-              <p className="text-center text-gray-600 text-xs sm:text-sm mb-4 sm:mb-6 leading-relaxed">
-                Are you sure you want to remove{" "}
-                <span className="font-semibold text-gray-800">
-                  {memberToRemove.name}
-                </span>
-                ? This action cannot be undone.
-              </p>
-
-              {/* Actions */}
-              <div className="flex gap-2 sm:gap-3">
-                <button
-                  type="button"
-                  onClick={() => setMemberToRemove(null)}
-                  className="flex-1 py-2 sm:py-3 font-bold text-xs sm:text-sm bg-slate-100 text-slate-600 rounded-md sm:rounded-lg hover:bg-slate-200 transition"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    handleRemoveMember(memberToRemove.id);
-                    setMemberToRemove(null);
-                  }}
-                  className="flex-1 py-2 sm:py-3 font-bold text-xs sm:text-sm bg-red-500 text-white rounded-md sm:rounded-lg hover:bg-red-600 transition"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          </div>,
-          document.body,
-        )}
-
-      {/* ── Modal: Assign Member (Fullscreen Overlay, Candidates Only) ── */}
-      {modalOpen &&
-        createPortal(
-          <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
-            <div className="w-full max-w-md sm:max-w-lg h-[520px] sm:h-[560px] lg:h-[580px] 2xl:h-[640px] max-h-[90vh] bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
-              {/* Modal Header */}
-              <div className="bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] px-6 py-5 flex items-center justify-between shrink-0 rounded-t-2xl">
-                <div className="flex items-center gap-3">
-                  <UserPlus className="w-5 h-5 text-white shrink-0" />
-                  <div>
-                    <h3 className="text-base font-semibold text-white">
-                      Assign Team Member
-                    </h3>
-                    <p className="text-xs text-blue-100/80 font-normal">
-                      Search and add colleagues to this request
-                    </p>
-                  </div>
+              {/* Modal Card */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.94, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.94, y: 10 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+                className="relative z-10 w-full max-w-xs sm:max-w-md bg-white border border-gray-200 rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-8 text-center"
+              >
+                {/* Danger icon */}
+                <div className="mx-auto mb-3 flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-red-100 rounded-full">
+                  <AlertCircle className="w-6 h-6 sm:w-8 sm:h-8 text-red-500" />
                 </div>
-              </div>
 
-              {/* Search Input Box */}
-              <div className="p-4 border-b border-slate-100 bg-white shrink-0">
-                <div className="relative">
-                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-                  <input
-                    ref={searchInputRef}
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search by worker name..."
-                    className={`${inputStyle(false)} pl-10 text-slate-800 placeholder:text-slate-400`}
-                  />
-                </div>
-              </div>
+                {/* Title */}
+                <h2 className="text-center font-bold text-sm sm:text-base text-gray-900 mb-1 sm:mb-2">
+                  Remove member?
+                </h2>
 
-              {/* Candidates List (Only unassigned workers) */}
-              <div className="overflow-y-auto p-3 divide-y divide-slate-100 flex-1 scrollbar-soft">
-                {candidateWorkers.length === 0 ? (
-                  <div className="py-10 text-center px-4">
-                    <p className="text-xs sm:text-sm text-slate-600 font-medium">
-                      All team members are already assigned.
-                    </p>
-                    <p className="text-[13px] text-slate-400 mt-1">
-                      Everyone available is already part of this request.
-                    </p>
-                  </div>
-                ) : filteredCandidates.length === 0 ? (
-                  <div className="py-8 text-center text-sm text-slate-500">
-                    No workers found matching "{searchQuery.trim()}".
-                  </div>
-                ) : (
-                  filteredCandidates.map((w) => {
-                    const isSelected = selectedIds.has(w.id);
-                    return (
-                      <div
-                        key={w.id}
-                        className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 transition-colors"
-                      >
-                        <div className="flex items-center gap-3 min-w-0">
-                          <Avatar name={w.name} />
-                          <div className="min-w-0">
-                            <p className="text-xs sm:text-sm font-medium text-slate-800 truncate">
-                              {w.name}
-                            </p>
-                          </div>
-                        </div>
+                {/* Description */}
+                <p className="text-center text-gray-600 text-xs sm:text-sm mb-4 sm:mb-6 leading-relaxed">
+                  Are you sure you want to remove{" "}
+                  <span className="font-semibold text-gray-800">
+                    {memberToRemove.name}
+                  </span>
+                  ? This action cannot be undone.
+                </p>
 
-                        {isSelected ? (
-                          <button
-                            type="button"
-                            onClick={() => handleToggleSelect(w)}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200/80 hover:bg-red-50 hover:text-red-600 hover:ring-red-200 transition-colors"
-                            title="Click to remove from selection"
-                          >
-                            <Check className="w-3.5 h-3.5" />
-                            Added
-                          </button>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={() => handleToggleSelect(w)}
-                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-[#eef2f6] hover:bg-[#0d3b66] text-[#0d3b66] hover:text-white ring-1 ring-inset ring-[#d0d7e2] active:scale-95 transition-all"
-                          >
-                            <Plus className="w-3.5 h-3.5" />
-                            Add
-                          </button>
-                        )}
-                      </div>
-                    );
-                  })
-                )}
-              </div>
-
-              {/* Modal Footer with Cancel & Done buttons */}
-              <div className="bg-slate-50 px-6 py-4 border-t border-slate-200 flex items-center justify-between gap-3 shrink-0 rounded-b-2xl">
-                <span className="text-[13px] text-slate-500">
-                  {selectedWorkers.length > 0
-                    ? `${selectedWorkers.length} selected to add`
-                    : "Select members to add"}
-                </span>
-
-                <div className="flex items-center gap-2.5">
+                {/* Actions */}
+                <div className="flex gap-2 sm:gap-3">
                   <button
                     type="button"
-                    onClick={handleCancelModal}
-                    className="px-5 py-2.5 rounded-lg hp:rounded-md font-medium text-xs sm:text-sm bg-[#eef2f6] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:bg-[#e2e8f0] transition-colors"
+                    onClick={() => setMemberToRemove(null)}
+                    className="flex-1 py-2 sm:py-3 font-bold text-xs sm:text-sm bg-slate-100 text-slate-600 rounded-md sm:rounded-lg hover:bg-slate-200 transition"
                   >
                     Cancel
                   </button>
                   <button
                     type="button"
-                    onClick={handleDoneModal}
-                    className="px-5 py-2.5 rounded-lg hp:rounded-md font-medium text-xs sm:text-sm bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm active:scale-95 transition-all"
+                    onClick={() => {
+                      handleRemoveMember(memberToRemove.id);
+                      setMemberToRemove(null);
+                    }}
+                    className="flex-1 py-2 sm:py-3 font-bold text-xs sm:text-sm bg-red-500 text-white rounded-md sm:rounded-lg hover:bg-red-600 transition"
                   >
-                    Done
+                    Delete
                   </button>
                 </div>
-              </div>
+              </motion.div>
             </div>
-          </div>,
-          document.body,
-        )}
+          )}
+        </AnimatePresence>,
+        document.body,
+      )}
+
+      {/* ── Modal: Assign Member (Fullscreen Overlay, Candidates Only) ── */}
+      {createPortal(
+        <AnimatePresence>
+          {modalOpen && (
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+              {/* Backdrop */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={handleCancelModal}
+                className="absolute inset-0 bg-slate-900/60 backdrop-blur-xs cursor-pointer"
+              />
+
+              {/* Modal Card */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.94, y: 14 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.94, y: 14 }}
+                transition={{ duration: 0.22, ease: "easeOut" }}
+                className="relative z-10 w-full max-w-md sm:max-w-lg h-[520px] sm:h-[560px] lg:h-[580px] 2xl:h-[640px] max-h-[90vh] bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+              >
+                {/* Modal Header */}
+                <div className="bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] px-6 py-5 flex items-center justify-between shrink-0 rounded-t-2xl">
+                  <div className="flex items-center gap-3">
+                    <UserPlus className="w-5 h-5 text-white shrink-0" />
+                    <div>
+                      <h3 className="text-base font-semibold text-white">
+                        Assign Team Member
+                      </h3>
+                      <p className="text-xs text-blue-100/80 font-normal">
+                        Search and add colleagues to this request
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Search Input Box */}
+                <div className="p-4 border-b border-slate-100 bg-white shrink-0">
+                  <div className="relative">
+                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                    <input
+                      ref={searchInputRef}
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search by worker name..."
+                      className={`${inputStyle(false)} pl-10 text-slate-800 placeholder:text-slate-400`}
+                    />
+                  </div>
+                </div>
+
+                {/* Candidates List (Only unassigned workers) */}
+                <div className="overflow-y-auto p-3 divide-y divide-slate-100 flex-1 scrollbar-soft">
+                  {candidateWorkers.length === 0 ? (
+                    <div className="py-10 text-center px-4">
+                      <p className="text-xs sm:text-sm text-slate-600 font-medium">
+                        All team members are already assigned.
+                      </p>
+                      <p className="text-[13px] text-slate-400 mt-1">
+                        Everyone available is already part of this request.
+                      </p>
+                    </div>
+                  ) : filteredCandidates.length === 0 ? (
+                    <div className="py-8 text-center text-sm text-slate-500">
+                      No workers found matching "{searchQuery.trim()}".
+                    </div>
+                  ) : (
+                    filteredCandidates.map((w) => {
+                      const isSelected = selectedIds.has(w.id);
+                      return (
+                        <div
+                          key={w.id}
+                          className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 transition-colors"
+                        >
+                          <div className="flex items-center gap-3 min-w-0">
+                            <Avatar name={w.name} />
+                            <div className="min-w-0">
+                              <p className="text-xs sm:text-sm font-medium text-slate-800 truncate">
+                                {w.name}
+                              </p>
+                            </div>
+                          </div>
+
+                          {isSelected ? (
+                            <button
+                              type="button"
+                              onClick={() => handleToggleSelect(w)}
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200/80 hover:bg-red-50 hover:text-red-600 hover:ring-red-200 transition-colors"
+                              title="Click to remove from selection"
+                            >
+                              <Check className="w-3.5 h-3.5" />
+                              Added
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => handleToggleSelect(w)}
+                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-[#eef2f6] hover:bg-[#0d3b66] text-[#0d3b66] hover:text-white ring-1 ring-inset ring-[#d0d7e2] active:scale-95 transition-all"
+                            >
+                              <Plus className="w-3.5 h-3.5" />
+                              Add
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+
+                {/* Modal Footer with Cancel & Done buttons */}
+                <div className="bg-slate-50 px-6 py-4 border-t border-slate-200 flex items-center justify-between gap-3 shrink-0 rounded-b-2xl">
+                  <span className="text-[13px] text-slate-500">
+                    {selectedWorkers.length > 0
+                      ? `${selectedWorkers.length} selected to add`
+                      : "Select members to add"}
+                  </span>
+
+                  <div className="flex items-center gap-2.5">
+                    <button
+                      type="button"
+                      onClick={handleCancelModal}
+                      className="px-5 py-2.5 rounded-lg hp:rounded-md font-medium text-xs sm:text-sm bg-[#eef2f6] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:bg-[#e2e8f0] transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleDoneModal}
+                      className="px-5 py-2.5 rounded-lg hp:rounded-md font-medium text-xs sm:text-sm bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm active:scale-95 transition-all"
+                    >
+                      Done
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>,
+        document.body,
+      )}
     </div>
   );
 }

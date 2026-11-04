@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import {
   RotateCcw,
   Plus,
@@ -52,6 +53,8 @@ export function DirectObjectForm({
   setConfirmDeleteDo,
   resetCurrentDo,
   handleAddDo,
+  readOnly = false,
+  isOldJil = false,
 }) {
   const {
     objectTypeOptions,
@@ -62,15 +65,22 @@ export function DirectObjectForm({
   const objectTypesFailed =
     objectTypesError && objectTypeOptions.length === 0 && !objectTypesLoading;
 
+  const availableTypeOptions = useMemo(() => {
+    if (isOldJil) {
+      return [{ value: "omni", label: "Omni" }];
+    }
+    return objectTypeOptions;
+  }, [isOldJil, objectTypeOptions]);
+
   // Convert input to number for validation
   const doValueNumber = Number(doCountInput);
 
-  // Validate object count input (must be 1–25)
+  // Validate object count input (must be 1–10)
   const isDoInputValue =
     !doCountInput ||
     isNaN(doCountInput) ||
     doValueNumber <= 0 ||
-    doValueNumber > 25;
+    doValueNumber > 10;
 
   return (
     <div className="rounded-b-2xl shadow-sm border border-gray-200 overflow-hidden bg-white hp:rounded-b-xl">
@@ -84,7 +94,7 @@ export function DirectObjectForm({
 
                 {/* Title */}
                 <span className="font-semibold">
-                  Configure up to 25 Direct Objects
+                  Configure up to 10 Direct Objects
                 </span>
 
                 {/* Subtitle (hidden on small screen) */}
@@ -136,14 +146,14 @@ export function DirectObjectForm({
                 {directObjects.length}
               </span>
               <span className="text-slate-400">/</span>
-              <span className="text-slate-600">25 Objects</span>
+              <span className="text-slate-600">10 Objects</span>
             </div>
 
             {/* Input for number of object to add */}
             <input
               type="number"
               min={1}
-              max={25}
+              max={10}
               placeholder="Input Object Number"
               value={doCountInput}
               onChange={(e) => setDoCountInput(e.target.value)}
@@ -361,7 +371,8 @@ export function DirectObjectForm({
                 {/* Direct Object Name Input */}
                 <div className="relative col-span-2 xl:flex-[2] min-w-0 hp:w-full hp:col-span-2">
                   <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-                    Object Name <span className="text-red-500 ml-1 font-semibold">*</span>
+                    Object Name{" "}
+                    <span className="text-red-500 ml-1 font-semibold">*</span>
                   </label>
                   <input
                     id={`do-${directObject.idDo}-name`}
@@ -379,18 +390,28 @@ export function DirectObjectForm({
                 {/* Type of Direct Object Selector */}
                 <div className="relative xl:w-[130px] xl:flex-none min-w-0 hp:w-full">
                   <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-                    Object Type <span className="text-red-500 ml-1 font-semibold">*</span>
+                    Object Type{" "}
+                    <span className="text-red-500 ml-1 font-semibold">*</span>
+                    {isOldJil && !readOnly && (
+                      <span className="ml-1 text-[13px] text-gray-400 font-normal">
+                        (Omni only)
+                      </span>
+                    )}
                   </label>
                   <FormSelect
                     id={`do-${directObject.idDo}-type`}
-                    value={directObject.type}
-                    onChange={(val) =>
-                      onUpdate(directObject.idDo, { type: val })
-                    }
-                    options={objectTypeOptions}
+                    value={isOldJil ? "omni" : directObject.type || "omni"}
+                    onChange={(val) => {
+                      if (!isOldJil) {
+                        onUpdate(directObject.idDo, { type: val });
+                      }
+                    }}
+                    options={availableTypeOptions}
                     loading={objectTypesLoading}
-                    disabled={objectTypesFailed}
-                    hasError={!!(doError.type || objectTypesFailed)}
+                    disabled={readOnly || isOldJil || objectTypesFailed}
+                    hasError={
+                      !isOldJil && !!(doError.type || objectTypesFailed)
+                    }
                     placeholder={
                       objectTypesFailed ? "Failed to load" : "Select Type"
                     }
@@ -414,7 +435,8 @@ export function DirectObjectForm({
                 {/* Front Area Direct Object Input */}
                 <div className="relative xl:flex-1 min-w-0 hp:w-full">
                   <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-                    Front Area <span className="text-red-500 ml-1 font-semibold">*</span>
+                    Front Area{" "}
+                    <span className="text-red-500 ml-1 font-semibold">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -444,7 +466,8 @@ export function DirectObjectForm({
                 {directObject.type === "directional" && (
                   <div className="relative xl:flex-1 min-w-0 hp:w-full">
                     <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-                      Side Area <span className="text-red-500 ml-1 font-semibold">*</span>
+                      Side Area{" "}
+                      <span className="text-red-500 ml-1 font-semibold">*</span>
                     </label>
                     <div className="relative">
                       <input
@@ -474,7 +497,8 @@ export function DirectObjectForm({
                 {/* Weight Direct Object Input */}
                 <div className="relative xl:flex-1 min-w-0 hp:w-full">
                   <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-                    Weight <span className="text-red-500 ml-1 font-semibold">*</span>
+                    Weight{" "}
+                    <span className="text-red-500 ml-1 font-semibold">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -498,7 +522,8 @@ export function DirectObjectForm({
                 {/* Height Direct Object Input */}
                 <div className="relative xl:flex-1 min-w-0 hp:w-full">
                   <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-                    Height <span className="text-red-500 ml-1 font-semibold">*</span>
+                    Height{" "}
+                    <span className="text-red-500 ml-1 font-semibold">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -522,7 +547,8 @@ export function DirectObjectForm({
                 {/* nnC Direct Object Input */}
                 <div className="relative xl:flex-[0.8] min-w-0 hp:w-full">
                   <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-                    nnC <span className="text-red-500 ml-1 font-semibold">*</span>
+                    nnC{" "}
+                    <span className="text-red-500 ml-1 font-semibold">*</span>
                   </label>
                   <input
                     id={`do-${directObject.idDo}-nnC`}
@@ -541,7 +567,8 @@ export function DirectObjectForm({
                 {/* Quantity Direct Object Input */}
                 <div className="relative xl:flex-[0.8] min-w-0 hp:w-full">
                   <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-                    Quantity <span className="text-red-500 ml-1 font-semibold">*</span>
+                    Quantity{" "}
+                    <span className="text-red-500 ml-1 font-semibold">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -568,7 +595,8 @@ export function DirectObjectForm({
                 {directObject.type === "directional" && (
                   <div className="relative xl:flex-1 min-w-0 hp:w-full">
                     <label className="block text-sm text-gray-700 mb-2 hp:text-xs hp:mb-1">
-                      Fix Angle <span className="text-red-500 ml-1 font-semibold">*</span>
+                      Fix Angle{" "}
+                      <span className="text-red-500 ml-1 font-semibold">*</span>
                     </label>
                     <div className="relative">
                       <input
@@ -606,14 +634,14 @@ export function DirectObjectForm({
         {/* Add Button */}
         <button
           onClick={handleAddDo}
-          disabled={directObjects.length >= 25}
+          disabled={directObjects.length >= 10}
           className={`
             w-full py-2 lg:py-2.5 font-medium text-sm rounded-md sm:rounded-lg
             flex items-center justify-center gap-2
             transition-all duration-200
 
             ${
-              directObjects.length >= 25
+              directObjects.length >= 10
                 ? "border-2 border-dashed border-gray-300 text-gray-400 cursor-not-allowed opacity-50"
                 : "border-2 border-dashed border-[#3399cc] text-[#3399cc] bg-transparent hover:bg-[#3399cc] hover:text-white"
             }

@@ -4,7 +4,7 @@ import {
   forwardRef,
   useImperativeHandle,
 } from "react";
-import { Edit3, Info, Lightbulb } from "lucide-react";
+import { Edit3, Info, Lightbulb, Loader2 } from "lucide-react";
 import { FormSelect } from "../../../../../shared/components/FormSelect";
 import { DRAWING_TYPE_OPTIONS } from "../../../constants/drawingTypeOptions";
 import {
@@ -36,10 +36,13 @@ export const DrawingConditionsSection = forwardRef(
     },
     ref,
   ) {
-    // Only saved when explicitly marked isSaved: true
-    const isSaved = Boolean(request.drawingConditions?.isSaved);
+    // Only saved when explicitly marked isSaved: true or isSavedOnServer: true
+    const isSaved = Boolean(
+      request.drawingConditions?.isSaved || request.drawingConditions?.isSavedOnServer
+    );
 
     const [isEditing, setIsEditing] = useState(!isSaved);
+    const [isSaving, setIsSaving] = useState(false);
     const [errors, setErrors] = useState({});
 
     // Helper to find matching option from DRAWING_TYPE_OPTIONS (case-insensitive & label matching)
@@ -64,57 +67,82 @@ export const DrawingConditionsSection = forwardRef(
     const rawCoverDrawingType =
       request.fields?.drawingType ||
       request.fields?.deliverType ||
-      request.sharedDetails?.drawingType ||
       "";
-    const matchedCoverOption = findDrawingTypeOption(rawCoverDrawingType);
+    const hasCoverDrawingType = Boolean(
+      rawCoverDrawingType && String(rawCoverDrawingType).trim()
+    );
+    const matchedCoverOption = hasCoverDrawingType
+      ? findDrawingTypeOption(rawCoverDrawingType)
+      : null;
     const coverDrawingTypeValue =
-      matchedCoverOption?.value || canonicalDrawingType(rawCoverDrawingType) || "";
+      matchedCoverOption?.value ||
+      (hasCoverDrawingType ? canonicalDrawingType(rawCoverDrawingType) : "");
     const coverDrawingTypeLabel =
-      matchedCoverOption?.label || canonicalDrawingType(rawCoverDrawingType) || "";
+      matchedCoverOption?.label ||
+      (hasCoverDrawingType ? canonicalDrawingType(rawCoverDrawingType) : "");
 
     // Default reference values when not saved yet:
-    // Drawing Type auto-populates from cover reference; Region remains empty (must be selected manually)
+    // Drawing Type auto-populates from cover reference if specified; Region remains empty (must be selected manually)
     const defaultDrawingType = coverDrawingTypeValue || "";
-    const currentDrawingType =
-      findDrawingTypeOption(request.drawingConditions?.drawingType)?.value ||
-      canonicalDrawingType(request.drawingConditions?.drawingType) ||
-      defaultDrawingType;
+    const currentDrawingType = isSaved
+      ? (findDrawingTypeOption(request.drawingConditions?.drawingType)?.value ||
+         canonicalDrawingType(request.drawingConditions?.drawingType) || "")
+      : (findDrawingTypeOption(request.drawingConditions?.drawingType)?.value ||
+         canonicalDrawingType(request.drawingConditions?.drawingType) ||
+         defaultDrawingType || "");
     const rawRegion = request.drawingConditions?.region || "";
     const currentRegion = resolveRegionCode(rawRegion);
 
     // Form inputs state
     const [drawingType, setDrawingType] = useState(
-      currentDrawingType || defaultDrawingType
+      currentDrawingType || defaultDrawingType || ""
     );
-    const [region, setRegion] = useState(currentRegion);
+    const [region, setRegion] = useState(currentRegion || "");
 
-    // Sync when request changes
+    // Sync when request id or saved status changes
+    // CRITICAL: Do NOT wipe in-progress user inputs on background re-renders when isSaved is false!
     const [prevReqData, setPrevReqData] = useState({
       id: request.id,
       saved: isSaved,
-      cond: request.drawingConditions,
     });
 
     if (
       prevReqData.id !== request.id ||
-      prevReqData.saved !== isSaved ||
-      prevReqData.cond !== request.drawingConditions
+      prevReqData.saved !== isSaved
     ) {
       setPrevReqData({
         id: request.id,
         saved: isSaved,
-        cond: request.drawingConditions,
       });
       if (!isSaved) {
         setIsEditing(true);
       }
       setDrawingType(
-        findDrawingTypeOption(request.drawingConditions?.drawingType)?.value ||
-        canonicalDrawingType(request.drawingConditions?.drawingType) ||
-        defaultDrawingType
+        isSaved
+          ? (findDrawingTypeOption(request.drawingConditions?.drawingType)?.value ||
+             canonicalDrawingType(request.drawingConditions?.drawingType) || "")
+          : (findDrawingTypeOption(request.drawingConditions?.drawingType)?.value ||
+             canonicalDrawingType(request.drawingConditions?.drawingType) ||
+             defaultDrawingType || "")
       );
       const nextRaw = request.drawingConditions?.region || "";
       setRegion(resolveRegionCode(nextRaw));
+    }
+
+    // When conditions are already saved, sync with external updates when not actively editing
+    const savedDrawingKey = isSaved && !isEditing
+      ? `${request.drawingConditions?.drawingType}_${request.drawingConditions?.region}`
+      : "";
+    const [prevSavedDrawingKey, setPrevSavedDrawingKey] = useState(savedDrawingKey);
+
+    if (isSaved && !isEditing && savedDrawingKey !== prevSavedDrawingKey) {
+      setPrevSavedDrawingKey(savedDrawingKey);
+      setDrawingType(
+        findDrawingTypeOption(request.drawingConditions?.drawingType)?.value ||
+        canonicalDrawingType(request.drawingConditions?.drawingType) ||
+        ""
+      );
+      setRegion(resolveRegionCode(request.drawingConditions?.region || ""));
     }
 
     useEffect(() => {
@@ -154,7 +182,7 @@ export const DrawingConditionsSection = forwardRef(
       setIsEditing(false);
     };
 
-    const handleSave = (e) => {
+    const handleSave = async (e) => {
       e?.preventDefault();
       const errs = {};
       if (!drawingType || !drawingType.trim()) {
@@ -179,11 +207,18 @@ export const DrawingConditionsSection = forwardRef(
         isSaved: true,
       };
 
-      onSave(payload);
-      setErrors({});
-      setIsEditing(false);
-      if (onToast) {
-        onToast("Drawing conditions saved successfully.");
+      setIsSaving(true);
+      try {
+        await onSave?.(payload);
+        setErrors({});
+        setIsEditing(false);
+        if (onToast) {
+          onToast("Drawing conditions saved successfully.");
+        }
+      } catch (err) {
+        // Handled by onSave error modal
+      } finally {
+        setIsSaving(false);
       }
     };
 
@@ -252,29 +287,22 @@ export const DrawingConditionsSection = forwardRef(
             </div>
 
             {/* Simple Reference Info Box */}
-            {coverDrawingTypeLabel && (
-              <div className="flex items-start sm:items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg hp:rounded-md px-4 py-2.5 text-xs md:text-sm text-gray-500">
-                <Info className="w-4 h-4 shrink-0 text-gray-400 mt-0.5 sm:mt-0" />
-                <span>
-                  Reference from Cover Information: Drawing Type {coverDrawingTypeLabel}
-                </span>
-              </div>
-            )}
+            <div className="flex items-start sm:items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg hp:rounded-md px-4 py-2.5 text-xs md:text-sm text-gray-500">
+              <Info className="w-4 h-4 shrink-0 text-gray-400 mt-0.5 sm:mt-0" />
+              <span>
+                {hasCoverDrawingType
+                  ? `Reference from Cover Information: Drawing Type ${coverDrawingTypeLabel}`
+                  : "Reference from Cover Information: None (not specified in Cover Information)"}
+              </span>
+            </div>
           </div>
         ) : (
           /* ── EDIT / INITIAL INPUT MODE ── */
           <form onSubmit={handleSave} className="space-y-4">
             <div className="pb-2.5 border-b border-gray-100 flex items-center justify-between">
-              <div>
-                <h4 className="text-xs sm:text-sm font-semibold text-slate-800">
-                  {isSaved
-                    ? "Edit Design Conditions for Drawing Cases"
-                    : "Design Conditions for Drawing Cases"}
-                </h4>
-                <p className="text-[14px] text-gray-500 mt-0.5">
-                  General drawing criteria and region applied across all drawing cases.
-                </p>
-              </div>
+              <p className="text-[14px] text-gray-500">
+                General drawing criteria and region applied across all drawing cases in this project.
+              </p>
             </div>
 
             {/* Interactive Guidance Banner (Shown on initial unconfirmed state) */}
@@ -282,16 +310,33 @@ export const DrawingConditionsSection = forwardRef(
               <div className="flex items-start gap-3 px-4 py-3 rounded-lg bg-sky-50/70 border border-sky-200/80 text-xs sm:text-sm">
                 <Lightbulb className="w-4 h-4 text-[#3399cc] shrink-0 mt-0.5" />
                 <div className="flex-1 leading-relaxed">
-                  <span className="font-semibold text-slate-800">
-                    Drawing Type is prefilled from Cover Information.{" "}
-                  </span>
-                  <span className="text-slate-600">
-                    Please select Region / Location below, then click{" "}
-                    <strong className="font-semibold text-[#0d3b66]">
-                      Save Design Conditions
-                    </strong>{" "}
-                    to confirm and proceed to cases.
-                  </span>
+                  {hasCoverDrawingType ? (
+                    <>
+                      <span className="font-semibold text-slate-800">
+                        Drawing Type is prefilled from Cover Information.{" "}
+                      </span>
+                      <span className="text-slate-600">
+                        Please select Region / Location below, then click{" "}
+                        <strong className="font-semibold text-[#0d3b66]">
+                          Save Design Conditions
+                        </strong>{" "}
+                        to confirm and proceed to cases.
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="font-semibold text-slate-800">
+                        No Drawing Type specified in Cover Information.{" "}
+                      </span>
+                      <span className="text-slate-600">
+                        Please select Drawing Type and Region / Location below, then click{" "}
+                        <strong className="font-semibold text-[#0d3b66]">
+                          Save Design Conditions
+                        </strong>{" "}
+                        to confirm and proceed to cases.
+                      </span>
+                    </>
+                  )}
                 </div>
               </div>
             )}
@@ -344,14 +389,14 @@ export const DrawingConditionsSection = forwardRef(
             </div>
 
             {/* Simple Reference Info Box */}
-            {coverDrawingTypeLabel && (
-              <div className="flex items-start sm:items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg hp:rounded-md px-4 py-2.5 text-xs md:text-sm text-gray-500">
-                <Info className="w-4 h-4 shrink-0 text-gray-400 mt-0.5 sm:mt-0" />
-                <span>
-                  Reference from Cover Information: Drawing Type {coverDrawingTypeLabel}
-                </span>
-              </div>
-            )}
+            <div className="flex items-start sm:items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg hp:rounded-md px-4 py-2.5 text-xs md:text-sm text-gray-500">
+              <Info className="w-4 h-4 shrink-0 text-gray-400 mt-0.5 sm:mt-0" />
+              <span>
+                {hasCoverDrawingType
+                  ? `Reference from Cover Information: Drawing Type ${coverDrawingTypeLabel}`
+                  : "Reference from Cover Information: None (not specified in Cover Information)"}
+              </span>
+            </div>
 
             {/* Footer Buttons: Cancel only if isSaved, Save changes / Save Design Conditions */}
             <div className="pt-2 flex justify-end items-center gap-2.5">
@@ -359,16 +404,29 @@ export const DrawingConditionsSection = forwardRef(
                 <button
                   type="button"
                   onClick={handleCancel}
-                  className="px-4 py-2 rounded-lg hp:rounded-md text-xs sm:text-sm font-medium bg-[#eef2f6] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:bg-[#e2e8f0] transition-colors"
+                  disabled={isSaving}
+                  className="px-5 py-2.5 rounded-lg hp:rounded-md font-medium text-xs sm:text-sm bg-[#eef2f6] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:bg-[#e2e8f0] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Cancel
                 </button>
               )}
               <button
                 type="submit"
-                className="px-5 py-2 rounded-lg hp:rounded-md text-xs sm:text-sm font-medium text-white bg-gradient-to-r from-[#0d3b66] to-[#3399cc] hover:brightness-110 shadow-sm active:scale-95 transition-all"
+                disabled={isSaving}
+                className="inline-flex items-center justify-center gap-2 min-w-[140px] px-5 py-2.5 rounded-lg hp:rounded-md font-medium text-xs sm:text-sm bg-gradient-to-r from-[#0d3b66] to-[#3399cc] text-white hover:brightness-110 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 transition-all"
               >
-                {isSaved ? "Save changes" : "Save Design Conditions"}
+                {isSaving ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-white" />
+                    <span>Saving...</span>
+                  </>
+                ) : (
+                  <span>
+                    {isSaved
+                      ? "Save changes"
+                      : "Save Drawing Conditions"}
+                  </span>
+                )}
               </button>
             </div>
           </form>
