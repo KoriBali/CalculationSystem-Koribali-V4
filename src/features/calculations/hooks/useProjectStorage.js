@@ -7,8 +7,24 @@ export function useProjectStorage(projectType, key, defaultValue) {
     const saved = sessionStorage.getItem(storageKey);
     if (!saved) return defaultValue;
     try {
-      return JSON.parse(saved);
+      const parsed = JSON.parse(saved);
+      if (
+        typeof defaultValue === "object" &&
+        defaultValue !== null &&
+        typeof parsed === "string" &&
+        "type" in defaultValue
+      ) {
+        return { ...defaultValue, type: parsed };
+      }
+      return parsed;
     } catch (err) {
+      if (
+        typeof defaultValue === "object" &&
+        defaultValue !== null &&
+        "type" in defaultValue
+      ) {
+        return { ...defaultValue, type: saved };
+      }
       console.warn(`[useProjectStorage] Failed to parse ${storageKey}:`, err);
       return defaultValue;
     }

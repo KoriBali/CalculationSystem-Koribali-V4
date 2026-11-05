@@ -343,10 +343,36 @@ export const buildCalculationDraftPayload = (projectType, sessionData) => {
   const rawOhw = getParsed("overheadWires") || [];
   const rawArms = getParsed("arms") || [];
 
-  const poleStandardHeightId =
+  let poleStandardHeightId =
     taperStandard?.poleStandardHeightId ||
     straightStandard?.poleStandardHeightId ||
     null;
+
+  if (!poleStandardHeightId && taperStandard?.height) {
+    try {
+      const cached = sessionStorage.getItem("poleStandardData");
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        const list = parsed?.data || [];
+        const taperEntries = list.filter(
+          (i) => i.type === "taper" || i.type === "tapered"
+        );
+        const shortCode = taperStandard.poleType;
+        const targetEntry = taperEntries.find(
+          (e) => e.name && (shortCode ? e.name.includes(shortCode) : true)
+        );
+        if (targetEntry?.poleStandardHeights) {
+          const hM = Number(taperStandard.height);
+          const match = targetEntry.poleStandardHeights.find((h) => {
+            const num = Number(h.height);
+            const m = num > 100 ? num / 1000 : num;
+            return Math.abs(m - hM) < 0.05 || Math.abs(num - hM) < 0.05;
+          });
+          if (match?.id) poleStandardHeightId = match.id;
+        }
+      }
+    } catch {}
+  }
 
   const directObjects = (Array.isArray(rawDo) ? rawDo : []).map((d) => {
     const rawH = Number(d.zHeight || 8000);
@@ -449,13 +475,41 @@ export const deserializeWorkingSession = (projectType, draftData) => {
         rawData.groundPosition === "under_gl" || rawData.groundPosition === "underGL";
       const groundPosUi = isUnderGl ? "underGL" : "onGL";
 
-      sessionStorage.setItem(`${projectType}_poleTypeStandard`, "taper");
+      sessionStorage.setItem(
+        `${projectType}_poleTypeStandard`,
+        JSON.stringify({ type: "taper" })
+      );
+
+      // Attempt reverse lookup of shortCode and height from cached master pole data
+      let resolvedShortCode = "IS";
+      let resolvedHeight = "10";
+      try {
+        const cached = sessionStorage.getItem("poleStandardData");
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          const list = parsed?.data || [];
+          for (const entry of list) {
+            const hMatch = (entry.poleStandardHeights || []).find(
+              (h) => h.id === rawData.poleStandardHeightId
+            );
+            if (hMatch) {
+              const match = entry.name?.match(/\(([^)]+)\)/);
+              if (match) resolvedShortCode = match[1];
+              const num = Number(hMatch.height);
+              resolvedHeight = String(num > 100 ? num / 1000 : num);
+              break;
+            }
+          }
+        }
+      } catch {}
 
       sessionStorage.setItem(
         `${projectType}_taperPoleStandard`,
         JSON.stringify({
-          poleStandardHeightId: rawData.poleStandardHeightId,
+          poleType: resolvedShortCode,
           groundPosition: groundPosUi,
+          height: resolvedHeight,
+          poleStandardHeightId: rawData.poleStandardHeightId,
         })
       );
 
@@ -784,11 +838,15 @@ export const handleSessionTransitionAsync = async (projectType, targetDraftId) =
           const serverDraft = await getCalculationDraft(reqId, targetDraftId);
           if (serverDraft && Object.keys(serverDraft).length > 0) {
             draftData =
-              serverDraft?.payload && typeof serverDraft.payload === "object"
-                ? serverDraft.payload
-                : serverDraft?.data && typeof serverDraft.data === "object"
-                  ? serverDraft.data
-                  : serverDraft;
+              serverDraft?.input && typeof serverDraft.input === "object"
+                ? serverDraft.input
+                : serverDraft?.payload && typeof serverDraft.payload === "object"
+                  ? serverDraft.payload
+                  : serverDraft?.data?.input && typeof serverDraft.data?.input === "object"
+                    ? serverDraft.data.input
+                    : serverDraft?.data && typeof serverDraft.data === "object"
+                      ? serverDraft.data
+                      : serverDraft;
             if (draftData && Object.keys(draftData).length > 0) {
               sessionStorage.setItem(
                 `${projectType}_draft_data_${targetDraftId}`,
