@@ -50,6 +50,7 @@ import {
   releaseRequestAssignment,
   getRequestAssignments,
   getCalculationDraft,
+  transferCaseOwnership,
 } from "../services/requestService";
 import { getUsers, getAssignableUsers } from "../../admin/services/userService";
 import { deserializeWorkingSession } from "../utils/coreLogic";
@@ -398,6 +399,7 @@ const normalizeServerCase = (
       (workType === "drawing" ? "Approval" : ""),
     workType,
     owner: resolvedOwner,
+    ownerUserId: ownerUserId ? String(ownerUserId) : null,
     createdBy: resolvedCreatedBy,
     checkedBy:
       c.checkedByName ||
@@ -1589,6 +1591,85 @@ export default function RequestDetailPage() {
     }
   };
 
+  // Transfer Case Ownership handler
+  const handleTransferCase = async (caseItem, selectedMember) => {
+    if (!caseItem || !selectedMember) return;
+    const newOwnerId = selectedMember?.id || selectedMember?.userId;
+    const newOwnerName =
+      selectedMember?.name || selectedMember?.fullName || "team member";
+
+    // Optimistic Update
+    update((r) => ({
+      ...r,
+      cases: (r.cases || []).map((c) =>
+        c.id === caseItem.id
+          ? {
+              ...c,
+              owner: newOwnerName,
+              ownerUserId: newOwnerId,
+              lastEdited: new Date().toISOString(),
+              lastEditedBy: currentUser?.fullName || currentUser?.name || "You",
+            }
+          : c,
+      ),
+    }));
+
+    if (
+      !isGuestUser() &&
+      isUuid(requestId) &&
+      isUuid(caseItem.id) &&
+      isUuid(newOwnerId)
+    ) {
+      try {
+        const apiWorkType =
+          caseItem.workType === "drawing" ? "drawing" : "calculation";
+        await transferCaseOwnership(
+          requestId,
+          apiWorkType,
+          caseItem.id,
+          newOwnerId,
+        );
+        setToastModal({
+          title: "Ownership Transferred",
+          message: `Case ownership transferred to ${newOwnerName} successfully.`,
+          type: "success",
+        });
+      } catch (err) {
+        console.error("[handleTransferCase] Backend transfer failed:", err);
+        const errMsg =
+          err?.response?.data?.detail ||
+          err?.response?.data?.message ||
+          "Failed to transfer case ownership on server.";
+        setToastModal({
+          title: "Transfer Failed",
+          message: typeof errMsg === "string" ? errMsg : JSON.stringify(errMsg),
+          type: "danger",
+        });
+        // Rollback / re-fetch authoritative cases from server
+        try {
+          const freshCases = await fetchAllProjectCases(requestId);
+          const freshList = extractCaseItems(freshCases);
+          if (freshList.length > 0) {
+            update((r) => ({
+              ...r,
+              cases: freshList.map((c, idx) =>
+                normalizeServerCase(c, idx, "calc", null, currentUser),
+              ),
+            }));
+          }
+        } catch (fetchErr) {
+          console.warn("[handleTransferCase] Re-fetch cases failed:", fetchErr);
+        }
+      }
+    } else {
+      setToastModal({
+        title: "Ownership Transferred",
+        message: `Case ownership transferred to ${newOwnerName} successfully.`,
+        type: "success",
+      });
+    }
+  };
+
   // Open Case draft
   const handleOpenCase = async (c) => {
     if (c.workType === "drawing") {
@@ -2685,6 +2766,7 @@ export default function RequestDetailPage() {
                 canAddCase={canAddCase}
                 onAddCase={handleAddCase}
                 onUpdateCase={handleUpdateCase}
+                onTransferCase={handleTransferCase}
                 onDeleteCase={handleDeleteCase}
                 onOpenCase={handleOpenCase}
                 onViewReport={handleViewCaseReport}

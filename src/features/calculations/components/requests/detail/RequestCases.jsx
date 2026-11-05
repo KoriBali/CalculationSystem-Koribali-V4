@@ -100,6 +100,7 @@ export function RequestCases({
   onAddCase, // (workType, details) => void
   onUpdateCase, // (caseId, updates) => void
   onDeleteCase, // (caseId) => void
+  onTransferCase, // (caseItem, selectedMember) => void
   onOpenCase, // (caseItem) => void
   onViewReport, // (caseItem) => void
   onToast, // (message) => void
@@ -775,15 +776,21 @@ export function RequestCases({
           caseItem={transferModalCase}
           members={request.members || []}
           onClose={() => setTransferModalCase(null)}
-          onTransfer={(newOwner) => {
-            onUpdateCase(transferModalCase.id, {
-              owner: newOwner,
-              lastEditedBy: me,
-              lastEdited: new Date().toISOString(),
-            });
+          onTransfer={(selectedMember) => {
+            if (onTransferCase) {
+              onTransferCase(transferModalCase, selectedMember);
+            } else if (onUpdateCase) {
+              onUpdateCase(transferModalCase.id, {
+                owner: selectedMember?.name,
+                ownerUserId: selectedMember?.id,
+                lastEditedBy: me,
+                lastEdited: new Date().toISOString(),
+              });
+              if (onToast) {
+                onToast(`Ownership transferred to ${selectedMember?.name} successfully.`);
+              }
+            }
             setTransferModalCase(null);
-            if (onToast)
-              onToast(`Ownership transferred to ${newOwner} successfully.`);
           }}
         />
       )}
@@ -1252,7 +1259,7 @@ function EditCaseModal({ caseItem, onClose, onSubmit }) {
 // MODAL: Transfer Ownership
 // ─────────────────────────────────────────────────────────────────────────────
 function TransferOwnershipModal({ caseItem, members = [], onClose, onTransfer }) {
-  const [selectedOwner, setSelectedOwner] = useState("");
+  const [selectedMember, setSelectedMember] = useState(null);
   const [searchMember, setSearchMember] = useState("");
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
@@ -1264,8 +1271,8 @@ function TransferOwnershipModal({ caseItem, members = [], onClose, onTransfer })
         return { id: m, name: m, isCreator: false };
       }
       return {
-        id: m.id || m.name,
-        name: m.name || "Unknown",
+        id: m.id || m.userId || m.name,
+        name: m.name || m.fullName || "Unknown",
         isCreator: Boolean(m.isCreator),
       };
     });
@@ -1279,7 +1286,7 @@ function TransferOwnershipModal({ caseItem, members = [], onClose, onTransfer })
 
   const currentOwner = caseItem.owner || "Unassigned";
   const isValidSelection = Boolean(
-    selectedOwner && selectedOwner !== currentOwner,
+    selectedMember && selectedMember.name !== currentOwner,
   );
 
   const handleSubmit = (e) => {
@@ -1290,7 +1297,7 @@ function TransferOwnershipModal({ caseItem, members = [], onClose, onTransfer })
 
   const handleConfirmTransfer = () => {
     setShowConfirmModal(false);
-    onTransfer(selectedOwner);
+    onTransfer(selectedMember);
   };
 
   return createPortal(
@@ -1378,13 +1385,13 @@ function TransferOwnershipModal({ caseItem, members = [], onClose, onTransfer })
               ) : (
                 filteredMembers.map((m) => {
                   const isCurrent = currentOwner === m.name;
-                  const isSelected = selectedOwner === m.name;
+                  const isSelected = selectedMember?.id === m.id || selectedMember?.name === m.name;
 
                   return (
                     <div
                       key={m.id}
                       onClick={() => {
-                        if (!isCurrent) setSelectedOwner(m.name);
+                        if (!isCurrent) setSelectedMember(m);
                       }}
                       className={`group flex items-center justify-between p-3 rounded-xl border transition-all duration-200 ease-out active:scale-[0.99] ${isCurrent
                           ? "opacity-60 cursor-not-allowed bg-slate-50/70 border-slate-200"
@@ -1475,7 +1482,7 @@ function TransferOwnershipModal({ caseItem, members = [], onClose, onTransfer })
               <span className="font-semibold text-gray-800">
                 {caseItem.caseLabel || caseItem.case_label || caseItem.title || `Case ${caseItem.no}`}
               </span>{" "}
-              to <span className="font-semibold text-gray-800">{selectedOwner}</span>? You will have view-only access to this case after the transfer.
+              to <span className="font-semibold text-gray-800">{selectedMember?.name}</span>? You will have view-only access to this case after the transfer.
             </p>
 
             {/* Actions */}
