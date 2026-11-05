@@ -91,14 +91,7 @@ export default function InitialAssignment({
     () =>
       workers
         .filter((w) => !assignedMemberIds.has(w.id))
-        .filter((w) => {
-          const n = (w.name || "").toLowerCase();
-          return (
-            !n.includes("rifa") &&
-            !n.includes("bintarjo") &&
-            !n.includes("agus")
-          );
-        }),
+        .filter((w) => !String(w.id).startsWith("u-")),
     [workers, assignedMemberIds],
   );
 

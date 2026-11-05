@@ -161,16 +161,6 @@ const mockToRecord = (mock) => {
         department: "Lighting Design Dept.",
         isCreator: true,
       },
-      ...(mock.picName
-        ? [
-            {
-              id: "u-pic",
-              name: mock.picName,
-              department: "Structural Dept.",
-              isCreator: false,
-            },
-          ]
-        : []),
     ],
     cases,
     files: {},

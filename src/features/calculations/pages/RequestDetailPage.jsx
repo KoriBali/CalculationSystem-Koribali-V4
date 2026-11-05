@@ -24,7 +24,6 @@ import {
   REQUEST_TYPE_OPTIONS,
 } from "../constants/requestFormOptions";
 import { REQUEST_HEADLINE, requestNoOf } from "../constants/requestSummary";
-import { MOCK_WORKERS } from "../data/requestFormMocks";
 import {
   fileRecord,
   forgetFileBlob,
@@ -806,8 +805,18 @@ export default function RequestDetailPage() {
                 members:
                   rawAssignments !== null
                     ? members
-                    : r?.members?.length
-                      ? r.members
+                    : (r?.members || []).filter(
+                        (m) =>
+                          m.isCreator ||
+                          (!String(m.id).startsWith("u-") &&
+                            m.name !== "Assigned Member"),
+                      ).length > 0
+                      ? (r?.members || []).filter(
+                          (m) =>
+                            m.isCreator ||
+                            (!String(m.id).startsWith("u-") &&
+                              m.name !== "Assigned Member"),
+                        )
                       : members,
                 companyName,
                 createdByName,
@@ -2876,11 +2885,7 @@ export default function RequestDetailPage() {
                 members={request.members || []}
                 canManageMembers={canEditProject}
                 onChange={handleAssignMembersChange}
-                workers={
-                  assignableWorkers.length > 0
-                    ? assignableWorkers
-                    : MOCK_WORKERS
-                }
+                workers={assignableWorkers}
               />
             </SectionCard>
           </div>
