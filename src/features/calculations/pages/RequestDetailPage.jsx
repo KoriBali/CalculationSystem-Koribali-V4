@@ -473,11 +473,29 @@ const resolveWorkTypes = (data = {}, existing = null) => {
   return { calc: true, drawing: false };
 };
 
+function SyncBadge({ label = "Syncing..." }) {
+  return (
+    <motion.span
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={{ duration: 0.2 }}
+      className="inline-flex items-center gap-1.5 ml-2.5 px-2.5 py-0.5 rounded-full text-[11px] font-normal text-slate-500 bg-slate-100 border border-slate-200"
+    >
+      <Loader2 className="w-3 h-3 animate-spin text-[#3399cc]" />
+      <span>{label}</span>
+    </motion.span>
+  );
+}
+
 export default function RequestDetailPage() {
   const navigate = useNavigate();
   const { requestId } = useParams();
   const [request, update] = useRequestRecord(requestId);
   const [loading, setLoading] = useState(!request);
+  const [isSyncing, setIsSyncing] = useState(
+    () => Boolean(isUuid(requestId) && !isGuestUser())
+  );
   const [isLoadingCases, setIsLoadingCases] = useState(
     () => Boolean(isUuid(requestId) && !isGuestUser())
   );
@@ -495,6 +513,8 @@ export default function RequestDetailPage() {
 
   useEffect(() => {
     let isMounted = true;
+    setIsSyncing(Boolean(isUuid(requestId) && !isGuestUser()));
+    setIsLoadingCases(Boolean(isUuid(requestId) && !isGuestUser()));
 
     // Load master data, users, and request details in parallel simultaneously (no waterfall delay)
     Promise.all([
@@ -1143,11 +1163,13 @@ export default function RequestDetailPage() {
       if (isMounted) {
         setLoading(false);
         setIsLoadingCases(false);
+        setIsSyncing(false);
       }
     }).catch(() => {
       if (isMounted) {
         setLoading(false);
         setIsLoadingCases(false);
+        setIsSyncing(false);
       }
     });
 
@@ -2709,14 +2731,30 @@ export default function RequestDetailPage() {
         {/* ── Header: same blue card and width as the New Request form ── */}
         <div className="w-full max-w-[1440px] mx-auto px-2">
           <div className="rounded-xl sm:rounded-2xl bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] shadow-sm px-3 py-3 sm:px-4 sm:py-4 md:px-6 2xl:px-8 flex flex-col gap-4">
-            <button
-              type="button"
-              onClick={() => navigate("/projects")}
-              className={BACK_BUTTON}
-            >
-              <ArrowLeft className="w-4 h-4 shrink-0" />
-              Back to My Projects
-            </button>
+            <div className="flex items-center justify-between">
+              <button
+                type="button"
+                onClick={() => navigate("/projects")}
+                className={BACK_BUTTON}
+              >
+                <ArrowLeft className="w-4 h-4 shrink-0" />
+                Back to My Projects
+              </button>
+              <AnimatePresence>
+                {isSyncing && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                    className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium text-white/90 bg-white/10 border border-white/20 backdrop-blur-xs"
+                  >
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-sky-300" />
+                    <span>Syncing project data...</span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
             <div className="min-w-0">
               <p className="text-xs sm:text-sm text-white/60">Request No.</p>
               <h1 className="mt-0.5 text-lg sm:text-xl lg:text-2xl font-semibold text-white break-words">
@@ -2743,7 +2781,12 @@ export default function RequestDetailPage() {
         <div className="w-full max-w-[1440px] mx-auto pt-6 pb-24 sm:pb-8 px-2 space-y-4 md:space-y-6">
           {/* ── Section: Request Summary ── */}
           <div>
-            <SectionTitle>Project Details</SectionTitle>
+            <SectionTitle>
+              <span>Project Details</span>
+              <AnimatePresence>
+                {isSyncing && <SyncBadge label="Syncing details..." />}
+              </AnimatePresence>
+            </SectionTitle>
             <SectionCard>
               <RequestSummary
                 request={request}
@@ -2768,7 +2811,10 @@ export default function RequestDetailPage() {
                 transition={{ duration: 0.28, ease: "easeOut" }}
               >
                 <SectionTitle>
-                  Design Conditions for Calculation Cases
+                  <span>Design Conditions for Calculation Cases</span>
+                  <AnimatePresence>
+                    {isSyncing && <SyncBadge label="Syncing conditions..." />}
+                  </AnimatePresence>
                 </SectionTitle>
                 <SectionCard>
                   <DesignConditionsSection
@@ -2796,7 +2842,12 @@ export default function RequestDetailPage() {
                 exit={{ opacity: 0, y: -12 }}
                 transition={{ duration: 0.28, ease: "easeOut" }}
               >
-                <SectionTitle>Design Conditions for Drawing Cases</SectionTitle>
+                <SectionTitle>
+                  <span>Design Conditions for Drawing Cases</span>
+                  <AnimatePresence>
+                    {isSyncing && <SyncBadge label="Syncing conditions..." />}
+                  </AnimatePresence>
+                </SectionTitle>
                 <SectionCard>
                   <DrawingConditionsSection
                     ref={drawingConditionsRef}
@@ -2814,7 +2865,12 @@ export default function RequestDetailPage() {
 
           {/* ── Section: Assignment ── */}
           <div>
-            <SectionTitle>Assignment</SectionTitle>
+            <SectionTitle>
+              <span>Assignment</span>
+              <AnimatePresence>
+                {isSyncing && <SyncBadge label="Syncing members..." />}
+              </AnimatePresence>
+            </SectionTitle>
             <SectionCard>
               <InitialAssignment
                 members={request.members || []}
@@ -2834,17 +2890,8 @@ export default function RequestDetailPage() {
             <SectionTitle>
               <span>Cases</span>
               <AnimatePresence>
-                {isLoadingCases && (
-                  <motion.span
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.2 }}
-                    className="inline-flex items-center gap-1.5 ml-2.5 px-2.5 py-0.5 rounded-full text-[11px] font-normal text-slate-500 bg-slate-100 border border-slate-200"
-                  >
-                    <Loader2 className="w-3 h-3 animate-spin text-[#3399cc]" />
-                    <span>Syncing latest cases...</span>
-                  </motion.span>
+                {(isSyncing || isLoadingCases) && (
+                  <SyncBadge label="Syncing latest cases..." />
                 )}
               </AnimatePresence>
             </SectionTitle>
@@ -2869,7 +2916,10 @@ export default function RequestDetailPage() {
           {/* ── Section: References Related to This Project ── */}
           <div>
             <SectionTitle>
-              References Related to This Project
+              <span>References Related to This Project</span>
+              <AnimatePresence>
+                {isSyncing && <SyncBadge label="Syncing files..." />}
+              </AnimatePresence>
               <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-normal text-slate-500 bg-slate-100 border border-slate-200 ml-2">
                 Under Development
               </span>
