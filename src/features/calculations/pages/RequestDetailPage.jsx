@@ -478,6 +478,9 @@ export default function RequestDetailPage() {
   const { requestId } = useParams();
   const [request, update] = useRequestRecord(requestId);
   const [loading, setLoading] = useState(!request);
+  const [isLoadingCases, setIsLoadingCases] = useState(
+    () => Boolean(isUuid(requestId) && !isGuestUser())
+  );
   const [openingCase, setOpeningCase] = useState(null);
   const [toastModal, setToastModal] = useState(null);
   const [isEditingConditions, setIsEditingConditions] = useState(false);
@@ -1129,6 +1132,12 @@ export default function RequestDetailPage() {
 
       if (isMounted) {
         setLoading(false);
+        setIsLoadingCases(false);
+      }
+    }).catch(() => {
+      if (isMounted) {
+        setLoading(false);
+        setIsLoadingCases(false);
       }
     });
 
@@ -2777,6 +2786,7 @@ export default function RequestDetailPage() {
             <SectionTitle>Cases</SectionTitle>
             <SectionCard>
               <RequestCases
+                isLoading={isLoadingCases}
                 request={request}
                 canContribute={canContribute}
                 canAddCase={canAddCase}
