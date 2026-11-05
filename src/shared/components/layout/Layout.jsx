@@ -103,7 +103,7 @@ export default function Layout() {
   } else if (isCalculationRoot) {
     currentTitle =
       MENU_ITEMS.find((item) => item.path === "/projects")?.name ??
-      "Projects";
+      "My Projects";
   } else if (isCheckingQueue) {
     currentTitle = "Checking Queue";
   } else if (isNewRequest) {
@@ -428,7 +428,7 @@ export default function Layout() {
         <Header
           isMobile={isMobile}
           currentTitle={currentTitle}
-          rootLabel="Projects"
+          rootLabel="My Projects"
           userData={userData}
           onRootCrumbClick={
             isNewRequest ? () => leaveNewRequest("/projects") : handleLogoClick

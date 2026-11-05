@@ -1050,7 +1050,7 @@ export default function RequestListPage() {
   return (
     <div className="min-h-full flex flex-col">
       <Helmet>
-        <title>Projects - KORI BALI</title>
+        <title>My Projects - KORI BALI</title>
       </Helmet>
 
       {/* A wide data table, so the page uses the full content width instead
@@ -1064,11 +1064,11 @@ export default function RequestListPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div className="min-w-0">
             <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
-              Projects
+              My Projects
             </h1>
             <p className="text-slate-500 mt-1.5 text-sm">
-              Manage your calculation and drawing projects, from action required
-              to completion.
+              Track and manage calculation and drawing projects assigned to or
+              created by you, from action required to completion.
             </p>
           </div>
 

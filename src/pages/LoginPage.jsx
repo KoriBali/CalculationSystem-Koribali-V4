@@ -21,12 +21,18 @@ import {
   CheckCircle,
   Layers,
   FileText,
+  Loader2,
 } from "lucide-react";
 
 import { useNavigate } from "react-router-dom";
 
 import { loginUser, getMe } from "../services/authService";
-import { setAuthSession, setUser, isAuthenticated } from "../utils/auth";
+import {
+  setAuthSession,
+  setUser,
+  isAuthenticated,
+  clearAuthSession,
+} from "../utils/auth";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -40,6 +46,37 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState("");
   const [activeSlide, setActiveSlide] = useState(0);
+  const [isGuestSigningIn, setIsGuestSigningIn] = useState(false);
+
+  const handleGuestLogin = async () => {
+    try {
+      setIsGuestSigningIn(true);
+      setLoginError("");
+
+      // Clear any previous stale session cookies
+      clearAuthSession();
+
+      const { accessToken, refreshToken } = await loginUser({
+        email: "guest@gmail.com",
+        password: "password",
+      });
+
+      setAuthSession({ accessToken, refreshToken, user: null });
+      const user = await getMe();
+      setUser(user);
+
+      navigate("/projects");
+    } catch (error) {
+      console.error("[handleGuestLogin] Login failed:", error);
+      setLoginError(
+        error.response?.data?.detail ||
+          error.message ||
+          "Failed to sign in as guest account.",
+      );
+    } finally {
+      setIsGuestSigningIn(false);
+    }
+  };
 
   // Auto-playing carousel timer
   useEffect(() => {
@@ -333,17 +370,18 @@ export default function LoginPage() {
 
               <button
                 type="button"
-                onClick={() => {
-                  setAuthSession({
-                    accessToken: "guest-session-token",
-                    refreshToken: "guest-session-token",
-                    user: { name: "Guest User", email: "guest@koribali.com", role: "drafter" },
-                  });
-                  navigate("/projects");
-                }}
-                className="w-full bg-white border-2 border-slate-200 text-slate-600 hover:text-slate-800 font-medium py-3.5 px-6 rounded-full hover:border-slate-300 hover:bg-slate-50 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-sm md:text-base"
+                disabled={isGuestSigningIn || formik.isSubmitting}
+                onClick={handleGuestLogin}
+                className="w-full bg-white border-2 border-slate-200 text-slate-600 hover:text-slate-800 font-medium py-3.5 px-6 rounded-full hover:border-slate-300 hover:bg-slate-50 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-sm md:text-base disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                Login as Guest
+                {isGuestSigningIn ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-[#0d3b66]" />
+                    <span>Signing in as Guest...</span>
+                  </>
+                ) : (
+                  <span>Login as Guest</span>
+                )}
               </button>
             </div>
           </form>

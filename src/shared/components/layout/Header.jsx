@@ -7,7 +7,7 @@ import { ProfileDropdown } from "./ProfileDropdown";
 export function Header({
   isMobile,
   currentTitle,
-  rootLabel = "Design Calculation",
+  rootLabel = "My Projects",
   userData,
   onRootCrumbClick,
   onProjectCrumbClick,

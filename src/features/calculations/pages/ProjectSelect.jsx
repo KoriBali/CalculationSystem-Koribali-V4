@@ -262,7 +262,7 @@ export default function ProjectSelectPage() {
             className="flex shrink-0 items-center justify-center gap-2 whitespace-nowrap px-5 py-2.5 md:px-6 rounded-lg hp:rounded-md font-medium text-xs sm:text-sm bg-[#eef2f6] hover:bg-[#e2e8f0] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2] hover:ring-[#b8c2d1] shadow-sm transition-colors"
           >
             <ChevronLeft className="w-4 lg:w-4.5 h-4 lg:h-4.5" />
-            Back to Projects
+            Back to My Projects
           </button>
         </motion.div>
 

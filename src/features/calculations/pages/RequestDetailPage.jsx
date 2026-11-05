@@ -168,7 +168,7 @@ function NotFound({ onBack }) {
         onClick={onBack}
         className="mt-5 h-9 px-4 rounded-lg text-sm font-medium bg-[#0d3b66] text-white hover:bg-[#0b3157]"
       >
-        Back to Projects
+        Back to My Projects
       </button>
     </div>
   );
@@ -189,7 +189,7 @@ function DetailLoadingSkeleton({ onBack }) {
             <div className="flex items-center justify-between gap-3">
               <button type="button" onClick={onBack} className={BACK_BUTTON}>
                 <ArrowLeft className="w-4 h-4 shrink-0" />
-                Back to Projects
+                Back to My Projects
               </button>
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-white text-[13px] font-medium shadow-xs">
                 <Loader2 className="w-3.5 h-3.5 animate-spin text-cyan-300" />
@@ -2642,7 +2642,7 @@ export default function RequestDetailPage() {
               className={BACK_BUTTON}
             >
               <ArrowLeft className="w-4 h-4 shrink-0" />
-              Back to Projects
+              Back to My Projects
             </button>
             <div className="min-w-0">
               <p className="text-xs sm:text-sm text-white/60">Request No.</p>

@@ -69,7 +69,7 @@ import {
   DISABLED_INPUT,
   inputStyle,
 } from "../components/requests/form/formStyles";
-import { getUser, isGuestUser } from "../../../utils/auth";
+import { getUser, isGuestUser, isGuestAccount } from "../../../utils/auth";
 import {
   Label,
   NotFoundHint,
@@ -115,6 +115,7 @@ import {
   isUuid,
 } from "../utils/requestPayloadMapper";
 import { ToastModal } from "../components/modals/ToastModal";
+import { ActionLoadingModal } from "../components/modals/ActionLoadingModal";
 import { REQUEST_HEADLINE, requestNoOf } from "../constants/requestSummary";
 import {
   clearNewRequestDraft,
@@ -846,10 +847,11 @@ export default function NewRequestFormPage() {
 
     const defaultStandard = "JIL 1003";
 
-    // ── GUEST USER ONLY: Auto-fill with mock data for instant preview/testing ──
-    if (isGuestUser()) {
+    // ── GUEST TESTING ACCOUNT ONLY: Auto-fill with mock data for instant preview/testing (requestNo left empty) ──
+    if (isGuestAccount()) {
       const defaultExtract = {
         ...MOCK_COVER_EXTRACT,
+        requestNo: "", // Nomor request dikosongkan agar user dapat mengisi sendiri
         discipline: "calc",
         deliveryQty: "1",
         standard: defaultStandard,
@@ -866,6 +868,7 @@ export default function NewRequestFormPage() {
         ys: {
           ...YS_EMPTY,
           ...defaultFields,
+          requestNo: "", // Jangan auto fill nomor request
           windSpeed: "60",
         },
         yp: YP_EMPTY,
@@ -1143,7 +1146,12 @@ export default function NewRequestFormPage() {
 
   // "↺ Use cover value" link for a label row; shown only once the field (or any of
   // the fields, for a shared label) differs from the cover.
+  // Fitur tetap ada di kode, untuk sementara di-hide dari tampilan sesuai permintaan user
+  const SHOW_USE_COVER_VALUE = false;
+
   const ysRestore = (...keys) => {
+    if (!SHOW_USE_COVER_VALUE) return null;
+
     const edited = keys.filter((k) => editedKeys.includes(k));
     if (edited.length === 0) return null;
     const tooltip = `Cover value: ${edited
@@ -1580,6 +1588,8 @@ export default function NewRequestFormPage() {
   // Confirm save edit
   const handleConfirmSaveEdit = async () => {
     if (!requestId) return;
+    setShowSaveConfirmModal(false);
+    setIsSavingEdit(true);
     const activeFields = { yp, ys }[coverType];
     const userNote = requestNotes[coverType] || "";
 
@@ -3747,26 +3757,16 @@ export default function NewRequestFormPage() {
         </div>
       )}
 
-      {/* ── Page-level Saving Animation Overlay ── */}
-      {(isSubmitting || isSavingEdit) && (
-        <div
-          role="status"
-          aria-live="polite"
-          className="fixed inset-0 z-50 bg-slate-900/30 backdrop-blur-[2px] flex items-center justify-center transition-all p-4"
-        >
-          <div className="bg-white rounded-2xl shadow-2xl border border-slate-100 p-6 flex flex-col items-center text-center max-w-sm w-full mx-4 transition-all">
-            <div className="w-13 h-13 rounded-2xl bg-gradient-to-tr from-[#0d3b66] to-[#3399cc] flex items-center justify-center text-white shadow-md shadow-blue-500/20 mb-3.5">
-              <Loader2 className="w-6 h-6 animate-spin text-white" />
-            </div>
-            <h3 className="font-semibold text-slate-800 text-sm md:text-base">
-              {isEditMode ? "Saving Changes..." : "Saving Project..."}
-            </h3>
-            <p className="text-sm text-slate-500 mt-1 leading-relaxed">
-              Please wait while your project is being saved.
-            </p>
-          </div>
-        </div>
-      )}
+      {/* ── Page-level Saving Animation Overlay Modal ── */}
+      <ActionLoadingModal
+        open={isSubmitting || isSavingEdit}
+        title={isEditMode ? "Saving Changes..." : "Saving Project..."}
+        subtitle={
+          isEditMode
+            ? "Please wait while your changes are being saved."
+            : "Please wait while your project request is being saved."
+        }
+      />
 
       {/* ── Toast Notification Modal ── */}
       {toast && <ToastModal toast={toast} onClose={() => setToast(null)} />}

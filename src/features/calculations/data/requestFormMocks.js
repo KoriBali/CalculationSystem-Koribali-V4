@@ -88,7 +88,7 @@ export const MOCK_WORKERS = [
 // the cover (one required and one optional field are left out on purpose so
 // both "not found" states can be seen).
 export const MOCK_COVER_EXTRACT = {
-  requestNo: "YSC-26-0107",
+  requestNo: "",
   receptionNo: "26-0311",
   classification: "new",
   requestType: "general",

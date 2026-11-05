@@ -77,3 +77,13 @@ export const isGuestUser = () => {
     token === "guest-session-token"
   );
 };
+
+export const isGuestAccount = () => {
+  const user = getUser();
+  return Boolean(
+    user?.email === "guest@gmail.com" ||
+    user?.username === "guest" ||
+    user?.email === "guest@koribali.com" ||
+    user?.role === "guest"
+  );
+};

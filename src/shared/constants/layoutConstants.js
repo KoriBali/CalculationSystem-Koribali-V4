@@ -6,7 +6,7 @@ export const MENU_ITEMS = [
 
   // Shared routes
   {
-    name: "Projects",
+    name: "My Projects",
     icon: "Calculator",
     path: "/projects",
     roles: ["superadmin", "admin", "drafter", "drafter_checker", "admin_department"],
