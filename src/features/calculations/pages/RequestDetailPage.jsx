@@ -1777,6 +1777,7 @@ export default function RequestDetailPage() {
     const designConditions = request.designConditions || {};
     const poleKind =
       c.poleKind ||
+      c.pole_kind ||
       (request.projectType === "lighting-project" ? "standard" : "custom");
     const isStandard = poleKind === "standard";
 
@@ -1841,15 +1842,15 @@ export default function RequestDetailPage() {
               : draftObj.condition
             : {};
         const stdCode = resolveDesignStandardCode(designConditions.standard);
-        if (stdCode) {
+        if (stdCode && !curCond.designStandard) {
           curCond.designStandard = stdCode;
         } else {
           curCond.designStandard = curCond.designStandard || "jil";
         }
-        if (designConditions.windSpeed) {
+        if (designConditions.windSpeed && !curCond.designWindSpeed) {
           curCond.designWindSpeed = String(designConditions.windSpeed);
         }
-        if (designConditions.airDensity) {
+        if (designConditions.airDensity && !curCond.designAirDensity) {
           curCond.designAirDensity = String(designConditions.airDensity);
         }
         const prevPoleType = curCond.poleType;

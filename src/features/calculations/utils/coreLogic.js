@@ -676,17 +676,25 @@ export const saveWorkingSessionToDraft = async (projectType, draftId, defaultTit
     try {
       const reqId = await resolveRequestIdForCase(draftId);
       if (reqId) {
-        const draftPayload = buildCalculationDraftPayload(projectType, data);
-        if (draftPayload.poleStandardHeightId) {
-          await saveCalculationDraft(reqId, draftId, draftPayload);
-          console.info(
-            `[saveWorkingSessionToDraft] Synced draft ${draftId} to backend request ${reqId}`
-          );
-        } else {
-          console.info(
-            `[saveWorkingSessionToDraft] Pole height not selected yet; draft saved locally.`
-          );
-        }
+        const calcPayload = buildCalculationDraftPayload(projectType, data);
+        // Build complete backend draft payload containing full frontend session state
+        // plus optional calculation properties if available
+        const backendPayload = {
+          ...data,
+          ...(calcPayload?.poleStandardHeightId
+            ? {
+                poleStandardHeightId: calcPayload.poleStandardHeightId,
+                groundPosition: calcPayload.groundPosition,
+                embedmentLengthMm: calcPayload.embedmentLengthMm,
+                calculationInput: calcPayload,
+              }
+            : {}),
+        };
+
+        await saveCalculationDraft(reqId, draftId, backendPayload);
+        console.info(
+          `[saveWorkingSessionToDraft] Synced full draft ${draftId} to backend request ${reqId}`
+        );
       } else {
         console.warn(
           "[saveWorkingSessionToDraft] Could not resolve request ID for draft:",
@@ -809,8 +817,8 @@ export const handleSessionTransitionAsync = async (projectType, targetDraftId) =
   if (targetDraftId) {
     try {
       const found = findRequestOfCase(targetDraftId);
-      if (found?.case?.poleKind) {
-        const casePoleKind = found.case.poleKind;
+      const casePoleKind = found?.case?.poleKind || found?.case?.pole_kind;
+      if (casePoleKind) {
         const rawCond = sessionStorage.getItem(`${projectType}_condition`);
         if (rawCond) {
           const cond = JSON.parse(rawCond);
