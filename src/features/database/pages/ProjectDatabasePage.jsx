@@ -13,6 +13,7 @@ import { ToastModal } from "../../calculations/components/modals/ToastModal";
 import {
   deleteRequest as deleteRequestApi,
   getRequests,
+  getProjects,
   getRequestById,
   getRequestAssignments,
 } from "../../calculations/services/requestService";
@@ -20,7 +21,7 @@ import {
   deleteRequest as deleteRequestLocal,
   getAllRequests,
 } from "../../calculations/data/requestStore";
-import { getUser, isGuestUser } from "../../../utils/auth";
+import { getUser, isGuestUser, getAccessToken } from "../../../utils/auth";
 import { getUsers } from "../../admin/services/userService";
 import api from "../../../config/api";
 import {
@@ -245,14 +246,14 @@ export default function ProjectDatabasePage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [toast, setToast] = useState(null);
 
-  // Fetch all requests across department (using same endpoint as tab All)
+  // Fetch all requests across department from the API Gateway
   useEffect(() => {
     let isMounted = true;
     async function fetchRequests() {
       setIsLoading(true);
 
-      // Guest User: read from local store
-      if (isGuestUser()) {
+      // Unauthenticated / offline session without access token: read from local store
+      if (!getAccessToken()) {
         const guestItems = getAllRequests();
         if (isMounted) {
           setRawRequests(guestItems);
@@ -261,20 +262,31 @@ export default function ProjectDatabasePage() {
         return;
       }
 
-      // Registered User: read live from API Gateway
+      // Read live from API Gateway
       try {
-        const [usersRes, assignableRes, reqsRes] = await Promise.all([
-          getUsers().catch(() => []),
-          api
-            .get("/api/assignable-users")
-            .then((r) => r?.data?.data || r?.data || [])
-            .catch(() => []),
-          getRequests(),
-        ]);
+        const [usersRes, assignableRes, reqsRes, projectsRes] =
+          await Promise.all([
+            getUsers().catch(() => []),
+            api
+              .get("/api/assignable-users")
+              .then((r) => r?.data?.data || r?.data || [])
+              .catch(() => []),
+            getRequests({ limit: 100 }),
+            getProjects({ limit: 100 }).catch(() => []),
+          ]);
 
         const items = Array.isArray(reqsRes)
           ? reqsRes
           : reqsRes?.items || reqsRes?.data || [];
+
+        const projectsList = Array.isArray(projectsRes)
+          ? projectsRes
+          : projectsRes?.items || projectsRes?.data || [];
+        const projectMap = new Map();
+        projectsList.forEach((p) => {
+          if (p?.id) projectMap.set(p.id, p);
+          if (p?.pjNo) projectMap.set(String(p.pjNo), p);
+        });
 
         // Parallel resolution of details and assignments for PIC and accurate metadata
         const detailsList = await Promise.all(
@@ -394,9 +406,13 @@ export default function ProjectDatabasePage() {
           setRawRequests(normalized);
         }
       } catch (err) {
-        console.warn("[ProjectDatabasePage] Fetch failed:", err?.message);
+        console.warn(
+          "[ProjectDatabasePage] Fetch failed, falling back to local store:",
+          err?.message,
+        );
         if (isMounted) {
-          setRawRequests([]);
+          const fallback = getAllRequests();
+          setRawRequests(fallback);
         }
       } finally {
         if (isMounted) {

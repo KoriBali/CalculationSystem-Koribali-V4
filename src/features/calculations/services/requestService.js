@@ -4,6 +4,23 @@ import api from "../../../config/api";
  * Service to communicate with Requests, Cases, and Checking Queue endpoints on the API Gateway
  */
 
+// ─── PROJECTS CRUD ─────────────────────────────────────────────────────────────
+
+export const getProjects = async (params = {}) => {
+  const { data } = await api.get("/api/projects", { params });
+  return data?.data || data;
+};
+
+export const getProjectById = async (projectId) => {
+  const { data } = await api.get(`/api/projects/${projectId}`);
+  return data?.data || data;
+};
+
+export const createProject = async (payload) => {
+  const { data } = await api.post("/api/projects", payload);
+  return data?.data || data;
+};
+
 // ─── REQUESTS CRUD ─────────────────────────────────────────────────────────────
 
 export const getRequests = async (params = {}) => {
