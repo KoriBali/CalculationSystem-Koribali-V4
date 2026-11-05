@@ -372,7 +372,6 @@ const normalizeServerCase = (
       : null) ||
     c.assignedTo ||
     c.owner ||
-    currentUserName ||
     "Unassigned";
 
   const resolvedCreatedBy =
@@ -384,8 +383,7 @@ const normalizeServerCase = (
       ? currentUserName
       : null) ||
     c.createdBy ||
-    currentUserName ||
-    "Unassigned";
+    (resolvedOwner !== "Unassigned" ? resolvedOwner : "Unassigned");
 
   return {
     id: c.id,
@@ -491,12 +489,28 @@ export default function RequestDetailPage() {
   useEffect(() => {
     let isMounted = true;
 
+    // Load master data, users, and request details in parallel simultaneously (no waterfall delay)
     Promise.all([
       getMasterDesignStandards().catch(() => []),
       getMasterRegions().catch(() => []),
       getUsers().catch(() => []),
       getAssignableUsers().catch(() => []),
-    ]).then(async ([standards, regions, usersRes, assignableRes]) => {
+      !isGuestUser() && isUuid(requestId)
+        ? getRequestById(requestId).catch((err) => {
+            console.warn(
+              "[RequestDetailPage] getRequestById fallback:",
+              err,
+            );
+            return null;
+          })
+        : Promise.resolve(null),
+      !isGuestUser() && isUuid(requestId)
+        ? fetchAllProjectCases(requestId).catch(() => [])
+        : Promise.resolve([]),
+      !isGuestUser() && isUuid(requestId)
+        ? getRequestAssignments(requestId).catch(() => null)
+        : Promise.resolve(null),
+    ]).then(async ([standards, regions, usersRes, assignableRes, serverData, serverCases, serverAssignments]) => {
       if (!isMounted) return;
 
       const realStandards = Array.isArray(standards)
@@ -516,19 +530,38 @@ export default function RequestDetailPage() {
           currentUser.fullName || currentUser.name || currentUser.username,
         );
       }
-      const allUsers = Array.isArray(usersRes)
+
+      // Add users from getUsers() (superadmin/admin) AND getAssignableUsers() (all department members like Andi & Rina)
+      const rawAssignable = Array.isArray(assignableRes)
+        ? assignableRes
+        : assignableRes?.items || assignableRes?.data || [];
+      const rawUsers = Array.isArray(usersRes)
         ? usersRes
-        : usersRes?.items || [];
+        : usersRes?.items || usersRes?.data || [];
+      const allUsers = [...rawUsers, ...rawAssignable];
+
       allUsers.forEach((u) => {
         if (u?.id) {
-          userMap.set(String(u.id), u.fullName || u.name || u.email);
+          const name = u.fullName || u.name || u.username;
+          if (name) {
+            userMap.set(String(u.id), name);
+          }
+        }
+      });
+
+      // Also add users found in serverAssignments to userMap
+      const assignmentList = Array.isArray(serverAssignments)
+        ? serverAssignments
+        : serverAssignments?.items || serverAssignments?.data || [];
+      assignmentList.forEach((a) => {
+        const uId = a.assigneeUserId || a.assignee?.id || a.user?.id;
+        const name = a.assignee?.fullName || a.assignee?.name || a.name;
+        if (uId && name) {
+          userMap.set(String(uId), name);
         }
       });
 
       // Prepare assignable workers list from backend GET /api/assignable-users
-      const rawAssignable = Array.isArray(assignableRes)
-        ? assignableRes
-        : assignableRes?.items || assignableRes?.data || [];
       const sourceWorkers = rawAssignable.length > 0 ? rawAssignable : allUsers;
       const formattedWorkers = sourceWorkers
         .filter((u) => u && u.id)
@@ -547,25 +580,8 @@ export default function RequestDetailPage() {
         setAssignableWorkers(formattedWorkers);
       }
 
-      if (!isGuestUser() && isUuid(requestId)) {
+      if (serverData && isMounted) {
         try {
-          const [
-            serverData,
-            serverCases,
-            serverAssignments,
-          ] = await Promise.all([
-            getRequestById(requestId).catch((err) => {
-              console.warn(
-                "[RequestDetailPage] getRequestById fallback:",
-                err,
-              );
-              return null;
-            }),
-            fetchAllProjectCases(requestId).catch(() => []),
-            getRequestAssignments(requestId).catch(() => null),
-          ]);
-
-          if (serverData && isMounted) {
             const brand = (
               serverData.brandMark ||
               serverData.brand ||
@@ -637,6 +653,8 @@ export default function RequestDetailPage() {
               serverData.creator?.fullName ||
               serverData.creator?.name ||
               (createdByUserId && userMap.get(String(createdByUserId))) ||
+              request?.createdByName ||
+              request?.createdBy ||
               (isCreatedByCurrentUser
                 ? currentUser?.fullName ||
                   currentUser?.name ||
@@ -1100,11 +1118,10 @@ export default function RequestDetailPage() {
               saveRequest(merged);
               return merged;
             });
+          } catch (err) {
+            console.warn("[RequestDetailPage] Error fetching data:", err);
           }
-        } catch (err) {
-          console.warn("[RequestDetailPage] Error fetching data:", err);
         }
-      }
 
       if (isMounted) {
         setLoading(false);

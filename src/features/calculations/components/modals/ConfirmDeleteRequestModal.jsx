@@ -15,12 +15,20 @@ export function ConfirmDeleteRequestModal({
   const [typedConfirmation, setTypedConfirmation] = useState("");
 
   // Target string that the user must type to confirm
+  const targetLabel =
+    request?.requestNo || request?.fields?.requestNo
+      ? "Request No."
+      : request?.pjNo || request?.fields?.projectNo
+        ? "Project No."
+        : "Project Name";
+
   const targetText =
     request?.requestNo ||
     request?.fields?.requestNo ||
     request?.pjNo ||
     request?.fields?.projectNo ||
-    "";
+    request?.subject ||
+    "DELETE";
 
   const isMatch =
     typedConfirmation.trim() === targetText.trim() && targetText.length > 0;
@@ -100,7 +108,7 @@ export function ConfirmDeleteRequestModal({
                 htmlFor="confirm-delete-input"
                 className="block text-xs md:text-sm text-gray-700 mb-1.5 md:mb-2 font-medium"
               >
-                Confirm Request No. <span className="text-red-500">*</span>
+                Confirm {targetLabel} <span className="text-red-500">*</span>
               </label>
               <input
                 id="confirm-delete-input"

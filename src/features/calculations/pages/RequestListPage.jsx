@@ -14,6 +14,7 @@ import {
   deleteRequest as deleteRequestApi,
   getRequests,
   getRequestById,
+  getRequestAssignments,
 } from "../services/requestService";
 import {
   deleteRequest as deleteRequestLocal,
@@ -72,16 +73,200 @@ const STICKY_PROJECT =
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50];
 
-// A request can be deleted only if it has not yet reached submitted, cleared, or cancelled stage
-const canDeleteRequest = (r) => {
+const getAssigneeUserId = (a) =>
+  a?.assigneeUserId ||
+  a?.assignee_user_id ||
+  a?.assignee?.id ||
+  a?.user?.id ||
+  a?.userId ||
+  a?.user_id ||
+  a?.assigneeId ||
+  a?.assignee_id;
+
+const isAssignmentActive = (a) => {
+  if (!a) return false;
+  if (
+    a.isReleased === true ||
+    a.is_released === true ||
+    a.released === true ||
+    a.releasedAt != null ||
+    a.released_at != null ||
+    a.released_date != null
+  ) {
+    return false;
+  }
+  const st = String(
+    a.status ||
+      a.assignment_status ||
+      a.assignmentStatus ||
+      a.state ||
+      "",
+  ).toLowerCase();
+  if (
+    [
+      "released",
+      "inactive",
+      "cancelled",
+      "revoked",
+      "closed",
+      "removed",
+      "deleted",
+    ].includes(st)
+  ) {
+    return false;
+  }
+  return true;
+};
+
+const isUserAdminDept = (user) => {
+  if (!user) return false;
+  const role = String(user.role || "").toLowerCase();
+  return (
+    role === "admin_department" ||
+    role === "superadmin" ||
+    role === "admin"
+  );
+};
+
+const isUserCreator = (r, user) => {
+  if (!r || !user) return false;
+  const uId = user.id ? String(user.id) : "";
+  const uFullName = (user.fullName || "").toLowerCase().trim();
+  const uName = (user.name || "").toLowerCase().trim();
+  const uUsername = (user.username || "").toLowerCase().trim();
+
+  const creatorId = String(
+    r.created_by_user_id ||
+      r.createdByUserId ||
+      r.created_by ||
+      r.creator?.id ||
+      r.creatorId ||
+      "",
+  );
+  if (uId && creatorId && uId === creatorId) return true;
+
+  const creatorName = (
+    r.createdByName ||
+    r.createdBy ||
+    r.creator?.fullName ||
+    r.creator?.name ||
+    ""
+  ).toLowerCase().trim();
+
+  if (uFullName && creatorName && uFullName === creatorName) return true;
+  if (uName && creatorName && uName === creatorName) return true;
+  if (uUsername && creatorName && uUsername === creatorName) return true;
+
+  return false;
+};
+
+const isUserAssignedMember = (r, user) => {
+  if (!r || !user) return false;
+  const uId = user.id ? String(user.id) : "";
+  const uFullName = (user.fullName || "").toLowerCase().trim();
+  const uName = (user.name || "").toLowerCase().trim();
+  const uUsername = (user.username || "").toLowerCase().trim();
+
+  // 1. Check server assignments & request assignments
+  const rawAssignments = [
+    ...(Array.isArray(r.serverAssignments) ? r.serverAssignments : []),
+    ...(Array.isArray(r.assignments) ? r.assignments : []),
+    ...(Array.isArray(r.assignments?.items) ? r.assignments.items : []),
+  ];
+
+  for (const a of rawAssignments) {
+    if (!isAssignmentActive(a)) continue;
+    const aUserId = String(getAssigneeUserId(a) || "");
+    if (uId && aUserId && uId === aUserId) return true;
+
+    const aName = (
+      a.assignee?.fullName ||
+      a.assignee?.name ||
+      a.name ||
+      ""
+    ).toLowerCase().trim();
+    if (uFullName && aName && uFullName === aName) return true;
+    if (uName && aName && uName === aName) return true;
+
+    const aUsername = (
+      a.assignee?.username ||
+      a.username ||
+      ""
+    ).toLowerCase().trim();
+    if (uUsername && aUsername && uUsername === aUsername) return true;
+  }
+
+  // 2. Check members array (if stored in local or request object)
+  if (Array.isArray(r.members)) {
+    for (const m of r.members) {
+      if (m.isCreator) continue;
+      const mId = m.id ? String(m.id) : "";
+      const mUserId =
+        m.userId || m.assigneeUserId ? String(m.userId || m.assigneeUserId) : "";
+      if (uId && mId && uId === mId) return true;
+      if (uId && mUserId && uId === mUserId) return true;
+
+      const mName = (m.name || m.fullName || "").toLowerCase().trim();
+      if (uFullName && mName && uFullName === mName) return true;
+      if (uName && mName && uName === mName) return true;
+    }
+  }
+
+  return false;
+};
+
+// A request can be deleted only if it has not yet reached submitted, cleared, or cancelled stage,
+// AND the user is either the Creator of the request or an Admin (Admin Department / Superadmin).
+const canDeleteRequest = (r, user) => {
+  if (!r) return false;
   const s = String(r.status || r.view?.statusKey || "").toLowerCase();
-  if (["diajukan", "submitted", "clear", "cleared", "cancel", "cancelled"].includes(s)) {
+  if (
+    ["diajukan", "submitted", "clear", "cleared", "cancel", "cancelled"].includes(
+      s,
+    )
+  ) {
     return false;
   }
   if (r.tab === "done") {
     return false;
   }
-  return true;
+  if (isGuestUser()) return true;
+
+  // Only Creator or Admin Department / Superadmin can delete
+  if (isUserAdminDept(user)) return true;
+  return isUserCreator(r, user);
+};
+
+// Determine which tab a request belongs to from the current user's perspective:
+// - "mine" (My tasks): Projects created by user OR where user is assigned as an active member.
+// - "waiting": User's projects that are currently waiting on review/checker/Japan.
+// - "done": User's finished/closed projects.
+// - "other": Projects created by others where user is NOT assigned as a member (only visible in "All").
+const determineRequestTab = (r, user) => {
+  const workflowTab = requestTab(r); // "mine", "waiting", or "done"
+
+  // Guest user: all requests in local store are the guest's tasks
+  if (isGuestUser()) {
+    return workflowTab;
+  }
+
+  // Admin department or superadmin: can see all requests in their workflow tab
+  if (isUserAdminDept(user)) {
+    return workflowTab;
+  }
+
+  // Drafter or Drafter Checker:
+  // Only consider this "mine" or "waiting" if user is creator or assigned member
+  const isMineOrAssigned =
+    isUserCreator(r, user) || isUserAssignedMember(r, user);
+
+  if (isMineOrAssigned) {
+    return workflowTab;
+  }
+
+  // Not creator and not assigned:
+  // Does not belong in "mine" or "waiting" tabs. It will only be visible in "All".
+  return "other";
 };
 
 // Row hover tint (light navy). Solid hex rather than an opacity class so the
@@ -233,10 +418,13 @@ export default function RequestListPage() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS[0]);
 
+  const [currentUser, setCurrentUser] = useState(() => getUser());
+
   // Leaving a project's drafts for the request list drops the project
   // context, same as the project type picker used to.
   useEffect(() => {
     sessionStorage.removeItem("projectType");
+    setCurrentUser(getUser());
   }, []);
 
   const [rawRequests, setRawRequests] = useState([]);
@@ -276,10 +464,22 @@ export default function RequestListPage() {
           ? reqsRes
           : reqsRes?.items || reqsRes?.data || [];
 
-        // Fetch detailed data from GET /api/requests/{id} in parallel for the current items
+        // Fetch detailed data from GET /api/requests/{id} and assignments in parallel for the current items
         // so that data from child tables (such as shared_details for PIC) is populated directly from the BE gateway
         const detailsList = await Promise.all(
-          items.map((s) => (s?.id ? getRequestById(s.id).catch(() => null) : null))
+          items.map(async (s) => {
+            if (!s?.id) return null;
+            const [detail, assignments] = await Promise.all([
+              getRequestById(s.id).catch(() => null),
+              getRequestAssignments(s.id).catch(() => []),
+            ]);
+            return {
+              ...(detail || {}),
+              serverAssignments: Array.isArray(assignments)
+                ? assignments
+                : assignments?.items || assignments?.data || [],
+            };
+          }),
         );
 
         const currentUser = getUser();
@@ -354,6 +554,12 @@ export default function RequestListPage() {
             drawing: dt === "drawing_calculation" || dt === "drawing",
           };
 
+          const rawAssignments = [
+            ...(Array.isArray(full.serverAssignments) ? full.serverAssignments : []),
+            ...(Array.isArray(full.assignments) ? full.assignments : []),
+            ...(Array.isArray(full.assignments?.items) ? full.assignments.items : []),
+          ];
+
           return {
             ...full,
             pjNo: full.pjNo || full.pj_no || "",
@@ -364,6 +570,11 @@ export default function RequestListPage() {
             requesterPicName: pic,
             picName: pic,
             createdByName: resolvedCreatedByName,
+            createdByUserId,
+            created_by_user_id: createdByUserId,
+            serverAssignments: full.serverAssignments || [],
+            assignments: rawAssignments,
+            members: Array.isArray(full.members) ? full.members : [],
             requestType: full.requestType || full.request_type || "general",
             requestClassification:
               full.requestClassification || full.request_classification || "new",
@@ -402,14 +613,25 @@ export default function RequestListPage() {
         .filter(Boolean)
         .map((r) => ({
           ...r,
-          tab: requestTab(r),
+          tab: determineRequestTab(r, currentUser),
           view: describeRequest(r),
         })),
-    [rawRequests],
+    [rawRequests, currentUser],
   );
 
   const handleConfirmDelete = async (reqToDelete) => {
     if (!reqToDelete) return;
+
+    if (!canDeleteRequest(reqToDelete, currentUser)) {
+      setToast({
+        message:
+          "You do not have permission to delete this project. Only the project creator or an admin can delete it.",
+        type: "danger",
+      });
+      setDeletingRequest(null);
+      return;
+    }
+
     setIsDeleting(true);
     const reqLabel =
       reqToDelete.requestNo ||
@@ -422,7 +644,19 @@ export default function RequestListPage() {
       try {
         await deleteRequestApi(reqToDelete.id);
       } catch (err) {
-        console.debug("[handleConfirmDelete] Gateway delete call skipped/failed:", err?.message);
+        console.error("[handleConfirmDelete] Gateway delete call failed:", err);
+        const errorMsg =
+          err?.response?.data?.detail ||
+          err?.response?.data?.message ||
+          "Failed to delete request on server. Please check your permissions.";
+        setToast({
+          message:
+            typeof errorMsg === "string" ? errorMsg : JSON.stringify(errorMsg),
+          type: "danger",
+        });
+        setIsDeleting(false);
+        setDeletingRequest(null);
+        return;
       }
     }
 
@@ -781,7 +1015,7 @@ export default function RequestListPage() {
       th: "w-[1%] text-right",
       td: () => "text-right",
       render: (r) => {
-        const isDeletable = canDeleteRequest(r);
+        const isDeletable = canDeleteRequest(r, currentUser);
         return (
           <div className="flex items-center justify-end gap-1.5">
             <button
