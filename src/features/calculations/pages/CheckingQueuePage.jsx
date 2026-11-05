@@ -230,7 +230,7 @@ function parseRequestForQueue(request, currentUserName) {
 
   // Fallback to request creator if no individual case drafters specified
   if (draftersSet.size === 0) {
-    draftersSet.add(request.createdBy || request.createdByName || "Bintarjo Agus Priyadi");
+    draftersSet.add(request.createdBy || request.createdByName || "Drafter");
   }
 
   const drafters = Array.from(draftersSet);

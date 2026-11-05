@@ -200,7 +200,8 @@ export const submitCaseForCheck = async (draftId, user) => {
             ...c,
             status: "Ready for check",
             lastEdited: new Date().toISOString(),
-            lastEditedBy: user?.name || "Bintarjo Agus Priyadi",
+            lastEditedBy:
+              user?.fullName || user?.name || "Drafter",
           }
         : c
     ),
@@ -232,7 +233,11 @@ export const markCaseInProgress = (draftId, user) => {
               ...c,
               status: "In progress",
               lastEdited: new Date().toISOString(),
-              lastEditedBy: user?.name || c.lastEditedBy || "Bintarjo Agus Priyadi",
+              lastEditedBy:
+                user?.fullName ||
+                user?.name ||
+                c.lastEditedBy ||
+                "Drafter",
             }
           : c
       ),

@@ -3,11 +3,6 @@
 // Workers who can be added to a request (users API).
 export const MOCK_WORKERS = [
   {
-    id: "u-bintarjo",
-    name: "Bintarjo Agus Priyadi",
-    department: "Lighting Design Dept.",
-  },
-  {
     id: "u-ramdan",
     name: "M. Ramdan Purnama",
     department: "Lighting Design Dept.",
@@ -60,11 +55,6 @@ export const MOCK_WORKERS = [
   {
     id: "u-amiril",
     name: "Amiril Mukminin",
-    department: "Development Dept.",
-  },
-  {
-    id: "u-rifa",
-    name: "Muhammad Rifa Alfadli",
     department: "Development Dept.",
   },
   {

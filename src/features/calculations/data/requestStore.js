@@ -12,6 +12,7 @@
 // memory for this session (to open it), until the upload API exists.
 
 import { MOCK_REQUESTS } from "./mockRequests";
+import { getUser } from "../../../utils/auth";
 
 const STORAGE_KEY = "requests_store";
 const fileBlobs = new Map();
@@ -96,6 +97,7 @@ const mockToRecord = (mock) => {
 
   const cases = (mock.items || []).map((it, idx) => {
     const label = it.caseNo ? `/${it.caseNo}` : `/${String(idx + 1).padStart(3, "0")}`;
+    const defaultCreator = getUser()?.fullName || getUser()?.name || "Drafter";
     return {
       id: `draft_${mock.id}_${idx + 1}`,
       no: it.caseNo || String(idx + 1).padStart(3, "0"),
@@ -105,8 +107,8 @@ const mockToRecord = (mock) => {
       poleKind: mock.poleKind || "standard",
       drawingType: it.work_type === "drawing" ? "Approval" : "",
       workType: it.work_type || (isCalc ? "calc" : "drawing"),
-      owner: mock.picName || mock.createdByName || "Bintarjo Agus Priyadi",
-      createdBy: mock.createdByName || mock.picName || "Bintarjo Agus Priyadi",
+      owner: mock.picName || mock.createdByName || defaultCreator,
+      createdBy: mock.createdByName || mock.picName || defaultCreator,
       checkedBy: it.checkedBy || (it.status === "internal" || it.status === "internal_correction" || it.status === "Internal correction" ? "Rina Kusuma" : null),
       status: mapItemStatusToCaseStatus(it.status, idx),
       createdAt: mock.createdAt || new Date().toISOString(),
@@ -115,6 +117,7 @@ const mockToRecord = (mock) => {
   });
 
   if (cases.length === 0) {
+    const defaultCreator = getUser()?.fullName || getUser()?.name || "Drafter";
     cases.push({
       id: `draft_${mock.id}_1`,
       no: "001",
@@ -124,8 +127,8 @@ const mockToRecord = (mock) => {
       poleKind: mock.poleKind || "standard",
       drawingType: isDrawing ? "Approval" : "",
       workType: isCalc ? "calc" : "drawing",
-      owner: mock.picName || mock.createdByName || "Bintarjo Agus Priyadi",
-      createdBy: mock.createdByName || mock.picName || "Bintarjo Agus Priyadi",
+      owner: mock.picName || mock.createdByName || defaultCreator,
+      createdBy: mock.createdByName || mock.picName || defaultCreator,
       checkedBy: null,
       status: "In progress",
       createdAt: mock.createdAt || new Date().toISOString(),
@@ -133,6 +136,7 @@ const mockToRecord = (mock) => {
     });
   }
 
+  const defaultCreator = getUser()?.fullName || getUser()?.name || "Drafter";
   return {
     ...mock,
     id: mock.id,
@@ -153,7 +157,7 @@ const mockToRecord = (mock) => {
     members: [
       {
         id: "u-creator",
-        name: mock.createdByName || "Bintarjo Agus Priyadi",
+        name: mock.createdByName || defaultCreator,
         department: "Lighting Design Dept.",
         isCreator: true,
       },
@@ -171,7 +175,7 @@ const mockToRecord = (mock) => {
     cases,
     files: {},
     createdAt: mock.createdAt || new Date().toISOString(),
-    createdBy: mock.createdByName || "Bintarjo Agus Priyadi",
+    createdBy: mock.createdByName || defaultCreator,
     designConditions: {
       standard: mock.fields?.standard || "jil",
       airDensity: mock.fields?.airDensity || "1.23",

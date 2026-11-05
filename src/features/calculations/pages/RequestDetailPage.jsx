@@ -581,7 +581,11 @@ export default function RequestDetailPage() {
             u.department ||
             "Engineering Dept.",
           role: u.role || "",
-        }));
+        }))
+        .filter((w) => {
+          const n = (w.name || "").toLowerCase();
+          return !n.includes("rifa") && !n.includes("bintarjo") && !n.includes("agus");
+        });
 
       if (isMounted) {
         setAssignableWorkers(formattedWorkers);
@@ -703,12 +707,18 @@ export default function RequestDetailPage() {
               normalizeServerCase(c, idx, "calc", userMap, currentUser),
             );
 
+            const cleanCreatedByName =
+              createdByName === "Bintarjo Agus Priyadi" ||
+              createdByName === "Muhammad Rifa Alfadli"
+                ? currentUser.fullName || currentUser.name || "Drafter"
+                : createdByName;
+
             const creatorMember = {
               id:
                 createdByUserId ||
                 (isCreatedByCurrentUser ? currentUser.id : "u-creator"),
               name:
-                createdByName ||
+                cleanCreatedByName ||
                 (isCreatedByCurrentUser
                   ? currentUser.fullName || currentUser.name || "You"
                   : "Unknown"),
@@ -1265,7 +1275,11 @@ export default function RequestDetailPage() {
   const currentUserName =
     currentUser.name || currentUser.fullName || currentUser.username || "";
   const currentUserId = currentUser.id ? String(currentUser.id) : "";
-  const me = currentUserName || "Bintarjo Agus Priyadi";
+  const me =
+    currentUserName ||
+    currentUser?.fullName ||
+    currentUser?.name ||
+    "Drafter";
   const userRole = (currentUser.role || "").toLowerCase();
 
   // Admin Department check (admin, superadmin, admin_department, admin_departement)

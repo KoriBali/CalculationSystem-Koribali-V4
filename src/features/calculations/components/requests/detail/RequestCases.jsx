@@ -109,8 +109,9 @@ export function RequestCases({
   onBeforeAddCase, // () => boolean
 }) {
   const currentUser = getUser();
-  const currentUserName = currentUser?.name || currentUser?.username || "";
-  const me = currentUserName || "Bintarjo Agus Priyadi";
+  const currentUserName =
+    currentUser?.fullName || currentUser?.name || currentUser?.username || "";
+  const me = currentUserName || "Drafter";
   const userRole = currentUser?.role || "drafter";
   const isAdmin =
     userRole === "admin" ||
@@ -846,8 +847,16 @@ function AddCaseModal({ workType, request, existingCases = [], onClose, onSubmit
         drawingType: !isCalc ? "Approval" : "",
         caseLabel: caseLabel.trim(),
         case_label: caseLabel.trim(),
-        owner: getUser()?.name || request.createdBy || "Bintarjo Agus Priyadi",
-        createdBy: getUser()?.name || request.createdBy || "Bintarjo Agus Priyadi",
+        owner:
+          getUser()?.fullName ||
+          getUser()?.name ||
+          request.createdBy ||
+          "Drafter",
+        createdBy:
+          getUser()?.fullName ||
+          getUser()?.name ||
+          request.createdBy ||
+          "Drafter",
         status: "Not started",
       });
     } catch (err) {

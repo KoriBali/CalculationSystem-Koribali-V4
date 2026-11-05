@@ -703,7 +703,8 @@ export const saveWorkingSessionToDraft = async (projectType, draftId, defaultTit
     if (found) {
       const { request, case: caseItem } = found;
       const user = getUser();
-      const userName = user?.name || "Bintarjo Agus Priyadi";
+      const userName =
+        user?.fullName || user?.name || "Drafter";
       const currentStatus = caseItem?.status || "Not started";
       const newStatus = currentStatus === "Not started" ? "In progress" : currentStatus;
       updateRequest(request.id, (r) => ({

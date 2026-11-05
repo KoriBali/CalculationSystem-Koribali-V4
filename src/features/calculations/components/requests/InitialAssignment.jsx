@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { getUser } from "../../../../utils/auth";
 
-// "Muhammad Rifa Alfadli" → "MA"; "Dimas P." → "DP"
+// "Andi Nugroho" → "AN"; "Dimas P." → "DP"
 const initials = (name = "") => {
   const parts = name.replace(/\./g, "").trim().split(/\s+/);
   const first = parts[0]?.[0] ?? "";
@@ -88,7 +88,17 @@ export default function InitialAssignment({
 
   // Only workers who are NOT yet assigned appear in the modal candidates list
   const candidateWorkers = useMemo(
-    () => workers.filter((w) => !assignedMemberIds.has(w.id)),
+    () =>
+      workers
+        .filter((w) => !assignedMemberIds.has(w.id))
+        .filter((w) => {
+          const n = (w.name || "").toLowerCase();
+          return (
+            !n.includes("rifa") &&
+            !n.includes("bintarjo") &&
+            !n.includes("agus")
+          );
+        }),
     [workers, assignedMemberIds],
   );
 

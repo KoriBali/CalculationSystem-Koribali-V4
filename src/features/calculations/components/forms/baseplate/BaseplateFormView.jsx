@@ -15,7 +15,6 @@ import { CoverFormModal } from "../../modals/CoverFormModal";
 import {
   saveWorkingSessionToDraft,
   clearActiveDraftId,
-  hasCoverData,
 } from "../../../utils/coreLogic";
 import { clearCalculationSession } from "../../../utils";
 
@@ -104,11 +103,7 @@ export default function BaseplateFormView() {
     if (draftId) {
       saveWorkingSessionToDraft(projectType, draftId);
     }
-    if (hasCoverData(projectType)) {
-      handleConfirmCover();
-    } else {
-      setShowCoverModal(true);
-    }
+    handleConfirmCover();
   };
 
   const handleSaveDraft = () => {

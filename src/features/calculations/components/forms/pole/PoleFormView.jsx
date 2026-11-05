@@ -58,7 +58,6 @@ import { CoverFormModal } from "../../modals/CoverFormModal";
 import {
   saveWorkingSessionToDraft,
   clearActiveDraftId,
-  hasCoverData,
 } from "../../../utils/coreLogic";
 import { clearCalculationSession } from "../../../utils";
 import { CustomPoleModal } from "../../modals/CustomPoleModal";
@@ -297,11 +296,7 @@ export default function PoleFormView() {
     if (draftId) {
       saveWorkingSessionToDraft(projectType, draftId);
     }
-    if (hasCoverData(projectType)) {
-      handleConfirmCover();
-    } else {
-      setShowCoverModal(true);
-    }
+    handleConfirmCover();
   };
 
   const handleSaveDraft = () => {

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { saveWorkingSessionToDraft } from "../../calculations/utils/coreLogic";
 import { normalizeCover } from "../utils/reportFormatters";
+import { getContextualCoverDefaults } from "../../calculations/components/modals/CoverFormModal";
 import {
   createCaseRun,
   getCaseRunReport,
@@ -206,8 +207,56 @@ export function useReport(projectType) {
     const resultsDo = read("resultsDo", []);
     const resultsOhw = read("resultsOhw", []);
     const resultsArm = read("resultsArm", []);
+
+    const activeDraftId =
+      draftIdOverride ||
+      sessionStorage.getItem(`${projectType}_active_draft_id`);
+    const foundReq = activeDraftId ? findRequestOfCase(activeDraftId) : null;
+    const reqId =
+      foundReq?.request?.id || sessionStorage.getItem("active_request_id");
+
+    const contextualDefaults = getContextualCoverDefaults(
+      projectType,
+      activeDraftId,
+      reqId,
+    );
     const rawCover = coverOverride || read("cover", {}) || {};
-    const cover = normalizeCover(rawCover);
+    const mergedCover = {
+      ...contextualDefaults,
+      ...rawCover,
+      reportNumber:
+        rawCover.reportNumber ||
+        rawCover.calculationNumber ||
+        contextualDefaults.reportNumber,
+      calculationNumber:
+        rawCover.reportNumber ||
+        rawCover.calculationNumber ||
+        contextualDefaults.calculationNumber,
+      title1:
+        rawCover.title1 ||
+        rawCover.projectName ||
+        contextualDefaults.title1,
+      projectName:
+        rawCover.title1 ||
+        rawCover.projectName ||
+        contextualDefaults.projectName,
+      title2:
+        rawCover.title2 !== undefined && rawCover.title2 !== ""
+          ? rawCover.title2
+          : contextualDefaults.title2,
+      coverTopText:
+        rawCover.coverTopText !== undefined && rawCover.coverTopText !== ""
+          ? rawCover.coverTopText
+          : contextualDefaults.coverTopText,
+      region: rawCover.region || contextualDefaults.region,
+      author: rawCover.author || contextualDefaults.author,
+      responsibleDepartment:
+        rawCover.responsibleDepartment ||
+        contextualDefaults.responsibleDepartment,
+      date: rawCover.date || contextualDefaults.date,
+    };
+    const cover = normalizeCover(mergedCover);
+    sessionStorage.setItem(`${projectType}_cover`, JSON.stringify(cover));
 
     // Read calculated results for optional steps
     const calculatedOp = read("calculatedOp", {});
@@ -286,9 +335,6 @@ export function useReport(projectType) {
       })(),
     };
 
-    const activeDraftId = draftIdOverride || sessionStorage.getItem(`${projectType}_active_draft_id`);
-    const foundReq = activeDraftId ? findRequestOfCase(activeDraftId) : null;
-    const reqId = foundReq?.request?.id || sessionStorage.getItem("active_request_id");
     const taperStandard = read("taperPoleStandard", {}) || {};
     const poleHeightId =
       taperStandard?.poleStandardHeightId ||

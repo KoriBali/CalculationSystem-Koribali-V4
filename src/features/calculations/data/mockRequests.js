@@ -48,7 +48,6 @@ export const ISSUER_OFFICES = [
 // Staff names for created_by / submitted_by. Creators come from the team of
 // the request's line; submissions to Japan from Development (and Bryant).
 const TEAM_YS = [
-  "Bintarjo Agus Priyadi",
   "M. Ramdan Purnama",
   "Ajie Jodi Sumarno",
   "Nawid Ahmad",
@@ -64,7 +63,6 @@ const TEAM_YP = [
 ];
 const SUBMITTERS = [
   "Amiril Mukminin",
-  "Muhammad Rifa Alfadli",
   "Ni Nyoman Kayika Manuhita",
   "Azzachra Caesyafitri",
   "Bryant",
@@ -150,7 +148,7 @@ const ARCHIVE = [
     "11752",
     "Matsumoto city street lighting",
     "Shinano Denki",
-    "Bintarjo Agus Priyadi",
+    "M. Ramdan Purnama",
     47,
   ],
   [
@@ -202,9 +200,9 @@ export const MOCK_REQUESTS = [
     dueDate: daysFromNow(2),
     documentDeliveryTarget: null,
     updatedAt: hoursAgo(2),
-    createdByName: "Bintarjo Agus Priyadi",
+    createdByName: "M. Ramdan Purnama",
     createdAt: hoursAgo(288),
-    picName: "M. Ramdan Purnama",
+    picName: "Ajie Jodi Sumarno",
     items: [
       { caseNo: "001", work_type: "calc", status: S.READY_CHECK },
       { caseNo: "002", work_type: "calc", status: S.INTERNAL_CORRECTION, checkedBy: "Rina Kusuma" },
@@ -231,7 +229,7 @@ export const MOCK_REQUESTS = [
     updatedAt: hoursAgo(5),
     createdByName: "Ricki Harmon",
     createdAt: hoursAgo(480),
-    submittedByName: "Muhammad Rifa Alfadli",
+    submittedByName: "Amiril Mukminin",
     picName: "Pijar Eko Saktiaji",
     items: [
       {

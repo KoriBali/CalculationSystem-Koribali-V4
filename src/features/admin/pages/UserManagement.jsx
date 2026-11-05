@@ -30,7 +30,6 @@ const DEPARTMENTS = [
 // (fullName, username, email, role, departmentId) plus a joined
 // departmentName for display.
 const INITIAL_USERS = [
-  { id: 1, fullName: "Bintarjo Agus Priyadi", username: "bintarjo", email: "bintarjo@koribali.com", role: "superadmin", departmentId: 1 },
   { id: 2, fullName: "M. Ramdan Purnama", username: "ramdan", email: "ramdan@koribali.com", role: "admin", departmentId: 1 },
   { id: 3, fullName: "Ajie Jodi Sumarno", username: "ajie.jodi", email: "ajie.jodi@koribali.com", role: "drafter", departmentId: 1 },
   { id: 4, fullName: "Nawid Ahmad", username: "nawid", email: "nawid@koribali.com", role: "drafter", departmentId: 1 },
@@ -42,7 +41,6 @@ const INITIAL_USERS = [
   { id: 10, fullName: "Mediani Utami", username: "mediani", email: "mediani@koribali.com", role: "drafter", departmentId: 1 },
   { id: 11, fullName: "Raden Nur Afrisya", username: "afrisya", email: "afrisya@koribali.com", role: "drafter", departmentId: 1 },
   { id: 12, fullName: "Amiril Mukminin", username: "amiril", email: "amiril@koribali.com", role: "admin", departmentId: 1 },
-  { id: 13, fullName: "Muhammad Rifa Alfadli", username: "rifa", email: "rifa@koribali.com", role: "drafter", departmentId: 1 },
   { id: 14, fullName: "Ni Nyoman Kayika Manuhita", username: "kayika", email: "kayika@koribali.com", role: "drafter", departmentId: 1 },
   { id: 15, fullName: "Azzachra Caesyafitri", username: "azzachra", email: "azzachra@koribali.com", role: "drafter", departmentId: 1 },
   { id: 16, fullName: "Bryant", username: "bryant", email: "bryant@koribali.com", role: "drafter", departmentId: 1 },
