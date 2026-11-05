@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet";
 // eslint-disable-next-line no-unused-vars -- used as <motion.*> in JSX
 import { motion } from "framer-motion";
-import { Plus, Inbox, SearchX, Eye, Trash2 } from "lucide-react";
+import { Inbox, SearchX, Eye, Trash2 } from "lucide-react";
 import RequestFilterBar from "../../calculations/components/requests/RequestFilterBar";
 import RequestPagination from "../../calculations/components/requests/RequestPagination";
 import RequestStatusChip from "../../calculations/components/requests/RequestStatusChip";
@@ -780,14 +780,7 @@ export default function ProjectDatabasePage() {
           </div>
 
           <div className="flex items-center gap-3">
-            <RequestStatusGuide />
-            <button
-              onClick={() => navigate("/projects/new")}
-              className="flex shrink-0 items-center justify-center gap-2 whitespace-nowrap px-5 py-2.5 bg-[#0d3b66] text-white rounded-lg hp:rounded-md font-medium text-sm hover:bg-[#0a2c4c] active:scale-[0.98] transition-all shadow-sm cursor-pointer"
-            >
-              <Plus className="w-4.5 h-4.5" />
-              New Project
-            </button>
+            <RequestStatusGuide showTabs={false} />
           </div>
         </div>
 

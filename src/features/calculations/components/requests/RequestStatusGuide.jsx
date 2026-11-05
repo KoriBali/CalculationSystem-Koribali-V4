@@ -63,7 +63,7 @@ const SectionTitle = ({ children }) => (
   <p className="mb-2.5 text-xs font-semibold text-slate-700">{children}</p>
 );
 
-export default function RequestStatusGuide() {
+export default function RequestStatusGuide({ showTabs = true }) {
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef(null);
 
@@ -153,31 +153,33 @@ export default function RequestStatusGuide() {
               </section>
 
               {/* What each tab means */}
-              <section>
-                <SectionTitle>What each tab means</SectionTitle>
-                <dl className="divide-y divide-slate-100 rounded-lg border border-slate-100">
-                  {PROJECT_TABS.map((tab) => (
-                    <div
-                      key={tab.key}
-                      className="grid grid-cols-[150px_1fr] gap-3 px-3 py-2.5 hp:grid-cols-1 hp:gap-1.5"
-                    >
-                      <dt>
-                        <span
-                          className={`inline-flex items-center whitespace-nowrap px-2.5 py-0.5 rounded-full text-xs font-medium ring-1 ring-inset ${tab.style}`}
-                        >
-                          {tab.label}
-                        </span>
-                      </dt>
-                      <dd className="text-xs leading-relaxed font-medium text-slate-700">
-                        {tab.hint}
-                        <span className="block mt-0.5 font-normal text-slate-500">
-                          Lifecycle: {tab.rule}
-                        </span>
-                      </dd>
-                    </div>
-                  ))}
-                </dl>
-              </section>
+              {showTabs && (
+                <section>
+                  <SectionTitle>What each tab means</SectionTitle>
+                  <dl className="divide-y divide-slate-100 rounded-lg border border-slate-100">
+                    {PROJECT_TABS.map((tab) => (
+                      <div
+                        key={tab.key}
+                        className="grid grid-cols-[150px_1fr] gap-3 px-3 py-2.5 hp:grid-cols-1 hp:gap-1.5"
+                      >
+                        <dt>
+                          <span
+                            className={`inline-flex items-center whitespace-nowrap px-2.5 py-0.5 rounded-full text-xs font-medium ring-1 ring-inset ${tab.style}`}
+                          >
+                            {tab.label}
+                          </span>
+                        </dt>
+                        <dd className="text-xs leading-relaxed font-medium text-slate-700">
+                          {tab.hint}
+                          <span className="block mt-0.5 font-normal text-slate-500">
+                            Lifecycle: {tab.rule}
+                          </span>
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                </section>
+              )}
 
               {/* Meanings */}
               <section>
@@ -193,9 +195,11 @@ export default function RequestStatusGuide() {
                       </dt>
                       <dd className="text-xs leading-relaxed font-medium text-slate-700">
                         {s.hint}
-                        <span className="block mt-0.5 font-normal text-slate-500">
-                          Tab: {s.tabs.map(tabLabel).join(" / ")}
-                        </span>
+                        {showTabs && (
+                          <span className="block mt-0.5 font-normal text-slate-500">
+                            Tab: {s.tabs.map(tabLabel).join(" / ")}
+                          </span>
+                        )}
                       </dd>
                     </div>
                   ))}
