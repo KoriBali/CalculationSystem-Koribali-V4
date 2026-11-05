@@ -453,6 +453,26 @@ export function RequestCases({
 
                 const hasGeneratedReport = (() => {
                   if (c.workType === "drawing") return false;
+                  // If backend case record or status already indicates a completed/ready report (e.g. opened in another browser)
+                  if (
+                    c.hasReport === true ||
+                    c.has_report === true ||
+                    Boolean(c.reportSnapshot) ||
+                    Boolean(c.draftData?.hasReport) ||
+                    Boolean(c.draftData?.reportSnapshot) ||
+                    c.status === "Ready for check" ||
+                    c.status === "ready_check" ||
+                    c.status === "Checked" ||
+                    c.status === "checked" ||
+                    c.status === "Ready to submit" ||
+                    c.status === "ready_submit" ||
+                    c.status === "Submitted" ||
+                    c.status === "submitted" ||
+                    c.status === "Cleared" ||
+                    c.status === "cleared"
+                  ) {
+                    return true;
+                  }
                   try {
                     const raw = sessionStorage.getItem(
                       `${request.projectType}_draft_data_${c.id}`

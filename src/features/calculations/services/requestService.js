@@ -546,13 +546,23 @@ export const getCalculationDraft = async (requestId, caseId) => {
     `/api/requests/${requestId}/calculation-cases/${caseId}/calculation-draft`
   );
   const root = data?.data || data;
-  if (root?.input && typeof root.input === "object") {
-    return root.input;
-  }
-  if (root?.payload && typeof root.payload === "object") {
-    return root.payload;
-  }
-  return root;
+  if (!root || typeof root !== "object") return root;
+
+  const innerPayload =
+    root.draftData && typeof root.draftData === "object"
+      ? root.draftData
+      : root.payload && typeof root.payload === "object"
+        ? root.payload
+        : null;
+
+  const innerInput =
+    root.input && typeof root.input === "object" ? root.input : null;
+
+  return {
+    ...root,
+    ...(innerInput || {}),
+    ...(innerPayload || {}),
+  };
 };
 
 /**

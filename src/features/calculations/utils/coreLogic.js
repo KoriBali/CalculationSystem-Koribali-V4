@@ -456,17 +456,116 @@ export const deserializeWorkingSession = (projectType, draftData) => {
   clearCalculationSession(projectType); // Clear existing first
   if (draftData) {
     const rawData =
-      draftData?.input && typeof draftData.input === "object"
-        ? draftData.input
+      draftData?.draftData && typeof draftData.draftData === "object"
+        ? { ...draftData, ...draftData.draftData }
         : draftData?.payload && typeof draftData.payload === "object"
-          ? draftData.payload
-          : draftData;
+          ? { ...draftData, ...draftData.payload }
+          : draftData?.data && typeof draftData.data === "object" && !Array.isArray(draftData.data)
+            ? { ...draftData, ...draftData.data }
+            : draftData?.input && typeof draftData.input === "object"
+              ? { ...draftData, ...draftData.input }
+              : draftData;
 
     Object.entries(rawData).forEach(([key, val]) => {
       if (val === null || val === undefined) return;
+      if (key === "payload" || key === "draftData" || key === "input" || key === "data") return;
       const strVal = typeof val === "string" ? val : JSON.stringify(val);
       sessionStorage.setItem(`${projectType}_${key}`, strVal);
     });
+
+    // Unpack nested opening if provided as object
+    if (rawData.opening && typeof rawData.opening === "object") {
+      const op = rawData.opening;
+      if (op.openingType)
+        sessionStorage.setItem(
+          `${projectType}_openingType`,
+          typeof op.openingType === "string" ? op.openingType : JSON.stringify(op.openingType)
+        );
+      if (op.boxType)
+        sessionStorage.setItem(
+          `${projectType}_boxType`,
+          typeof op.boxType === "string" ? op.boxType : JSON.stringify(op.boxType)
+        );
+      if (op.rType)
+        sessionStorage.setItem(
+          `${projectType}_rType`,
+          typeof op.rType === "string" ? op.rType : JSON.stringify(op.rType)
+        );
+      if (op.calculatedOp)
+        sessionStorage.setItem(
+          `${projectType}_calculatedOp`,
+          typeof op.calculatedOp === "string" ? op.calculatedOp : JSON.stringify(op.calculatedOp)
+        );
+    }
+
+    // Unpack nested baseplate if provided as object
+    if (rawData.baseplate && typeof rawData.baseplate === "object") {
+      const bp = rawData.baseplate;
+      if (bp.baseplateType)
+        sessionStorage.setItem(
+          `${projectType}_baseplateType`,
+          typeof bp.baseplateType === "string" ? bp.baseplateType : JSON.stringify(bp.baseplateType)
+        );
+      if (bp.fourRibType)
+        sessionStorage.setItem(
+          `${projectType}_fourRibType`,
+          typeof bp.fourRibType === "string" ? bp.fourRibType : JSON.stringify(bp.fourRibType)
+        );
+      if (bp.eightRibType)
+        sessionStorage.setItem(
+          `${projectType}_eightRibType`,
+          typeof bp.eightRibType === "string" ? bp.eightRibType : JSON.stringify(bp.eightRibType)
+        );
+      if (bp.calculatedBaseplate)
+        sessionStorage.setItem(
+          `${projectType}_calculatedBaseplate`,
+          typeof bp.calculatedBaseplate === "string" ? bp.calculatedBaseplate : JSON.stringify(bp.calculatedBaseplate)
+        );
+    }
+
+    // Unpack nested foundation if provided as object
+    if (rawData.foundation && typeof rawData.foundation === "object") {
+      const fd = rawData.foundation;
+      if (fd.foundationType)
+        sessionStorage.setItem(
+          `${projectType}_foundationType`,
+          typeof fd.foundationType === "string" ? fd.foundationType : JSON.stringify(fd.foundationType)
+        );
+      if (fd.squareCaisson)
+        sessionStorage.setItem(
+          `${projectType}_squareCaisson`,
+          typeof fd.squareCaisson === "string" ? fd.squareCaisson : JSON.stringify(fd.squareCaisson)
+        );
+      if (fd.roundCaisson)
+        sessionStorage.setItem(
+          `${projectType}_roundCaisson`,
+          typeof fd.roundCaisson === "string" ? fd.roundCaisson : JSON.stringify(fd.roundCaisson)
+        );
+      if (fd.calculatedFoundation)
+        sessionStorage.setItem(
+          `${projectType}_calculatedFoundation`,
+          typeof fd.calculatedFoundation === "string" ? fd.calculatedFoundation : JSON.stringify(fd.calculatedFoundation)
+        );
+    }
+
+    // Unpack cover if provided
+    if (rawData.cover) {
+      sessionStorage.setItem(
+        `${projectType}_cover`,
+        typeof rawData.cover === "string" ? rawData.cover : JSON.stringify(rawData.cover)
+      );
+    }
+
+    // Unpack reportSnapshot if provided
+    if (rawData.reportSnapshot) {
+      sessionStorage.setItem(
+        `${projectType}_reportSnapshot`,
+        typeof rawData.reportSnapshot === "string"
+          ? rawData.reportSnapshot
+          : JSON.stringify(rawData.reportSnapshot)
+      );
+      sessionStorage.setItem(`${projectType}_hasReport`, "true");
+    }
 
     // If this draft is in backend CalculationInput format (e.g. loaded from server in another browser),
     // unpack it into the frontend session keys
@@ -734,20 +833,65 @@ export const saveWorkingSessionToDraft = async (projectType, draftId, defaultTit
       const reqId = await resolveRequestIdForCase(draftId);
       if (reqId) {
         const calcPayload = buildCalculationDraftPayload(projectType, data);
-        if (calcPayload?.poleStandardHeightId) {
-          const backendPayload = {
-            poleStandardHeightId: calcPayload.poleStandardHeightId,
-            directObjects: calcPayload.directObjects || [],
-            overheadWires: calcPayload.overheadWires || [],
-            arms: calcPayload.arms || [],
-            groundPosition: calcPayload.groundPosition || "on_gl",
-            embedmentLengthMm: calcPayload.embedmentLengthMm ?? null,
-          };
-          await saveCalculationDraft(reqId, draftId, backendPayload);
-          console.info(
-            `[saveWorkingSessionToDraft] Synced calculation draft to backend for ${draftId}`
-          );
-        }
+        const backendPayload = {
+          ...(calcPayload?.poleStandardHeightId
+            ? {
+                poleStandardHeightId: calcPayload.poleStandardHeightId,
+                directObjects: calcPayload.directObjects || [],
+                overheadWires: calcPayload.overheadWires || [],
+                arms: calcPayload.arms || [],
+                groundPosition: calcPayload.groundPosition || "on_gl",
+                embedmentLengthMm: calcPayload.embedmentLengthMm ?? null,
+              }
+            : {}),
+
+          // 1. Full draft state as JSON so Opening, Baseplate, Foundation, Cover, and Report are preserved in DB
+          payload: data,
+          draftData: data,
+
+          // 2. Structured component JSON objects (compatible with both nested & flat BE models)
+          opening: data.openingType
+            ? {
+                openingType: data.openingType,
+                boxType: data.boxType,
+                rType: data.rType,
+                calculatedOp: data.calculatedOp,
+              }
+            : null,
+          baseplate: data.baseplateType
+            ? {
+                baseplateType: data.baseplateType,
+                fourRibType: data.fourRibType,
+                eightRibType: data.eightRibType,
+                calculatedBaseplate: data.calculatedBaseplate,
+              }
+            : null,
+          foundation: data.foundationType
+            ? {
+                foundationType: data.foundationType,
+                squareCaisson: data.squareCaisson,
+                roundCaisson: data.roundCaisson,
+                calculatedFoundation: data.calculatedFoundation,
+              }
+            : null,
+          condition: data.condition,
+          cover: data.cover,
+          results: data.results,
+          calculatedOp: data.calculatedOp,
+          calculatedBaseplate: data.calculatedBaseplate,
+          calculatedFoundation: data.calculatedFoundation,
+          reportSnapshot: data.reportSnapshot,
+          hasReport: data.hasReport,
+          schematic_data: data.schematic_data,
+          calculation_config: data.calculation_config,
+          workflow: data.workflow,
+          projectIdentity: data.projectIdentity,
+        };
+
+        await saveCalculationDraft(reqId, draftId, backendPayload);
+        console.info(
+          `[saveWorkingSessionToDraft] Synced complete calculation draft to backend for ${draftId}`
+        );
       } else {
         console.warn(
           "[saveWorkingSessionToDraft] Could not resolve request ID for draft:",

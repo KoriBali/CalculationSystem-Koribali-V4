@@ -55,6 +55,7 @@ import {
   saveReportHeader,
   buildReportHeaderPayload,
   normalizeReportHeaderResponse,
+  getCalculationDraft,
 } from "../../../calculations/services/requestService";
 import { ReportLoadingModal } from "../modals/ReportLoadingModal";
 import { ReportErrorModal } from "../modals/ReportErrorModal";
@@ -73,14 +74,34 @@ export function ReportView() {
 
   // If opened via /requests/:type/:draftId/report, ensure draft data is restored to session
   useEffect(() => {
+    let active = true;
     if (params.type && params.draftId) {
       sessionStorage.setItem("projectType", params.type);
       sessionStorage.setItem(`${params.type}_active_draft_id`, params.draftId);
       const draftData = getDraftData(params.type, params.draftId);
       if (draftData) {
         deserializeWorkingSession(params.type, draftData);
+      } else {
+        (async () => {
+          try {
+            const reqId = await resolveRequestIdForCase(params.draftId);
+            if (reqId) {
+              const serverDraft = await getCalculationDraft(reqId, params.draftId);
+              if (serverDraft && active) {
+                deserializeWorkingSession(params.type, serverDraft);
+                sessionStorage.setItem(
+                  `${params.type}_draft_data_${params.draftId}`,
+                  JSON.stringify(serverDraft)
+                );
+              }
+            }
+          } catch {}
+        })();
       }
     }
+    return () => {
+      active = false;
+    };
   }, [params.type, params.draftId]);
 
   const [officialReportFromApi, setOfficialReportFromApi] = useState(null);

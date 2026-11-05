@@ -1817,14 +1817,14 @@ export default function RequestDetailPage() {
         const serverDraft = await getCalculationDraft(request.id, c.id);
         if (serverDraft && Object.keys(serverDraft).length > 0) {
           const payload =
-            serverDraft?.input && typeof serverDraft.input === "object"
-              ? serverDraft.input
+            serverDraft?.draftData && typeof serverDraft.draftData === "object"
+              ? { ...serverDraft, ...serverDraft.draftData }
               : serverDraft?.payload && typeof serverDraft.payload === "object"
-                ? serverDraft.payload
-                : serverDraft?.data?.input && typeof serverDraft.data?.input === "object"
-                  ? serverDraft.data.input
-                  : serverDraft?.data && typeof serverDraft.data === "object"
-                    ? serverDraft.data
+                ? { ...serverDraft, ...serverDraft.payload }
+                : serverDraft?.input && typeof serverDraft.input === "object"
+                  ? { ...serverDraft, ...serverDraft.input }
+                  : serverDraft?.data && typeof serverDraft.data === "object" && !Array.isArray(serverDraft.data)
+                    ? { ...serverDraft, ...serverDraft.data }
                     : serverDraft;
           if (payload && Object.keys(payload).length > 0) {
             draftObj = payload;
@@ -1988,10 +1988,21 @@ export default function RequestDetailPage() {
           (rawCover.reportNumber?.trim() ||
             rawCover.calculationNumber?.trim()) &&
           rawCover.author?.trim() &&
-          (rawCover.responsibleDepartment?.trim() || rawCover.region?.trim()),
+          (rawCover.responsibleDepartment?.trim() ||
+            rawCover.region?.trim() ||
+            rawCover.managementCode?.trim() ||
+            true)
         );
 
-        if (!hasPole || !hasOp || !hasBp || !hasFd || !hasCoverInfo) {
+        const isAlreadyCompletedCase =
+          c.status === "Ready for check" ||
+          c.status === "ready_check" ||
+          c.status === "Checked" ||
+          c.status === "Ready to submit" ||
+          c.status === "Submitted" ||
+          c.status === "Cleared";
+
+        if (!isAlreadyCompletedCase && (!hasPole || !hasOp || !hasBp || !hasFd || !hasCoverInfo)) {
           delete draftObj.reportSnapshot;
           delete draftObj.hasReport;
         }
@@ -2060,22 +2071,30 @@ export default function RequestDetailPage() {
       sessionStorage.setItem("active_request_project_name", cleanProjName);
     const draftKey = `${request.projectType}_draft_data_${c.id}`;
     let rawDraft = sessionStorage.getItem(draftKey);
-    if (!rawDraft && c.workType !== "drawing") {
+    let draftObj = null;
+    try {
+      draftObj = rawDraft ? JSON.parse(rawDraft) : null;
+    } catch {
+      draftObj = null;
+    }
+
+    if ((!draftObj || !draftObj.reportSnapshot) && c.workType !== "drawing") {
       try {
         const serverDraft = await getCalculationDraft(request.id, c.id);
         if (serverDraft && Object.keys(serverDraft).length > 0) {
           const payload =
-            serverDraft?.input && typeof serverDraft.input === "object"
-              ? serverDraft.input
+            serverDraft?.draftData && typeof serverDraft.draftData === "object"
+              ? { ...serverDraft, ...serverDraft.draftData }
               : serverDraft?.payload && typeof serverDraft.payload === "object"
-                ? serverDraft.payload
-                : serverDraft?.data?.input && typeof serverDraft.data?.input === "object"
-                  ? serverDraft.data.input
-                  : serverDraft?.data && typeof serverDraft.data === "object"
-                    ? serverDraft.data
+                ? { ...serverDraft, ...serverDraft.payload }
+                : serverDraft?.input && typeof serverDraft.input === "object"
+                  ? { ...serverDraft, ...serverDraft.input }
+                  : serverDraft?.data && typeof serverDraft.data === "object" && !Array.isArray(serverDraft.data)
+                    ? { ...serverDraft, ...serverDraft.data }
                     : serverDraft;
           if (payload && Object.keys(payload).length > 0) {
-            rawDraft = JSON.stringify(payload);
+            draftObj = { ...(draftObj || {}), ...payload };
+            rawDraft = JSON.stringify(draftObj);
             sessionStorage.setItem(draftKey, rawDraft);
           }
         }
@@ -2083,9 +2102,8 @@ export default function RequestDetailPage() {
         console.debug("[handleViewCaseReport] getCalculationDraft fallback:", err?.message);
       }
     }
-    if (rawDraft) {
+    if (draftObj) {
       try {
-        const draftObj = JSON.parse(rawDraft);
         const stdCode = resolveDesignStandardCode(
           request.designConditions?.standard,
         );
@@ -2131,6 +2149,16 @@ export default function RequestDetailPage() {
             } catch {}
           }
           sessionStorage.setItem(draftKey, JSON.stringify(draftObj));
+        }
+
+        if (draftObj.reportSnapshot) {
+          sessionStorage.setItem(
+            `${request.projectType}_reportSnapshot`,
+            typeof draftObj.reportSnapshot === "string"
+              ? draftObj.reportSnapshot
+              : JSON.stringify(draftObj.reportSnapshot)
+          );
+          sessionStorage.setItem(`${request.projectType}_hasReport`, "true");
         }
         deserializeWorkingSession(request.projectType, draftObj);
       } catch (err) {
