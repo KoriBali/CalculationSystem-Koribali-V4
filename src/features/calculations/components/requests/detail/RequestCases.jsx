@@ -338,12 +338,7 @@ export function RequestCases({
       </div>
 
       {/* ── Filters Toolbar (when there are cases in the request) ── */}
-      {isLoading ? (
-        <div className="flex items-center gap-2.5 pt-0.5">
-          <div className="h-9 w-28 bg-slate-200/80 animate-pulse rounded-lg hp:rounded-md" />
-          <div className="h-9 w-36 bg-slate-200/80 animate-pulse rounded-lg hp:rounded-md" />
-        </div>
-      ) : cases.length > 0 ? (
+      {cases.length > 0 && (
         <div className="relative z-20 flex flex-wrap items-center gap-2.5 pt-0.5">
           <RequestFilterDropdown
             prefix="Cases"
@@ -371,50 +366,10 @@ export function RequestCases({
             </button>
           )}
         </div>
-      ) : null}
+      )}
 
       {/* ── Table or Empty State (matches RequestFiles) ── */}
-      {isLoading ? (
-        <div className="rounded-lg hp:rounded-md border border-gray-200 overflow-x-auto scrollbar-soft bg-white">
-          <table className="w-full text-left text-xs md:text-sm">
-            <thead className="bg-gray-50 text-gray-500 border-b border-gray-200">
-              <tr>
-                <th className={TH}>Case No.</th>
-                <th className={TH}>Work Type</th>
-                <th className={TH}>Pole Type</th>
-                <th className={TH}>Status</th>
-                <th className={TH}>Owner</th>
-                <th className={TH}>Created By</th>
-                <th className={TH}>Drafter Checker</th>
-                <th className={TH}>Created</th>
-                <th className={TH}>Last Edited</th>
-                <th className={`${TH} text-right min-w-[190px]`}>Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {[1, 2, 3, 4].map((i) => (
-                <tr key={i} className="animate-pulse">
-                  <td className={TD}><div className="h-4 w-10 bg-slate-200/80 rounded" /></td>
-                  <td className={TD}><div className="h-4 w-20 bg-slate-200/80 rounded" /></td>
-                  <td className={TD}><div className="h-5 w-16 bg-slate-200/80 rounded-full" /></td>
-                  <td className={TD}><div className="h-5 w-24 bg-slate-200/80 rounded-full" /></td>
-                  <td className={TD}><div className="h-4 w-28 bg-slate-200/80 rounded" /></td>
-                  <td className={TD}><div className="h-4 w-28 bg-slate-200/80 rounded" /></td>
-                  <td className={TD}><div className="h-4 w-16 bg-slate-200/80 rounded" /></td>
-                  <td className={TD}><div className="h-4 w-24 bg-slate-200/80 rounded" /></td>
-                  <td className={TD}><div className="h-4 w-24 bg-slate-200/80 rounded" /></td>
-                  <td className={`${TD} text-right`}>
-                    <div className="inline-flex items-center gap-1.5 justify-end">
-                      <div className="h-7 w-16 bg-slate-200/80 rounded-md" />
-                      <div className="h-7 w-16 bg-slate-200/80 rounded-md" />
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : cases.length === 0 ? (
+      {cases.length === 0 ? (
         <div className="w-full flex flex-col items-center text-center rounded-lg hp:rounded-md border border-dashed border-slate-300 bg-slate-50/60 px-6 py-10 hover:border-blue-400 hover:bg-blue-50/40 transition-colors">
           <span className="p-2.5 rounded-lg bg-white border border-slate-200 text-slate-400">
             <FolderPlus className="w-5 h-5" />

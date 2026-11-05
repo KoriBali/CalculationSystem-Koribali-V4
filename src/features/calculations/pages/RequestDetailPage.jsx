@@ -2783,10 +2783,25 @@ export default function RequestDetailPage() {
 
           {/* ── Section 2: Cases ── */}
           <div>
-            <SectionTitle>Cases</SectionTitle>
+            <SectionTitle>
+              <span>Cases</span>
+              <AnimatePresence>
+                {isLoadingCases && (
+                  <motion.span
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                    className="inline-flex items-center gap-1.5 ml-2.5 px-2.5 py-0.5 rounded-full text-[11px] font-normal text-slate-500 bg-slate-100 border border-slate-200"
+                  >
+                    <Loader2 className="w-3 h-3 animate-spin text-[#3399cc]" />
+                    <span>Syncing latest cases...</span>
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </SectionTitle>
             <SectionCard>
               <RequestCases
-                isLoading={isLoadingCases}
                 request={request}
                 canContribute={canContribute}
                 canAddCase={canAddCase}
