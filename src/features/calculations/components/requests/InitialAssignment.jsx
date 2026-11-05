@@ -24,10 +24,11 @@ const initials = (name = "") => {
 const Avatar = ({ name, strong = false }) => (
   <span
     aria-hidden="true"
-    className={`shrink-0 flex items-center justify-center w-8 h-8 rounded-full text-xs font-semibold ${strong
-      ? "bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] text-white shadow-xs"
-      : "bg-[#eef2f6] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2]"
-      }`}
+    className={`shrink-0 flex items-center justify-center w-8 h-8 rounded-full text-xs font-semibold ${
+      strong
+        ? "bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] text-white shadow-xs"
+        : "bg-[#eef2f6] text-[#0d3b66] ring-1 ring-inset ring-[#d0d7e2]"
+    }`}
   >
     {initials(name)}
   </span>
@@ -35,9 +36,10 @@ const Avatar = ({ name, strong = false }) => (
 
 const inputStyle = (hasError = false) =>
   `w-full px-3 xl:px-4 py-2 lg:py-2.5 rounded-lg hp:rounded-md outline-none transition-all text-xs md:text-sm border
-  ${hasError
-    ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
-    : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
+  ${
+    hasError
+      ? "border-red-500 bg-[#fff5f5] ring-1 ring-red-200"
+      : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
   }`;
 
 export default function InitialAssignment({
@@ -53,7 +55,11 @@ export default function InitialAssignment({
   const searchInputRef = useRef(null);
 
   const currentUser = getUser() || {};
-  const currentUserName = (currentUser.name || currentUser.username || "").toLowerCase();
+  const currentUserName = (
+    currentUser.name ||
+    currentUser.username ||
+    ""
+  ).toLowerCase();
   const userRole = (currentUser.role || "").toLowerCase();
 
   const isAdminDepartment =
@@ -159,7 +165,8 @@ export default function InitialAssignment({
             </span>
           </div>
           <p className="mt-1 text-xs sm:text-sm text-gray-500 font-normal">
-            Team members with access to view, edit, or work on cases in this request.
+            Team members with access to view, edit, or work on cases in this
+            request.
           </p>
         </div>
 
@@ -214,7 +221,8 @@ export default function InitialAssignment({
                   </span>
                   {m.isCreator ? (
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-sky-50 text-sky-700 ring-1 ring-inset ring-sky-200/80">
-                      {currentUserName && m.name?.toLowerCase() === currentUserName
+                      {currentUserName &&
+                      m.name?.toLowerCase() === currentUserName
                         ? "Creator · You"
                         : "Creator"}
                     </span>
@@ -262,7 +270,8 @@ export default function InitialAssignment({
             className="text-xs sm:text-sm text-gray-500 flex items-center gap-2 mt-2 font-normal"
           >
             <Users className="w-4 h-4 text-slate-400 shrink-0" />
-            Only you are assigned right now. Click "Assign Member" above to add colleagues.
+            Only you are assigned right now. Click "Assign Member" above to add
+            colleagues.
           </motion.p>
         )}
       </AnimatePresence>
@@ -447,7 +456,7 @@ export default function InitialAssignment({
 
                 {/* Modal Footer with Cancel & Done buttons */}
                 <div className="bg-slate-50 px-6 py-4 border-t border-slate-200 flex items-center justify-between gap-3 shrink-0 rounded-b-2xl">
-                  <span className="text-[13px] text-slate-500">
+                  <span className="text-xs md:text-sm text-slate-500">
                     {selectedWorkers.length > 0
                       ? `${selectedWorkers.length} selected to add`
                       : "Select members to add"}
