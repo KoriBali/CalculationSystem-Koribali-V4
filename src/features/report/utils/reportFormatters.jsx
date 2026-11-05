@@ -96,7 +96,7 @@ export const normalizeCover = (rawCover) => {
   if (title1 === "江戸川フラワーガーデン" || title1 === "1") {
     title1 = "";
   }
-  if (title2 === "強度検討" && (!title1 || rawCover.title1 === "江戸川フラワーガーデン")) {
+  if (title2 === "強度検討" && rawCover.title1 === "江戸川フラワーガーデン") {
     title2 = "";
   }
 

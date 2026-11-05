@@ -1963,6 +1963,23 @@ export default function RequestDetailPage() {
     sessionStorage.setItem(`${request.projectType}_active_draft_id`, c.id);
     sessionStorage.setItem(`case_request_id_${c.id}`, request.id);
     sessionStorage.setItem("active_request_id", request.id);
+    sessionStorage.setItem(`case_no_${c.id}`, c.no || "");
+    sessionStorage.setItem("active_case_no", c.no || "");
+    const cleanPj = (
+      request.pjNo ||
+      request.fields?.projectNo ||
+      request.projectNo ||
+      ""
+    ).trim();
+    if (cleanPj) sessionStorage.setItem("active_request_pj_no", cleanPj);
+    const cleanProjName = (
+      request.fields?.projectName ||
+      request.subject ||
+      request.fields?.subject ||
+      ""
+    ).trim();
+    if (cleanProjName)
+      sessionStorage.setItem("active_request_project_name", cleanProjName);
 
     const targetPath =
       c.workType === "drawing"
@@ -1979,6 +1996,23 @@ export default function RequestDetailPage() {
     sessionStorage.setItem(`${request.projectType}_active_draft_id`, c.id);
     sessionStorage.setItem(`case_request_id_${c.id}`, request.id);
     sessionStorage.setItem("active_request_id", request.id);
+    sessionStorage.setItem(`case_no_${c.id}`, c.no || "");
+    sessionStorage.setItem("active_case_no", c.no || "");
+    const cleanPj = (
+      request.pjNo ||
+      request.fields?.projectNo ||
+      request.projectNo ||
+      ""
+    ).trim();
+    if (cleanPj) sessionStorage.setItem("active_request_pj_no", cleanPj);
+    const cleanProjName = (
+      request.fields?.projectName ||
+      request.subject ||
+      request.fields?.subject ||
+      ""
+    ).trim();
+    if (cleanProjName)
+      sessionStorage.setItem("active_request_project_name", cleanProjName);
     const draftKey = `${request.projectType}_draft_data_${c.id}`;
     let rawDraft = sessionStorage.getItem(draftKey);
     if (!rawDraft && c.workType !== "drawing") {

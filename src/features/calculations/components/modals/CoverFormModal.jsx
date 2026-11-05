@@ -14,12 +14,287 @@ import {
   buildReportHeaderPayload,
   normalizeReportHeaderResponse,
 } from "../../services/requestService";
-import { findRequestOfCase } from "../../data/requestStore";
+import { findRequestOfCase, getRequest } from "../../data/requestStore";
 
 // Master-data region/author options come as {value, label} where `value` is
 // the code — combine into "CODE - Name" for clear and consistent display.
 const toCodeSelectOptions = (opts) =>
   opts.map((o) => ({ value: o.value, label: `${o.value} - ${o.label}` }));
+
+/**
+ * Determines whether the pole calculation evaluated to OK or NG.
+ * Returns "ok" if calculation ran and results are OK / O.K,
+ * "ng" if calculation ran and failed or is NG / N.G, or null if no results exist.
+ */
+export function determinePoleCalculationStatus(projectType) {
+  try {
+    const checkStatusString = (val) => {
+      if (typeof val !== "string") return null;
+      const clean = val.trim().toLowerCase().replace(/\s+/g, "");
+      if (
+        clean === "ok" ||
+        clean === "o.k" ||
+        clean === "o.k." ||
+        clean === "pass"
+      ) {
+        return "ok";
+      }
+      if (
+        clean === "ng" ||
+        clean === "n.g" ||
+        clean === "n.g." ||
+        clean === "fail"
+      ) {
+        return "ng";
+      }
+      return null;
+    };
+
+    // 1. Check displayResult in sessionStorage
+    const rawDisplay = sessionStorage.getItem(`${projectType}_displayResult`);
+    if (rawDisplay) {
+      const display = JSON.parse(rawDisplay);
+      const strStatus = checkStatusString(
+        display?.status || display?.overallStatus,
+      );
+      if (strStatus) return strStatus;
+
+      const list =
+        (Array.isArray(display?.checks) && display.checks) ||
+        (Array.isArray(display?.positions) && display.positions) ||
+        (Array.isArray(display?.sections) && display.sections) ||
+        (Array.isArray(display) && display);
+
+      if (Array.isArray(list) && list.length > 0) {
+        let hasAnyItem = false;
+        for (const item of list) {
+          if (!item) continue;
+          hasAnyItem = true;
+          const itemSt = checkStatusString(item.status);
+          if (itemSt === "ng") return "ng";
+          if (itemSt === "ok") continue;
+
+          const ratio =
+            item.utilizationRatio ??
+            item.utilization_ratio ??
+            item.safetyFactor ??
+            item.safety_factor ??
+            item.safetyRatio ??
+            item.stressRatio ??
+            item.ratio ??
+            item.value;
+
+          if (ratio != null && !Number.isNaN(Number(ratio))) {
+            const limit = Number(item.limit ?? item.allowableRatio ?? 1.0);
+            if (Number(ratio) > limit) return "ng";
+          }
+        }
+        if (hasAnyItem) return "ok";
+      }
+
+      if (display?.governing) {
+        const govSt = checkStatusString(display.governing.status);
+        if (govSt) return govSt;
+        const govRatio =
+          display.governing.utilizationRatio ??
+          display.governing.safetyFactor;
+        if (govRatio != null && !Number.isNaN(Number(govRatio))) {
+          const limit = Number(display.governing.limit ?? 1.0);
+          return Number(govRatio) <= limit ? "ok" : "ng";
+        }
+      }
+    }
+
+    // 2. Check reportSnapshot in sessionStorage
+    const rawSnapshot = sessionStorage.getItem(`${projectType}_reportSnapshot`);
+    if (rawSnapshot) {
+      const snap = JSON.parse(rawSnapshot);
+      const snapSt =
+        checkStatusString(snap?.status) ||
+        checkStatusString(snap?.officialReport?.status) ||
+        checkStatusString(snap?.display?.status) ||
+        checkStatusString(snap?.displayResult?.status);
+      if (snapSt) return snapSt;
+
+      const snapSections =
+        snap?.officialReport?.sections ||
+        snap?.sections ||
+        snap?.officialReport?.checks;
+      if (Array.isArray(snapSections) && snapSections.length > 0) {
+        for (const s of snapSections) {
+          const sSt = checkStatusString(s?.status);
+          if (sSt === "ng") return "ng";
+          const ratio = s?.utilizationRatio ?? s?.safetyRatio;
+          if (ratio != null && !Number.isNaN(Number(ratio))) {
+            if (Number(ratio) > 1.0) return "ng";
+          }
+        }
+        return "ok";
+      }
+    }
+
+    // 3. Check results array in sessionStorage
+    const rawResults = sessionStorage.getItem(`${projectType}_results`);
+    if (rawResults) {
+      const results = JSON.parse(rawResults);
+      if (Array.isArray(results) && results.length > 0) {
+        let hasChecked = false;
+        for (const r of results) {
+          if (!r) continue;
+          const rSt = checkStatusString(r.status);
+          if (rSt === "ng") return "ng";
+          if (r.safetyFactor != null && !Number.isNaN(Number(r.safetyFactor))) {
+            hasChecked = true;
+            const sf = Number(r.safetyFactor);
+            const limit = Number(r.limit != null ? r.limit : 1.0);
+            if (sf > limit) return "ng";
+          }
+        }
+        if (hasChecked) return "ok";
+      }
+    }
+  } catch (err) {
+    console.debug("[determinePoleCalculationStatus] error parsing status:", err);
+  }
+
+  return null;
+}
+
+/**
+ * Computes contextual defaults for the cover modal:
+ * - reportNumber: WS{pjNo}-{caseName}
+ * - title1: Project Name from request
+ * - title2: "強度検討" if pole calculation is OK/O.K, else "【強度 N.G】"
+ */
+export function getContextualCoverDefaults(projectType, draftId, requestId) {
+  const effectiveDraftId =
+    draftId ||
+    sessionStorage.getItem(`${projectType}_active_draft_id`) ||
+    (typeof window !== "undefined"
+      ? window.location.pathname
+          .split("/")
+          .find((p) => p.startsWith("draft_") || /^[0-9a-f-]{36}$/i.test(p))
+      : null);
+
+  const foundReq = effectiveDraftId
+    ? findRequestOfCase(effectiveDraftId)
+    : null;
+  const effectiveReqId =
+    requestId ||
+    foundReq?.request?.id ||
+    sessionStorage.getItem("active_request_id") ||
+    (effectiveDraftId
+      ? sessionStorage.getItem(`case_request_id_${effectiveDraftId}`)
+      : null);
+
+  const req =
+    foundReq?.request || (effectiveReqId ? getRequest(effectiveReqId) : null);
+
+  // 1. Resolve PJ Number
+  let rawPjNo =
+    req?.pjNo ||
+    req?.fields?.projectNo ||
+    req?.projectNo ||
+    req?.fields?.pjNo ||
+    sessionStorage.getItem("active_request_pj_no") ||
+    "";
+
+  if (!rawPjNo) {
+    try {
+      const idRaw = sessionStorage.getItem(`${projectType}_projectIdentity`);
+      if (idRaw) {
+        const idObj = JSON.parse(idRaw);
+        rawPjNo = idObj?.projectNo || idObj?.pjNo || "";
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  // Strip leading WS- or WS prefix so we can construct WS{pjNo}
+  const cleanPjNo = String(rawPjNo || "")
+    .trim()
+    .replace(/^WS-?/i, "");
+
+  // 2. Resolve Case Number
+  let rawCaseNo =
+    foundReq?.case?.no ||
+    foundReq?.case?.caseNo ||
+    foundReq?.case?.caseLabel ||
+    foundReq?.case?.case_label ||
+    foundReq?.case?.title ||
+    (effectiveDraftId
+      ? sessionStorage.getItem(`case_no_${effectiveDraftId}`)
+      : null) ||
+    sessionStorage.getItem("active_case_no") ||
+    "";
+
+  if (!rawCaseNo && req?.cases && effectiveDraftId) {
+    const matched = req.cases.find((c) => c.id === effectiveDraftId);
+    if (matched) {
+      rawCaseNo =
+        matched.no || matched.caseNo || matched.caseLabel || "";
+    }
+  }
+
+  let cleanCase = "";
+  if (rawCaseNo) {
+    const match = String(rawCaseNo).match(/\d+/);
+    cleanCase = match ? match[0].padStart(3, "0") : String(rawCaseNo).trim();
+  }
+
+  // Build report number: WS{pjNo}-{caseName}
+  let defaultReportNumber = "";
+  if (cleanPjNo && cleanCase) {
+    defaultReportNumber = `WS${cleanPjNo}-${cleanCase}`;
+  } else if (cleanPjNo) {
+    defaultReportNumber = `WS${cleanPjNo}`;
+  } else if (cleanCase) {
+    defaultReportNumber = `WS-${cleanCase}`;
+  }
+
+  // 3. Resolve Project Name for Title Line 1
+  let defaultTitle1 =
+    req?.fields?.projectName ||
+    req?.fields?.subject ||
+    req?.subject ||
+    req?.projectName ||
+    sessionStorage.getItem("active_request_project_name") ||
+    "";
+
+  if (!defaultTitle1) {
+    try {
+      const idRaw = sessionStorage.getItem(`${projectType}_projectIdentity`);
+      if (idRaw) {
+        const idObj = JSON.parse(idRaw);
+        defaultTitle1 = idObj?.projectName || idObj?.subject || "";
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  // 4. Resolve Title 2 based on pole calculation result
+  // If result is "ok" / "o.k" -> "強度検討"
+  // Else (including "ng", error, or anything else) -> "【強度 N.G】"
+  const calcStatus = determinePoleCalculationStatus(projectType);
+  const defaultTitle2 = calcStatus === "ok" ? "強度検討" : "【強度 N.G】";
+
+  return {
+    reportNumber: defaultReportNumber,
+    calculationNumber: defaultReportNumber,
+    title1: defaultTitle1,
+    projectName: defaultTitle1,
+    title2: defaultTitle2,
+    coverTopText: defaultTitle2,
+    title3: "",
+    coverBottomText: "",
+    region: "A",
+    author: "X",
+    responsibleDepartment: "S",
+    date: new Date().toISOString().split("T")[0],
+  };
+}
 
 export function CoverFormModal({
   open,
@@ -36,6 +311,11 @@ export function CoverFormModal({
 
   useEffect(() => {
     if (open) {
+      const defaults = getContextualCoverDefaults(
+        projectType,
+        draftId,
+        requestId,
+      );
       let populated = false;
       try {
         const raw = sessionStorage.getItem(`${projectType}_cover`);
@@ -49,58 +329,68 @@ export function CoverFormModal({
             parsed.reportNumber === "WS76509-001" ||
             parsed.calculationNumber === "WS76509-001" ||
             parsed.reportNumber === "KB-2026-001" ||
+            parsed.reportNumber === "WSXXXXX-XXX" ||
             parsed.title1 === "江戸川フラワーガーデン" ||
             parsed.projectName === "江戸川フラワーガーデン";
 
-          const rawReportNumber =
+          const userReportNumber =
             !isTestDraft && !isLegacyDummy
-              ? (parsed.reportNumber || parsed.calculationNumber || "")
+              ? parsed.reportNumber || parsed.calculationNumber || ""
               : "";
-          const rawTitle1 =
+          const userTitle1 =
             !isTestDraft && !isLegacyDummy
-              ? (parsed.title1 || parsed.projectName || "")
+              ? parsed.title1 || parsed.projectName || ""
               : "";
-          const rawTitle2 =
+          const userTitle2 =
             !isTestDraft && !isLegacyDummy
-              ? (parsed.title2 !== undefined
-                  ? parsed.title2 === "強度検討" ? "" : parsed.title2
-                  : parsed.coverTopText !== undefined
-                    ? parsed.coverTopText === "強度検討" ? "" : parsed.coverTopText
-                    : "")
+              ? parsed.title2 !== undefined
+                ? parsed.title2
+                : parsed.coverTopText !== undefined
+                  ? parsed.coverTopText
+                  : ""
               : "";
-          const rawTitle3 = parsed.title3 || parsed.coverBottomText || "";
+          const userTitle3 = parsed.title3 || parsed.coverBottomText || "";
+
+          const finalReportNumber = userReportNumber || defaults.reportNumber;
+          const finalTitle1 = userTitle1 || defaults.title1;
+          const finalTitle2 =
+            userTitle2 !== "" && userTitle2 !== undefined
+              ? userTitle2
+              : defaults.title2;
+          const finalTitle3 = userTitle3 || defaults.title3;
 
           coverForm.updateCover({
-            reportNumber: rawReportNumber || DEFAULT_COVER.reportNumber,
-            calculationNumber: rawReportNumber || DEFAULT_COVER.calculationNumber,
-            title1: rawTitle1 || DEFAULT_COVER.title1,
-            projectName: rawTitle1 || DEFAULT_COVER.projectName,
-            title2: rawTitle2 !== undefined ? rawTitle2 : DEFAULT_COVER.title2,
-            coverTopText: rawTitle2 !== undefined ? rawTitle2 : DEFAULT_COVER.coverTopText,
-            title3: rawTitle3,
-            coverBottomText: rawTitle3,
-            region: parsed.region || DEFAULT_COVER.region,
+            reportNumber: finalReportNumber,
+            calculationNumber: finalReportNumber,
+            title1: finalTitle1,
+            projectName: finalTitle1,
+            title2: finalTitle2,
+            coverTopText: finalTitle2,
+            title3: finalTitle3,
+            coverBottomText: finalTitle3,
+            region: parsed.region || defaults.region,
             author:
               !isTestDraft && parsed.author && parsed.author !== "V"
                 ? parsed.author
-                : DEFAULT_COVER.author,
+                : defaults.author,
             responsibleDepartment:
               !isTestDraft &&
               parsed.responsibleDepartment &&
               parsed.responsibleDepartment !== "R"
                 ? parsed.responsibleDepartment
-                : DEFAULT_COVER.responsibleDepartment,
-            date: parsed.date || DEFAULT_COVER.date,
+                : defaults.responsibleDepartment,
+            date: parsed.date || defaults.date,
           });
 
-          if (rawReportNumber || rawTitle1) {
+          if (userReportNumber || userTitle1) {
             populated = true;
           }
         } else {
-          coverForm.updateCover(DEFAULT_COVER);
+          coverForm.updateCover(defaults);
         }
       } catch (e) {
         console.error("Failed to sync cover data:", e);
+        coverForm.updateCover(defaults);
       }
 
       // If not populated from valid sessionStorage, try loading from backend report header
@@ -115,19 +405,27 @@ export function CoverFormModal({
             if (header) {
               const norm = normalizeReportHeaderResponse(header);
               coverForm.updateCover({
-                reportNumber: norm.reportNumber || DEFAULT_COVER.reportNumber,
-                calculationNumber: norm.calculationNumber || DEFAULT_COVER.calculationNumber,
-                title1: norm.title1 || DEFAULT_COVER.title1,
-                projectName: norm.projectName || DEFAULT_COVER.projectName,
-                title2: norm.title2 !== undefined ? norm.title2 : DEFAULT_COVER.title2,
-                coverTopText: norm.coverTopText !== undefined ? norm.coverTopText : DEFAULT_COVER.coverTopText,
-                title3: norm.title3 || "",
-                coverBottomText: norm.coverBottomText || "",
-                region: norm.region || DEFAULT_COVER.region,
-                author: norm.author || DEFAULT_COVER.author,
+                reportNumber: norm.reportNumber || defaults.reportNumber,
+                calculationNumber:
+                  norm.calculationNumber || defaults.calculationNumber,
+                title1: norm.title1 || defaults.title1,
+                projectName: norm.projectName || defaults.projectName,
+                title2:
+                  norm.title2 !== undefined && norm.title2 !== ""
+                    ? norm.title2
+                    : defaults.title2,
+                coverTopText:
+                  norm.coverTopText !== undefined && norm.coverTopText !== ""
+                    ? norm.coverTopText
+                    : defaults.coverTopText,
+                title3: norm.title3 || defaults.title3,
+                coverBottomText:
+                  norm.coverBottomText || defaults.coverBottomText,
+                region: norm.region || defaults.region,
+                author: norm.author || defaults.author,
                 responsibleDepartment:
-                  norm.responsibleDepartment || DEFAULT_COVER.responsibleDepartment,
-                date: norm.date || DEFAULT_COVER.date,
+                  norm.responsibleDepartment || defaults.responsibleDepartment,
+                date: norm.date || defaults.date,
               });
             }
           })
@@ -198,7 +496,12 @@ export function CoverFormModal({
   };
 
   const handleReset = () => {
-    coverForm.updateCover(DEFAULT_COVER);
+    const contextualDefaults = getContextualCoverDefaults(
+      projectType,
+      draftId,
+      requestId,
+    );
+    coverForm.updateCover(contextualDefaults);
     coverForm.setCoverErrors({});
   };
 
