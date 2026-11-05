@@ -714,13 +714,12 @@ export function ReportView() {
       message: "Case saved and submitted for checking!",
       type: "success",
     });
-    // Back to the case's request — read before the session is cleared.
-    const backPath = activeDraftRequestPath(projectType);
+    // Redirect to My Projects list page (/projects)
     setTimeout(() => {
       clearCalculationSession(projectType);
       clearActiveDraftId(projectType);
-      navigate(backPath);
-    }, 2000);
+      navigate("/projects");
+    }, 1200);
   };
 
 
@@ -1027,13 +1026,13 @@ export function ReportView() {
               {!isReadOnly && draftId && (
                 <button
                   onClick={() => setShowDbModal(true)}
-                  title="Save calculations and submit case to checker"
+                  title="Save calculations and submit case as Ready for Check"
                   className="h-9 px-3.5 sm:px-5 text-xs sm:text-sm bg-gradient-to-r from-[#0d3b66] to-[#1a5a92] text-white rounded-lg hover:brightness-110 transition-all shadow-sm flex items-center gap-1.5 whitespace-nowrap shrink-0 cursor-pointer font-medium"
                 >
                   <SendHorizontal className="w-4 h-4 shrink-0" />
-                  <span className="hidden xl:inline">Save & Submit for Check</span>
-                  <span className="hidden md:inline xl:hidden">Submit for Check</span>
-                  <span className="md:hidden">Submit</span>
+                  <span className="hidden xl:inline">Ready for Check</span>
+                  <span className="hidden md:inline xl:hidden">Ready for Check</span>
+                  <span className="md:hidden">Ready</span>
                 </button>
               )}
             </div>
