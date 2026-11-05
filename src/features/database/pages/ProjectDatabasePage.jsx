@@ -240,8 +240,26 @@ export default function ProjectDatabasePage() {
     setCurrentUser(getUser());
   }, []);
 
-  const [rawRequests, setRawRequests] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [rawRequests, setRawRequests] = useState(() => {
+    try {
+      const cached = sessionStorage.getItem("cached_project_database_requests");
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch {}
+    return [];
+  });
+  const [isLoading, setIsLoading] = useState(() => {
+    try {
+      const cached = sessionStorage.getItem("cached_project_database_requests");
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) return false;
+      }
+    } catch {}
+    return true;
+  });
   const [deletingRequest, setDeletingRequest] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [toast, setToast] = useState(null);
@@ -250,7 +268,9 @@ export default function ProjectDatabasePage() {
   useEffect(() => {
     let isMounted = true;
     async function fetchRequests() {
-      setIsLoading(true);
+      if (rawRequests.length === 0) {
+        setIsLoading(true);
+      }
 
       // Unauthenticated / offline session without access token: read from local store
       if (!getAccessToken()) {
@@ -288,23 +308,6 @@ export default function ProjectDatabasePage() {
           if (p?.pjNo) projectMap.set(String(p.pjNo), p);
         });
 
-        // Parallel resolution of details and assignments for PIC and accurate metadata
-        const detailsList = await Promise.all(
-          items.map(async (s) => {
-            if (!s?.id) return null;
-            const [detail, assignments] = await Promise.all([
-              getRequestById(s.id).catch(() => null),
-              getRequestAssignments(s.id).catch(() => []),
-            ]);
-            return {
-              ...(detail || {}),
-              serverAssignments: Array.isArray(assignments)
-                ? assignments
-                : assignments?.items || assignments?.data || [],
-            };
-          }),
-        );
-
         const curr = getUser();
         const userMap = new Map();
         if (curr?.id) {
@@ -322,89 +325,146 @@ export default function ProjectDatabasePage() {
           }
         });
 
-        const normalized = items.map((s, idx) => {
-          const detail = detailsList[idx] || {};
-          const full = { ...s, ...detail };
+        const buildNormalized = (rawItems, detailsMap = new Map()) => {
+          return rawItems.map((s) => {
+            const detail = detailsMap.get(s.id) || {};
+            const full = { ...s, ...detail };
 
-          const createdByUserId =
-            full.created_by_user_id || full.createdByUserId || full.created_by;
+            const createdByUserId =
+              full.created_by_user_id ||
+              full.createdByUserId ||
+              full.created_by;
 
-          const resolvedCreatedByName =
-            full.createdByName ||
-            full.creator?.fullName ||
-            full.creator?.name ||
-            (createdByUserId && userMap.get(String(createdByUserId))) ||
-            (createdByUserId &&
-            String(createdByUserId) === String(curr?.id)
-              ? curr?.fullName || curr?.name
-              : null) ||
-            null;
+            const resolvedCreatedByName =
+              full.createdByName ||
+              full.creator?.fullName ||
+              full.creator?.name ||
+              (createdByUserId && userMap.get(String(createdByUserId))) ||
+              (createdByUserId &&
+              String(createdByUserId) === String(curr?.id)
+                ? curr?.fullName || curr?.name
+                : null) ||
+              null;
 
-          const companyName =
-            full.requestingDepartmentName ||
-            full.requesting_department_name ||
-            full.companyName ||
-            "";
+            const companyName =
+              full.requestingDepartmentName ||
+              full.requesting_department_name ||
+              full.companyName ||
+              "";
 
-          const pic =
-            full.sharedDetails?.requesterPicName ||
-            full.shared_details?.requester_pic_name ||
-            full.requesterPicName ||
-            full.picName ||
-            "";
+            const pic =
+              full.sharedDetails?.requesterPicName ||
+              full.shared_details?.requester_pic_name ||
+              full.requesterPicName ||
+              full.picName ||
+              "";
 
-          const receiptNo =
-            full.ysDetails?.receiptNo ||
-            full.ys_details?.receipt_no ||
-            full.receiptNo ||
-            full.receipt_no ||
-            full.receptionNo ||
-            full.fields?.receptionNo ||
-            full.fields?.receiptNo ||
-            "";
+            const receiptNo =
+              full.ysDetails?.receiptNo ||
+              full.ys_details?.receipt_no ||
+              full.receiptNo ||
+              full.receipt_no ||
+              full.receptionNo ||
+              full.fields?.receptionNo ||
+              full.fields?.receiptNo ||
+              "";
 
-          const dt = full.designType || full.design_type || "calculation";
-          const workTypes = {
-            calc: dt === "drawing_calculation" || dt === "calculation",
-            drawing: dt === "drawing_calculation" || dt === "drawing",
-          };
+            const dt = full.designType || full.design_type || "calculation";
+            const workTypes = {
+              calc: dt === "drawing_calculation" || dt === "calculation",
+              drawing: dt === "drawing_calculation" || dt === "drawing",
+            };
 
-          const rawAssignments = [
-            ...(Array.isArray(full.serverAssignments) ? full.serverAssignments : []),
-            ...(Array.isArray(full.assignments) ? full.assignments : []),
-            ...(Array.isArray(full.assignments?.items) ? full.assignments.items : []),
-          ];
+            const rawAssignments = [
+              ...(Array.isArray(full.serverAssignments)
+                ? full.serverAssignments
+                : []),
+              ...(Array.isArray(full.assignments) ? full.assignments : []),
+              ...(Array.isArray(full.assignments?.items)
+                ? full.assignments.items
+                : []),
+            ];
 
-          return {
-            ...full,
-            pjNo: full.pjNo || full.pj_no || "",
-            requestNo: full.requestNo || full.request_no || "",
-            subject: full.subject || "",
-            companyName,
-            receiptNo,
-            requesterPicName: pic,
-            picName: pic,
-            createdByName: resolvedCreatedByName,
-            createdByUserId,
-            created_by_user_id: createdByUserId,
-            serverAssignments: full.serverAssignments || [],
-            assignments: rawAssignments,
-            members: Array.isArray(full.members) ? full.members : [],
-            requestType: full.requestType || full.request_type || "general",
-            requestClassification:
-              full.requestClassification || full.request_classification || "new",
-            requestDate: full.requestDate || full.request_date || "",
-            dueDate: full.dueDate || full.due_date || "",
-            status: full.status || "in_progress",
-            designType: dt,
-            workTypes,
-            cases: Array.isArray(full.cases) ? full.cases : [],
-          };
-        });
+            return {
+              ...full,
+              pjNo: full.pjNo || full.pj_no || "",
+              requestNo: full.requestNo || full.request_no || "",
+              subject: full.subject || "",
+              companyName,
+              receiptNo,
+              requesterPicName: pic,
+              picName: pic,
+              createdByName: resolvedCreatedByName,
+              createdByUserId,
+              created_by_user_id: createdByUserId,
+              serverAssignments: full.serverAssignments || [],
+              assignments: rawAssignments,
+              members: Array.isArray(full.members) ? full.members : [],
+              requestType: full.requestType || full.request_type || "general",
+              requestClassification:
+                full.requestClassification ||
+                full.request_classification ||
+                "new",
+              requestDate: full.requestDate || full.request_date || "",
+              dueDate: full.dueDate || full.due_date || "",
+              status: full.status || "in_progress",
+              designType: dt,
+              workTypes,
+              cases: Array.isArray(full.cases) ? full.cases : [],
+            };
+          });
+        };
 
+        // 1. Immediate Fast Render: Display table instantly without waiting for waterfall child calls
+        const fastNormalized = buildNormalized(items);
         if (isMounted) {
-          setRawRequests(normalized);
+          setRawRequests(fastNormalized);
+          setIsLoading(false);
+          try {
+            sessionStorage.setItem(
+              "cached_project_database_requests",
+              JSON.stringify(fastNormalized),
+            );
+          } catch {}
         }
+
+        // 2. Non-blocking Background Enrichment: Fetch detailed PIC & assignments silently
+        Promise.all(
+          items.map(async (s) => {
+            if (!s?.id) return null;
+            try {
+              const [detail, assignments] = await Promise.all([
+                getRequestById(s.id).catch(() => null),
+                getRequestAssignments(s.id).catch(() => []),
+              ]);
+              return {
+                id: s.id,
+                detail: {
+                  ...(detail || {}),
+                  serverAssignments: Array.isArray(assignments)
+                    ? assignments
+                    : assignments?.items || assignments?.data || [],
+                },
+              };
+            } catch {
+              return null;
+            }
+          }),
+        ).then((enrichedList) => {
+          if (!isMounted || !enrichedList) return;
+          const detailsMap = new Map();
+          enrichedList.forEach((e) => {
+            if (e?.id) detailsMap.set(e.id, e.detail);
+          });
+          const enrichedNormalized = buildNormalized(items, detailsMap);
+          setRawRequests(enrichedNormalized);
+          try {
+            sessionStorage.setItem(
+              "cached_project_database_requests",
+              JSON.stringify(enrichedNormalized),
+            );
+          } catch {}
+        });
       } catch (err) {
         console.warn(
           "[ProjectDatabasePage] Fetch failed, falling back to local store:",

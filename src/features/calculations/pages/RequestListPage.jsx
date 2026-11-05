@@ -20,7 +20,7 @@ import {
   deleteRequest as deleteRequestLocal,
   getAllRequests,
 } from "../data/requestStore";
-import { getUser, isGuestUser } from "../../../utils/auth";
+import { getUser, isGuestUser, getAccessToken } from "../../../utils/auth";
 import { getUsers } from "../../admin/services/userService";
 import api from "../../../config/api";
 import { MOCK_REQUESTS, LINES } from "../data/mockRequests";
@@ -427,20 +427,41 @@ export default function RequestListPage() {
     setCurrentUser(getUser());
   }, []);
 
-  const [rawRequests, setRawRequests] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [rawRequests, setRawRequests] = useState(() => {
+    try {
+      const cached = sessionStorage.getItem("cached_server_requests");
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch {}
+    return [];
+  });
+  const [isLoading, setIsLoading] = useState(() => {
+    try {
+      const cached = sessionStorage.getItem("cached_server_requests");
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) return false;
+      }
+    } catch {}
+    return true;
+  });
   const [deletingRequest, setDeletingRequest] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [toast, setToast] = useState(null);
 
-  // Fetch live requests: for guest load from sessionStorage store, for registered load from API Gateway
+  // Fetch live requests: render immediately as soon as initial list arrives, then enrich child details in background
   useEffect(() => {
     let isMounted = true;
     async function fetchRequests() {
-      setIsLoading(true);
+      // If we do not have cached items in state, show loading skeleton
+      if (rawRequests.length === 0) {
+        setIsLoading(true);
+      }
 
-      // Guest User: read from sessionStorage store
-      if (isGuestUser()) {
+      // Guest User without token: read from local store
+      if (!getAccessToken()) {
         const guestItems = getAllRequests();
         if (isMounted) {
           setRawRequests(guestItems);
@@ -457,30 +478,12 @@ export default function RequestListPage() {
             .get("/api/assignable-users")
             .then((r) => r?.data?.data || r?.data || [])
             .catch(() => []),
-          getRequests(),
+          getRequests({ limit: 100 }),
         ]);
 
         const items = Array.isArray(reqsRes)
           ? reqsRes
           : reqsRes?.items || reqsRes?.data || [];
-
-        // Fetch detailed data from GET /api/requests/{id} and assignments in parallel for the current items
-        // so that data from child tables (such as shared_details for PIC) is populated directly from the BE gateway
-        const detailsList = await Promise.all(
-          items.map(async (s) => {
-            if (!s?.id) return null;
-            const [detail, assignments] = await Promise.all([
-              getRequestById(s.id).catch(() => null),
-              getRequestAssignments(s.id).catch(() => []),
-            ]);
-            return {
-              ...(detail || {}),
-              serverAssignments: Array.isArray(assignments)
-                ? assignments
-                : assignments?.items || assignments?.data || [],
-            };
-          }),
-        );
 
         const currentUser = getUser();
 
@@ -489,7 +492,7 @@ export default function RequestListPage() {
         if (currentUser?.id) {
           userMap.set(
             String(currentUser.id),
-            currentUser.fullName || currentUser.name
+            currentUser.fullName || currentUser.name,
           );
         }
         const allUsers = [
@@ -504,96 +507,157 @@ export default function RequestListPage() {
           }
         });
 
-        const normalized = items.map((s, idx) => {
-          const detail = detailsList[idx] || {};
-          const full = { ...s, ...detail };
+        const buildNormalized = (rawItems, detailsMap = new Map()) => {
+          return rawItems.map((s) => {
+            const detail = detailsMap.get(s.id) || {};
+            const full = { ...s, ...detail };
 
-          const createdByUserId =
-            full.created_by_user_id || full.createdByUserId || full.created_by;
+            const createdByUserId =
+              full.created_by_user_id ||
+              full.createdByUserId ||
+              full.created_by;
 
-          const resolvedCreatedByName =
-            full.createdByName ||
-            full.creator?.fullName ||
-            full.creator?.name ||
-            (createdByUserId && userMap.get(String(createdByUserId))) ||
-            (createdByUserId &&
-            String(createdByUserId) === String(currentUser?.id)
-              ? currentUser?.fullName || currentUser?.name
-              : null) ||
-            null;
+            const resolvedCreatedByName =
+              full.createdByName ||
+              full.creator?.fullName ||
+              full.creator?.name ||
+              (createdByUserId && userMap.get(String(createdByUserId))) ||
+              (createdByUserId &&
+              String(createdByUserId) === String(currentUser?.id)
+                ? currentUser?.fullName || currentUser?.name
+                : null) ||
+              null;
 
-          // Company Name from backend: stored in requestingDepartmentName
-          const companyName =
-            full.requestingDepartmentName ||
-            full.requesting_department_name ||
-            full.companyName ||
-            "";
+            // Company Name from backend: stored in requestingDepartmentName
+            const companyName =
+              full.requestingDepartmentName ||
+              full.requesting_department_name ||
+              full.companyName ||
+              "";
 
-          // PIC: Stored in child table shared_details (requesterPicName)
-          const pic =
-            full.sharedDetails?.requesterPicName ||
-            full.shared_details?.requester_pic_name ||
-            full.requesterPicName ||
-            full.picName ||
-            "";
+            // PIC: Stored in child table shared_details (requesterPicName)
+            const pic =
+              full.sharedDetails?.requesterPicName ||
+              full.shared_details?.requester_pic_name ||
+              full.requesterPicName ||
+              full.picName ||
+              "";
 
-          // Receipt No from backend (ysDetails or top-level)
-          const receiptNo =
-            full.ysDetails?.receiptNo ||
-            full.ys_details?.receipt_no ||
-            full.receiptNo ||
-            full.receipt_no ||
-            full.receptionNo ||
-            full.fields?.receptionNo ||
-            full.fields?.receiptNo ||
-            "";
+            // Receipt No from backend (ysDetails or top-level)
+            const receiptNo =
+              full.ysDetails?.receiptNo ||
+              full.ys_details?.receipt_no ||
+              full.receiptNo ||
+              full.receipt_no ||
+              full.receptionNo ||
+              full.fields?.receptionNo ||
+              full.fields?.receiptNo ||
+              "";
 
-          const dt = full.designType || full.design_type || "calculation";
-          const workTypes = {
-            calc: dt === "drawing_calculation" || dt === "calculation",
-            drawing: dt === "drawing_calculation" || dt === "drawing",
-          };
+            const dt = full.designType || full.design_type || "calculation";
+            const workTypes = {
+              calc: dt === "drawing_calculation" || dt === "calculation",
+              drawing: dt === "drawing_calculation" || dt === "drawing",
+            };
 
-          const rawAssignments = [
-            ...(Array.isArray(full.serverAssignments) ? full.serverAssignments : []),
-            ...(Array.isArray(full.assignments) ? full.assignments : []),
-            ...(Array.isArray(full.assignments?.items) ? full.assignments.items : []),
-          ];
+            const rawAssignments = [
+              ...(Array.isArray(full.serverAssignments)
+                ? full.serverAssignments
+                : []),
+              ...(Array.isArray(full.assignments) ? full.assignments : []),
+              ...(Array.isArray(full.assignments?.items)
+                ? full.assignments.items
+                : []),
+            ];
 
-          return {
-            ...full,
-            pjNo: full.pjNo || full.pj_no || "",
-            requestNo: full.requestNo || full.request_no || "",
-            subject: full.subject || "",
-            companyName,
-            receiptNo,
-            requesterPicName: pic,
-            picName: pic,
-            createdByName: resolvedCreatedByName,
-            createdByUserId,
-            created_by_user_id: createdByUserId,
-            serverAssignments: full.serverAssignments || [],
-            assignments: rawAssignments,
-            members: Array.isArray(full.members) ? full.members : [],
-            requestType: full.requestType || full.request_type || "general",
-            requestClassification:
-              full.requestClassification || full.request_classification || "new",
-            requestDate: full.requestDate || full.request_date || "",
-            dueDate: full.dueDate || full.due_date || "",
-            status: full.status || "in_progress",
-            designType: dt,
-            workTypes,
-            cases: Array.isArray(full.cases) ? full.cases : [],
-          };
-        });
+            return {
+              ...full,
+              pjNo: full.pjNo || full.pj_no || "",
+              requestNo: full.requestNo || full.request_no || "",
+              subject: full.subject || "",
+              companyName,
+              receiptNo,
+              requesterPicName: pic,
+              picName: pic,
+              createdByName: resolvedCreatedByName,
+              createdByUserId,
+              created_by_user_id: createdByUserId,
+              serverAssignments: full.serverAssignments || [],
+              assignments: rawAssignments,
+              members: Array.isArray(full.members) ? full.members : [],
+              requestType: full.requestType || full.request_type || "general",
+              requestClassification:
+                full.requestClassification ||
+                full.request_classification ||
+                "new",
+              requestDate: full.requestDate || full.request_date || "",
+              dueDate: full.dueDate || full.due_date || "",
+              status: full.status || "in_progress",
+              designType: dt,
+              workTypes,
+              cases: Array.isArray(full.cases) ? full.cases : [],
+            };
+          });
+        };
 
+        // 1. Immediate Fast Render: Display table instantly without waiting for waterfall child calls
+        const fastNormalized = buildNormalized(items);
         if (isMounted) {
-          setRawRequests(normalized);
+          setRawRequests(fastNormalized);
+          setIsLoading(false);
+          try {
+            sessionStorage.setItem(
+              "cached_server_requests",
+              JSON.stringify(fastNormalized),
+            );
+          } catch {}
         }
+
+        // 2. Non-blocking Background Enrichment: Fetch detailed PIC & assignments silently
+        Promise.all(
+          items.map(async (s) => {
+            if (!s?.id) return null;
+            try {
+              const [detail, assignments] = await Promise.all([
+                getRequestById(s.id).catch(() => null),
+                getRequestAssignments(s.id).catch(() => []),
+              ]);
+              return {
+                id: s.id,
+                detail: {
+                  ...(detail || {}),
+                  serverAssignments: Array.isArray(assignments)
+                    ? assignments
+                    : assignments?.items || assignments?.data || [],
+                },
+              };
+            } catch {
+              return null;
+            }
+          }),
+        ).then((enrichedList) => {
+          if (!isMounted || !enrichedList) return;
+          const detailsMap = new Map();
+          enrichedList.forEach((e) => {
+            if (e?.id) detailsMap.set(e.id, e.detail);
+          });
+          const enrichedNormalized = buildNormalized(items, detailsMap);
+          setRawRequests(enrichedNormalized);
+          try {
+            sessionStorage.setItem(
+              "cached_server_requests",
+              JSON.stringify(enrichedNormalized),
+            );
+          } catch {}
+        });
       } catch (err) {
-        console.warn("[RequestListPage] Live requests fetch failed:", err?.message);
+        console.warn(
+          "[RequestListPage] Live requests fetch failed:",
+          err?.message,
+        );
         if (isMounted) {
-          setRawRequests([]);
+          const fallback = getAllRequests();
+          setRawRequests(fallback);
         }
       } finally {
         if (isMounted) {
