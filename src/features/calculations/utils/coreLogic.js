@@ -430,9 +430,11 @@ export const deserializeWorkingSession = (projectType, draftData) => {
   clearCalculationSession(projectType); // Clear existing first
   if (draftData) {
     const rawData =
-      draftData?.payload && typeof draftData.payload === "object"
-        ? draftData.payload
-        : draftData;
+      draftData?.input && typeof draftData.input === "object"
+        ? draftData.input
+        : draftData?.payload && typeof draftData.payload === "object"
+          ? draftData.payload
+          : draftData;
 
     Object.entries(rawData).forEach(([key, val]) => {
       if (val === null || val === undefined) return;
@@ -677,24 +679,20 @@ export const saveWorkingSessionToDraft = async (projectType, draftId, defaultTit
       const reqId = await resolveRequestIdForCase(draftId);
       if (reqId) {
         const calcPayload = buildCalculationDraftPayload(projectType, data);
-        // Build complete backend draft payload containing full frontend session state
-        // plus optional calculation properties if available
-        const backendPayload = {
-          ...data,
-          ...(calcPayload?.poleStandardHeightId
-            ? {
-                poleStandardHeightId: calcPayload.poleStandardHeightId,
-                groundPosition: calcPayload.groundPosition,
-                embedmentLengthMm: calcPayload.embedmentLengthMm,
-                calculationInput: calcPayload,
-              }
-            : {}),
-        };
-
-        await saveCalculationDraft(reqId, draftId, backendPayload);
-        console.info(
-          `[saveWorkingSessionToDraft] Synced full draft ${draftId} to backend request ${reqId}`
-        );
+        if (calcPayload?.poleStandardHeightId) {
+          const backendPayload = {
+            poleStandardHeightId: calcPayload.poleStandardHeightId,
+            directObjects: calcPayload.directObjects || [],
+            overheadWires: calcPayload.overheadWires || [],
+            arms: calcPayload.arms || [],
+            groundPosition: calcPayload.groundPosition || "on_gl",
+            embedmentLengthMm: calcPayload.embedmentLengthMm ?? null,
+          };
+          await saveCalculationDraft(reqId, draftId, backendPayload);
+          console.info(
+            `[saveWorkingSessionToDraft] Synced calculation draft to backend for ${draftId}`
+          );
+        }
       } else {
         console.warn(
           "[saveWorkingSessionToDraft] Could not resolve request ID for draft:",

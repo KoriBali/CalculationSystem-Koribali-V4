@@ -529,7 +529,13 @@ export const getCalculationDraft = async (requestId, caseId) => {
     `/api/requests/${requestId}/calculation-cases/${caseId}/calculation-draft`
   );
   const root = data?.data || data;
-  return root?.payload && typeof root.payload === "object" ? root.payload : root;
+  if (root?.input && typeof root.input === "object") {
+    return root.input;
+  }
+  if (root?.payload && typeof root.payload === "object") {
+    return root.payload;
+  }
+  return root;
 };
 
 /**

@@ -13,6 +13,7 @@ import { RequestSummary } from "../components/requests/detail/RequestSummary";
 import { DesignConditionsSection } from "../components/requests/detail/DesignConditionsSection";
 import { DrawingConditionsSection } from "../components/requests/detail/DrawingConditionsSection";
 import { ToastModal } from "../components/modals/ToastModal";
+import { ActionLoadingModal } from "../components/modals/ActionLoadingModal";
 import {
   SectionCard,
   SectionTitle,
@@ -477,6 +478,7 @@ export default function RequestDetailPage() {
   const { requestId } = useParams();
   const [request, update] = useRequestRecord(requestId);
   const [loading, setLoading] = useState(!request);
+  const [openingCase, setOpeningCase] = useState(null);
   const [toastModal, setToastModal] = useState(null);
   const [isEditingConditions, setIsEditingConditions] = useState(false);
   const designConditionsRef = useRef(null);
@@ -1711,7 +1713,9 @@ export default function RequestDetailPage() {
         return;
       }
     }
-    sessionStorage.setItem("projectType", request.projectType);
+    setOpeningCase(c);
+    try {
+      sessionStorage.setItem("projectType", request.projectType);
     const isOwner = Boolean(
       (c.owner && me && c.owner.toLowerCase() === me.toLowerCase()) ||
       (currentUser?.username &&
@@ -1759,11 +1763,15 @@ export default function RequestDetailPage() {
         const serverDraft = await getCalculationDraft(request.id, c.id);
         if (serverDraft && Object.keys(serverDraft).length > 0) {
           const payload =
-            serverDraft?.payload && typeof serverDraft.payload === "object"
-              ? serverDraft.payload
-              : serverDraft?.data && typeof serverDraft.data === "object"
-                ? serverDraft.data
-                : serverDraft;
+            serverDraft?.input && typeof serverDraft.input === "object"
+              ? serverDraft.input
+              : serverDraft?.payload && typeof serverDraft.payload === "object"
+                ? serverDraft.payload
+                : serverDraft?.data?.input && typeof serverDraft.data?.input === "object"
+                  ? serverDraft.data.input
+                  : serverDraft?.data && typeof serverDraft.data === "object"
+                    ? serverDraft.data
+                    : serverDraft;
           if (payload && Object.keys(payload).length > 0) {
             draftObj = payload;
             rawDraft = JSON.stringify(payload);
@@ -1952,7 +1960,10 @@ export default function RequestDetailPage() {
         ? `/projects/${request.projectType}/${c.id}/drawing/drawing-setup`
         : `/projects/${request.projectType}/${c.id}/initial`;
     navigate(targetPath);
-  };
+  } finally {
+    setOpeningCase(null);
+  }
+};
 
   const handleViewCaseReport = async (c) => {
     sessionStorage.setItem("projectType", request.projectType);
@@ -1966,11 +1977,15 @@ export default function RequestDetailPage() {
         const serverDraft = await getCalculationDraft(request.id, c.id);
         if (serverDraft && Object.keys(serverDraft).length > 0) {
           const payload =
-            serverDraft?.payload && typeof serverDraft.payload === "object"
-              ? serverDraft.payload
-              : serverDraft?.data && typeof serverDraft.data === "object"
-                ? serverDraft.data
-                : serverDraft;
+            serverDraft?.input && typeof serverDraft.input === "object"
+              ? serverDraft.input
+              : serverDraft?.payload && typeof serverDraft.payload === "object"
+                ? serverDraft.payload
+                : serverDraft?.data?.input && typeof serverDraft.data?.input === "object"
+                  ? serverDraft.data.input
+                  : serverDraft?.data && typeof serverDraft.data === "object"
+                    ? serverDraft.data
+                    : serverDraft;
           if (payload && Object.keys(payload).length > 0) {
             rawDraft = JSON.stringify(payload);
             sessionStorage.setItem(draftKey, rawDraft);
@@ -2801,6 +2816,13 @@ export default function RequestDetailPage() {
 
       {/* Toast Modal (Warning Alert Popup like in Gambar 2) */}
       <ToastModal toast={toastModal} onClose={() => setToastModal(null)} />
+
+      {/* Loading Modal when opening a case and fetching draft from server */}
+      <ActionLoadingModal
+        open={Boolean(openingCase)}
+        title="Opening Case..."
+        subtitle="Loading case details and calculation draft, please wait..."
+      />
     </div>
   );
 }

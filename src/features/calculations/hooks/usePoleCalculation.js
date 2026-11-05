@@ -115,22 +115,11 @@ export function usePoleCalculation({
     }
   }, [results, isCalculated, setIsCalculated, projectType]);
 
-  // Any edit to the underlying pole/object/wire/arm/standard/config data
-  // after a calculation invalidates it — Calculate should go back to being
-  // the primary action (and Next/Finish back to disabled) until the user
-  // recalculates.
-  //
-  // Guarded by comparing against the *previous* dependency values (not a
-  // simple "have I mounted before" boolean) — React StrictMode
-  // double-invokes effects on mount to catch bugs, and a boolean guard
-  // gets fooled by that second synchronous call, wrongly treating it as
-  // "data changed since mount" and wiping results every single time the
-  // Pole page is (re)visited. Comparing references instead is immune to
-  // that: between the two StrictMode calls nothing re-rendered, so every
-  // dependency is still the exact same reference and this correctly does
-  // nothing — it only fires for a *real* edit, which always produces a new
-  // reference for whatever changed.
-  const prevDepsRef = useRef(null);
+  // Any actual content edit to the underlying pole/object/wire/arm/standard/config data
+  // after a calculation invalidates it.
+  // We compare serialized content rather than raw references to avoid false positives
+  // during page mount, catalog hydration, or case switching.
+  const prevDepsJsonRef = useRef(null);
   useEffect(() => {
     const currentDeps = [
       poleForm.poles,
@@ -143,11 +132,20 @@ export function usePoleCalculation({
       poleConfigForm.poleConfig,
     ];
 
-    const hasChanged =
-      prevDepsRef.current !== null &&
-      currentDeps.some((dep, i) => dep !== prevDepsRef.current[i]);
+    let currentJson = "";
+    try {
+      currentJson = JSON.stringify(currentDeps);
+    } catch {
+      currentJson = "";
+    }
 
-    prevDepsRef.current = currentDeps;
+    if (prevDepsJsonRef.current === null) {
+      prevDepsJsonRef.current = currentJson;
+      return;
+    }
+
+    const hasChanged = prevDepsJsonRef.current !== currentJson;
+    prevDepsJsonRef.current = currentJson;
 
     if (!hasChanged) return;
 
